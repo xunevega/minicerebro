@@ -336,6 +336,18 @@ class Contradiction(BaseModel):
     note: str
 
 
+class ProfileExport(BaseModel):
+    export_version: str
+    exported_at: datetime
+    profile_id: str
+    profile: Profile
+    variables_by_context: dict[str, list[dict]]
+    preferences: list[Preference]
+    statistics_by_context: dict[str, ProfileStatistics]
+    contradictions_by_context: dict[str, list[Contradiction]]
+    knowledge_policy: str
+
+
 class V1Screen(BaseModel):
     id: str
     label: str

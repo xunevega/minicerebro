@@ -1,3 +1,4 @@
+from datetime import UTC, datetime
 from time import perf_counter
 from typing import Annotated
 from uuid import UUID
@@ -32,6 +33,7 @@ from app.core.models import (
     KnowledgeSource,
     KnowledgeStatus,
     KnowledgeVersion,
+    ProfileExport,
     LabSimulationInput,
     LabSimulationResult,
     ObservabilityMetric,
@@ -332,6 +334,40 @@ def profile_get(profile_id: str, repository: RepositoryDep):
         return repository.get_profile(profile_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Profile not found") from exc
+
+
+@router.get("/profiles/{profile_id}/export")
+def profile_export(profile_id: str, repository: RepositoryDep) -> ProfileExport:
+    try:
+        profile = repository.get_profile(profile_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile not found") from exc
+
+    contexts = sorted({variable.context for variable in profile.variables} or {"general"})
+    return ProfileExport(
+        export_version="profile-export-v1",
+        exported_at=datetime.now(UTC),
+        profile_id=profile.id,
+        profile=profile,
+        variables_by_context={
+            context: [
+                score_out(variable)
+                for variable in profile.variables
+                if variable.context == context
+            ]
+            for context in contexts
+        },
+        preferences=profile.preferences,
+        statistics_by_context={
+            context: repository.profile_statistics(profile_id, context) for context in contexts
+        },
+        contradictions_by_context={
+            context: repository.contradictions(profile_id, context) for context in contexts
+        },
+        knowledge_policy=(
+            "La exportacion del perfil no incluye ni modifica la base de conocimiento."
+        ),
+    )
 
 
 @router.get("/profiles/{profile_id}/summary")

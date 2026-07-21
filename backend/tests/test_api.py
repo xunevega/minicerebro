@@ -49,6 +49,45 @@ def test_scores_are_available_by_context():
     assert response.json()[0]["context"] == "ensayo"
 
 
+def test_profile_export_includes_traceable_profile_without_knowledge():
+    created = client.post(
+        "/preferences",
+        json={
+            "text": "Prefiero precision y claridad en ensayos.",
+            "input_type": "prompt",
+            "context": "ensayo",
+        },
+    )
+    assert created.status_code == 200
+
+    client.get("/profiles/default/scores?context=ensayo")
+
+    response = client.get("/profiles/default/export")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["export_version"] == "profile-export-v1"
+    assert payload["profile_id"] == "default"
+    assert payload["profile"]["id"] == "default"
+    assert "general" in payload["variables_by_context"]
+    assert "ensayo" in payload["variables_by_context"]
+    assert "effective_value" in payload["variables_by_context"]["general"][0]
+    assert payload["statistics_by_context"]["ensayo"]["profile_id"] == "default"
+    assert any(
+        item["evidence"]["context"] == "ensayo" for item in payload["preferences"]
+    )
+    assert payload["knowledge_policy"] == (
+        "La exportacion del perfil no incluye ni modifica la base de conocimiento."
+    )
+    assert "knowledge" not in payload
+
+
+def test_profile_export_rejects_missing_profile():
+    response = client.get("/profiles/missing/export")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Profile not found"
+
+
 def test_preference_interpretation_is_proposed():
     response = client.post(
         "/preferences/interpret",
