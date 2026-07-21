@@ -47,6 +47,7 @@ import {
   getKnowledgeSources,
   getPersistenceStatus,
   getPreferences,
+  getProfileExport,
   getProfileSummary,
   getProfileStatistics,
   getScoreProposal,
@@ -90,6 +91,7 @@ import type {
   Preference,
   PreferenceStatus,
   PersistenceDomain,
+  ProfileExport,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -151,6 +153,7 @@ export function App() {
   );
   const [selectedKnowledgeCardId, setSelectedKnowledgeCardId] = useState<string | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
+  const [profileExport, setProfileExport] = useState<ProfileExport | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
   const [scores, setScores] = useState<ScoreVariable[]>([]);
@@ -570,6 +573,15 @@ export function App() {
     setError(null);
     try {
       setLabComparison(await compareLabTexts(labText, labComparisonText, activeContext));
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleProfileExport() {
+    setError(null);
+    try {
+      setProfileExport(await getProfileExport());
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -1154,6 +1166,29 @@ export function App() {
               <Metric label="Cobertura" value={`${Math.round((statistics?.coverage ?? 0) * 100)}%`} />
             </div>
             <p className="note">{summary?.confidence_note}</p>
+            <button className="primaryButton editorButton" onClick={handleProfileExport} type="button">
+              Ver export del perfil
+            </button>
+            {profileExport ? (
+              <div className="proposalBox">
+                <h2>Export del perfil</h2>
+                <div className="metricGrid">
+                  <Metric label="Formato" value={profileExport.export_version} />
+                  <Metric
+                    label="Contextos"
+                    value={Object.keys(profileExport.variables_by_context).length}
+                  />
+                  <Metric label="Preferencias" value={profileExport.preferences.length} />
+                </div>
+                <p className="note">{profileExport.knowledge_policy}</p>
+                <List
+                  title="Contextos exportados"
+                  items={Object.entries(profileExport.variables_by_context).map(
+                    ([context, variables]) => `${context}: ${variables.length} variables`,
+                  )}
+                />
+              </div>
+            ) : null}
             <List title="Variables con baja confianza" items={statistics?.low_confidence_variables ?? []} />
             <List
               title="Contradicciones"

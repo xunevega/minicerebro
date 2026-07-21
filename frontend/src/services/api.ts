@@ -30,6 +30,7 @@ import type {
   Preference,
   PreferenceStatus,
   PersistenceDomain,
+  ProfileExport,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -180,6 +181,10 @@ function withContext(path: string, context: string) {
 
 export function getProfileSummary() {
   return request<ProfileSummary>("/profiles/default/summary");
+}
+
+export function getProfileExport() {
+  return request<ProfileExport>("/profiles/default/export");
 }
 
 export function getScores(context: string) {

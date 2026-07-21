@@ -133,6 +133,15 @@ export type ProfileSummary = {
   confidence_note: string;
 };
 
+export type ProfileExport = {
+  export_version: string;
+  exported_at: string;
+  profile_id: string;
+  variables_by_context: Record<string, ScoreVariable[]>;
+  preferences: Preference[];
+  knowledge_policy: string;
+};
+
 export type Preference = {
   id: string;
   text: string;
