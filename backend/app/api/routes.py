@@ -89,8 +89,19 @@ def knowledge_status() -> KnowledgeStatus:
 @router.get("/knowledge/coverage")
 def knowledge_coverage() -> dict[str, list[str]]:
     return {
-        "covered": ["scoring editable", "comparador inicial", "perfil semilla"],
-        "pending": ["registro academico", "fichas internas", "evidencias bibliograficas"],
+        "covered": [
+            "scoring editable",
+            "comparador inicial",
+            "perfil semilla",
+            "fichas internas",
+            "evidencias trazables",
+            "validacion visible y auditada",
+        ],
+        "out_of_scope": [
+            "fuentes academicas versionadas",
+            "pgvector",
+            "validacion editorial avanzada",
+        ],
     }
 
 

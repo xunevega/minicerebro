@@ -69,6 +69,6 @@ def contract_boundaries() -> list[ContractBoundary]:
             section=22,
             status="not_defined_in_v1",
             reason="No existe una seccion 22 versionada para Minicerebro V1.",
-            next_step="Mantener V1 cerrada y crear V1.1 o V2 si aparece nuevo alcance.",
+            next_step="Mantener V1 cerrada y no anadir alcance sin contrato versionado nuevo.",
         ),
     ]

@@ -42,9 +42,11 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
 - React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
 - SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.
+- Pipeline de conocimiento persistente e inspeccionable: fuentes, nodos, evidencias, claims, fichas, version, consulta, historial y validacion auditada.
+- Observabilidad V1 disponible desde auditoria: tiempos de interpretacion/generacion, calidad de recuperacion por validacion pendiente, scoring, comparaciones y feedback.
 - Auditoria de Cerebro declarativa: no se importa ningun modulo completo sin evidencia pieza por pieza.
 - Cierre V1 documentado en `docs/CIERRE_PLAN_V1.md`.
-- Tests unitarios/API del scoring, comparador, persistencia, feedback, aceptacion y cierre.
+- Tests unitarios/API del scoring, comparador, persistencia, feedback, aceptacion, observabilidad, conocimiento y cierre.
 
 `pgvector`, validacion editorial avanzada y fuentes academicas versionadas no forman parte del cierre V1. No hay V2 planificada; cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.
 

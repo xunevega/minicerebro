@@ -556,6 +556,17 @@ def test_knowledge_pipeline_is_persisted():
     assert {claim.card_id for claim in claims} <= {card.id for card in cards}
 
 
+def test_knowledge_coverage_matches_closed_v1_scope():
+    response = client.get("/knowledge/coverage")
+    assert response.status_code == 200
+    payload = response.json()
+    assert "pending" not in payload
+    assert "fichas internas" in payload["covered"]
+    assert "evidencias trazables" in payload["covered"]
+    assert "validacion visible y auditada" in payload["covered"]
+    assert "pgvector" in payload["out_of_scope"]
+
+
 def test_comparison_includes_dimensions_and_changes():
     response = client.post(
         "/comparisons",
@@ -703,3 +714,5 @@ def test_technical_closure_and_contract_boundaries_are_exposed():
     sections = {item["section"]: item for item in boundaries.json()}
     assert sections[21]["status"] == "not_defined_in_v1"
     assert sections[22]["status"] == "not_defined_in_v1"
+    assert "V2" not in sections[21]["next_step"]
+    assert "V2" not in sections[22]["next_step"]

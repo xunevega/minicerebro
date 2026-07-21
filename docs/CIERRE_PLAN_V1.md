@@ -19,7 +19,7 @@ Los puntos 21 y 22 no existen en los documentos V1 versionados. La aplicacion lo
 5. Auditoria de eventos.
 6. Generacion con proveedor determinista y soporte OpenAI opcional.
 7. Comparador con dimensiones y cambios.
-8. Conocimiento seed separado del perfil.
+8. Conocimiento seed separado del perfil, trazable y validado en auditoria.
 9. Estadisticas, contradicciones y contextos.
 10. Laboratorio sin aprendizaje automatico.
 11. Retroalimentacion controlada.
@@ -28,7 +28,7 @@ Los puntos 21 y 22 no existen en los documentos V1 versionados. La aplicacion lo
 14. Persistencia funcional separada.
 15. Auditoria de Cerebro como cantera, no cimiento.
 16. Criterios de aceptacion V1.
-17. Condiciones de cierre y observabilidad.
+17. Condiciones de cierre y observabilidad con tiempos auditados.
 18. Resultado esperado y roadmap tecnico.
 19. Gates de auditoria de Cerebro.
 20. Criterio de cierre tecnico.
@@ -58,7 +58,10 @@ curl http://127.0.0.1:8000/contract/boundaries
 
 - V1 solo trata escritura en lengua espanola.
 - Conocimiento estable y perfil editable siguen separados.
+- Conocimiento expone fuente, nodo, evidencia, claim, ficha, version, consulta e historial.
+- La validacion visible de conocimiento queda auditada por consulta.
+- La observabilidad V1 usa eventos reales para interpretacion, generacion, recuperacion, comparacion, scoring y feedback.
 - Ningun aprendizaje se aplica sin revision o regla explicita.
-- Cerebro no se usa como base arquitectonica automatica.
+- Cerebro no se usa como base arquitectonica automatica y queda bloqueado hasta evidencia de codigo pieza por pieza.
 - No hay V2 ni expansion multidominio planificada.
 - Cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.
