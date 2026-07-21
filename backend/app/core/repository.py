@@ -351,6 +351,8 @@ class Repository:
         return [knowledge_card_from_record(record) for record in records]
 
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
+        if self.session.get(KnowledgeVersionRecord, payload.version) is None:
+            raise KeyError(payload.version)
         return query_knowledge(
             payload,
             sources=self.list_knowledge_sources(version=payload.version),

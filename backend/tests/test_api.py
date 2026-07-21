@@ -335,6 +335,16 @@ def test_knowledge_query_matches_the_full_persisted_chain():
     assert source_match.json()["cards"][0]["id"] == "lexico-precision"
 
 
+def test_knowledge_query_rejects_missing_version():
+    response = client.post(
+        "/knowledge/query",
+        json={"query": "precision", "version": "missing-version", "limit": 3},
+    )
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Knowledge version not found"
+
+
 def test_knowledge_pipeline_is_persisted():
     response = client.get("/knowledge/versions")
     assert response.status_code == 200
