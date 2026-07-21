@@ -56,18 +56,15 @@ El campo `gaps` de `GET /knowledge/status` se mantiene por compatibilidad, pero 
 ## Validacion
 
 ```bash
-source .venv/bin/activate
-ruff check backend/app backend/tests backend/alembic
-pytest backend/tests
-cd frontend
-npm run build
+make validate
+make migrate-sqlite
+make migrate-postgres
 ```
 
 Smokes UI contra una instancia real de frontend/backend:
 
 ```bash
-cd frontend
-FRONTEND_URL=http://127.0.0.1:5173 npm run test:smoke-ui
+FRONTEND_URL=http://127.0.0.1:5173 make smoke-ui
 ```
 
 Endpoints de cierre:
