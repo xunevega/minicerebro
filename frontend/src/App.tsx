@@ -2,12 +2,14 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Brain,
+  Database,
   FilePenLine,
   FlaskConical,
   GitCompare,
   History,
   LayoutDashboard,
   PenLine,
+  ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
 import {
@@ -17,13 +19,17 @@ import {
   createFeedbackProposal,
   deletePreference,
   decideFeedbackProposal,
+  evaluateDecision,
   getAuditEvents,
   getContradictions,
+  getDecisionRules,
   getFeedbackProposals,
+  getGeneratedTexts,
   generateText,
   getKnowledgeCards,
   getKnowledgeStatus,
   getKnowledgeSources,
+  getPersistenceStatus,
   getPreferences,
   getProfileSummary,
   getProfileStatistics,
@@ -38,7 +44,10 @@ import type {
   AuditEvent,
   ComparisonResult,
   Contradiction,
+  DecisionEvaluation,
+  DecisionRule,
   FeedbackProposal,
+  GeneratedText,
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
@@ -47,6 +56,7 @@ import type {
   LabSimulationResult,
   Preference,
   PreferenceStatus,
+  PersistenceDomain,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -62,6 +72,8 @@ const tabs = [
   { id: "editor", label: "Editor", icon: FilePenLine },
   { id: "lab", label: "Laboratorio", icon: FlaskConical },
   { id: "compare", label: "Comparador", icon: GitCompare },
+  { id: "rules", label: "Reglas", icon: ShieldCheck },
+  { id: "persistence", label: "Persistencia", icon: Database },
   { id: "screens", label: "Pantallas", icon: LayoutDashboard },
   { id: "audit", label: "Auditoria", icon: History },
 ] as const;
@@ -90,6 +102,10 @@ export function App() {
   const [feedbackProposals, setFeedbackProposals] = useState<FeedbackProposal[]>([]);
   const [activeFeedback, setActiveFeedback] = useState<FeedbackProposal | null>(null);
   const [screens, setScreens] = useState<V1Screen[]>([]);
+  const [decisionRules, setDecisionRules] = useState<DecisionRule[]>([]);
+  const [decisionEvaluation, setDecisionEvaluation] = useState<DecisionEvaluation | null>(null);
+  const [persistenceDomains, setPersistenceDomains] = useState<PersistenceDomain[]>([]);
+  const [generatedTexts, setGeneratedTexts] = useState<GeneratedText[]>([]);
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
@@ -119,6 +135,10 @@ export function App() {
       getAuditEvents(),
       getFeedbackProposals(),
       getV1Screens(),
+      getDecisionRules(),
+      evaluateDecision(activeContext),
+      getPersistenceStatus(),
+      getGeneratedTexts(activeContext),
     ])
       .then(([
         knowledgeData,
@@ -132,6 +152,10 @@ export function App() {
         auditData,
         feedbackData,
         screenData,
+        rulesData,
+        decisionData,
+        persistenceData,
+        textData,
       ]) => {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
@@ -144,6 +168,10 @@ export function App() {
         setAuditEvents(auditData);
         setFeedbackProposals(feedbackData);
         setScreens(screenData);
+        setDecisionRules(rulesData);
+        setDecisionEvaluation(decisionData);
+        setPersistenceDomains(persistenceData);
+        setGeneratedTexts(textData);
       })
       .catch((nextError: Error) => setError(nextError.message));
   }, [activeContext]);
@@ -292,6 +320,7 @@ export function App() {
             .filter(Boolean),
         ),
       );
+      setGeneratedTexts(await getGeneratedTexts(activeContext));
       setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -830,6 +859,90 @@ export function App() {
                     )
               }
             />
+          </section>
+        )}
+
+        {active === "rules" && (
+          <section className="panel editorGrid">
+            <div>
+              <h2>Prioridad de instrucciones</h2>
+              <div className="auditList">
+                {decisionRules.map((rule) => (
+                  <article className="auditItem" key={rule.priority}>
+                    <div>
+                      <strong>
+                        {rule.priority}. {rule.label}
+                      </strong>
+                      <span>{rule.description}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="inspector">
+              <h2>Evaluacion</h2>
+              {decisionEvaluation ? (
+                <>
+                  <p>{decisionEvaluation.recommendation}</p>
+                  <List
+                    title="Confianza baja"
+                    items={
+                      decisionEvaluation.low_confidence_variables.length === 0
+                        ? ["Sin variables por debajo del umbral."]
+                        : decisionEvaluation.low_confidence_variables
+                    }
+                  />
+                  <List
+                    title="Conflictos"
+                    items={
+                      decisionEvaluation.conflicts.length === 0
+                        ? ["Sin conflictos detectados en este contexto."]
+                        : decisionEvaluation.conflicts
+                    }
+                  />
+                </>
+              ) : (
+                <p className="note">La evaluacion usa el contexto activo.</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {active === "persistence" && (
+          <section className="panel editorGrid">
+            <div>
+              <h2>Dominios persistidos</h2>
+              <div className="knowledgeGrid">
+                {persistenceDomains.map((domain) => (
+                  <article className="knowledgeItem" key={domain.id}>
+                    <strong>{domain.id}</strong>
+                    <span>
+                      {domain.status} · {domain.storage}
+                    </span>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="inspector">
+              <h2>Textos</h2>
+              {generatedTexts.length === 0 ? (
+                <p className="note">Todavia no hay textos generados en este contexto.</p>
+              ) : (
+                <div className="auditList">
+                  {generatedTexts.slice(0, 5).map((text) => (
+                    <article className="auditItem" key={text.id}>
+                      <div>
+                        <strong>
+                          {text.action} · {text.provider}
+                        </strong>
+                        <span>{formatDate(text.created_at)}</span>
+                      </div>
+                      <pre>{text.output_text}</pre>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
         )}
 

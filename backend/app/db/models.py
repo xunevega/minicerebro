@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import DateTime, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
@@ -100,6 +100,21 @@ class FeedbackProposalRecord(Base):
     rationale: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class GeneratedTextRecord(Base):
+    __tablename__ = "generated_texts"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    context: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
+    action: Mapped[str] = mapped_column(String(80), nullable=False)
+    input_text: Mapped[str] = mapped_column(Text, nullable=False)
+    output_text: Mapped[str] = mapped_column(Text, nullable=False)
+    provider: Mapped[str] = mapped_column(String(80), nullable=False)
+    used_profile_variables: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    learning_applied: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class AuditEventRecord(Base):

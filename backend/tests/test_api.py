@@ -78,6 +78,7 @@ def test_audit_events_are_exposed():
         "preference.deleted",
         "score.manual_override",
         "comparison.created",
+        "text.generated",
     }
 
 
@@ -110,6 +111,21 @@ def test_generation_uses_requested_context():
     )
     assert response.status_code == 200
     assert response.json()["learning_applied"] is False
+
+
+def test_generation_is_persisted_as_text():
+    response = client.post(
+        "/generation",
+        json={"text": "Texto para persistir", "action": "rewrite", "context": "general"},
+    )
+    assert response.status_code == 200
+
+    texts = client.get("/texts?context=general")
+    assert texts.status_code == 200
+    payload = texts.json()
+    assert payload[0]["input_text"] == "Texto para persistir"
+    assert payload[0]["output_text"] == response.json()["output"]
+    assert payload[0]["learning_applied"] is False
 
 
 def test_lab_simulation_does_not_persist_score_changes():
@@ -201,3 +217,19 @@ def test_v1_screens_are_exposed():
     assert response.status_code == 200
     screen_ids = {item["id"] for item in response.json()}
     assert {"knowledge", "preferences", "profile", "scoring", "editor", "lab", "compare"} <= screen_ids
+
+
+def test_decision_rules_and_persistence_status_are_exposed():
+    rules = client.get("/decision/rules")
+    assert rules.status_code == 200
+    assert rules.json()[0]["label"] == "Restricciones tecnicas y linguisticas"
+
+    evaluation = client.post("/decision/evaluate", json={"context": "general"})
+    assert evaluation.status_code == 200
+    assert "recommendation" in evaluation.json()
+
+    persistence = client.get("/persistence/status")
+    assert persistence.status_code == 200
+    domains = {item["id"]: item for item in persistence.json()}
+    assert domains["knowledge"]["storage"] == "seeded registry"
+    assert domains["texts"]["status"] == "persisted"

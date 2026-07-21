@@ -2,8 +2,11 @@ import type {
   AuditEvent,
   ComparisonResult,
   Contradiction,
+  DecisionEvaluation,
+  DecisionRule,
   FeedbackProposal,
   FeedbackStatus,
+  GeneratedText,
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
@@ -13,6 +16,7 @@ import type {
   LabSimulationResult,
   Preference,
   PreferenceStatus,
+  PersistenceDomain,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -55,6 +59,21 @@ export function getKnowledgeSources() {
 
 export function getV1Screens() {
   return request<V1Screen[]>("/ui/screens");
+}
+
+export function getDecisionRules() {
+  return request<DecisionRule[]>("/decision/rules");
+}
+
+export function evaluateDecision(context: string) {
+  return request<DecisionEvaluation>("/decision/evaluate", {
+    method: "POST",
+    body: JSON.stringify({ context }),
+  });
+}
+
+export function getPersistenceStatus() {
+  return request<PersistenceDomain[]>("/persistence/status");
 }
 
 function withContext(path: string, context: string) {
@@ -155,6 +174,10 @@ export function decideFeedbackProposal(
 
 export function getAuditEvents() {
   return request<AuditEvent[]>("/audit/events");
+}
+
+export function getGeneratedTexts(context: string) {
+  return request<GeneratedText[]>(withContext("/texts", context));
 }
 
 export function generateText(

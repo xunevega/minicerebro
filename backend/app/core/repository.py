@@ -13,6 +13,7 @@ from app.core.models import (
     FeedbackProposal,
     FeedbackProposalItem,
     FeedbackStatus,
+    GeneratedText,
     Evidence,
     EvidenceType,
     Preference,
@@ -29,6 +30,7 @@ from app.db.models import (
     ComparisonRecord,
     EvidenceRecord,
     FeedbackProposalRecord,
+    GeneratedTextRecord,
     PreferenceRecord,
     ProfileRecord,
     ScoreVariableRecord,
@@ -160,6 +162,36 @@ def feedback_to_record(profile_id: str, proposal: FeedbackProposal) -> FeedbackP
         rationale=proposal.rationale,
         created_at=proposal.created_at,
         updated_at=proposal.updated_at,
+    )
+
+
+def generated_text_from_record(record: GeneratedTextRecord) -> GeneratedText:
+    return GeneratedText(
+        id=UUID(record.id),
+        profile_id=record.profile_id,
+        context=record.context,
+        action=record.action,
+        input_text=record.input_text,
+        output_text=record.output_text,
+        provider=record.provider,
+        used_profile_variables=record.used_profile_variables,
+        learning_applied=record.learning_applied,
+        created_at=record.created_at,
+    )
+
+
+def generated_text_to_record(text: GeneratedText) -> GeneratedTextRecord:
+    return GeneratedTextRecord(
+        id=str(text.id),
+        profile_id=text.profile_id,
+        context=text.context,
+        action=text.action,
+        input_text=text.input_text,
+        output_text=text.output_text,
+        provider=text.provider,
+        used_profile_variables=text.used_profile_variables,
+        learning_applied=text.learning_applied,
+        created_at=text.created_at,
     )
 
 
@@ -531,6 +563,35 @@ class Repository:
         self.session.commit()
         self.session.refresh(record)
         return feedback_from_record(record)
+
+    def add_generated_text(self, text: GeneratedText) -> GeneratedText:
+        if self.session.get(ProfileRecord, text.profile_id) is None:
+            raise KeyError(text.profile_id)
+        self.session.add(generated_text_to_record(text))
+        self.add_audit_event(
+            "text.generated",
+            "generated_text",
+            str(text.id),
+            {
+                "context": text.context,
+                "action": text.action,
+                "provider": text.provider,
+                "used_profile_variables": text.used_profile_variables,
+            },
+        )
+        self.session.commit()
+        return text
+
+    def list_generated_texts(
+        self, profile_id: str, limit: int = 50, context: str | None = None
+    ) -> list[GeneratedText]:
+        query = select(GeneratedTextRecord).where(GeneratedTextRecord.profile_id == profile_id)
+        if context:
+            query = query.where(GeneratedTextRecord.context == context)
+        records = self.session.scalars(
+            query.order_by(GeneratedTextRecord.created_at.desc()).limit(limit)
+        ).all()
+        return [generated_text_from_record(record) for record in records]
 
     def list_audit_events(self, limit: int = 50) -> list[AuditEvent]:
         records = self.session.scalars(

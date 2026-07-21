@@ -198,6 +198,19 @@ class GenerationResult(BaseModel):
     provider: str = "deterministic"
 
 
+class GeneratedText(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    profile_id: str
+    context: str
+    action: str
+    input_text: str
+    output_text: str
+    provider: str
+    used_profile_variables: list[str]
+    learning_applied: bool = False
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
 class LabOverride(BaseModel):
     variable_key: str
     delta: int = Field(ge=-300, le=300)
@@ -252,3 +265,28 @@ class V1Screen(BaseModel):
     route: str
     status: str
     functions: list[str]
+
+
+class DecisionRule(BaseModel):
+    priority: int
+    label: str
+    description: str
+
+
+class DecisionEvaluationInput(BaseModel):
+    context: str = "general"
+
+
+class DecisionEvaluation(BaseModel):
+    context: str
+    applied_priority: list[DecisionRule]
+    conflicts: list[str]
+    low_confidence_variables: list[str]
+    recommendation: str
+
+
+class PersistenceDomain(BaseModel):
+    id: str
+    storage: str
+    status: str
+    separated_from_knowledge: bool

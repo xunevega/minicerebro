@@ -1,6 +1,6 @@
 from datetime import UTC, datetime
 
-from sqlalchemy import select
+from sqlalchemy import inspect, select, text
 from sqlalchemy.orm import Session
 
 from app.core.seeds import DEFAULT_PROFILE_ID, seed_variables
@@ -9,7 +9,33 @@ from app.db.session import Base, engine
 
 
 def create_tables() -> None:
-    Base.metadata.create_all(bind=engine())
+    database_engine = engine()
+    Base.metadata.create_all(bind=database_engine)
+    ensure_generated_text_schema(database_engine)
+
+
+def ensure_generated_text_schema(database_engine) -> None:
+    if database_engine.dialect.name != "postgresql":
+        return
+    inspector = inspect(database_engine)
+    if "generated_texts" not in inspector.get_table_names():
+        return
+    columns = {
+        column["name"]: column["type"].__class__.__name__.lower()
+        for column in inspector.get_columns("generated_texts")
+    }
+    if columns.get("learning_applied") != "integer":
+        return
+    with database_engine.begin() as connection:
+        connection.execute(
+            text(
+                """
+                ALTER TABLE generated_texts
+                ALTER COLUMN learning_applied TYPE boolean
+                USING learning_applied <> 0
+                """
+            )
+        )
 
 
 def ensure_seed_data(session: Session) -> None:
@@ -48,4 +74,3 @@ def ensure_seed_data(session: Session) -> None:
         )
 
     session.commit()
-

@@ -8,22 +8,29 @@ from app.core.repository import Repository
 from app.core.models import (
     ApplyScoreProposalInput,
     ComparisonInput,
+    DecisionEvaluation,
+    DecisionEvaluationInput,
+    DecisionRule,
     FeedbackDecisionInput,
     FeedbackProposalInput,
+    GeneratedText,
     GenerationInput,
     KnowledgeStatus,
     LabSimulationInput,
     LabSimulationResult,
     PreferenceInput,
     PreferencePatch,
+    PersistenceDomain,
     ScorePatch,
     V1Screen,
 )
 from app.api.deps import get_repository
 from app.core.seeds import DEFAULT_PROFILE_ID
+from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
 from app.knowledge.service import seed_cards, seed_sources
+from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
 from app.scoring.service import apply_manual_override, score_out
 from app.ui.service import v1_screens
@@ -69,6 +76,26 @@ def knowledge_cards():
 @router.get("/ui/screens")
 def ui_screens() -> list[V1Screen]:
     return v1_screens()
+
+
+@router.get("/decision/rules")
+def decisions_rules() -> list[DecisionRule]:
+    return decision_rules()
+
+
+@router.post("/decision/evaluate")
+def decision_evaluate(
+    payload: DecisionEvaluationInput,
+    repository: RepositoryDep,
+) -> DecisionEvaluation:
+    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+    contradictions = repository.contradictions(DEFAULT_PROFILE_ID, payload.context)
+    return evaluate_decision_state(payload.context, variables, contradictions)
+
+
+@router.get("/persistence/status")
+def persistence_status() -> list[PersistenceDomain]:
+    return persistence_domains()
 
 
 @router.post("/preferences/interpret")
@@ -238,13 +265,37 @@ def audit_events(repository: RepositoryDep, limit: int = 50):
     return repository.list_audit_events(bounded_limit)
 
 
+@router.get("/texts")
+def generated_texts_list(
+    repository: RepositoryDep,
+    context: str | None = None,
+    limit: int = 50,
+):
+    bounded_limit = max(1, min(limit, 100))
+    return repository.list_generated_texts(DEFAULT_PROFILE_ID, bounded_limit, context)
+
+
 @router.post("/generation")
 @router.post("/correction")
 @router.post("/rewrite")
 @router.post("/continue")
+@router.post("/variants")
 def generation_create(payload: GenerationInput, repository: RepositoryDep):
     variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
-    return rewrite_with_profile(payload, variables)
+    generation = rewrite_with_profile(payload, variables)
+    repository.add_generated_text(
+        GeneratedText(
+            profile_id=DEFAULT_PROFILE_ID,
+            context=payload.context,
+            action=payload.action,
+            input_text=payload.text,
+            output_text=generation.output,
+            provider=generation.provider,
+            used_profile_variables=generation.used_profile_variables,
+            learning_applied=generation.learning_applied,
+        )
+    )
+    return generation
 
 
 @router.post("/lab/simulate")

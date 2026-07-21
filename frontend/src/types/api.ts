@@ -171,3 +171,37 @@ export type V1Screen = {
   status: string;
   functions: string[];
 };
+
+export type DecisionRule = {
+  priority: number;
+  label: string;
+  description: string;
+};
+
+export type DecisionEvaluation = {
+  context: string;
+  applied_priority: DecisionRule[];
+  conflicts: string[];
+  low_confidence_variables: string[];
+  recommendation: string;
+};
+
+export type PersistenceDomain = {
+  id: string;
+  storage: string;
+  status: string;
+  separated_from_knowledge: boolean;
+};
+
+export type GeneratedText = {
+  id: string;
+  profile_id: string;
+  context: string;
+  action: string;
+  input_text: string;
+  output_text: string;
+  provider: string;
+  used_profile_variables: string[];
+  learning_applied: boolean;
+  created_at: string;
+};
