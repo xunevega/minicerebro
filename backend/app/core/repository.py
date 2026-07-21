@@ -16,6 +16,14 @@ from app.core.models import (
     GeneratedText,
     Evidence,
     EvidenceType,
+    KnowledgeCard,
+    KnowledgeClaim,
+    KnowledgeEvidenceItem,
+    KnowledgeNode,
+    KnowledgeQueryInput,
+    KnowledgeQueryResult,
+    KnowledgeSource,
+    KnowledgeVersion,
     Preference,
     PreferenceStatus,
     Profile,
@@ -31,10 +39,17 @@ from app.db.models import (
     EvidenceRecord,
     FeedbackProposalRecord,
     GeneratedTextRecord,
+    KnowledgeCardRecord,
+    KnowledgeClaimRecord,
+    KnowledgeEvidenceItemRecord,
+    KnowledgeNodeRecord,
+    KnowledgeSourceRecord,
+    KnowledgeVersionRecord,
     PreferenceRecord,
     ProfileRecord,
     ScoreVariableRecord,
 )
+from app.knowledge.service import query_knowledge
 
 
 def evidence_from_record(record: EvidenceRecord) -> Evidence:
@@ -195,9 +210,149 @@ def generated_text_to_record(text: GeneratedText) -> GeneratedTextRecord:
     )
 
 
+def knowledge_source_from_record(record: KnowledgeSourceRecord) -> KnowledgeSource:
+    return KnowledgeSource(
+        id=record.id,
+        name=record.name,
+        source_type=record.source_type,
+        authority_level=record.authority_level,
+        priority=record.priority,
+        status=record.status,
+    )
+
+
+def knowledge_node_from_record(record: KnowledgeNodeRecord) -> KnowledgeNode:
+    return KnowledgeNode(
+        id=record.id,
+        source_id=record.source_id,
+        node_type=record.node_type,
+        title=record.title,
+        summary=record.summary,
+        version=record.version,
+    )
+
+
+def knowledge_evidence_from_record(
+    record: KnowledgeEvidenceItemRecord,
+) -> KnowledgeEvidenceItem:
+    return KnowledgeEvidenceItem(
+        id=record.id,
+        node_id=record.node_id,
+        source_id=record.source_id,
+        reference=record.reference,
+        excerpt=record.excerpt,
+        confidence=record.confidence,
+        version=record.version,
+    )
+
+
+def knowledge_claim_from_record(record: KnowledgeClaimRecord) -> KnowledgeClaim:
+    return KnowledgeClaim(
+        id=record.id,
+        evidence_id=record.evidence_id,
+        card_id=record.card_id,
+        statement=record.statement,
+        confidence=record.confidence,
+        version=record.version,
+    )
+
+
+def knowledge_card_from_record(record: KnowledgeCardRecord) -> KnowledgeCard:
+    return KnowledgeCard(
+        id=record.id,
+        card_type=record.card_type,
+        name=record.name,
+        definition=record.definition,
+        confidence=record.confidence,
+        version=record.version,
+        payload=record.payload,
+    )
+
+
+def knowledge_version_from_record(
+    record: KnowledgeVersionRecord, repository: "Repository"
+) -> KnowledgeVersion:
+    return KnowledgeVersion(
+        id=record.id,
+        status=record.status,
+        published_at=record.published_at,
+        source_count=len(repository.list_knowledge_sources()),
+        node_count=len(repository.list_knowledge_nodes(version=record.id)),
+        evidence_count=len(repository.list_knowledge_evidence(version=record.id)),
+        claim_count=len(repository.list_knowledge_claims(version=record.id)),
+        card_count=len(repository.list_knowledge_cards(version=record.id)),
+    )
+
+
 class Repository:
     def __init__(self, session: Session) -> None:
         self.session = session
+
+    def list_knowledge_versions(self) -> list[KnowledgeVersion]:
+        records = self.session.scalars(
+            select(KnowledgeVersionRecord).order_by(KnowledgeVersionRecord.id)
+        ).all()
+        return [knowledge_version_from_record(record, self) for record in records]
+
+    def list_knowledge_sources(self) -> list[KnowledgeSource]:
+        records = self.session.scalars(
+            select(KnowledgeSourceRecord).order_by(KnowledgeSourceRecord.priority)
+        ).all()
+        return [knowledge_source_from_record(record) for record in records]
+
+    def list_knowledge_nodes(
+        self,
+        source_id: str | None = None,
+        version: str | None = None,
+    ) -> list[KnowledgeNode]:
+        query = select(KnowledgeNodeRecord)
+        if source_id:
+            query = query.where(KnowledgeNodeRecord.source_id == source_id)
+        if version:
+            query = query.where(KnowledgeNodeRecord.version == version)
+        records = self.session.scalars(query.order_by(KnowledgeNodeRecord.id)).all()
+        return [knowledge_node_from_record(record) for record in records]
+
+    def list_knowledge_evidence(
+        self,
+        node_id: str | None = None,
+        version: str | None = None,
+    ) -> list[KnowledgeEvidenceItem]:
+        query = select(KnowledgeEvidenceItemRecord)
+        if node_id:
+            query = query.where(KnowledgeEvidenceItemRecord.node_id == node_id)
+        if version:
+            query = query.where(KnowledgeEvidenceItemRecord.version == version)
+        records = self.session.scalars(query.order_by(KnowledgeEvidenceItemRecord.id)).all()
+        return [knowledge_evidence_from_record(record) for record in records]
+
+    def list_knowledge_claims(
+        self,
+        card_id: str | None = None,
+        version: str | None = None,
+    ) -> list[KnowledgeClaim]:
+        query = select(KnowledgeClaimRecord)
+        if card_id:
+            query = query.where(KnowledgeClaimRecord.card_id == card_id)
+        if version:
+            query = query.where(KnowledgeClaimRecord.version == version)
+        records = self.session.scalars(query.order_by(KnowledgeClaimRecord.id)).all()
+        return [knowledge_claim_from_record(record) for record in records]
+
+    def list_knowledge_cards(self, version: str | None = None) -> list[KnowledgeCard]:
+        query = select(KnowledgeCardRecord)
+        if version:
+            query = query.where(KnowledgeCardRecord.version == version)
+        records = self.session.scalars(query.order_by(KnowledgeCardRecord.id)).all()
+        return [knowledge_card_from_record(record) for record in records]
+
+    def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
+        return query_knowledge(
+            payload,
+            cards=self.list_knowledge_cards(version=payload.version),
+            claims=self.list_knowledge_claims(version=payload.version),
+            evidence=self.list_knowledge_evidence(version=payload.version),
+        )
 
     def get_profile(self, profile_id: str) -> Profile:
         record = self.session.scalar(

@@ -117,6 +117,73 @@ class GeneratedTextRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class KnowledgeVersionRecord(Base):
+    __tablename__ = "knowledge_versions"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    published_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
+class KnowledgeSourceRecord(Base):
+    __tablename__ = "knowledge_sources"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    name: Mapped[str] = mapped_column(String(240), nullable=False)
+    source_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    authority_level: Mapped[int] = mapped_column(Integer, nullable=False)
+    priority: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+
+
+class KnowledgeNodeRecord(Base):
+    __tablename__ = "knowledge_nodes"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    source_id: Mapped[str] = mapped_column(ForeignKey("knowledge_sources.id"), nullable=False)
+    node_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(240), nullable=False)
+    summary: Mapped[str] = mapped_column(Text, nullable=False)
+    version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+
+
+class KnowledgeEvidenceItemRecord(Base):
+    __tablename__ = "knowledge_evidence_items"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
+    source_id: Mapped[str] = mapped_column(ForeignKey("knowledge_sources.id"), nullable=False)
+    reference: Mapped[str] = mapped_column(String(240), nullable=False)
+    excerpt: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+
+
+class KnowledgeCardRecord(Base):
+    __tablename__ = "knowledge_cards"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    card_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    name: Mapped[str] = mapped_column(String(240), nullable=False)
+    definition: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+
+
+class KnowledgeClaimRecord(Base):
+    __tablename__ = "knowledge_claims"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    evidence_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_evidence_items.id"), nullable=False
+    )
+    card_id: Mapped[str] = mapped_column(ForeignKey("knowledge_cards.id"), nullable=False)
+    statement: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+
+
 class AuditEventRecord(Base):
     __tablename__ = "audit_events"
 

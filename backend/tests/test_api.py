@@ -1,5 +1,14 @@
 from fastapi.testclient import TestClient
+from sqlalchemy import select
 
+from app.db.models import (
+    KnowledgeCardRecord,
+    KnowledgeClaimRecord,
+    KnowledgeEvidenceItemRecord,
+    KnowledgeNodeRecord,
+    KnowledgeSourceRecord,
+)
+from app.db.session import SessionLocal
 from app.main import app
 
 
@@ -252,6 +261,29 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
     }
 
 
+def test_knowledge_pipeline_is_persisted():
+    response = client.get("/knowledge/versions")
+    assert response.status_code == 200
+
+    with SessionLocal() as session:
+        sources = session.scalars(select(KnowledgeSourceRecord)).all()
+        nodes = session.scalars(select(KnowledgeNodeRecord)).all()
+        evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
+        claims = session.scalars(select(KnowledgeClaimRecord)).all()
+        cards = session.scalars(select(KnowledgeCardRecord)).all()
+
+    version = response.json()[0]
+    assert version["source_count"] == len(sources)
+    assert version["node_count"] == len(nodes)
+    assert version["evidence_count"] == len(evidence)
+    assert version["claim_count"] == len(claims)
+    assert version["card_count"] == len(cards)
+    assert {node.source_id for node in nodes} <= {source.id for source in sources}
+    assert {item.node_id for item in evidence} <= {node.id for node in nodes}
+    assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
+    assert {claim.card_id for claim in claims} <= {card.id for card in cards}
+
+
 def test_comparison_includes_dimensions_and_changes():
     response = client.post(
         "/comparisons",
@@ -317,7 +349,8 @@ def test_decision_rules_and_persistence_status_are_exposed():
     persistence = client.get("/persistence/status")
     assert persistence.status_code == 200
     domains = {item["id"]: item for item in persistence.json()}
-    assert domains["knowledge"]["storage"] == "seeded registry"
+    assert domains["knowledge"]["status"] == "persisted"
+    assert domains["versions"]["storage"] == "knowledge_versions"
     assert domains["texts"]["status"] == "persisted"
 
 

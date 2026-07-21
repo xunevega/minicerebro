@@ -20,6 +20,7 @@ from app.core.models import (
     FeedbackProposalInput,
     GeneratedText,
     GenerationInput,
+    KnowledgeCard,
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeNode,
@@ -53,15 +54,6 @@ from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
-from app.knowledge.service import (
-    query_knowledge,
-    seed_cards,
-    seed_claims,
-    seed_evidence,
-    seed_nodes,
-    seed_sources,
-    seed_versions,
-)
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
@@ -93,47 +85,41 @@ def knowledge_coverage() -> dict[str, list[str]]:
 
 
 @router.get("/knowledge/versions")
-def knowledge_versions() -> list[KnowledgeVersion]:
-    return seed_versions()
+def knowledge_versions(repository: RepositoryDep) -> list[KnowledgeVersion]:
+    return repository.list_knowledge_versions()
 
 
 @router.get("/knowledge/sources")
-def knowledge_sources() -> list[KnowledgeSource]:
-    return seed_sources()
+def knowledge_sources(repository: RepositoryDep) -> list[KnowledgeSource]:
+    return repository.list_knowledge_sources()
 
 
 @router.get("/knowledge/nodes")
-def knowledge_nodes(source_id: str | None = None) -> list[KnowledgeNode]:
-    nodes = seed_nodes()
-    if source_id:
-        return [node for node in nodes if node.source_id == source_id]
-    return nodes
+def knowledge_nodes(repository: RepositoryDep, source_id: str | None = None) -> list[KnowledgeNode]:
+    return repository.list_knowledge_nodes(source_id=source_id)
 
 
 @router.get("/knowledge/evidence")
-def knowledge_evidence(node_id: str | None = None) -> list[KnowledgeEvidenceItem]:
-    evidence = seed_evidence()
-    if node_id:
-        return [item for item in evidence if item.node_id == node_id]
-    return evidence
+def knowledge_evidence(
+    repository: RepositoryDep,
+    node_id: str | None = None,
+) -> list[KnowledgeEvidenceItem]:
+    return repository.list_knowledge_evidence(node_id=node_id)
 
 
 @router.get("/knowledge/claims")
-def knowledge_claims(card_id: str | None = None) -> list[KnowledgeClaim]:
-    claims = seed_claims()
-    if card_id:
-        return [claim for claim in claims if claim.card_id == card_id]
-    return claims
+def knowledge_claims(repository: RepositoryDep, card_id: str | None = None) -> list[KnowledgeClaim]:
+    return repository.list_knowledge_claims(card_id=card_id)
 
 
 @router.get("/knowledge/cards")
-def knowledge_cards():
-    return seed_cards()
+def knowledge_cards(repository: RepositoryDep) -> list[KnowledgeCard]:
+    return repository.list_knowledge_cards()
 
 
 @router.post("/knowledge/query")
-def knowledge_query(payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
-    return query_knowledge(payload)
+def knowledge_query(payload: KnowledgeQueryInput, repository: RepositoryDep) -> KnowledgeQueryResult:
+    return repository.query_knowledge(payload)
 
 
 @router.get("/ui/screens")

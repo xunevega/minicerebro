@@ -174,11 +174,16 @@ def seed_versions() -> list[KnowledgeVersion]:
     ]
 
 
-def query_knowledge(payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
+def query_knowledge(
+    payload: KnowledgeQueryInput,
+    cards: list[KnowledgeCard] | None = None,
+    claims: list[KnowledgeClaim] | None = None,
+    evidence: list[KnowledgeEvidenceItem] | None = None,
+) -> KnowledgeQueryResult:
     terms = {term for term in payload.query.lower().split() if len(term) > 2}
-    cards = seed_cards()
-    claims = seed_claims()
-    evidence = seed_evidence()
+    cards = cards if cards is not None else seed_cards()
+    claims = claims if claims is not None else seed_claims()
+    evidence = evidence if evidence is not None else seed_evidence()
 
     def score_card(card: KnowledgeCard) -> int:
         haystack = " ".join(
