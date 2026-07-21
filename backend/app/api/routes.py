@@ -14,6 +14,7 @@ from app.core.models import (
     CerebroAuditGate,
     ClosureCondition,
     ComparisonInput,
+    ComparisonResult,
     ContractBoundary,
     DecisionEvaluation,
     DecisionEvaluationInput,
@@ -552,3 +553,8 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep) -> LabS
         simulated_variables=[score_out(variable) for variable in simulated_variables],
         learning_applied=False,
     )
+
+
+@router.post("/lab/compare")
+def lab_compare(payload: ComparisonInput) -> ComparisonResult:
+    return compare_texts(payload)

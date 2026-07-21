@@ -238,6 +238,27 @@ def test_lab_simulation_does_not_persist_score_changes():
     assert "lexico" in payload["comparison"]["dimensions"]
 
 
+def test_lab_compare_does_not_persist_comparison():
+    response = client.post(
+        "/lab/compare",
+        json={
+            "original": "Texto base con una idea clara.",
+            "revised": "Texto revisado con una idea mas clara y directa.",
+            "context": "general",
+        },
+    )
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["modification_score"] > 0
+    assert payload["adequacy_score"] >= 0
+    assert payload["summary"]
+
+    persisted = client.get(f"/comparisons/{payload['id']}")
+    assert persisted.status_code == 404
+    assert persisted.json()["detail"] == "Comparison not found"
+
+
 def test_knowledge_cards_and_statistics_are_exposed():
     cards = client.get("/knowledge/cards")
     assert cards.status_code == 200
