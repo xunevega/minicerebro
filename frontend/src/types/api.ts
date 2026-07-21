@@ -220,3 +220,35 @@ export type AcceptanceCriterion = {
   status: string;
   evidence: string[];
 };
+
+export type ClosureCondition = {
+  id: number;
+  description: string;
+  status: string;
+  evidence: string[];
+};
+
+export type ExpectedAnswerLine = {
+  order: number;
+  text: string;
+  evidence: string[];
+};
+
+export type ObservabilityMetric = {
+  id: string;
+  source: string;
+  status: string;
+};
+
+export type TechnicalRoadmapPhase = {
+  id: number;
+  name: string;
+  status: string;
+  items: string[];
+};
+
+export type CerebroAuditGate = {
+  id: string;
+  status: string;
+  reason: string;
+};

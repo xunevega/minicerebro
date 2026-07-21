@@ -2,10 +2,13 @@ import type {
   AuditEvent,
   AcceptanceCriterion,
   CerebroAuditCandidate,
+  CerebroAuditGate,
+  ClosureCondition,
   ComparisonResult,
   Contradiction,
   DecisionEvaluation,
   DecisionRule,
+  ExpectedAnswerLine,
   FeedbackProposal,
   FeedbackStatus,
   GeneratedText,
@@ -16,6 +19,7 @@ import type {
   KnowledgeSource,
   LabOverride,
   LabSimulationResult,
+  ObservabilityMetric,
   Preference,
   PreferenceStatus,
   PersistenceDomain,
@@ -25,6 +29,7 @@ import type {
   ScoreProposalApplyResult,
   ScoreUpdate,
   ScoreVariable,
+  TechnicalRoadmapPhase,
   V1Screen,
 } from "../types/api";
 
@@ -84,6 +89,26 @@ export function getCerebroAuditCandidates() {
 
 export function getAcceptanceCriteria() {
   return request<AcceptanceCriterion[]>("/acceptance/v1");
+}
+
+export function getClosureConditions() {
+  return request<ClosureCondition[]>("/closure/conditions");
+}
+
+export function getExpectedResult() {
+  return request<ExpectedAnswerLine[]>("/closure/expected-result");
+}
+
+export function getObservabilityStatus() {
+  return request<ObservabilityMetric[]>("/observability/status");
+}
+
+export function getTechnicalRoadmap() {
+  return request<TechnicalRoadmapPhase[]>("/roadmap/technical");
+}
+
+export function getCerebroAuditGates() {
+  return request<CerebroAuditGate[]>("/cerebro-audit/gates");
 }
 
 function withContext(path: string, context: string) {

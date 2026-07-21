@@ -9,6 +9,8 @@ from app.core.models import (
     ApplyScoreProposalInput,
     AcceptanceCriterion,
     CerebroAuditCandidate,
+    CerebroAuditGate,
+    ClosureCondition,
     ComparisonInput,
     DecisionEvaluation,
     DecisionEvaluationInput,
@@ -20,22 +22,28 @@ from app.core.models import (
     KnowledgeStatus,
     LabSimulationInput,
     LabSimulationResult,
+    ObservabilityMetric,
     PreferenceInput,
     PreferencePatch,
     PersistenceDomain,
     ScorePatch,
+    ExpectedAnswerLine,
+    TechnicalRoadmapPhase,
     V1Screen,
 )
 from app.api.deps import get_repository
 from app.acceptance.service import v1_acceptance_criteria
-from app.cerebro_audit.service import cerebro_audit_candidates
+from app.cerebro_audit.service import cerebro_audit_candidates, cerebro_audit_gates
+from app.closure.service import closure_conditions, expected_answer_lines
 from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
 from app.knowledge.service import seed_cards, seed_sources
+from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
+from app.roadmap.service import technical_roadmap
 from app.scoring.service import apply_manual_override, score_out
 from app.ui.service import v1_screens
 
@@ -110,6 +118,31 @@ def cerebro_audit_candidates_list() -> list[CerebroAuditCandidate]:
 @router.get("/acceptance/v1")
 def acceptance_v1() -> list[AcceptanceCriterion]:
     return v1_acceptance_criteria()
+
+
+@router.get("/closure/conditions")
+def closure_conditions_list() -> list[ClosureCondition]:
+    return closure_conditions()
+
+
+@router.get("/closure/expected-result")
+def closure_expected_result() -> list[ExpectedAnswerLine]:
+    return expected_answer_lines()
+
+
+@router.get("/observability/status")
+def observability_status() -> list[ObservabilityMetric]:
+    return observability_metrics()
+
+
+@router.get("/roadmap/technical")
+def roadmap_technical() -> list[TechnicalRoadmapPhase]:
+    return technical_roadmap()
+
+
+@router.get("/cerebro-audit/gates")
+def cerebro_audit_gates_list() -> list[CerebroAuditGate]:
+    return cerebro_audit_gates()
 
 
 @router.post("/preferences/interpret")

@@ -4,12 +4,14 @@ import {
   Brain,
   ClipboardCheck,
   Database,
+  Flag,
   FilePenLine,
   FlaskConical,
   GitCompare,
   History,
   LayoutDashboard,
   PenLine,
+  Route,
   Search,
   ShieldCheck,
   SlidersHorizontal,
@@ -24,9 +26,12 @@ import {
   evaluateDecision,
   getAcceptanceCriteria,
   getAuditEvents,
+  getCerebroAuditGates,
   getCerebroAuditCandidates,
+  getClosureConditions,
   getContradictions,
   getDecisionRules,
+  getExpectedResult,
   getFeedbackProposals,
   getGeneratedTexts,
   generateText,
@@ -39,6 +44,8 @@ import {
   getProfileStatistics,
   getScoreProposal,
   getScores,
+  getObservabilityStatus,
+  getTechnicalRoadmap,
   getV1Screens,
   simulateLab,
   updatePreferenceStatus,
@@ -47,11 +54,14 @@ import {
 import type {
   AuditEvent,
   AcceptanceCriterion,
+  CerebroAuditGate,
   CerebroAuditCandidate,
+  ClosureCondition,
   ComparisonResult,
   Contradiction,
   DecisionEvaluation,
   DecisionRule,
+  ExpectedAnswerLine,
   FeedbackProposal,
   GeneratedText,
   GenerationAction,
@@ -60,6 +70,7 @@ import type {
   KnowledgeStatus,
   KnowledgeSource,
   LabSimulationResult,
+  ObservabilityMetric,
   Preference,
   PreferenceStatus,
   PersistenceDomain,
@@ -67,6 +78,7 @@ import type {
   ProfileStatistics,
   ScoreProposal,
   ScoreVariable,
+  TechnicalRoadmapPhase,
   V1Screen,
 } from "./types/api";
 
@@ -82,6 +94,8 @@ const tabs = [
   { id: "persistence", label: "Persistencia", icon: Database },
   { id: "cerebro", label: "Cerebro", icon: Search },
   { id: "acceptance", label: "Aceptacion", icon: ClipboardCheck },
+  { id: "closure", label: "Cierre", icon: Flag },
+  { id: "roadmap", label: "Roadmap", icon: Route },
   { id: "screens", label: "Pantallas", icon: LayoutDashboard },
   { id: "audit", label: "Auditoria", icon: History },
 ] as const;
@@ -115,7 +129,12 @@ export function App() {
   const [persistenceDomains, setPersistenceDomains] = useState<PersistenceDomain[]>([]);
   const [generatedTexts, setGeneratedTexts] = useState<GeneratedText[]>([]);
   const [cerebroCandidates, setCerebroCandidates] = useState<CerebroAuditCandidate[]>([]);
+  const [cerebroGates, setCerebroGates] = useState<CerebroAuditGate[]>([]);
   const [acceptanceCriteria, setAcceptanceCriteria] = useState<AcceptanceCriterion[]>([]);
+  const [closureConditions, setClosureConditions] = useState<ClosureCondition[]>([]);
+  const [expectedResult, setExpectedResult] = useState<ExpectedAnswerLine[]>([]);
+  const [observability, setObservability] = useState<ObservabilityMetric[]>([]);
+  const [roadmap, setRoadmap] = useState<TechnicalRoadmapPhase[]>([]);
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
@@ -151,6 +170,11 @@ export function App() {
       getGeneratedTexts(activeContext),
       getCerebroAuditCandidates(),
       getAcceptanceCriteria(),
+      getCerebroAuditGates(),
+      getClosureConditions(),
+      getExpectedResult(),
+      getObservabilityStatus(),
+      getTechnicalRoadmap(),
     ])
       .then(([
         knowledgeData,
@@ -170,6 +194,11 @@ export function App() {
         textData,
         cerebroData,
         acceptanceData,
+        gateData,
+        closureData,
+        expectedData,
+        observabilityData,
+        roadmapData,
       ]) => {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
@@ -188,6 +217,11 @@ export function App() {
         setGeneratedTexts(textData);
         setCerebroCandidates(cerebroData);
         setAcceptanceCriteria(acceptanceData);
+        setCerebroGates(gateData);
+        setClosureConditions(closureData);
+        setExpectedResult(expectedData);
+        setObservability(observabilityData);
+        setRoadmap(roadmapData);
       })
       .catch((nextError: Error) => setError(nextError.message));
   }, [activeContext]);
@@ -976,6 +1010,10 @@ export function App() {
                 </article>
               ))}
             </div>
+            <List
+              title="Bloqueos antes de reutilizar"
+              items={cerebroGates.map((gate) => `${gate.id}: ${gate.status} · ${gate.reason}`)}
+            />
           </section>
         )}
 
@@ -994,6 +1032,74 @@ export function App() {
                   <pre>{criterion.evidence.join("\n")}</pre>
                 </article>
               ))}
+            </div>
+          </section>
+        )}
+
+        {active === "closure" && (
+          <section className="panel editorGrid">
+            <div>
+              <h2>Condiciones de cierre</h2>
+              <div className="auditList">
+                {closureConditions.map((condition) => (
+                  <article className="auditItem" key={condition.id}>
+                    <div>
+                      <strong>
+                        {condition.id}. {condition.description}
+                      </strong>
+                      <span>{condition.status}</span>
+                    </div>
+                    <pre>{condition.evidence.join("\n")}</pre>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="inspector">
+              <h2>Resultado esperado</h2>
+              <div className="auditList">
+                {expectedResult.map((line) => (
+                  <article className="auditItem" key={line.order}>
+                    <div>
+                      <strong>{line.text}</strong>
+                      <span>{line.evidence.join(", ")}</span>
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+          </section>
+        )}
+
+        {active === "roadmap" && (
+          <section className="panel editorGrid">
+            <div>
+              <h2>Roadmap tecnico</h2>
+              <div className="knowledgeGrid">
+                {roadmap.map((phase) => (
+                  <article className="knowledgeItem" key={phase.id}>
+                    <strong>
+                      {phase.id}. {phase.name}
+                    </strong>
+                    <span>{phase.status}</span>
+                    <List title="Items" items={phase.items} />
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="inspector">
+              <h2>Observabilidad</h2>
+              <div className="auditList">
+                {observability.map((metric) => (
+                  <article className="auditItem" key={metric.id}>
+                    <div>
+                      <strong>{metric.id}</strong>
+                      <span>
+                        {metric.status} · {metric.source}
+                      </span>
+                    </div>
+                  </article>
+                ))}
+              </div>
             </div>
           </section>
         )}

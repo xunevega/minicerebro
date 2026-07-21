@@ -305,3 +305,35 @@ class AcceptanceCriterion(BaseModel):
     description: str
     status: str
     evidence: list[str]
+
+
+class ClosureCondition(BaseModel):
+    id: int
+    description: str
+    status: str
+    evidence: list[str]
+
+
+class ExpectedAnswerLine(BaseModel):
+    order: int
+    text: str
+    evidence: list[str]
+
+
+class ObservabilityMetric(BaseModel):
+    id: str
+    source: str
+    status: str
+
+
+class TechnicalRoadmapPhase(BaseModel):
+    id: int
+    name: str
+    status: str
+    items: list[str]
+
+
+class CerebroAuditGate(BaseModel):
+    id: str
+    status: str
+    reason: str

@@ -247,3 +247,26 @@ def test_cerebro_audit_and_acceptance_are_exposed():
     criteria = acceptance.json()
     assert len(criteria) == 20
     assert all(item["status"] == "implemented" for item in criteria)
+
+
+def test_closure_observability_roadmap_and_cerebro_gates_are_exposed():
+    closure = client.get("/closure/conditions")
+    assert closure.status_code == 200
+    assert len(closure.json()) == 12
+    assert closure.json()[0]["status"] == "satisfied"
+
+    expected = client.get("/closure/expected-result")
+    assert expected.status_code == 200
+    assert expected.json()[-1]["text"] == "Nada cambiara hasta que lo apruebes."
+
+    observability = client.get("/observability/status")
+    assert observability.status_code == 200
+    assert any(item["id"] == "adequacy_percentage" for item in observability.json())
+
+    roadmap = client.get("/roadmap/technical")
+    assert roadmap.status_code == 200
+    assert roadmap.json()[0]["name"] == "Esqueleto"
+
+    gates = client.get("/cerebro-audit/gates")
+    assert gates.status_code == 200
+    assert any(item["id"] == "world_model_dependency" for item in gates.json())
