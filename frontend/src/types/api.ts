@@ -66,6 +66,15 @@ export type KnowledgeSource = {
   status: string;
 };
 
+export type KnowledgeNode = {
+  id: string;
+  source_id: string;
+  node_type: string;
+  title: string;
+  summary: string;
+  version: string;
+};
+
 export type KnowledgeClaim = {
   id: string;
   evidence_id: string;

@@ -37,6 +37,9 @@ import {
   getGeneratedTexts,
   generateText,
   getKnowledgeCards,
+  getKnowledgeClaims,
+  getKnowledgeEvidence,
+  getKnowledgeNodes,
   getKnowledgeStatus,
   getKnowledgeSources,
   getPersistenceStatus,
@@ -71,6 +74,9 @@ import type {
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
+  KnowledgeClaim,
+  KnowledgeEvidenceItem,
+  KnowledgeNode,
   KnowledgeQueryResult,
   KnowledgeStatus,
   KnowledgeSource,
@@ -116,6 +122,9 @@ export function App() {
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
   const [knowledgeSources, setKnowledgeSources] = useState<KnowledgeSource[]>([]);
+  const [knowledgeNodes, setKnowledgeNodes] = useState<KnowledgeNode[]>([]);
+  const [knowledgeEvidence, setKnowledgeEvidence] = useState<KnowledgeEvidenceItem[]>([]);
+  const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
   const [knowledgeQuery, setKnowledgeQuery] = useState("precision lexica");
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
@@ -166,6 +175,9 @@ export function App() {
       getKnowledgeStatus(),
       getKnowledgeCards(),
       getKnowledgeSources(),
+      getKnowledgeNodes(),
+      getKnowledgeEvidence(),
+      getKnowledgeClaims(),
       getProfileSummary(),
       getProfileStatistics(activeContext),
       getContradictions(activeContext),
@@ -192,6 +204,9 @@ export function App() {
         knowledgeData,
         cardData,
         sourceData,
+        nodeData,
+        evidenceData,
+        claimData,
         summaryData,
         statisticsData,
         contradictionData,
@@ -217,6 +232,9 @@ export function App() {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
         setKnowledgeSources(sourceData);
+        setKnowledgeNodes(nodeData);
+        setKnowledgeEvidence(evidenceData);
+        setKnowledgeClaims(claimData);
         setSummary(summaryData);
         setStatistics(statisticsData);
         setContradictions(contradictionData);
@@ -246,6 +264,23 @@ export function App() {
     if (scores.length === 0) return 0;
     return scores.reduce((total, item) => total + item.confidence, 0) / scores.length;
   }, [scores]);
+
+  const cardById = useMemo(
+    () => new Map(knowledgeCards.map((card) => [card.id, card])),
+    [knowledgeCards],
+  );
+  const nodesBySource = useMemo(
+    () => groupBy(knowledgeNodes, (node) => node.source_id),
+    [knowledgeNodes],
+  );
+  const evidenceByNode = useMemo(
+    () => groupBy(knowledgeEvidence, (item) => item.node_id),
+    [knowledgeEvidence],
+  );
+  const claimsByEvidence = useMemo(
+    () => groupBy(knowledgeClaims, (claim) => claim.evidence_id),
+    [knowledgeClaims],
+  );
 
   async function handlePreference() {
     setError(null);
@@ -520,6 +555,38 @@ export function App() {
                   <span>{card.definition}</span>
                 </article>
               ))}
+            </div>
+            <div className="proposalBox">
+              <h3>Exploracion persistente</h3>
+              <div className="knowledgeGrid">
+                {knowledgeSources.map((source) => (
+                  <article className="knowledgeItem" key={source.id}>
+                    <strong>{source.name}</strong>
+                    <span>
+                      {source.source_type} · {source.status}
+                    </span>
+                    {(nodesBySource.get(source.id) ?? []).map((node) => (
+                      <div className="listBlock" key={node.id}>
+                        <h3>{node.title}</h3>
+                        <p className="note">{node.summary}</p>
+                        {(evidenceByNode.get(node.id) ?? []).map((item) => (
+                          <div className="listBlock" key={item.id}>
+                            <h3>{item.reference}</h3>
+                            <p className="note">{item.excerpt}</p>
+                            <List
+                              title="Claims"
+                              items={(claimsByEvidence.get(item.id) ?? []).map((claim) => {
+                                const card = cardById.get(claim.card_id);
+                                return `${claim.statement} -> ${card?.name ?? claim.card_id}`;
+                              })}
+                            />
+                          </div>
+                        ))}
+                      </div>
+                    ))}
+                  </article>
+                ))}
+              </div>
             </div>
             <div className="proposalBox">
               <h3>Consulta</h3>
@@ -1227,6 +1294,15 @@ function formatDate(value: string) {
     dateStyle: "short",
     timeStyle: "medium",
   }).format(new Date(value));
+}
+
+function groupBy<T>(items: T[], keyFor: (item: T) => string) {
+  const grouped = new Map<string, T[]>();
+  for (const item of items) {
+    const key = keyFor(item);
+    grouped.set(key, [...(grouped.get(key) ?? []), item]);
+  }
+  return grouped;
 }
 
 function Metric({ label, value }: { label: string; value: string | number }) {

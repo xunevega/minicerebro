@@ -16,6 +16,9 @@ import type {
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
+  KnowledgeClaim,
+  KnowledgeEvidenceItem,
+  KnowledgeNode,
   KnowledgeQueryResult,
   KnowledgeStatus,
   KnowledgeSource,
@@ -65,6 +68,21 @@ export function getKnowledgeCards() {
 
 export function getKnowledgeSources() {
   return request<KnowledgeSource[]>("/knowledge/sources");
+}
+
+export function getKnowledgeNodes(sourceId?: string) {
+  const suffix = sourceId ? `?source_id=${encodeURIComponent(sourceId)}` : "";
+  return request<KnowledgeNode[]>(`/knowledge/nodes${suffix}`);
+}
+
+export function getKnowledgeEvidence(nodeId?: string) {
+  const suffix = nodeId ? `?node_id=${encodeURIComponent(nodeId)}` : "";
+  return request<KnowledgeEvidenceItem[]>(`/knowledge/evidence${suffix}`);
+}
+
+export function getKnowledgeClaims(cardId?: string) {
+  const suffix = cardId ? `?card_id=${encodeURIComponent(cardId)}` : "";
+  return request<KnowledgeClaim[]>(`/knowledge/claims${suffix}`);
 }
 
 export function queryKnowledge(query: string, version = "knowledge-v0", limit = 5) {
