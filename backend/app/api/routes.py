@@ -3,7 +3,7 @@ from time import perf_counter
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, Request
 
 from app.comparison.service import compare_texts
 from app.core.repository import Repository
@@ -384,16 +384,27 @@ def profile_summary(profile_id: str, repository: RepositoryDep):
 
 @router.get("/profiles/{profile_id}/scores")
 def profile_scores(profile_id: str, repository: RepositoryDep, context: str = "general"):
-    return [score_out(variable) for variable in repository.get_context_variables(profile_id, context)]
+    try:
+        variables = repository.get_context_variables(profile_id, context)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile not found") from exc
+    return [score_out(variable) for variable in variables]
 
 
 @router.get("/profiles/{profile_id}/statistics")
 def profile_statistics(profile_id: str, repository: RepositoryDep, context: str = "general"):
-    return repository.profile_statistics(profile_id, context)
+    try:
+        return repository.profile_statistics(profile_id, context)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile not found") from exc
 
 
 @router.get("/profiles/{profile_id}/contradictions")
 def profile_contradictions(profile_id: str, repository: RepositoryDep, context: str = "general"):
+    try:
+        repository.get_profile(profile_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile not found") from exc
     return repository.contradictions(profile_id, context)
 
 
@@ -405,7 +416,10 @@ def profile_score_patch(
     repository: RepositoryDep,
     context: str = "general",
 ):
-    variables = repository.get_context_variables(profile_id, context)
+    try:
+        variables = repository.get_context_variables(profile_id, context)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile not found") from exc
     variable = next((item for item in variables if item.key == variable_key), None)
     if variable is None:
         raise HTTPException(status_code=404, detail="Variable not found")
@@ -496,17 +510,25 @@ def generated_texts_list(
 @router.post("/rewrite")
 @router.post("/continue")
 @router.post("/variants")
-def generation_create(payload: GenerationInput, repository: RepositoryDep):
-    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+def generation_create(payload: GenerationInput, repository: RepositoryDep, request: Request):
+    route_actions = {
+        "/correction": "correction",
+        "/rewrite": "rewrite",
+        "/continue": "continue",
+        "/variants": "variants",
+    }
+    action = route_actions.get(request.url.path, payload.action)
+    generation_input = payload.model_copy(update={"action": action})
+    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, generation_input.context)
     started_at = perf_counter()
-    generation = rewrite_with_profile(payload, variables)
+    generation = rewrite_with_profile(generation_input, variables)
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
             profile_id=DEFAULT_PROFILE_ID,
-            context=payload.context,
-            action=payload.action,
-            input_text=payload.text,
+            context=generation_input.context,
+            action=generation_input.action,
+            input_text=generation_input.text,
             output_text=generation.output,
             provider=generation.provider,
             used_profile_variables=generation.used_profile_variables,

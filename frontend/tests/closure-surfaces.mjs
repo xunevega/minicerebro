@@ -31,6 +31,13 @@ try {
   await roadmapPanel.getByText("Observabilidad").waitFor();
   await roadmapPanel.getByText("retrieval_quality").waitFor();
   await roadmapPanel.getByText("available").first().waitFor();
+
+  await page.getByRole("button", { name: "Pantallas" }).click();
+  const screensPanel = page.locator(".panel", { hasText: "Pantallas V1" });
+  await screensPanel.getByText("Reglas").waitFor();
+  await screensPanel.getByText("Persistencia").waitFor();
+  await screensPanel.getByText("Auditoria").waitFor();
+  await screensPanel.getByText("implemented · /audit").waitFor();
 } finally {
   await browser.close();
 }

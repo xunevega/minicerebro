@@ -16,7 +16,7 @@ async def lifespan(_: FastAPI) -> AsyncIterator[None]:
 
 app = FastAPI(
     title="Minicerebro API",
-    version="0.1.0",
+    version="1.0.0",
     description="API inicial para Minicerebro V1.",
     lifespan=lifespan,
 )

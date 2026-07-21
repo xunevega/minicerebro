@@ -88,6 +88,19 @@ def test_profile_export_rejects_missing_profile():
     assert response.json()["detail"] == "Profile not found"
 
 
+def test_profile_surfaces_reject_missing_profile_consistently():
+    assert client.get("/profiles/missing/summary").status_code == 404
+    assert client.get("/profiles/missing/scores").status_code == 404
+    assert client.get("/profiles/missing/statistics").status_code == 404
+    assert client.get("/profiles/missing/contradictions").status_code == 404
+    patched = client.patch(
+        "/profiles/missing/scores/dinamismo",
+        json={"manual_adjustment": 10, "reason": "No debe crear perfil inexistente."},
+    )
+    assert patched.status_code == 404
+    assert patched.json()["detail"] == "Profile not found"
+
+
 def test_preference_interpretation_is_proposed():
     response = client.post(
         "/preferences/interpret",
@@ -193,6 +206,24 @@ def test_generation_is_persisted_as_text():
     assert payload[0]["input_text"] == "Texto para persistir"
     assert payload[0]["output_text"] == response.json()["output"]
     assert payload[0]["learning_applied"] is False
+
+
+def test_generation_action_aliases_are_bound_to_their_routes():
+    variants = client.post("/variants", json={"text": "Idea base", "context": "general"})
+    assert variants.status_code == 200
+    assert "Variante A:" in variants.json()["output"]
+
+    continuation = client.post("/continue", json={"text": "Idea base", "context": "general"})
+    assert continuation.status_code == 200
+    assert "Continuacion propuesta:" in continuation.json()["output"]
+
+    correction = client.post("/correction", json={"text": " Texto  con  espacios ", "context": "general"})
+    assert correction.status_code == 200
+
+    texts = client.get("/texts?context=general")
+    assert texts.status_code == 200
+    actions = [item["action"] for item in texts.json()[:3]]
+    assert actions == ["correction", "continue", "variants"]
 
 
 def test_generation_audits_duration_without_raw_text():
@@ -681,7 +712,24 @@ def test_v1_screens_are_exposed():
     response = client.get("/ui/screens")
     assert response.status_code == 200
     screen_ids = {item["id"] for item in response.json()}
-    assert {"knowledge", "preferences", "profile", "scoring", "editor", "lab", "compare"} <= screen_ids
+    assert screen_ids == {
+        "knowledge",
+        "preferences",
+        "profile",
+        "scoring",
+        "editor",
+        "lab",
+        "compare",
+        "rules",
+        "persistence",
+        "cerebro",
+        "acceptance",
+        "closure",
+        "roadmap",
+        "screens",
+        "audit",
+    }
+    assert {item["status"] for item in response.json()} == {"implemented"}
 
 
 def test_decision_rules_and_persistence_status_are_exposed():

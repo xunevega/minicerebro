@@ -1,6 +1,6 @@
 # Cierre del plan V1
 
-Fecha de cierre: 2026-07-21
+Fecha de cierre: 2026-07-22
 
 Repositorio: `xunevega/minicerebro`
 
