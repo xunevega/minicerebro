@@ -9,6 +9,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
   await page.locator(".proposalBox", { hasText: "Consulta" }).locator("input").fill(emptyQuery);
+  await page.getByLabel("Limite de fichas").selectOption("3");
   await page.getByRole("button", { name: "Consultar" }).click();
 
   await page.getByText("Consulta valida sin resultados").waitFor();
@@ -32,6 +33,7 @@ try {
   await page.getByText("Historial de consultas de conocimiento").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
+  await auditPanel.getByText("14 caracteres · limite 3").first().waitFor();
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());

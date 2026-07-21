@@ -140,6 +140,7 @@ export function App() {
   const [knowledgeEvidence, setKnowledgeEvidence] = useState<KnowledgeEvidenceItem[]>([]);
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
   const [knowledgeQuery, setKnowledgeQuery] = useState("precision lexica");
+  const [knowledgeQueryLimit, setKnowledgeQueryLimit] = useState(5);
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
   const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
@@ -331,7 +332,9 @@ export function App() {
   async function handleKnowledgeQuery() {
     setError(null);
     try {
-      setKnowledgeResult(await queryKnowledge(knowledgeQuery));
+      setKnowledgeResult(
+        await queryKnowledge(knowledgeQuery, knowledge?.version, knowledgeQueryLimit),
+      );
       setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version));
       setKnowledgeQuerySummary(await getKnowledgeQuerySummary(knowledge?.version));
       await refreshAuditEvents();
@@ -643,6 +646,17 @@ export function App() {
                   onChange={(event) => setKnowledgeQuery(event.target.value)}
                   value={knowledgeQuery}
                 />
+                <select
+                  aria-label="Limite de fichas"
+                  onChange={(event) => setKnowledgeQueryLimit(Number.parseInt(event.target.value, 10))}
+                  value={knowledgeQueryLimit}
+                >
+                  {[3, 5, 10, 20].map((limit) => (
+                    <option key={limit} value={limit}>
+                      {limit} fichas
+                    </option>
+                  ))}
+                </select>
                 <button className="primaryButton" onClick={handleKnowledgeQuery} type="button">
                   Consultar
                 </button>
