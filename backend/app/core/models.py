@@ -120,3 +120,12 @@ class GenerationResult(BaseModel):
     explanation: str
     used_profile_variables: list[str]
     learning_applied: bool = False
+
+
+class AuditEvent(BaseModel):
+    id: int
+    event_type: str
+    entity_type: str
+    entity_id: str
+    payload: dict
+    created_at: datetime

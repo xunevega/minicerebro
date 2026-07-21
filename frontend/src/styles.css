@@ -327,6 +327,43 @@ textarea + .primaryButton {
   grid-column: 1 / -1;
 }
 
+.auditList {
+  display: grid;
+  gap: 12px;
+}
+
+.auditItem {
+  border: 1px solid #e0e6df;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr auto;
+  padding: 14px;
+}
+
+.auditItem strong,
+.auditItem span {
+  display: block;
+}
+
+.auditItem span,
+.auditItem time {
+  color: #69756f;
+  font-size: 13px;
+}
+
+.auditItem pre {
+  background: #f8faf5;
+  border: 1px solid #e3e8df;
+  border-radius: 8px;
+  color: #34413b;
+  grid-column: 1 / -1;
+  margin: 0;
+  overflow: auto;
+  padding: 12px;
+  white-space: pre-wrap;
+}
+
 .meter div {
   background: #e8ede8;
   border-radius: 999px;
@@ -366,6 +403,10 @@ textarea + .primaryButton {
   }
 
   .preferenceItem {
+    grid-template-columns: 1fr;
+  }
+
+  .auditItem {
     grid-template-columns: 1fr;
   }
 

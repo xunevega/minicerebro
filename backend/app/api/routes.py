@@ -133,6 +133,12 @@ def comparisons_get(comparison_id: UUID, repository: RepositoryDep):
         raise HTTPException(status_code=404, detail="Comparison not found") from exc
 
 
+@router.get("/audit/events")
+def audit_events(repository: RepositoryDep, limit: int = 50):
+    bounded_limit = max(1, min(limit, 100))
+    return repository.list_audit_events(bounded_limit)
+
+
 @router.post("/generation")
 @router.post("/correction")
 @router.post("/rewrite")

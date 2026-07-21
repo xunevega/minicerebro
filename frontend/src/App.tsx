@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Brain, GitCompare, PenLine, SlidersHorizontal } from "lucide-react";
+import { BookOpen, Brain, GitCompare, History, PenLine, SlidersHorizontal } from "lucide-react";
 import {
   compareTexts,
   createPreference,
   deletePreference,
+  getAuditEvents,
   getKnowledgeStatus,
   getPreferences,
   getProfileSummary,
@@ -12,6 +13,7 @@ import {
   updateScore,
 } from "./services/api";
 import type {
+  AuditEvent,
   ComparisonResult,
   KnowledgeStatus,
   Preference,
@@ -26,6 +28,7 @@ const tabs = [
   { id: "profile", label: "Lo que sabe", icon: Brain },
   { id: "scoring", label: "Scoring", icon: SlidersHorizontal },
   { id: "compare", label: "Comparador", icon: GitCompare },
+  { id: "audit", label: "Auditoria", icon: History },
 ] as const;
 
 type TabId = (typeof tabs)[number]["id"];
@@ -41,17 +44,25 @@ export function App() {
   const [original, setOriginal] = useState("Este texto explica una idea de manera general.");
   const [revised, setRevised] = useState("Este texto explica una idea con mas precision y menos rodeo.");
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
+  const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getKnowledgeStatus(), getProfileSummary(), getScores(), getPreferences()])
-      .then(([knowledgeData, summaryData, scoreData, preferenceData]) => {
+    Promise.all([
+      getKnowledgeStatus(),
+      getProfileSummary(),
+      getScores(),
+      getPreferences(),
+      getAuditEvents(),
+    ])
+      .then(([knowledgeData, summaryData, scoreData, preferenceData, auditData]) => {
         setKnowledge(knowledgeData);
         setSummary(summaryData);
         setScores(scoreData);
         setPreferences(preferenceData);
+        setAuditEvents(auditData);
       })
       .catch((nextError: Error) => setError(nextError.message));
   }, []);
@@ -68,6 +79,7 @@ export function App() {
       setPreference(created);
       setPreferences((current) => [created, ...current]);
       setSummary(await getProfileSummary());
+      setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -83,6 +95,7 @@ export function App() {
       if (preference?.id === preferenceId) {
         setPreference(updated);
       }
+      setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -97,6 +110,7 @@ export function App() {
         setPreference(null);
       }
       setSummary(await getProfileSummary());
+      setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -106,6 +120,7 @@ export function App() {
     setError(null);
     try {
       setComparison(await compareTexts(original, revised));
+      setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -119,6 +134,7 @@ export function App() {
       setScores((current) =>
         current.map((item) => (item.key === updated.variable.key ? updated.variable : item)),
       );
+      setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
     } finally {
@@ -328,9 +344,40 @@ export function App() {
             </div>
           </section>
         )}
+
+        {active === "audit" && (
+          <section className="panel">
+            <h2>Eventos recientes</h2>
+            {auditEvents.length === 0 ? (
+              <p className="note">Todavia no hay eventos registrados.</p>
+            ) : (
+              <div className="auditList">
+                {auditEvents.map((event) => (
+                  <article className="auditItem" key={event.id}>
+                    <div>
+                      <strong>{event.event_type}</strong>
+                      <span>
+                        {event.entity_type} · {event.entity_id}
+                      </span>
+                    </div>
+                    <time>{formatDate(event.created_at)}</time>
+                    <pre>{JSON.stringify(event.payload, null, 2)}</pre>
+                  </article>
+                ))}
+              </div>
+            )}
+          </section>
+        )}
       </section>
     </main>
   );
+}
+
+function formatDate(value: string) {
+  return new Intl.DateTimeFormat("es", {
+    dateStyle: "short",
+    timeStyle: "medium",
+  }).format(new Date(value));
 }
 
 function Metric({ label, value }: { label: string; value: string | number }) {

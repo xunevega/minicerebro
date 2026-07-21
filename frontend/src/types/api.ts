@@ -57,3 +57,12 @@ export type ComparisonResult = {
   revised_words: number;
   summary: string;
 };
+
+export type AuditEvent = {
+  id: number;
+  event_type: string;
+  entity_type: string;
+  entity_id: string;
+  payload: Record<string, unknown>;
+  created_at: string;
+};

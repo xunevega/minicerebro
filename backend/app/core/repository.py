@@ -7,6 +7,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.models import (
+    AuditEvent,
     ComparisonResult,
     Evidence,
     EvidenceType,
@@ -109,6 +110,17 @@ def comparison_from_record(record: ComparisonRecord) -> ComparisonResult:
         original_words=record.original_words,
         revised_words=record.revised_words,
         summary=record.summary,
+        created_at=record.created_at,
+    )
+
+
+def audit_event_from_record(record: AuditEventRecord) -> AuditEvent:
+    return AuditEvent(
+        id=record.id,
+        event_type=record.event_type,
+        entity_type=record.entity_type,
+        entity_id=record.entity_id,
+        payload=record.payload,
         created_at=record.created_at,
     )
 
@@ -247,6 +259,14 @@ class Repository:
             raise KeyError(str(comparison_id))
         return comparison_from_record(record)
 
+    def list_audit_events(self, limit: int = 50) -> list[AuditEvent]:
+        records = self.session.scalars(
+            select(AuditEventRecord)
+            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
+            .limit(limit)
+        ).all()
+        return [audit_event_from_record(record) for record in records]
+
     def add_audit_event(
         self, event_type: str, entity_type: str, entity_id: str, payload: dict
     ) -> None:
@@ -259,4 +279,3 @@ class Repository:
                 created_at=datetime.now(UTC),
             )
         )
-

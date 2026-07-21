@@ -53,3 +53,23 @@ def test_preference_can_be_accepted_and_deleted():
 
     deleted = client.delete(f"/preferences/{preference_id}")
     assert deleted.status_code == 204
+
+
+def test_audit_events_are_exposed():
+    created = client.post(
+        "/preferences",
+        json={"text": "Prefiero un tono contenido.", "input_type": "prompt"},
+    )
+    assert created.status_code == 200
+
+    response = client.get("/audit/events")
+    assert response.status_code == 200
+    events = response.json()
+    assert len(events) > 0
+    assert events[0]["event_type"] in {
+        "preference.created",
+        "preference.status_updated",
+        "preference.deleted",
+        "score.manual_override",
+        "comparison.created",
+    }

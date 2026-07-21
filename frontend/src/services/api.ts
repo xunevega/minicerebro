@@ -1,4 +1,5 @@
 import type {
+  AuditEvent,
   ComparisonResult,
   KnowledgeStatus,
   Preference,
@@ -73,4 +74,8 @@ export function compareTexts(original: string, revised: string) {
     method: "POST",
     body: JSON.stringify({ original, revised, context: "general" }),
   });
+}
+
+export function getAuditEvents() {
+  return request<AuditEvent[]>("/audit/events");
 }
