@@ -20,6 +20,8 @@ from app.core.models import (
     FeedbackProposalInput,
     GeneratedText,
     GenerationInput,
+    KnowledgeClaim,
+    KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeSource,
     KnowledgeStatus,
@@ -48,7 +50,7 @@ from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
-from app.knowledge.service import seed_cards, seed_nodes, seed_sources
+from app.knowledge.service import seed_cards, seed_claims, seed_evidence, seed_nodes, seed_sources
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
@@ -95,6 +97,22 @@ def knowledge_nodes(source_id: str | None = None) -> list[KnowledgeNode]:
     if source_id:
         return [node for node in nodes if node.source_id == source_id]
     return nodes
+
+
+@router.get("/knowledge/evidence")
+def knowledge_evidence(node_id: str | None = None) -> list[KnowledgeEvidenceItem]:
+    evidence = seed_evidence()
+    if node_id:
+        return [item for item in evidence if item.node_id == node_id]
+    return evidence
+
+
+@router.get("/knowledge/claims")
+def knowledge_claims(card_id: str | None = None) -> list[KnowledgeClaim]:
+    claims = seed_claims()
+    if card_id:
+        return [claim for claim in claims if claim.card_id == card_id]
+    return claims
 
 
 @router.get("/knowledge/cards")

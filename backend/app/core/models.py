@@ -162,6 +162,25 @@ class KnowledgeNode(BaseModel):
     version: str
 
 
+class KnowledgeEvidenceItem(BaseModel):
+    id: str
+    node_id: str
+    source_id: str
+    reference: str
+    excerpt: str
+    confidence: float = Field(ge=0, le=1)
+    version: str
+
+
+class KnowledgeClaim(BaseModel):
+    id: str
+    evidence_id: str
+    card_id: str
+    statement: str
+    confidence: float = Field(ge=0, le=1)
+    version: str
+
+
 class KnowledgeCard(BaseModel):
     id: str
     card_type: str

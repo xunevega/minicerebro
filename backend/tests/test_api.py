@@ -196,6 +196,31 @@ def test_knowledge_nodes_link_to_sources():
     assert all(node["source_id"] == "rae" for node in filtered.json())
 
 
+def test_knowledge_evidence_and_claims_link_nodes_to_cards():
+    evidence = client.get("/knowledge/evidence")
+    assert evidence.status_code == 200
+    evidence_payload = evidence.json()
+
+    nodes = {node["id"] for node in client.get("/knowledge/nodes").json()}
+    sources = {source["id"] for source in client.get("/knowledge/sources").json()}
+    assert len(evidence_payload) >= 1
+    assert {item["node_id"] for item in evidence_payload} <= nodes
+    assert {item["source_id"] for item in evidence_payload} <= sources
+
+    claims = client.get("/knowledge/claims")
+    assert claims.status_code == 200
+    claim_payload = claims.json()
+    card_ids = {card["id"] for card in client.get("/knowledge/cards").json()}
+    evidence_ids = {item["id"] for item in evidence_payload}
+    assert len(claim_payload) >= 1
+    assert {claim["evidence_id"] for claim in claim_payload} <= evidence_ids
+    assert {claim["card_id"] for claim in claim_payload} <= card_ids
+
+    filtered = client.get("/knowledge/claims?card_id=lexico-precision")
+    assert filtered.status_code == 200
+    assert all(claim["card_id"] == "lexico-precision" for claim in filtered.json())
+
+
 def test_comparison_includes_dimensions_and_changes():
     response = client.post(
         "/comparisons",

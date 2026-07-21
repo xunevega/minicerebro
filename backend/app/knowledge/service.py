@@ -1,4 +1,10 @@
-from app.core.models import KnowledgeCard, KnowledgeNode, KnowledgeSource
+from app.core.models import (
+    KnowledgeCard,
+    KnowledgeClaim,
+    KnowledgeEvidenceItem,
+    KnowledgeNode,
+    KnowledgeSource,
+)
 
 
 def seed_sources() -> list[KnowledgeSource]:
@@ -38,6 +44,67 @@ def seed_nodes() -> list[KnowledgeNode]:
             node_type="internal_manual_section",
             title="Rasgos operativos de escritura",
             summary="Nodo semilla para rasgos editables como dinamismo, sobriedad y precision.",
+            version="knowledge-v0",
+        ),
+    ]
+
+
+def seed_evidence() -> list[KnowledgeEvidenceItem]:
+    return [
+        KnowledgeEvidenceItem(
+            id="ev-precision-lexica",
+            node_id="rae-norma-estilo",
+            source_id="rae",
+            reference="registro normativo semilla",
+            excerpt="La precision lexica reduce ambiguedad y mejora verificabilidad.",
+            confidence=0.58,
+            version="knowledge-v0",
+        ),
+        KnowledgeEvidenceItem(
+            id="ev-dinamismo-frase",
+            node_id="manual-rasgos-escritura",
+            source_id="manual-estilo",
+            reference="manual interno, rasgos de frase",
+            excerpt="El dinamismo aumenta cuando la frase avanza con verbos activos y menos acumulacion.",
+            confidence=0.52,
+            version="knowledge-v0",
+        ),
+        KnowledgeEvidenceItem(
+            id="ev-sobriedad-voz",
+            node_id="manual-rasgos-escritura",
+            source_id="manual-estilo",
+            reference="manual interno, rasgos de voz",
+            excerpt="La sobriedad depende de contencion expresiva y baja ornamentacion.",
+            confidence=0.5,
+            version="knowledge-v0",
+        ),
+    ]
+
+
+def seed_claims() -> list[KnowledgeClaim]:
+    return [
+        KnowledgeClaim(
+            id="claim-dinamismo-frase",
+            evidence_id="ev-dinamismo-frase",
+            card_id="frase-dinamismo",
+            statement="El dinamismo de frase se asocia a avance sintactico y verbos activos.",
+            confidence=0.52,
+            version="knowledge-v0",
+        ),
+        KnowledgeClaim(
+            id="claim-precision-lexica",
+            evidence_id="ev-precision-lexica",
+            card_id="lexico-precision",
+            statement="La precision lexica favorece formulaciones concretas y verificables.",
+            confidence=0.58,
+            version="knowledge-v0",
+        ),
+        KnowledgeClaim(
+            id="claim-sobriedad-voz",
+            evidence_id="ev-sobriedad-voz",
+            card_id="voz-sobriedad",
+            statement="La sobriedad reduce enfasis decorativo y mantiene autoridad tonal.",
+            confidence=0.5,
             version="knowledge-v0",
         ),
     ]
