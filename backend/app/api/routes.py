@@ -65,6 +65,13 @@ router = APIRouter()
 RepositoryDep = Annotated[Repository, Depends(get_repository)]
 
 
+def ensure_knowledge_version(repository: Repository, version: str | None) -> None:
+    if version is None:
+        return
+    if not any(item.id == version for item in repository.list_knowledge_versions()):
+        raise HTTPException(status_code=404, detail="Knowledge version not found")
+
+
 @router.get("/knowledge/status")
 def knowledge_status() -> KnowledgeStatus:
     return KnowledgeStatus(
@@ -94,6 +101,7 @@ def knowledge_sources(
     repository: RepositoryDep,
     version: str | None = None,
 ) -> list[KnowledgeSource]:
+    ensure_knowledge_version(repository, version)
     return repository.list_knowledge_sources(version=version)
 
 
@@ -103,6 +111,7 @@ def knowledge_nodes(
     source_id: str | None = None,
     version: str | None = None,
 ) -> list[KnowledgeNode]:
+    ensure_knowledge_version(repository, version)
     return repository.list_knowledge_nodes(source_id=source_id, version=version)
 
 
@@ -112,6 +121,7 @@ def knowledge_evidence(
     node_id: str | None = None,
     version: str | None = None,
 ) -> list[KnowledgeEvidenceItem]:
+    ensure_knowledge_version(repository, version)
     return repository.list_knowledge_evidence(node_id=node_id, version=version)
 
 
@@ -121,6 +131,7 @@ def knowledge_claims(
     card_id: str | None = None,
     version: str | None = None,
 ) -> list[KnowledgeClaim]:
+    ensure_knowledge_version(repository, version)
     return repository.list_knowledge_claims(card_id=card_id, version=version)
 
 
@@ -129,6 +140,7 @@ def knowledge_cards(
     repository: RepositoryDep,
     version: str | None = None,
 ) -> list[KnowledgeCard]:
+    ensure_knowledge_version(repository, version)
     return repository.list_knowledge_cards(version=version)
 
 

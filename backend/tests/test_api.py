@@ -194,9 +194,9 @@ def test_knowledge_sources_are_exposed():
     assert versioned.status_code == 200
     assert {source["id"] for source in versioned.json()} == {"rae", "manual-estilo"}
 
-    empty_version = client.get("/knowledge/sources?version=missing-version")
-    assert empty_version.status_code == 200
-    assert empty_version.json() == []
+    missing_version = client.get("/knowledge/sources?version=missing-version")
+    assert missing_version.status_code == 404
+    assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
 def test_knowledge_nodes_link_to_sources():
@@ -216,9 +216,9 @@ def test_knowledge_nodes_link_to_sources():
     assert versioned.status_code == 200
     assert [node["id"] for node in versioned.json()] == ["rae-norma-estilo"]
 
-    empty_version = client.get("/knowledge/nodes?version=missing-version")
-    assert empty_version.status_code == 200
-    assert empty_version.json() == []
+    missing_version = client.get("/knowledge/nodes?version=missing-version")
+    assert missing_version.status_code == 404
+    assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
 def test_knowledge_evidence_and_claims_link_nodes_to_cards():
@@ -251,9 +251,9 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     assert versioned_evidence.status_code == 200
     assert [item["id"] for item in versioned_evidence.json()] == ["ev-precision-lexica"]
 
-    empty_evidence = client.get("/knowledge/evidence?version=missing-version")
-    assert empty_evidence.status_code == 200
-    assert empty_evidence.json() == []
+    missing_evidence = client.get("/knowledge/evidence?version=missing-version")
+    assert missing_evidence.status_code == 404
+    assert missing_evidence.json()["detail"] == "Knowledge version not found"
 
     versioned_claims = client.get(
         "/knowledge/claims?card_id=lexico-precision&version=knowledge-v0"
@@ -261,9 +261,9 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     assert versioned_claims.status_code == 200
     assert [claim["id"] for claim in versioned_claims.json()] == ["claim-precision-lexica"]
 
-    empty_claims = client.get("/knowledge/claims?version=missing-version")
-    assert empty_claims.status_code == 200
-    assert empty_claims.json() == []
+    missing_claims = client.get("/knowledge/claims?version=missing-version")
+    assert missing_claims.status_code == 404
+    assert missing_claims.json()["detail"] == "Knowledge version not found"
 
 
 def test_knowledge_cards_can_be_scoped_by_version():
@@ -275,9 +275,9 @@ def test_knowledge_cards_can_be_scoped_by_version():
         "voz-sobriedad",
     }
 
-    empty_version = client.get("/knowledge/cards?version=missing-version")
-    assert empty_version.status_code == 200
-    assert empty_version.json() == []
+    missing_version = client.get("/knowledge/cards?version=missing-version")
+    assert missing_version.status_code == 404
+    assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
 def test_knowledge_versions_include_chain_counts():
