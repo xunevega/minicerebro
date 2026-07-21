@@ -353,7 +353,7 @@ class Repository:
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
         if self.session.get(KnowledgeVersionRecord, payload.version) is None:
             raise KeyError(payload.version)
-        return query_knowledge(
+        result = query_knowledge(
             payload,
             sources=self.list_knowledge_sources(version=payload.version),
             nodes=self.list_knowledge_nodes(version=payload.version),
@@ -361,6 +361,20 @@ class Repository:
             claims=self.list_knowledge_claims(version=payload.version),
             evidence=self.list_knowledge_evidence(version=payload.version),
         )
+        self.add_audit_event(
+            "knowledge.query.executed",
+            "knowledge_version",
+            payload.version,
+            {
+                "query_length": len(payload.query),
+                "limit": payload.limit,
+                "card_count": result.card_count,
+                "claim_count": result.claim_count,
+                "evidence_count": result.evidence_count,
+            },
+        )
+        self.session.commit()
+        return result
 
     def get_profile(self, profile_id: str) -> Profile:
         record = self.session.scalar(

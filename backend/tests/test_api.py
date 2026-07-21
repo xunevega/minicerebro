@@ -88,6 +88,7 @@ def test_audit_events_are_exposed():
         "score.manual_override",
         "comparison.created",
         "text.generated",
+        "knowledge.query.executed",
     }
 
 
@@ -315,6 +316,31 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
     }
 
 
+def test_knowledge_query_records_audit_event_without_raw_query():
+    query = "precision lexica verificable"
+    response = client.post(
+        "/knowledge/query",
+        json={"query": query, "version": "knowledge-v0", "limit": 3},
+    )
+    assert response.status_code == 200
+    result = response.json()
+
+    events_response = client.get("/audit/events")
+    assert events_response.status_code == 200
+    event = events_response.json()[0]
+    assert event["event_type"] == "knowledge.query.executed"
+    assert event["entity_type"] == "knowledge_version"
+    assert event["entity_id"] == "knowledge-v0"
+    assert event["payload"] == {
+        "query_length": len(query),
+        "limit": 3,
+        "card_count": result["card_count"],
+        "claim_count": result["claim_count"],
+        "evidence_count": result["evidence_count"],
+    }
+    assert query not in str(event["payload"])
+
+
 def test_knowledge_query_matches_the_full_persisted_chain():
     evidence_match = client.post(
         "/knowledge/query",
@@ -339,6 +365,7 @@ def test_knowledge_query_matches_the_full_persisted_chain():
 
 
 def test_knowledge_query_rejects_missing_version():
+    before = client.get("/audit/events").json()
     response = client.post(
         "/knowledge/query",
         json={"query": "precision", "version": "missing-version", "limit": 3},
@@ -346,6 +373,8 @@ def test_knowledge_query_rejects_missing_version():
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Knowledge version not found"
+    after = client.get("/audit/events").json()
+    assert after == before
 
 
 def test_knowledge_pipeline_is_persisted():
