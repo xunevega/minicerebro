@@ -17,6 +17,7 @@ from app.core.models import (
     ScoreProposal,
     ScoreVariable,
 )
+from app.core.seeds import seed_variables
 from app.db.models import (
     AuditEventRecord,
     ComparisonRecord,
@@ -143,6 +144,82 @@ class Repository:
             raise KeyError(profile_id)
         return profile_from_record(record)
 
+    def get_context_variables(self, profile_id: str, context: str) -> list[ScoreVariable]:
+        self.ensure_context_variables(profile_id, context)
+        records = self.session.scalars(
+            select(ScoreVariableRecord)
+            .where(
+                ScoreVariableRecord.profile_id == profile_id,
+                ScoreVariableRecord.context == context,
+            )
+            .order_by(ScoreVariableRecord.id)
+        ).all()
+        return [score_from_record(record) for record in records]
+
+    def ensure_context_variables(self, profile_id: str, context: str) -> None:
+        existing = self.session.scalar(
+            select(ScoreVariableRecord).where(
+                ScoreVariableRecord.profile_id == profile_id,
+                ScoreVariableRecord.context == context,
+            )
+        )
+        if existing is not None:
+            return
+
+        profile = self.session.get(ProfileRecord, profile_id)
+        if profile is None:
+            raise KeyError(profile_id)
+
+        base_records = self.session.scalars(
+            select(ScoreVariableRecord)
+            .where(
+                ScoreVariableRecord.profile_id == profile_id,
+                ScoreVariableRecord.context == "general",
+            )
+            .order_by(ScoreVariableRecord.id)
+        ).all()
+        if not base_records:
+            for variable in seed_variables():
+                base_records.append(
+                    ScoreVariableRecord(
+                        profile_id=profile_id,
+                        key=variable.key,
+                        label=variable.label,
+                        category=variable.category,
+                        calculated_value=variable.calculated_value,
+                        manual_adjustment=variable.manual_adjustment,
+                        confidence=variable.confidence,
+                        context="general",
+                        evidence_count=variable.evidence_count,
+                        updated_at=variable.updated_at,
+                    )
+                )
+
+        now = datetime.now(UTC)
+        for record in base_records:
+            self.session.add(
+                ScoreVariableRecord(
+                    profile_id=profile_id,
+                    key=record.key,
+                    label=record.label,
+                    category=record.category,
+                    calculated_value=record.calculated_value,
+                    manual_adjustment=0,
+                    confidence=max(0.1, record.confidence * 0.75),
+                    context=context,
+                    evidence_count=0,
+                    updated_at=now,
+                )
+            )
+        profile.updated_at = now
+        self.add_audit_event(
+            "context.created",
+            "profile_context",
+            context,
+            {"profile_id": profile_id, "source_context": "general"},
+        )
+        self.session.commit()
+
     def add_preference(self, profile_id: str, preference: Preference) -> Preference:
         profile = self.session.get(ProfileRecord, profile_id)
         if profile is None:
@@ -163,6 +240,19 @@ class Repository:
         records = self.session.scalars(
             select(PreferenceRecord)
             .where(PreferenceRecord.profile_id == profile_id)
+            .options(selectinload(PreferenceRecord.evidence))
+            .order_by(PreferenceRecord.created_at.desc())
+        ).all()
+        return [preference_from_record(record) for record in records]
+
+    def list_preferences_for_context(self, profile_id: str, context: str) -> list[Preference]:
+        records = self.session.scalars(
+            select(PreferenceRecord)
+            .join(EvidenceRecord)
+            .where(
+                PreferenceRecord.profile_id == profile_id,
+                EvidenceRecord.context == context,
+            )
             .options(selectinload(PreferenceRecord.evidence))
             .order_by(PreferenceRecord.created_at.desc())
         ).all()
@@ -229,10 +319,12 @@ class Repository:
         self.session.commit()
 
     def update_variable(self, profile_id: str, variable: ScoreVariable, evidence: Evidence) -> None:
+        self.ensure_context_variables(profile_id, variable.context)
         record = self.session.scalar(
             select(ScoreVariableRecord).where(
                 ScoreVariableRecord.profile_id == profile_id,
                 ScoreVariableRecord.key == variable.key,
+                ScoreVariableRecord.context == variable.context,
             )
         )
         if record is None:
@@ -246,8 +338,12 @@ class Repository:
         self.add_audit_event(
             "score.manual_override",
             "score_variable",
-            variable.key,
-            {"manual_adjustment": variable.manual_adjustment, "reason": evidence.summary},
+            f"{variable.context}:{variable.key}",
+            {
+                "context": variable.context,
+                "manual_adjustment": variable.manual_adjustment,
+                "reason": evidence.summary,
+            },
         )
         self.session.commit()
 
@@ -258,11 +354,15 @@ class Repository:
             raise ValueError("Score proposal is not pending review")
 
         updated_variables: list[ScoreVariable] = []
+        for context in {item.context for item in proposal.items}:
+            self.ensure_context_variables(profile_id, context)
+
         for item in proposal.items:
             record = self.session.scalar(
                 select(ScoreVariableRecord).where(
                     ScoreVariableRecord.profile_id == profile_id,
                     ScoreVariableRecord.key == item.variable_key,
+                    ScoreVariableRecord.context == item.context,
                 )
             )
             if record is None:

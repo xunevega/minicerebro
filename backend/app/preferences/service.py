@@ -58,6 +58,7 @@ def build_score_proposal(preference: Preference) -> ScoreProposal:
     items = [
         ScoreProposalItem(
             variable_key=variable_key,
+            context=preference.evidence.context,
             delta=base_delta,
             reason=(
                 f"Preferencia aceptada desde {preference.evidence.evidence_type.value}: "

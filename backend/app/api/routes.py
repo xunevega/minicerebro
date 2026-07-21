@@ -60,7 +60,9 @@ def preferences_create(payload: PreferenceInput, repository: RepositoryDep):
 
 
 @router.get("/preferences")
-def preferences_list(repository: RepositoryDep):
+def preferences_list(repository: RepositoryDep, context: str | None = None):
+    if context:
+        return repository.list_preferences_for_context(DEFAULT_PROFILE_ID, context)
     return repository.list_preferences(DEFAULT_PROFILE_ID)
 
 
@@ -126,17 +128,20 @@ def profile_summary(profile_id: str, repository: RepositoryDep):
 
 
 @router.get("/profiles/{profile_id}/scores")
-def profile_scores(profile_id: str, repository: RepositoryDep):
-    profile = profile_get(profile_id, repository)
-    return [score_out(variable) for variable in profile.variables]
+def profile_scores(profile_id: str, repository: RepositoryDep, context: str = "general"):
+    return [score_out(variable) for variable in repository.get_context_variables(profile_id, context)]
 
 
 @router.patch("/profiles/{profile_id}/scores/{variable_key}")
 def profile_score_patch(
-    profile_id: str, variable_key: str, payload: ScorePatch, repository: RepositoryDep
+    profile_id: str,
+    variable_key: str,
+    payload: ScorePatch,
+    repository: RepositoryDep,
+    context: str = "general",
 ):
-    profile = profile_get(profile_id, repository)
-    variable = next((item for item in profile.variables if item.key == variable_key), None)
+    variables = repository.get_context_variables(profile_id, context)
+    variable = next((item for item in variables if item.key == variable_key), None)
     if variable is None:
         raise HTTPException(status_code=404, detail="Variable not found")
 
@@ -169,5 +174,5 @@ def audit_events(repository: RepositoryDep, limit: int = 50):
 @router.post("/rewrite")
 @router.post("/continue")
 def generation_create(payload: GenerationInput, repository: RepositoryDep):
-    profile = repository.get_profile(DEFAULT_PROFILE_ID)
-    return rewrite_with_profile(payload, profile.variables)
+    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+    return rewrite_with_profile(payload, variables)

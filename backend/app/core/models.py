@@ -44,6 +44,7 @@ class ScorePatch(BaseModel):
 
 class ScoreProposalItem(BaseModel):
     variable_key: str
+    context: str
     delta: int = Field(ge=-300, le=300)
     reason: str
 

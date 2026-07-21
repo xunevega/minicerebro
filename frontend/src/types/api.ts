@@ -28,6 +28,7 @@ export type ScoreProposal = {
   status: "pending_review" | "not_applicable" | "not_found";
   items: Array<{
     variable_key: string;
+    context: string;
     delta: number;
     reason: string;
   }>;
@@ -80,4 +81,13 @@ export type AuditEvent = {
   entity_id: string;
   payload: Record<string, unknown>;
   created_at: string;
+};
+
+export type GenerationAction = "rewrite" | "correction" | "continue" | "variants";
+
+export type GenerationResult = {
+  output: string;
+  explanation: string;
+  used_profile_variables: string[];
+  learning_applied: boolean;
 };

@@ -31,6 +31,12 @@ def test_patch_score_records_manual_override():
     assert payload["evidence"]["evidence_type"] == "manual_override"
 
 
+def test_scores_are_available_by_context():
+    response = client.get("/profiles/default/scores?context=ensayo")
+    assert response.status_code == 200
+    assert response.json()[0]["context"] == "ensayo"
+
+
 def test_preference_interpretation_is_proposed():
     response = client.post(
         "/preferences/interpret",
@@ -95,3 +101,12 @@ def test_accepted_preference_proposes_and_applies_scoring():
     )
     assert applied.status_code == 200
     assert len(applied.json()["variables"]) >= 1
+
+
+def test_generation_uses_requested_context():
+    response = client.post(
+        "/generation",
+        json={"text": "Una idea inicial", "action": "continue", "context": "tecnico"},
+    )
+    assert response.status_code == 200
+    assert response.json()["learning_applied"] is False

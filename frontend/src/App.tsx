@@ -1,11 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Brain, GitCompare, History, PenLine, SlidersHorizontal } from "lucide-react";
+import { BookOpen, Brain, FilePenLine, GitCompare, History, PenLine, SlidersHorizontal } from "lucide-react";
 import {
   applyScoreProposal,
   compareTexts,
   createPreference,
   deletePreference,
   getAuditEvents,
+  generateText,
   getKnowledgeStatus,
   getPreferences,
   getProfileSummary,
@@ -17,6 +18,8 @@ import {
 import type {
   AuditEvent,
   ComparisonResult,
+  GenerationAction,
+  GenerationResult,
   KnowledgeStatus,
   Preference,
   PreferenceStatus,
@@ -30,14 +33,18 @@ const tabs = [
   { id: "preferences", label: "Preferencias", icon: PenLine },
   { id: "profile", label: "Lo que sabe", icon: Brain },
   { id: "scoring", label: "Scoring", icon: SlidersHorizontal },
+  { id: "editor", label: "Editor", icon: FilePenLine },
   { id: "compare", label: "Comparador", icon: GitCompare },
   { id: "audit", label: "Auditoria", icon: History },
 ] as const;
+
+const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
 
 type TabId = (typeof tabs)[number]["id"];
 
 export function App() {
   const [active, setActive] = useState<TabId>("knowledge");
+  const [activeContext, setActiveContext] = useState("general");
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [scores, setScores] = useState<ScoreVariable[]>([]);
@@ -48,6 +55,11 @@ export function App() {
   const [original, setOriginal] = useState("Este texto explica una idea de manera general.");
   const [revised, setRevised] = useState("Este texto explica una idea con mas precision y menos rodeo.");
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
+  const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
+  const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
+  const [editorIntensity, setEditorIntensity] = useState(500);
+  const [protectedTerms, setProtectedTerms] = useState("");
+  const [generation, setGeneration] = useState<GenerationResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
@@ -57,8 +69,8 @@ export function App() {
     Promise.all([
       getKnowledgeStatus(),
       getProfileSummary(),
-      getScores(),
-      getPreferences(),
+      getScores(activeContext),
+      getPreferences(activeContext),
       getAuditEvents(),
     ])
       .then(([knowledgeData, summaryData, scoreData, preferenceData, auditData]) => {
@@ -69,7 +81,7 @@ export function App() {
         setAuditEvents(auditData);
       })
       .catch((nextError: Error) => setError(nextError.message));
-  }, []);
+  }, [activeContext]);
 
   const averageConfidence = useMemo(() => {
     if (scores.length === 0) return 0;
@@ -79,7 +91,7 @@ export function App() {
   async function handlePreference() {
     setError(null);
     try {
-      const created = await createPreference(preferenceText);
+      const created = await createPreference(preferenceText, activeContext);
       setPreference(created);
       setPreferences((current) => [created, ...current]);
       setSummary(await getProfileSummary());
@@ -131,7 +143,7 @@ export function App() {
   async function handleCompare() {
     setError(null);
     try {
-      setComparison(await compareTexts(original, revised));
+      setComparison(await compareTexts(original, revised, activeContext));
       setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -168,11 +180,32 @@ export function App() {
     }
   }
 
+  async function handleGenerate() {
+    setError(null);
+    try {
+      setGeneration(
+        await generateText(
+          editorText,
+          editorAction,
+          activeContext,
+          editorIntensity,
+          protectedTerms
+            .split(",")
+            .map((term) => term.trim())
+            .filter(Boolean),
+        ),
+      );
+      setAuditEvents(await getAuditEvents());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
   async function handleScoreAdjustment(score: ScoreVariable, manualAdjustment: number) {
     setError(null);
     setSavingScoreKey(score.key);
     try {
-      const updated = await updateScore(score.key, manualAdjustment, scoreReason);
+      const updated = await updateScore(score.key, manualAdjustment, scoreReason, activeContext);
       setScores((current) =>
         current.map((item) => (item.key === updated.variable.key ? updated.variable : item)),
       );
@@ -219,7 +252,20 @@ export function App() {
             <h1>{tabs.find((tab) => tab.id === active)?.label}</h1>
             <p>Conocimiento estable y perfil de preferencias permanecen separados.</p>
           </div>
-          <div className="statusPill">API local</div>
+          <div className="contextControl">
+            <label htmlFor="contextSelect">Contexto</label>
+            <select
+              id="contextSelect"
+              onChange={(event) => setActiveContext(event.target.value)}
+              value={activeContext}
+            >
+              {contexts.map((context) => (
+                <option key={context} value={context}>
+                  {context}
+                </option>
+              ))}
+            </select>
+          </div>
         </header>
 
         {error ? <div className="error">{error}</div> : null}
@@ -316,7 +362,7 @@ export function App() {
                       {scoreProposal.items.map((item) => (
                         <div className="proposalItem" key={item.variable_key}>
                           <strong>
-                            {item.variable_key} {item.delta > 0 ? "+" : ""}
+                            {item.context}:{item.variable_key} {item.delta > 0 ? "+" : ""}
                             {item.delta}
                           </strong>
                           <span>{item.reason}</span>
@@ -329,6 +375,65 @@ export function App() {
                   )}
                 </div>
               ) : null}
+            </div>
+          </section>
+        )}
+
+        {active === "editor" && (
+          <section className="panel editorGrid">
+            <div>
+              <h2>Texto</h2>
+              <textarea value={editorText} onChange={(event) => setEditorText(event.target.value)} />
+              <div className="editorControls">
+                <label>
+                  Accion
+                  <select
+                    onChange={(event) => setEditorAction(event.target.value as GenerationAction)}
+                    value={editorAction}
+                  >
+                    <option value="rewrite">Reescribir</option>
+                    <option value="correction">Corregir</option>
+                    <option value="continue">Continuar</option>
+                    <option value="variants">Variantes</option>
+                  </select>
+                </label>
+                <label>
+                  Intensidad: {editorIntensity}
+                  <input
+                    max={1000}
+                    min={0}
+                    onChange={(event) => setEditorIntensity(Number.parseInt(event.target.value, 10))}
+                    step={50}
+                    type="range"
+                    value={editorIntensity}
+                  />
+                </label>
+              </div>
+              <label className="fieldLabel" htmlFor="protectedTerms">
+                Terminos protegidos
+              </label>
+              <input
+                className="textInput"
+                id="protectedTerms"
+                onChange={(event) => setProtectedTerms(event.target.value)}
+                placeholder="Separados por coma"
+                value={protectedTerms}
+              />
+              <button className="primaryButton editorButton" onClick={handleGenerate} type="button">
+                Ejecutar
+              </button>
+            </div>
+            <div className="inspector">
+              <h2>Resultado</h2>
+              {generation ? (
+                <>
+                  <textarea readOnly value={generation.output} />
+                  <p className="note">{generation.explanation}</p>
+                  <List title="Variables usadas" items={generation.used_profile_variables} />
+                </>
+              ) : (
+                <p className="note">El editor usa el perfil del contexto activo sin aplicar aprendizaje.</p>
+              )}
             </div>
           </section>
         )}

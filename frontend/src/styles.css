@@ -15,6 +15,7 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
 }
@@ -93,6 +94,7 @@ nav {
 .topbar {
   align-items: center;
   display: flex;
+  gap: 18px;
   justify-content: space-between;
   margin-bottom: 22px;
 }
@@ -260,6 +262,49 @@ textarea + .primaryButton {
   width: min(620px, 100%);
 }
 
+.contextControl {
+  align-items: end;
+  display: grid;
+  gap: 6px;
+  min-width: 180px;
+}
+
+.contextControl label,
+.editorControls label {
+  color: #52615a;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.contextControl select,
+.editorControls select {
+  background: #ffffff;
+  border: 1px solid #ccd6cf;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.editorControls {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(160px, 0.4fr) 1fr;
+  margin: 14px 0;
+}
+
+.editorControls label {
+  display: grid;
+  gap: 8px;
+}
+
+.editorControls input[type="range"] {
+  accent-color: #1f6f5b;
+}
+
+.editorButton {
+  margin-top: 14px;
+}
+
 .adjustControl {
   display: grid;
   gap: 8px;
@@ -423,6 +468,14 @@ textarea + .primaryButton {
   .topbar,
   .scoreRow {
     align-items: stretch;
+    grid-template-columns: 1fr;
+  }
+
+  .topbar {
+    display: grid;
+  }
+
+  .editorControls {
     grid-template-columns: 1fr;
   }
 

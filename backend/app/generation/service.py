@@ -14,6 +14,12 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
             output = f"{output}."
     elif payload.action == "continue":
         output = f"{output}\n\nContinuacion propuesta: desarrolla la idea con precision y sin aprender nada automaticamente."
+    elif payload.action == "variants":
+        output = (
+            f"Variante A: {output}\n\n"
+            f"Variante B: {output} Mantiene la intencion y ajusta el ritmo.\n\n"
+            f"Variante C: {output} Conserva terminos protegidos y reduce rodeos."
+        )
 
     for term in payload.protected_terms:
         output = output.replace(f"[[{term}]]", term)
@@ -26,4 +32,3 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
         ),
         used_profile_variables=[item.key for item in active],
     )
-

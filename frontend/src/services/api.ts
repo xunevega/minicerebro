@@ -1,6 +1,8 @@
 import type {
   AuditEvent,
   ComparisonResult,
+  GenerationAction,
+  GenerationResult,
   KnowledgeStatus,
   Preference,
   PreferenceStatus,
@@ -34,30 +36,40 @@ export function getKnowledgeStatus() {
   return request<KnowledgeStatus>("/knowledge/status");
 }
 
+function withContext(path: string, context: string) {
+  const separator = path.includes("?") ? "&" : "?";
+  return `${path}${separator}context=${encodeURIComponent(context)}`;
+}
+
 export function getProfileSummary() {
   return request<ProfileSummary>("/profiles/default/summary");
 }
 
-export function getScores() {
-  return request<ScoreVariable[]>("/profiles/default/scores");
+export function getScores(context: string) {
+  return request<ScoreVariable[]>(withContext("/profiles/default/scores", context));
 }
 
-export function updateScore(variableKey: string, manualAdjustment: number, reason: string) {
-  return request<ScoreUpdate>(`/profiles/default/scores/${variableKey}`, {
+export function updateScore(
+  variableKey: string,
+  manualAdjustment: number,
+  reason: string,
+  context: string,
+) {
+  return request<ScoreUpdate>(withContext(`/profiles/default/scores/${variableKey}`, context), {
     method: "PATCH",
     body: JSON.stringify({ manual_adjustment: manualAdjustment, reason }),
   });
 }
 
-export function createPreference(text: string) {
+export function createPreference(text: string, context: string) {
   return request<Preference>("/preferences", {
     method: "POST",
-    body: JSON.stringify({ text, input_type: "prompt", context: "general" }),
+    body: JSON.stringify({ text, input_type: "prompt", context }),
   });
 }
 
-export function getPreferences() {
-  return request<Preference[]>("/preferences");
+export function getPreferences(context: string) {
+  return request<Preference[]>(withContext("/preferences", context));
 }
 
 export function updatePreferenceStatus(preferenceId: string, status: PreferenceStatus) {
@@ -82,13 +94,32 @@ export async function deletePreference(preferenceId: string) {
   await request<void>(`/preferences/${preferenceId}`, { method: "DELETE" });
 }
 
-export function compareTexts(original: string, revised: string) {
+export function compareTexts(original: string, revised: string, context: string) {
   return request<ComparisonResult>("/comparisons", {
     method: "POST",
-    body: JSON.stringify({ original, revised, context: "general" }),
+    body: JSON.stringify({ original, revised, context }),
   });
 }
 
 export function getAuditEvents() {
   return request<AuditEvent[]>("/audit/events");
+}
+
+export function generateText(
+  text: string,
+  action: GenerationAction,
+  context: string,
+  intensity: number,
+  protectedTerms: string[],
+) {
+  return request<GenerationResult>("/generation", {
+    method: "POST",
+    body: JSON.stringify({
+      text,
+      action,
+      context,
+      intensity,
+      protected_terms: protectedTerms,
+    }),
+  });
 }
