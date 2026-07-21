@@ -1,4 +1,11 @@
-import type { ComparisonResult, KnowledgeStatus, Preference, ProfileSummary, ScoreVariable } from "../types/api";
+import type {
+  ComparisonResult,
+  KnowledgeStatus,
+  Preference,
+  ProfileSummary,
+  ScoreUpdate,
+  ScoreVariable,
+} from "../types/api";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
 
@@ -27,6 +34,13 @@ export function getScores() {
   return request<ScoreVariable[]>("/profiles/default/scores");
 }
 
+export function updateScore(variableKey: string, manualAdjustment: number, reason: string) {
+  return request<ScoreUpdate>(`/profiles/default/scores/${variableKey}`, {
+    method: "PATCH",
+    body: JSON.stringify({ manual_adjustment: manualAdjustment, reason }),
+  });
+}
+
 export function createPreference(text: string) {
   return request<Preference>("/preferences", {
     method: "POST",
@@ -40,4 +54,3 @@ export function compareTexts(original: string, revised: string) {
     body: JSON.stringify({ original, revised, context: "general" }),
   });
 }
-

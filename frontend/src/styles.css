@@ -14,6 +14,7 @@ body {
 }
 
 button,
+input,
 textarea {
   font: inherit;
 }
@@ -230,6 +231,7 @@ textarea + .primaryButton {
 .scoreTable {
   display: grid;
   gap: 12px;
+  margin-top: 16px;
 }
 
 .scoreRow {
@@ -240,6 +242,53 @@ textarea + .primaryButton {
   gap: 18px;
   grid-template-columns: 1fr 1fr 1fr 1fr;
   padding: 14px;
+}
+
+.fieldLabel {
+  color: #52615a;
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.textInput {
+  border: 1px solid #ccd6cf;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 9px 12px;
+  width: min(620px, 100%);
+}
+
+.adjustControl {
+  display: grid;
+  gap: 8px;
+}
+
+.adjustControl label {
+  color: #69756f;
+  font-size: 13px;
+}
+
+.adjustControl input[type="range"] {
+  accent-color: #1f6f5b;
+  width: 100%;
+}
+
+.ghostButton {
+  background: transparent;
+  border: 1px solid #ccd6cf;
+  border-radius: 8px;
+  color: #1f6f5b;
+  cursor: pointer;
+  min-height: 34px;
+  padding: 0 10px;
+  width: fit-content;
+}
+
+.ghostButton:disabled {
+  cursor: wait;
+  opacity: 0.6;
 }
 
 .meter div {
@@ -291,4 +340,3 @@ textarea + .primaryButton {
     padding-top: 18px;
   }
 }
-

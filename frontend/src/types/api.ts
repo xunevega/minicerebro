@@ -10,6 +10,19 @@ export type ScoreVariable = {
   evidence_count: number;
 };
 
+export type ScoreUpdate = {
+  variable: ScoreVariable;
+  evidence: {
+    id: string;
+    evidence_type: "manual_override";
+    source: string;
+    summary: string;
+    weight: number;
+    context: string;
+    created_at: string;
+  };
+};
+
 export type KnowledgeStatus = {
   version: string;
   state: string;
@@ -42,4 +55,3 @@ export type ComparisonResult = {
   revised_words: number;
   summary: string;
 };
-

@@ -1,6 +1,13 @@
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Brain, GitCompare, PenLine, SlidersHorizontal } from "lucide-react";
-import { compareTexts, createPreference, getKnowledgeStatus, getProfileSummary, getScores } from "./services/api";
+import {
+  compareTexts,
+  createPreference,
+  getKnowledgeStatus,
+  getProfileSummary,
+  getScores,
+  updateScore,
+} from "./services/api";
 import type { ComparisonResult, KnowledgeStatus, Preference, ProfileSummary, ScoreVariable } from "./types/api";
 
 const tabs = [
@@ -23,6 +30,8 @@ export function App() {
   const [original, setOriginal] = useState("Este texto explica una idea de manera general.");
   const [revised, setRevised] = useState("Este texto explica una idea con mas precision y menos rodeo.");
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
+  const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
+  const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -56,6 +65,21 @@ export function App() {
       setComparison(await compareTexts(original, revised));
     } catch (nextError) {
       setError((nextError as Error).message);
+    }
+  }
+
+  async function handleScoreAdjustment(score: ScoreVariable, manualAdjustment: number) {
+    setError(null);
+    setSavingScoreKey(score.key);
+    try {
+      const updated = await updateScore(score.key, manualAdjustment, scoreReason);
+      setScores((current) =>
+        current.map((item) => (item.key === updated.variable.key ? updated.variable : item)),
+      );
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setSavingScoreKey(null);
     }
   }
 
@@ -152,6 +176,15 @@ export function App() {
         {active === "scoring" && (
           <section className="panel">
             <h2>Variables</h2>
+            <label className="fieldLabel" htmlFor="scoreReason">
+              Motivo del ajuste
+            </label>
+            <input
+              className="textInput"
+              id="scoreReason"
+              onChange={(event) => setScoreReason(event.target.value)}
+              value={scoreReason}
+            />
             <div className="scoreTable">
               {scores.map((score) => (
                 <article className="scoreRow" key={score.key}>
@@ -160,7 +193,28 @@ export function App() {
                     <span>{score.category}</span>
                   </div>
                   <Meter label="Calculado" value={score.calculated_value} />
-                  <Meter label="Ajuste" value={score.manual_adjustment} max={1000} />
+                  <div className="adjustControl">
+                    <label htmlFor={`adjust-${score.key}`}>Ajuste: {score.manual_adjustment}</label>
+                    <input
+                      id={`adjust-${score.key}`}
+                      max={300}
+                      min={-300}
+                      onChange={(event) =>
+                        handleScoreAdjustment(score, Number.parseInt(event.target.value, 10))
+                      }
+                      step={10}
+                      type="range"
+                      value={score.manual_adjustment}
+                    />
+                    <button
+                      className="ghostButton"
+                      disabled={savingScoreKey === score.key}
+                      onClick={() => handleScoreAdjustment(score, 0)}
+                      type="button"
+                    >
+                      Restablecer
+                    </button>
+                  </div>
                   <Meter label="Efectivo" value={score.effective_value} />
                 </article>
               ))}
@@ -232,4 +286,3 @@ function Meter({ label, value, max = 1000 }: { label: string; value: number; max
     </div>
   );
 }
-
