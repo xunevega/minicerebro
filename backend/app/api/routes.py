@@ -90,8 +90,11 @@ def knowledge_versions(repository: RepositoryDep) -> list[KnowledgeVersion]:
 
 
 @router.get("/knowledge/sources")
-def knowledge_sources(repository: RepositoryDep) -> list[KnowledgeSource]:
-    return repository.list_knowledge_sources()
+def knowledge_sources(
+    repository: RepositoryDep,
+    version: str | None = None,
+) -> list[KnowledgeSource]:
+    return repository.list_knowledge_sources(version=version)
 
 
 @router.get("/knowledge/nodes")

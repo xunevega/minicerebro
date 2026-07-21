@@ -276,7 +276,7 @@ def knowledge_version_from_record(
         id=record.id,
         status=record.status,
         published_at=record.published_at,
-        source_count=len(repository.list_knowledge_sources()),
+        source_count=len(repository.list_knowledge_sources(version=record.id)),
         node_count=len(repository.list_knowledge_nodes(version=record.id)),
         evidence_count=len(repository.list_knowledge_evidence(version=record.id)),
         claim_count=len(repository.list_knowledge_claims(version=record.id)),
@@ -294,10 +294,14 @@ class Repository:
         ).all()
         return [knowledge_version_from_record(record, self) for record in records]
 
-    def list_knowledge_sources(self) -> list[KnowledgeSource]:
-        records = self.session.scalars(
-            select(KnowledgeSourceRecord).order_by(KnowledgeSourceRecord.priority)
-        ).all()
+    def list_knowledge_sources(self, version: str | None = None) -> list[KnowledgeSource]:
+        query = select(KnowledgeSourceRecord)
+        if version:
+            query = query.join(
+                KnowledgeNodeRecord,
+                KnowledgeNodeRecord.source_id == KnowledgeSourceRecord.id,
+            ).where(KnowledgeNodeRecord.version == version)
+        records = self.session.scalars(query.order_by(KnowledgeSourceRecord.priority)).all()
         return [knowledge_source_from_record(record) for record in records]
 
     def list_knowledge_nodes(
@@ -349,7 +353,7 @@ class Repository:
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
         return query_knowledge(
             payload,
-            sources=self.list_knowledge_sources(),
+            sources=self.list_knowledge_sources(version=payload.version),
             nodes=self.list_knowledge_nodes(version=payload.version),
             cards=self.list_knowledge_cards(version=payload.version),
             claims=self.list_knowledge_claims(version=payload.version),

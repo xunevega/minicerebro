@@ -190,6 +190,14 @@ def test_knowledge_sources_are_exposed():
         "status": "registered",
     }
 
+    versioned = client.get("/knowledge/sources?version=knowledge-v0")
+    assert versioned.status_code == 200
+    assert {source["id"] for source in versioned.json()} == {"rae", "manual-estilo"}
+
+    empty_version = client.get("/knowledge/sources?version=missing-version")
+    assert empty_version.status_code == 200
+    assert empty_version.json() == []
+
 
 def test_knowledge_nodes_link_to_sources():
     response = client.get("/knowledge/nodes")
@@ -235,8 +243,9 @@ def test_knowledge_versions_include_chain_counts():
     assert response.status_code == 200
 
     versions = response.json()
+    version_sources = client.get("/knowledge/sources?version=knowledge-v0").json()
     assert versions[0]["id"] == "knowledge-v0"
-    assert versions[0]["source_count"] >= 1
+    assert versions[0]["source_count"] == len(version_sources)
     assert versions[0]["node_count"] >= 1
     assert versions[0]["evidence_count"] >= 1
     assert versions[0]["claim_count"] >= 1
