@@ -63,6 +63,13 @@ cd frontend
 npm run build
 ```
 
+Smokes UI contra una instancia real de frontend/backend:
+
+```bash
+cd frontend
+FRONTEND_URL=http://127.0.0.1:5173 npm run test:smoke-ui
+```
+
 Endpoints de cierre:
 
 - `GET /acceptance/v1`
