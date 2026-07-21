@@ -50,6 +50,8 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 
 `pgvector`, validacion editorial avanzada y fuentes academicas versionadas no forman parte del cierre V1. No hay V2 planificada; cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.
 
+El campo `gaps` de `GET /knowledge/status` se mantiene por compatibilidad, pero sus valores representan elementos fuera de alcance V1, no tareas pendientes del cierre.
+
 ## Validacion
 
 ```bash

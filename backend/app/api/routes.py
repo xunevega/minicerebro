@@ -81,7 +81,11 @@ def knowledge_status() -> KnowledgeStatus:
         version="knowledge-v0",
         state="seed",
         coverage=["lengua espanola", "escritura", "estilo", "comparacion textual"],
-        gaps=["fuentes academicas versionadas", "pgvector", "validacion editorial"],
+        gaps=[
+            "fuera de alcance V1: fuentes academicas versionadas",
+            "fuera de alcance V1: pgvector",
+            "fuera de alcance V1: validacion editorial avanzada",
+        ],
         sources_policy="La base de conocimiento no cambia por preferencias ni correcciones del usuario.",
     )
 

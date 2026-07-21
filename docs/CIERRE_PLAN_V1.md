@@ -61,6 +61,7 @@ curl http://127.0.0.1:8000/contract/boundaries
 - Conocimiento expone fuente, nodo, evidencia, claim, ficha, version, consulta e historial.
 - La validacion visible de conocimiento queda auditada por consulta.
 - La observabilidad V1 usa eventos reales para interpretacion, generacion, recuperacion, comparacion, scoring y feedback.
+- Las `gaps` de conocimiento son elementos fuera de alcance V1, no pendientes de cierre.
 - Ningun aprendizaje se aplica sin revision o regla explicita.
 - Cerebro no se usa como base arquitectonica automatica y queda bloqueado hasta evidencia de codigo pieza por pieza.
 - No hay V2 ni expansion multidominio planificada.

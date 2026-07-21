@@ -864,7 +864,7 @@ export function App() {
               ) : null}
             </div>
             <List title="Cobertura" items={knowledge?.coverage ?? []} />
-            <List title="Lagunas" items={knowledge?.gaps ?? []} />
+            <List title="Fuera de alcance V1" items={knowledge?.gaps ?? []} />
           </section>
         )}
 

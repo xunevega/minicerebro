@@ -204,6 +204,10 @@ def test_knowledge_cards_and_statistics_are_exposed():
     assert cards.status_code == 200
     assert len(cards.json()) >= 1
 
+    status = client.get("/knowledge/status")
+    assert status.status_code == 200
+    assert all(item.startswith("fuera de alcance V1:") for item in status.json()["gaps"])
+
     stats = client.get("/profiles/default/statistics?context=general")
     assert stats.status_code == 200
     assert stats.json()["profile_id"] == "default"
@@ -701,6 +705,20 @@ def test_cerebro_audit_remains_blocked_until_code_evidence_exists():
     gates = client.get("/cerebro-audit/gates")
     assert gates.status_code == 200
     assert {item["status"] for item in gates.json()} == {"blocked_until_checked"}
+
+
+def test_closure_surfaces_do_not_report_open_planned_work():
+    observability = client.get("/observability/status")
+    assert observability.status_code == 200
+    assert {item["status"] for item in observability.json()} == {"available"}
+
+    roadmap = client.get("/roadmap/technical")
+    assert roadmap.status_code == 200
+    assert {item["status"] for item in roadmap.json()} == {"done"}
+
+    coverage = client.get("/knowledge/coverage")
+    assert coverage.status_code == 200
+    assert "pending" not in coverage.json()
 
 
 def test_technical_closure_and_contract_boundaries_are_exposed():

@@ -9,6 +9,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
   await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "9 pendientes" }).first().waitFor();
+  await page.getByRole("heading", { name: "Fuera de alcance V1" }).waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
   await explorationPanel.getByText("Trazabilidad persistente").waitFor();
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "2" }).waitFor();
