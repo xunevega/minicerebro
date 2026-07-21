@@ -7,6 +7,8 @@ import type {
   KnowledgeCard,
   KnowledgeStatus,
   KnowledgeSource,
+  LabOverride,
+  LabSimulationResult,
   Preference,
   PreferenceStatus,
   ProfileSummary,
@@ -140,6 +142,27 @@ export function generateText(
       context,
       intensity,
       protected_terms: protectedTerms,
+    }),
+  });
+}
+
+export function simulateLab(
+  text: string,
+  action: GenerationAction,
+  context: string,
+  intensity: number,
+  protectedTerms: string[],
+  overrides: LabOverride[],
+) {
+  return request<LabSimulationResult>("/lab/simulate", {
+    method: "POST",
+    body: JSON.stringify({
+      text,
+      action,
+      context,
+      intensity,
+      protected_terms: protectedTerms,
+      overrides,
     }),
   });
 }

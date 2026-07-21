@@ -10,6 +10,8 @@ from app.core.models import (
     ComparisonInput,
     GenerationInput,
     KnowledgeStatus,
+    LabSimulationInput,
+    LabSimulationResult,
     PreferenceInput,
     PreferencePatch,
     ScorePatch,
@@ -197,3 +199,41 @@ def audit_events(repository: RepositoryDep, limit: int = 50):
 def generation_create(payload: GenerationInput, repository: RepositoryDep):
     variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
     return rewrite_with_profile(payload, variables)
+
+
+@router.post("/lab/simulate")
+def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep) -> LabSimulationResult:
+    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+    deltas = {override.variable_key: override.delta for override in payload.overrides}
+    simulated_variables = [
+        variable.model_copy(
+            update={
+                "manual_adjustment": max(
+                    -1000,
+                    min(1000, variable.manual_adjustment + deltas.get(variable.key, 0)),
+                )
+            }
+        )
+        for variable in variables
+    ]
+    generation_input = GenerationInput(
+        text=payload.text,
+        action=payload.action,
+        context=payload.context,
+        intensity=payload.intensity,
+        protected_terms=payload.protected_terms,
+    )
+    generation = rewrite_with_profile(generation_input, simulated_variables)
+    comparison = compare_texts(
+        ComparisonInput(
+            original=payload.text,
+            revised=generation.output,
+            context=payload.context,
+        )
+    )
+    return LabSimulationResult(
+        generation=generation,
+        comparison=comparison,
+        simulated_variables=[score_out(variable) for variable in simulated_variables],
+        learning_applied=False,
+    )

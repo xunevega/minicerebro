@@ -1,5 +1,14 @@
 import { useEffect, useMemo, useState } from "react";
-import { BookOpen, Brain, FilePenLine, GitCompare, History, PenLine, SlidersHorizontal } from "lucide-react";
+import {
+  BookOpen,
+  Brain,
+  FilePenLine,
+  FlaskConical,
+  GitCompare,
+  History,
+  PenLine,
+  SlidersHorizontal,
+} from "lucide-react";
 import {
   applyScoreProposal,
   compareTexts,
@@ -16,6 +25,7 @@ import {
   getProfileStatistics,
   getScoreProposal,
   getScores,
+  simulateLab,
   updatePreferenceStatus,
   updateScore,
 } from "./services/api";
@@ -28,6 +38,7 @@ import type {
   KnowledgeCard,
   KnowledgeStatus,
   KnowledgeSource,
+  LabSimulationResult,
   Preference,
   PreferenceStatus,
   ProfileSummary,
@@ -42,6 +53,7 @@ const tabs = [
   { id: "profile", label: "Lo que sabe", icon: Brain },
   { id: "scoring", label: "Scoring", icon: SlidersHorizontal },
   { id: "editor", label: "Editor", icon: FilePenLine },
+  { id: "lab", label: "Laboratorio", icon: FlaskConical },
   { id: "compare", label: "Comparador", icon: GitCompare },
   { id: "audit", label: "Auditoria", icon: History },
 ] as const;
@@ -72,6 +84,12 @@ export function App() {
   const [editorIntensity, setEditorIntensity] = useState(500);
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
+  const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
+  const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
+  const [labIntensity, setLabIntensity] = useState(500);
+  const [labOverrideKey, setLabOverrideKey] = useState("");
+  const [labOverrideDelta, setLabOverrideDelta] = useState(0);
+  const [labResult, setLabResult] = useState<LabSimulationResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
@@ -226,6 +244,29 @@ export function App() {
         ),
       );
       setAuditEvents(await getAuditEvents());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleLabSimulation() {
+    setError(null);
+    try {
+      setLabResult(
+        await simulateLab(
+          labText,
+          labAction,
+          activeContext,
+          labIntensity,
+          protectedTerms
+            .split(",")
+            .map((term) => term.trim())
+            .filter(Boolean),
+          labOverrideKey && labOverrideDelta !== 0
+            ? [{ variable_key: labOverrideKey, delta: labOverrideDelta }]
+            : [],
+        ),
+      );
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -482,6 +523,91 @@ export function App() {
                 </>
               ) : (
                 <p className="note">El editor usa el perfil del contexto activo sin aplicar aprendizaje.</p>
+              )}
+            </div>
+          </section>
+        )}
+
+        {active === "lab" && (
+          <section className="panel editorGrid">
+            <div>
+              <h2>Simulacion</h2>
+              <textarea value={labText} onChange={(event) => setLabText(event.target.value)} />
+              <div className="editorControls">
+                <label>
+                  Accion
+                  <select
+                    onChange={(event) => setLabAction(event.target.value as GenerationAction)}
+                    value={labAction}
+                  >
+                    <option value="rewrite">Reescribir</option>
+                    <option value="correction">Corregir</option>
+                    <option value="continue">Continuar</option>
+                    <option value="variants">Variantes</option>
+                  </select>
+                </label>
+                <label>
+                  Intensidad: {labIntensity}
+                  <input
+                    max={1000}
+                    min={0}
+                    onChange={(event) => setLabIntensity(Number.parseInt(event.target.value, 10))}
+                    step={50}
+                    type="range"
+                    value={labIntensity}
+                  />
+                </label>
+              </div>
+              <div className="labControls">
+                <label>
+                  Variable temporal
+                  <select
+                    onChange={(event) => setLabOverrideKey(event.target.value)}
+                    value={labOverrideKey}
+                  >
+                    <option value="">Sin override</option>
+                    {scores.map((score) => (
+                      <option key={score.key} value={score.key}>
+                        {score.label}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <label>
+                  Delta: {labOverrideDelta > 0 ? "+" : ""}
+                  {labOverrideDelta}
+                  <input
+                    max={300}
+                    min={-300}
+                    onChange={(event) => setLabOverrideDelta(Number.parseInt(event.target.value, 10))}
+                    step={10}
+                    type="range"
+                    value={labOverrideDelta}
+                  />
+                </label>
+              </div>
+              <button className="primaryButton editorButton" onClick={handleLabSimulation} type="button">
+                Simular
+              </button>
+            </div>
+            <div className="inspector">
+              <h2>Resultado</h2>
+              {labResult ? (
+                <>
+                  <textarea readOnly value={labResult.generation.output} />
+                  <p className="note">{labResult.generation.explanation}</p>
+                  <span className="statusPill">{labResult.generation.provider}</span>
+                  <Metric label="Modificacion" value={labResult.comparison.modification_score} />
+                  <Metric label="Adecuacion" value={labResult.comparison.adequacy_score} />
+                  <List
+                    title="Variables simuladas"
+                    items={labResult.simulated_variables.map(
+                      (score) => `${score.key}: ${score.effective_value}`,
+                    )}
+                  />
+                </>
+              ) : (
+                <p className="note">El laboratorio no escribe en preferencias, scoring ni evidencias.</p>
               )}
             </div>
           </section>

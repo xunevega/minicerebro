@@ -161,6 +161,27 @@ class GenerationResult(BaseModel):
     provider: str = "deterministic"
 
 
+class LabOverride(BaseModel):
+    variable_key: str
+    delta: int = Field(ge=-300, le=300)
+
+
+class LabSimulationInput(BaseModel):
+    text: str = Field(min_length=1, max_length=12000)
+    action: str = "rewrite"
+    context: str = "general"
+    intensity: int = Field(default=500, ge=0, le=1000)
+    protected_terms: list[str] = Field(default_factory=list)
+    overrides: list[LabOverride] = Field(default_factory=list)
+
+
+class LabSimulationResult(BaseModel):
+    generation: GenerationResult
+    comparison: ComparisonResult
+    simulated_variables: list[dict]
+    learning_applied: bool = False
+
+
 class AuditEvent(BaseModel):
     id: int
     event_type: str

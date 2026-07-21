@@ -301,6 +301,33 @@ textarea + .primaryButton {
   accent-color: #1f6f5b;
 }
 
+.labControls {
+  display: grid;
+  gap: 14px;
+  grid-template-columns: minmax(180px, 0.6fr) 1fr;
+  margin-top: 14px;
+}
+
+.labControls label {
+  color: #52615a;
+  display: grid;
+  font-size: 13px;
+  font-weight: 700;
+  gap: 8px;
+}
+
+.labControls select {
+  background: #ffffff;
+  border: 1px solid #ccd6cf;
+  border-radius: 8px;
+  min-height: 40px;
+  padding: 8px 10px;
+}
+
+.labControls input[type="range"] {
+  accent-color: #1f6f5b;
+}
+
 .editorButton {
   margin-top: 14px;
 }
@@ -500,6 +527,10 @@ textarea + .primaryButton {
   }
 
   .editorControls {
+    grid-template-columns: 1fr;
+  }
+
+  .labControls {
     grid-template-columns: 1fr;
   }
 

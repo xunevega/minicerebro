@@ -114,6 +114,18 @@ export type GenerationResult = {
   provider: string;
 };
 
+export type LabOverride = {
+  variable_key: string;
+  delta: number;
+};
+
+export type LabSimulationResult = {
+  generation: GenerationResult;
+  comparison: ComparisonResult;
+  simulated_variables: ScoreVariable[];
+  learning_applied: boolean;
+};
+
 export type ProfileStatistics = {
   profile_id: string;
   context: string;

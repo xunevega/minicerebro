@@ -112,6 +112,34 @@ def test_generation_uses_requested_context():
     assert response.json()["learning_applied"] is False
 
 
+def test_lab_simulation_does_not_persist_score_changes():
+    before = client.get("/profiles/default/scores?context=general").json()
+    target = before[0]
+
+    response = client.post(
+        "/lab/simulate",
+        json={
+            "text": "Una idea inicial",
+            "action": "continue",
+            "context": "general",
+            "overrides": [{"variable_key": target["key"], "delta": 120}],
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    simulated = next(
+        item for item in payload["simulated_variables"] if item["key"] == target["key"]
+    )
+    after = client.get("/profiles/default/scores?context=general").json()
+    persisted = next(item for item in after if item["key"] == target["key"])
+    assert payload["learning_applied"] is False
+    assert payload["generation"]["learning_applied"] is False
+    assert simulated["manual_adjustment"] == target["manual_adjustment"] + 120
+    assert persisted["manual_adjustment"] == target["manual_adjustment"]
+    assert "lexico" in payload["comparison"]["dimensions"]
+
+
 def test_knowledge_cards_and_statistics_are_exposed():
     cards = client.get("/knowledge/cards")
     assert cards.status_code == 200
