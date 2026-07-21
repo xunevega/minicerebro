@@ -299,6 +299,10 @@ export function App() {
     [knowledgeClaims],
   );
 
+  async function refreshAuditEvents(filterLabel = auditFilter) {
+    setAuditEvents(await loadAuditEvents(filterLabel, knowledge?.version));
+  }
+
   async function handlePreference() {
     setError(null);
     try {
@@ -306,7 +310,7 @@ export function App() {
       setPreference(created);
       setPreferences((current) => [created, ...current]);
       setSummary(await getProfileSummary());
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -316,7 +320,7 @@ export function App() {
     setError(null);
     try {
       setKnowledgeResult(await queryKnowledge(knowledgeQuery));
-      setAuditEvents(await loadAuditEvents(auditFilter, knowledge?.version));
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -326,7 +330,7 @@ export function App() {
     setError(null);
     setAuditFilter(nextFilter);
     try {
-      setAuditEvents(await loadAuditEvents(nextFilter, knowledge?.version));
+      await refreshAuditEvents(nextFilter);
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -347,7 +351,7 @@ export function App() {
       } else if (preference?.id === preferenceId) {
         setScoreProposal(null);
       }
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -365,7 +369,7 @@ export function App() {
         setScoreProposal(null);
       }
       setSummary(await getProfileSummary());
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -375,7 +379,7 @@ export function App() {
     setError(null);
     try {
       setComparison(await compareTexts(original, revised, activeContext));
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -388,7 +392,7 @@ export function App() {
       const proposal = await createFeedbackProposal(comparison.id, activeContext);
       setActiveFeedback(proposal);
       setFeedbackProposals((current) => [proposal, ...current]);
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -407,7 +411,7 @@ export function App() {
         current.map((item) => (item.id === decided.id ? decided : item)),
       );
       setScores(await getScores(activeContext));
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -436,7 +440,7 @@ export function App() {
         ),
       );
       setScoreProposal(applied.proposal);
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
       setActive("scoring");
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -459,7 +463,7 @@ export function App() {
         ),
       );
       setGeneratedTexts(await getGeneratedTexts(activeContext));
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -496,7 +500,7 @@ export function App() {
       setScores((current) =>
         current.map((item) => (item.key === updated.variable.key ? updated.variable : item)),
       );
-      setAuditEvents(await getAuditEvents());
+      await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     } finally {
