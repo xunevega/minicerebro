@@ -46,6 +46,12 @@ try {
   await page.getByLabel("Limite historial").selectOption("50");
   await historyLimitResponse;
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
+  const historyItem = auditPanel.locator(".auditItem", { hasText: "knowledge-v0 -> consulta" }).first();
+  await historyItem.getByRole("button", { name: "Detalle" }).click();
+  await historyItem.locator("dt", { hasText: "Evento" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Version" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Longitud" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Recorrido" }).waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
@@ -62,6 +68,8 @@ try {
     .first()
     .waitFor();
   await page.getByText("knowledge.query.executed").first().waitFor();
+  await historyItem.getByRole("button", { name: "Explorar version" }).click();
+  await page.getByText("Version navegada: knowledge-v0").waitFor();
 } finally {
   await browser.close();
 }

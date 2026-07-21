@@ -452,6 +452,12 @@ textarea + .primaryButton {
   gap: 12px;
 }
 
+.auditSection + .auditSection {
+  border-top: 1px solid #e0e5df;
+  margin-top: 28px;
+  padding-top: 22px;
+}
+
 .auditItem {
   border: 1px solid #e0e6df;
   border-radius: 8px;
@@ -488,6 +494,33 @@ textarea + .primaryButton {
   overflow: auto;
   padding: 12px;
   white-space: pre-wrap;
+}
+
+.auditDetail {
+  background: #f8faf5;
+  border: 1px solid #e3e8df;
+  border-radius: 8px;
+  display: grid;
+  gap: 10px;
+  grid-column: 1 / -1;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin: 0;
+  padding: 12px;
+}
+
+.auditDetail div {
+  min-width: 0;
+}
+
+.auditDetail dt {
+  color: #69756f;
+  font-size: 12px;
+}
+
+.auditDetail dd {
+  color: #243630;
+  font-weight: 700;
+  margin: 3px 0 0;
 }
 
 .meter div {
@@ -549,6 +582,10 @@ textarea + .primaryButton {
   }
 
   .auditItem {
+    grid-template-columns: 1fr;
+  }
+
+  .auditDetail {
     grid-template-columns: 1fr;
   }
 

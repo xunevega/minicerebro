@@ -145,6 +145,9 @@ export function App() {
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
   const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
   const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(20);
+  const [selectedKnowledgeQueryEventId, setSelectedKnowledgeQueryEventId] = useState<number | null>(
+    null,
+  );
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
@@ -359,10 +362,19 @@ export function App() {
   async function handleKnowledgeQueryHistoryLimit(nextLimit: number) {
     setError(null);
     setKnowledgeQueryHistoryLimit(nextLimit);
+    setSelectedKnowledgeQueryEventId(null);
     try {
       setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version, nextLimit));
     } catch (nextError) {
       setError((nextError as Error).message);
+    }
+  }
+
+  function handleExploreKnowledgeVersion(version: string) {
+    setActive("knowledge");
+    setError(null);
+    if (knowledge?.version !== version) {
+      setError(`La version ${version} no esta cargada en la exploracion actual.`);
     }
   }
 
@@ -1357,87 +1369,142 @@ export function App() {
 
         {active === "audit" && (
           <section className="panel">
-            <h2>Historial de consultas de conocimiento</h2>
-            <div className="metricGrid">
-              <Metric label="Consultas" value={knowledgeQuerySummary?.total_count ?? 0} />
-              <Metric label="Con resultado" value={knowledgeQuerySummary?.hit_count ?? 0} />
-              <Metric label="Sin resultado" value={knowledgeQuerySummary?.empty_count ?? 0} />
-            </div>
-            <p className="note">
-              Ultima consulta:{" "}
-              {knowledgeQuerySummary?.last_query_at
-                ? formatDate(knowledgeQuerySummary.last_query_at)
-                : "sin consultas"}
-            </p>
-            <div className="rowActions">
-              <select
-                aria-label="Limite historial"
-                onChange={(event) =>
-                  handleKnowledgeQueryHistoryLimit(Number.parseInt(event.target.value, 10))
-                }
-                value={knowledgeQueryHistoryLimit}
-              >
-                {[20, 50, 100].map((limit) => (
-                  <option key={limit} value={limit}>
-                    {limit} consultas
-                  </option>
-                ))}
-              </select>
-            </div>
-            {knowledgeQueryHistory.length === 0 ? (
-              <p className="note">Todavia no hay consultas de conocimiento registradas.</p>
-            ) : (
-              <div className="auditList">
-                {knowledgeQueryHistory.map((item) => (
-                  <article className="auditItem" key={item.event_id}>
-                    <div>
-                      <strong>{item.version} -&gt; consulta</strong>
-                      <span>
-                        {item.has_results ? "con resultado" : "sin resultado"} ·{" "}
-                        {item.query_length} caracteres · limite {item.limit}
-                      </span>
-                    </div>
-                    <time>{formatDate(item.created_at)}</time>
-                    <pre>
-                      {`${item.card_count} fichas · ${item.claim_count} claims · ${item.evidence_count} evidencias`}
-                    </pre>
-                  </article>
-                ))}
+            <div className="auditSection">
+              <h2>Historial de consultas de conocimiento</h2>
+              <div className="metricGrid">
+                <Metric label="Consultas" value={knowledgeQuerySummary?.total_count ?? 0} />
+                <Metric label="Con resultado" value={knowledgeQuerySummary?.hit_count ?? 0} />
+                <Metric label="Sin resultado" value={knowledgeQuerySummary?.empty_count ?? 0} />
               </div>
-            )}
-            <h2>Eventos recientes</h2>
-            <div className="rowActions">
-              <select
-                aria-label="Filtro auditoria"
-                onChange={(event) => handleAuditFilter(event.target.value)}
-                value={auditFilter}
-              >
-                {auditEventFilters.map((filter) => (
-                  <option key={filter.label} value={filter.label}>
-                    {filter.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-            {auditEvents.length === 0 ? (
-              <p className="note">Todavia no hay eventos registrados.</p>
-            ) : (
-              <div className="auditList">
-                {auditEvents.map((event) => (
-                  <article className="auditItem" key={event.id}>
-                    <div>
-                      <strong>{event.event_type}</strong>
-                      <span>
-                        {event.entity_type} · {event.entity_id}
-                      </span>
-                      <KnowledgeAuditTrace event={event} />
-                    </div>
-                    <time>{formatDate(event.created_at)}</time>
-                    <pre>{JSON.stringify(event.payload, null, 2)}</pre>
-                  </article>
-                ))}
+              <p className="note">
+                Ultima consulta:{" "}
+                {knowledgeQuerySummary?.last_query_at
+                  ? formatDate(knowledgeQuerySummary.last_query_at)
+                  : "sin consultas"}
+              </p>
+              <div className="rowActions">
+                <select
+                  aria-label="Limite historial"
+                  onChange={(event) =>
+                    handleKnowledgeQueryHistoryLimit(Number.parseInt(event.target.value, 10))
+                  }
+                  value={knowledgeQueryHistoryLimit}
+                >
+                  {[20, 50, 100].map((limit) => (
+                    <option key={limit} value={limit}>
+                      {limit} consultas
+                    </option>
+                  ))}
+                </select>
               </div>
-            )}
+              {knowledgeQueryHistory.length === 0 ? (
+                <p className="note">Todavia no hay consultas de conocimiento registradas.</p>
+              ) : (
+                <div className="auditList">
+                  {knowledgeQueryHistory.map((item) => (
+                    <article className="auditItem" key={item.event_id}>
+                      <div>
+                        <strong>{item.version} -&gt; consulta</strong>
+                        <span>
+                          {item.has_results ? "con resultado" : "sin resultado"} ·{" "}
+                          {item.query_length} caracteres · limite {item.limit}
+                        </span>
+                      </div>
+                      <time>{formatDate(item.created_at)}</time>
+                      <div className="rowActions">
+                        <button
+                          className="ghostButton"
+                          onClick={() =>
+                            setSelectedKnowledgeQueryEventId((current) =>
+                              current === item.event_id ? null : item.event_id,
+                            )
+                          }
+                          type="button"
+                        >
+                          Detalle
+                        </button>
+                        <button
+                          className="ghostButton"
+                          onClick={() => handleExploreKnowledgeVersion(item.version)}
+                          type="button"
+                        >
+                          Explorar version
+                        </button>
+                      </div>
+                      <pre>
+                        {`${item.card_count} fichas · ${item.claim_count} claims · ${item.evidence_count} evidencias`}
+                      </pre>
+                      {selectedKnowledgeQueryEventId === item.event_id && (
+                        <dl className="auditDetail">
+                          <div>
+                            <dt>Evento</dt>
+                            <dd>{item.event_id}</dd>
+                          </div>
+                          <div>
+                            <dt>Version</dt>
+                            <dd>{item.version}</dd>
+                          </div>
+                          <div>
+                            <dt>Resultado</dt>
+                            <dd>{item.has_results ? "con resultado" : "sin resultado"}</dd>
+                          </div>
+                          <div>
+                            <dt>Limite</dt>
+                            <dd>{item.limit}</dd>
+                          </div>
+                          <div>
+                            <dt>Longitud</dt>
+                            <dd>{item.query_length} caracteres</dd>
+                          </div>
+                          <div>
+                            <dt>Recorrido</dt>
+                            <dd>
+                              {item.card_count} fichas · {item.claim_count} claims ·{" "}
+                              {item.evidence_count} evidencias
+                            </dd>
+                          </div>
+                        </dl>
+                      )}
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
+            <div className="auditSection">
+              <h2>Eventos recientes</h2>
+              <div className="rowActions">
+                <select
+                  aria-label="Filtro auditoria"
+                  onChange={(event) => handleAuditFilter(event.target.value)}
+                  value={auditFilter}
+                >
+                  {auditEventFilters.map((filter) => (
+                    <option key={filter.label} value={filter.label}>
+                      {filter.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+              {auditEvents.length === 0 ? (
+                <p className="note">Todavia no hay eventos registrados.</p>
+              ) : (
+                <div className="auditList">
+                  {auditEvents.map((event) => (
+                    <article className="auditItem" key={event.id}>
+                      <div>
+                        <strong>{event.event_type}</strong>
+                        <span>
+                          {event.entity_type} · {event.entity_id}
+                        </span>
+                        <KnowledgeAuditTrace event={event} />
+                      </div>
+                      <time>{formatDate(event.created_at)}</time>
+                      <pre>{JSON.stringify(event.payload, null, 2)}</pre>
+                    </article>
+                  ))}
+                </div>
+              )}
+            </div>
           </section>
         )}
       </section>
