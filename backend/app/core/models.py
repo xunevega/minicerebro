@@ -107,6 +107,25 @@ class KnowledgeStatus(BaseModel):
     sources_policy: str
 
 
+class KnowledgeSource(BaseModel):
+    id: str
+    name: str
+    source_type: str
+    authority_level: int
+    priority: int
+    status: str
+
+
+class KnowledgeCard(BaseModel):
+    id: str
+    card_type: str
+    name: str
+    definition: str
+    confidence: float = Field(ge=0, le=1)
+    version: str
+    payload: dict
+
+
 class ComparisonInput(BaseModel):
     original: str = Field(min_length=1)
     revised: str = Field(min_length=1)
@@ -121,6 +140,8 @@ class ComparisonResult(BaseModel):
     original_words: int
     revised_words: int
     summary: str
+    dimensions: dict[str, int] = Field(default_factory=dict)
+    changes: list[dict[str, str]] = Field(default_factory=list)
     created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
 
 
@@ -137,6 +158,7 @@ class GenerationResult(BaseModel):
     explanation: str
     used_profile_variables: list[str]
     learning_applied: bool = False
+    provider: str = "deterministic"
 
 
 class AuditEvent(BaseModel):
@@ -146,3 +168,21 @@ class AuditEvent(BaseModel):
     entity_id: str
     payload: dict
     created_at: datetime
+
+
+class ProfileStatistics(BaseModel):
+    profile_id: str
+    context: str
+    variable_count: int
+    preference_count: int
+    accepted_preference_count: int
+    average_confidence: float
+    coverage: float
+    low_confidence_variables: list[str]
+
+
+class Contradiction(BaseModel):
+    variable_key: str
+    accepted_count: int
+    rejected_count: int
+    note: str

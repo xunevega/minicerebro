@@ -14,8 +14,10 @@ from app.core.models import (
     Preference,
     PreferenceStatus,
     Profile,
+    ProfileStatistics,
     ScoreProposal,
     ScoreVariable,
+    Contradiction,
 )
 from app.core.seeds import seed_variables
 from app.db.models import (
@@ -112,6 +114,8 @@ def comparison_from_record(record: ComparisonRecord) -> ComparisonResult:
         original_words=record.original_words,
         revised_words=record.revised_words,
         summary=record.summary,
+        dimensions={},
+        changes=[],
         created_at=record.created_at,
     )
 
@@ -418,6 +422,51 @@ class Repository:
             .limit(limit)
         ).all()
         return [audit_event_from_record(record) for record in records]
+
+    def profile_statistics(self, profile_id: str, context: str) -> ProfileStatistics:
+        variables = self.get_context_variables(profile_id, context)
+        preferences = self.list_preferences_for_context(profile_id, context)
+        accepted = [item for item in preferences if item.status == PreferenceStatus.accepted]
+        average_confidence = (
+            sum(variable.confidence for variable in variables) / len(variables) if variables else 0
+        )
+        low_confidence = [variable.key for variable in variables if variable.confidence < 0.4]
+        return ProfileStatistics(
+            profile_id=profile_id,
+            context=context,
+            variable_count=len(variables),
+            preference_count=len(preferences),
+            accepted_preference_count=len(accepted),
+            average_confidence=round(average_confidence, 4),
+            coverage=round(min(1, len(accepted) / max(1, len(variables))), 4),
+            low_confidence_variables=low_confidence,
+        )
+
+    def contradictions(self, profile_id: str, context: str) -> list[Contradiction]:
+        preferences = self.list_preferences_for_context(profile_id, context)
+        result: list[Contradiction] = []
+        variable_keys = sorted({key for item in preferences for key in item.affected_variables})
+        for key in variable_keys:
+            accepted_count = sum(
+                1
+                for preference in preferences
+                if key in preference.affected_variables and preference.status == PreferenceStatus.accepted
+            )
+            rejected_count = sum(
+                1
+                for preference in preferences
+                if key in preference.affected_variables and preference.status == PreferenceStatus.rejected
+            )
+            if accepted_count and rejected_count:
+                result.append(
+                    Contradiction(
+                        variable_key=key,
+                        accepted_count=accepted_count,
+                        rejected_count=rejected_count,
+                        note="Hay senales aceptadas y rechazadas para la misma variable.",
+                    )
+                )
+        return result
 
     def add_audit_event(
         self, event_type: str, entity_type: str, entity_id: str, payload: dict

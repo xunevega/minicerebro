@@ -47,6 +47,25 @@ export type KnowledgeStatus = {
   sources_policy: string;
 };
 
+export type KnowledgeCard = {
+  id: string;
+  card_type: string;
+  name: string;
+  definition: string;
+  confidence: number;
+  version: string;
+  payload: Record<string, unknown>;
+};
+
+export type KnowledgeSource = {
+  id: string;
+  name: string;
+  source_type: string;
+  authority_level: number;
+  priority: number;
+  status: string;
+};
+
 export type ProfileSummary = {
   profile_id: string;
   summary: string;
@@ -72,6 +91,8 @@ export type ComparisonResult = {
   original_words: number;
   revised_words: number;
   summary: string;
+  dimensions: Record<string, number>;
+  changes: Array<{ type: string; original: string; revised: string }>;
 };
 
 export type AuditEvent = {
@@ -90,4 +111,23 @@ export type GenerationResult = {
   explanation: string;
   used_profile_variables: string[];
   learning_applied: boolean;
+  provider: string;
+};
+
+export type ProfileStatistics = {
+  profile_id: string;
+  context: string;
+  variable_count: number;
+  preference_count: number;
+  accepted_preference_count: number;
+  average_confidence: number;
+  coverage: number;
+  low_confidence_variables: string[];
+};
+
+export type Contradiction = {
+  variable_key: string;
+  accepted_count: number;
+  rejected_count: number;
+  note: string;
 };

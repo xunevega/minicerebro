@@ -17,6 +17,7 @@ from app.core.models import (
 from app.api.deps import get_repository
 from app.core.seeds import DEFAULT_PROFILE_ID
 from app.generation.service import rewrite_with_profile
+from app.knowledge.service import seed_cards, seed_sources
 from app.preferences.service import build_score_proposal, interpret_preference
 from app.scoring.service import apply_manual_override, score_out
 
@@ -46,6 +47,16 @@ def knowledge_coverage() -> dict[str, list[str]]:
 @router.get("/knowledge/versions")
 def knowledge_versions() -> dict[str, list[dict[str, str]]]:
     return {"versions": [{"id": "knowledge-v0", "status": "seed", "published_at": "not-published"}]}
+
+
+@router.get("/knowledge/sources")
+def knowledge_sources():
+    return seed_sources()
+
+
+@router.get("/knowledge/cards")
+def knowledge_cards():
+    return seed_cards()
 
 
 @router.post("/preferences/interpret")
@@ -130,6 +141,16 @@ def profile_summary(profile_id: str, repository: RepositoryDep):
 @router.get("/profiles/{profile_id}/scores")
 def profile_scores(profile_id: str, repository: RepositoryDep, context: str = "general"):
     return [score_out(variable) for variable in repository.get_context_variables(profile_id, context)]
+
+
+@router.get("/profiles/{profile_id}/statistics")
+def profile_statistics(profile_id: str, repository: RepositoryDep, context: str = "general"):
+    return repository.profile_statistics(profile_id, context)
+
+
+@router.get("/profiles/{profile_id}/contradictions")
+def profile_contradictions(profile_id: str, repository: RepositoryDep, context: str = "general"):
+    return repository.contradictions(profile_id, context)
 
 
 @router.patch("/profiles/{profile_id}/scores/{variable_key}")

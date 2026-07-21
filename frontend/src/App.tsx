@@ -6,10 +6,14 @@ import {
   createPreference,
   deletePreference,
   getAuditEvents,
+  getContradictions,
   generateText,
+  getKnowledgeCards,
   getKnowledgeStatus,
+  getKnowledgeSources,
   getPreferences,
   getProfileSummary,
+  getProfileStatistics,
   getScoreProposal,
   getScores,
   updatePreferenceStatus,
@@ -18,12 +22,16 @@ import {
 import type {
   AuditEvent,
   ComparisonResult,
+  Contradiction,
   GenerationAction,
   GenerationResult,
+  KnowledgeCard,
   KnowledgeStatus,
+  KnowledgeSource,
   Preference,
   PreferenceStatus,
   ProfileSummary,
+  ProfileStatistics,
   ScoreProposal,
   ScoreVariable,
 } from "./types/api";
@@ -46,7 +54,11 @@ export function App() {
   const [active, setActive] = useState<TabId>("knowledge");
   const [activeContext, setActiveContext] = useState("general");
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
+  const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
+  const [knowledgeSources, setKnowledgeSources] = useState<KnowledgeSource[]>([]);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
+  const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
+  const [contradictions, setContradictions] = useState<Contradiction[]>([]);
   const [scores, setScores] = useState<ScoreVariable[]>([]);
   const [preferenceText, setPreferenceText] = useState("Me gusta un estilo sobrio, preciso y con ritmo.");
   const [preference, setPreference] = useState<Preference | null>(null);
@@ -68,14 +80,32 @@ export function App() {
   useEffect(() => {
     Promise.all([
       getKnowledgeStatus(),
+      getKnowledgeCards(),
+      getKnowledgeSources(),
       getProfileSummary(),
+      getProfileStatistics(activeContext),
+      getContradictions(activeContext),
       getScores(activeContext),
       getPreferences(activeContext),
       getAuditEvents(),
     ])
-      .then(([knowledgeData, summaryData, scoreData, preferenceData, auditData]) => {
+      .then(([
+        knowledgeData,
+        cardData,
+        sourceData,
+        summaryData,
+        statisticsData,
+        contradictionData,
+        scoreData,
+        preferenceData,
+        auditData,
+      ]) => {
         setKnowledge(knowledgeData);
+        setKnowledgeCards(cardData);
+        setKnowledgeSources(sourceData);
         setSummary(summaryData);
+        setStatistics(statisticsData);
+        setContradictions(contradictionData);
         setScores(scoreData);
         setPreferences(preferenceData);
         setAuditEvents(auditData);
@@ -279,6 +309,24 @@ export function App() {
               <Metric label="Cobertura" value={`${knowledge?.coverage.length ?? 0} areas`} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
+            <div className="knowledgeGrid">
+              {knowledgeSources.map((source) => (
+                <article className="knowledgeItem" key={source.id}>
+                  <strong>{source.name}</strong>
+                  <span>
+                    {source.source_type} · autoridad {source.authority_level}
+                  </span>
+                </article>
+              ))}
+            </div>
+            <div className="knowledgeGrid">
+              {knowledgeCards.map((card) => (
+                <article className="knowledgeItem" key={card.id}>
+                  <strong>{card.name}</strong>
+                  <span>{card.definition}</span>
+                </article>
+              ))}
+            </div>
             <List title="Cobertura" items={knowledge?.coverage ?? []} />
             <List title="Lagunas" items={knowledge?.gaps ?? []} />
           </section>
@@ -429,6 +477,7 @@ export function App() {
                 <>
                   <textarea readOnly value={generation.output} />
                   <p className="note">{generation.explanation}</p>
+                  <span className="statusPill">{generation.provider}</span>
                   <List title="Variables usadas" items={generation.used_profile_variables} />
                 </>
               ) : (
@@ -445,8 +494,18 @@ export function App() {
             <div className="metricGrid">
               <Metric label="Preferencias" value={summary?.preference_count ?? 0} />
               <Metric label="Confianza media" value={`${Math.round(averageConfidence * 100)}%`} />
+              <Metric label="Cobertura" value={`${Math.round((statistics?.coverage ?? 0) * 100)}%`} />
             </div>
             <p className="note">{summary?.confidence_note}</p>
+            <List title="Variables con baja confianza" items={statistics?.low_confidence_variables ?? []} />
+            <List
+              title="Contradicciones"
+              items={
+                contradictions.length === 0
+                  ? ["Sin contradicciones detectadas en este contexto."]
+                  : contradictions.map((item) => `${item.variable_key}: ${item.note}`)
+              }
+            />
           </section>
         )}
 
@@ -516,6 +575,16 @@ export function App() {
                   <Metric label="Modificacion" value={comparison.modification_score} />
                   <Metric label="Adecuacion" value={comparison.adequacy_score} />
                   <p>{comparison.summary}</p>
+                  <List
+                    title="Dimensiones"
+                    items={Object.entries(comparison.dimensions).map(([key, value]) => `${key}: ${value}`)}
+                  />
+                  <List
+                    title="Cambios"
+                    items={comparison.changes.map(
+                      (change) => `${change.type}: ${change.original || "vacio"} -> ${change.revised || "vacio"}`,
+                    )}
+                  />
                 </>
               ) : (
                 <p className="note">El comparador mide modificacion y adecuacion sin actualizar el perfil.</p>

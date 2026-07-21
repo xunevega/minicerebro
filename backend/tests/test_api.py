@@ -110,3 +110,24 @@ def test_generation_uses_requested_context():
     )
     assert response.status_code == 200
     assert response.json()["learning_applied"] is False
+
+
+def test_knowledge_cards_and_statistics_are_exposed():
+    cards = client.get("/knowledge/cards")
+    assert cards.status_code == 200
+    assert len(cards.json()) >= 1
+
+    stats = client.get("/profiles/default/statistics?context=general")
+    assert stats.status_code == 200
+    assert stats.json()["profile_id"] == "default"
+
+
+def test_comparison_includes_dimensions_and_changes():
+    response = client.post(
+        "/comparisons",
+        json={"original": "Texto claro.", "revised": "Texto mucho mas claro.", "context": "general"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert "lexico" in payload["dimensions"]
+    assert isinstance(payload["changes"], list)

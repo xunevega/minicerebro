@@ -378,6 +378,30 @@ textarea + .primaryButton {
   margin-top: 6px;
 }
 
+.knowledgeGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 14px;
+}
+
+.knowledgeItem {
+  border: 1px solid #e0e6df;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.knowledgeItem strong,
+.knowledgeItem span {
+  display: block;
+}
+
+.knowledgeItem span {
+  color: #69756f;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
 .preferenceItem strong,
 .preferenceItem span {
   display: block;
@@ -476,6 +500,10 @@ textarea + .primaryButton {
   }
 
   .editorControls {
+    grid-template-columns: 1fr;
+  }
+
+  .knowledgeGrid {
     grid-template-columns: 1fr;
   }
 

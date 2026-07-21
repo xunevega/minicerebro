@@ -1,12 +1,16 @@
 import type {
   AuditEvent,
   ComparisonResult,
+  Contradiction,
   GenerationAction,
   GenerationResult,
+  KnowledgeCard,
   KnowledgeStatus,
+  KnowledgeSource,
   Preference,
   PreferenceStatus,
   ProfileSummary,
+  ProfileStatistics,
   ScoreProposal,
   ScoreProposalApplyResult,
   ScoreUpdate,
@@ -36,6 +40,14 @@ export function getKnowledgeStatus() {
   return request<KnowledgeStatus>("/knowledge/status");
 }
 
+export function getKnowledgeCards() {
+  return request<KnowledgeCard[]>("/knowledge/cards");
+}
+
+export function getKnowledgeSources() {
+  return request<KnowledgeSource[]>("/knowledge/sources");
+}
+
 function withContext(path: string, context: string) {
   const separator = path.includes("?") ? "&" : "?";
   return `${path}${separator}context=${encodeURIComponent(context)}`;
@@ -47,6 +59,14 @@ export function getProfileSummary() {
 
 export function getScores(context: string) {
   return request<ScoreVariable[]>(withContext("/profiles/default/scores", context));
+}
+
+export function getProfileStatistics(context: string) {
+  return request<ProfileStatistics>(withContext("/profiles/default/statistics", context));
+}
+
+export function getContradictions(context: string) {
+  return request<Contradiction[]>(withContext("/profiles/default/contradictions", context));
 }
 
 export function updateScore(
