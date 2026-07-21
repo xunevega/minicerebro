@@ -385,6 +385,7 @@ def test_knowledge_query_history_is_derived_from_audit_events():
     assert len(history) > 0
     item = history[0]
     assert item["version"] == "knowledge-v0"
+    assert item["has_results"] is (result["card_count"] > 0)
     assert item["query_length"] == len(query)
     assert item["limit"] == 3
     assert item["card_count"] == result["card_count"]

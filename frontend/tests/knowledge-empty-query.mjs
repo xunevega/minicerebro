@@ -33,6 +33,7 @@ try {
   await page.getByText("Historial de consultas de conocimiento").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
+  await auditPanel.getByText("sin resultado").first().waitFor();
   await auditPanel.getByText("14 caracteres · limite 3").first().waitFor();
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {

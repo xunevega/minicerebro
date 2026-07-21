@@ -156,12 +156,14 @@ def audit_event_from_record(record: AuditEventRecord) -> AuditEvent:
 
 
 def knowledge_query_history_from_record(record: AuditEventRecord) -> KnowledgeQueryHistoryItem:
+    card_count = int(record.payload.get("card_count", 0))
     return KnowledgeQueryHistoryItem(
         event_id=record.id,
         version=record.entity_id,
+        has_results=card_count > 0,
         query_length=int(record.payload.get("query_length", 0)),
         limit=int(record.payload.get("limit", 0)),
-        card_count=int(record.payload.get("card_count", 0)),
+        card_count=card_count,
         claim_count=int(record.payload.get("claim_count", 0)),
         evidence_count=int(record.payload.get("evidence_count", 0)),
         created_at=record.created_at,

@@ -222,6 +222,7 @@ class KnowledgeQueryResult(BaseModel):
 class KnowledgeQueryHistoryItem(BaseModel):
     event_id: int
     version: str
+    has_results: bool
     query_length: int
     limit: int
     card_count: int

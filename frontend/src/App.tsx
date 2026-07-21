@@ -1365,6 +1365,7 @@ export function App() {
                     <div>
                       <strong>{item.version} -&gt; consulta</strong>
                       <span>
+                        {item.has_results ? "con resultado" : "sin resultado"} ·{" "}
                         {item.query_length} caracteres · limite {item.limit}
                       </span>
                     </div>

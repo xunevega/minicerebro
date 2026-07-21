@@ -108,6 +108,7 @@ export type KnowledgeQueryResult = {
 export type KnowledgeQueryHistoryItem = {
   event_id: number;
   version: string;
+  has_results: boolean;
   query_length: number;
   limit: number;
   card_count: number;
