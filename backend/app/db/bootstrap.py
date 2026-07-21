@@ -1,6 +1,9 @@
 from datetime import UTC, datetime
+from pathlib import Path
 
-from sqlalchemy import inspect, select, text
+from alembic import command
+from alembic.config import Config
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.seeds import DEFAULT_PROFILE_ID, seed_variables
@@ -14,38 +17,17 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
-from app.db.session import Base, engine
+from app.db.session import database_url
 from app.knowledge.service import seed_cards, seed_claims, seed_evidence, seed_nodes, seed_sources
 
-
-def create_tables() -> None:
-    database_engine = engine()
-    Base.metadata.create_all(bind=database_engine)
-    ensure_generated_text_schema(database_engine)
+BACKEND_DIR = Path(__file__).resolve().parents[2]
 
 
-def ensure_generated_text_schema(database_engine) -> None:
-    if database_engine.dialect.name != "postgresql":
-        return
-    inspector = inspect(database_engine)
-    if "generated_texts" not in inspector.get_table_names():
-        return
-    columns = {
-        column["name"]: column["type"].__class__.__name__.lower()
-        for column in inspector.get_columns("generated_texts")
-    }
-    if columns.get("learning_applied") != "integer":
-        return
-    with database_engine.begin() as connection:
-        connection.execute(
-            text(
-                """
-                ALTER TABLE generated_texts
-                ALTER COLUMN learning_applied TYPE boolean
-                USING learning_applied <> 0
-                """
-            )
-        )
+def upgrade_database() -> None:
+    config = Config(str(BACKEND_DIR / "alembic.ini"))
+    config.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
+    config.set_main_option("sqlalchemy.url", database_url())
+    command.upgrade(config, "head")
 
 
 def ensure_seed_data(session: Session) -> None:

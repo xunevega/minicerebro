@@ -1,11 +1,9 @@
 from logging.config import fileConfig
-from os import getenv
-
 from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.db import models  # noqa: F401
-from app.db.session import Base, DEFAULT_DATABASE_URL
+from app.db.session import Base, database_url
 
 config = context.config
 
@@ -13,10 +11,6 @@ if config.config_file_name is not None:
     fileConfig(config.config_file_name)
 
 target_metadata = Base.metadata
-
-
-def database_url() -> str:
-    return getenv("DATABASE_URL", DEFAULT_DATABASE_URL)
 
 
 def run_migrations_offline() -> None:
@@ -51,4 +45,3 @@ if context.is_offline_mode():
     run_migrations_offline()
 else:
     run_migrations_online()
-

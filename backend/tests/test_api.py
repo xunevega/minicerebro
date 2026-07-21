@@ -101,6 +101,17 @@ def test_profile_surfaces_reject_missing_profile_consistently():
     assert patched.json()["detail"] == "Profile not found"
 
 
+def test_bootstrap_uses_alembic_without_create_all_or_manual_schema_patch():
+    import inspect
+
+    from app.db import bootstrap
+
+    source = inspect.getsource(bootstrap)
+    assert "command.upgrade" in source
+    assert "create_all" not in source
+    assert "ALTER TABLE" not in source
+
+
 def test_preference_interpretation_is_proposed():
     response = client.post(
         "/preferences/interpret",
@@ -108,6 +119,57 @@ def test_preference_interpretation_is_proposed():
     )
     assert response.status_code == 200
     assert response.json()["status"] == "proposed"
+
+
+def test_preference_interpretation_positive_direction_proposes_positive_delta():
+    created = client.post(
+        "/preferences",
+        json={"text": "Quiero un estilo directo y preciso.", "input_type": "prompt"},
+    )
+    assert created.status_code == 200
+    preference_id = created.json()["id"]
+    client.patch(f"/preferences/{preference_id}", json={"status": "accepted"})
+
+    proposal = client.get(f"/preferences/{preference_id}/score-proposal")
+    assert proposal.status_code == 200
+    items = {item["variable_key"]: item for item in proposal.json()["items"]}
+    assert items["dinamismo"]["delta"] > 0
+    assert items["precision_lexica"]["delta"] > 0
+
+
+def test_preference_interpretation_negations_propose_negative_delta():
+    cases = [
+        ("No quiero que sea tan directo.", "dinamismo"),
+        ("No quiero frases mas cortas.", "dinamismo"),
+        ("Menos dinamismo en este contexto.", "dinamismo"),
+        ("Evita un tono formal.", "sobriedad"),
+    ]
+    for text, variable_key in cases:
+        created = client.post("/preferences", json={"text": text, "input_type": "prompt"})
+        assert created.status_code == 200
+        preference_id = created.json()["id"]
+        client.patch(f"/preferences/{preference_id}", json={"status": "accepted"})
+
+        proposal = client.get(f"/preferences/{preference_id}/score-proposal")
+        assert proposal.status_code == 200
+        items = {item["variable_key"]: item for item in proposal.json()["items"]}
+        assert items[variable_key]["delta"] < 0
+
+
+def test_preference_interpretation_ambiguous_negation_does_not_invert_affirmed_terms():
+    created = client.post(
+        "/preferences",
+        json={"text": "No solo directo, tambien preciso.", "input_type": "prompt"},
+    )
+    assert created.status_code == 200
+    preference_id = created.json()["id"]
+    client.patch(f"/preferences/{preference_id}", json={"status": "accepted"})
+
+    proposal = client.get(f"/preferences/{preference_id}/score-proposal")
+    assert proposal.status_code == 200
+    items = {item["variable_key"]: item for item in proposal.json()["items"]}
+    assert items["dinamismo"]["delta"] > 0
+    assert items["precision_lexica"]["delta"] > 0
 
 
 def test_preference_can_be_accepted_and_deleted():

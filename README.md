@@ -2,6 +2,17 @@
 
 Aplicacion especializada en escritura en lengua espanola. La V1 implementa el contrato funcional con conocimiento estable separado del perfil de preferencias, scoring editable, preferencias trazables, editor, comparador, laboratorio, feedback controlado, auditoria y cierre tecnico verificable.
 
+## Limite de seguridad V1
+
+Minicerebro V1 es una aplicacion local-first para desarrollo y uso en localhost. No debe exponerse a internet, dominios publicos ni redes abiertas sin anadir antes:
+
+- autenticacion;
+- secretos propios fuera de los valores de desarrollo;
+- CORS de produccion;
+- rate limiting, especialmente para `/generation`, `/correction`, `/rewrite`, `/continue` y `/variants`.
+
+El `docker-compose.yml` liga PostgreSQL a `127.0.0.1` y usa credenciales de desarrollo. Son aceptables solo para entorno local.
+
 ## Desarrollo local
 
 Backend:
@@ -40,6 +51,7 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 ## Estado de esta base
 
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
+- Arranque local con migraciones Alembic; `Base.metadata.create_all()` no se usa como mecanismo de esquema.
 - React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
 - SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.
 - Pipeline de conocimiento persistente e inspeccionable: fuentes, nodos, evidencias, claims, fichas, version, consulta, historial y validacion auditada.
