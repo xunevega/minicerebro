@@ -212,6 +212,14 @@ def test_knowledge_nodes_link_to_sources():
     assert filtered.status_code == 200
     assert all(node["source_id"] == "rae" for node in filtered.json())
 
+    versioned = client.get("/knowledge/nodes?source_id=rae&version=knowledge-v0")
+    assert versioned.status_code == 200
+    assert [node["id"] for node in versioned.json()] == ["rae-norma-estilo"]
+
+    empty_version = client.get("/knowledge/nodes?version=missing-version")
+    assert empty_version.status_code == 200
+    assert empty_version.json() == []
+
 
 def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     evidence = client.get("/knowledge/evidence")
@@ -236,6 +244,40 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     filtered = client.get("/knowledge/claims?card_id=lexico-precision")
     assert filtered.status_code == 200
     assert all(claim["card_id"] == "lexico-precision" for claim in filtered.json())
+
+    versioned_evidence = client.get(
+        "/knowledge/evidence?node_id=rae-norma-estilo&version=knowledge-v0"
+    )
+    assert versioned_evidence.status_code == 200
+    assert [item["id"] for item in versioned_evidence.json()] == ["ev-precision-lexica"]
+
+    empty_evidence = client.get("/knowledge/evidence?version=missing-version")
+    assert empty_evidence.status_code == 200
+    assert empty_evidence.json() == []
+
+    versioned_claims = client.get(
+        "/knowledge/claims?card_id=lexico-precision&version=knowledge-v0"
+    )
+    assert versioned_claims.status_code == 200
+    assert [claim["id"] for claim in versioned_claims.json()] == ["claim-precision-lexica"]
+
+    empty_claims = client.get("/knowledge/claims?version=missing-version")
+    assert empty_claims.status_code == 200
+    assert empty_claims.json() == []
+
+
+def test_knowledge_cards_can_be_scoped_by_version():
+    versioned = client.get("/knowledge/cards?version=knowledge-v0")
+    assert versioned.status_code == 200
+    assert {card["id"] for card in versioned.json()} == {
+        "frase-dinamismo",
+        "lexico-precision",
+        "voz-sobriedad",
+    }
+
+    empty_version = client.get("/knowledge/cards?version=missing-version")
+    assert empty_version.status_code == 200
+    assert empty_version.json() == []
 
 
 def test_knowledge_versions_include_chain_counts():

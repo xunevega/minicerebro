@@ -98,26 +98,38 @@ def knowledge_sources(
 
 
 @router.get("/knowledge/nodes")
-def knowledge_nodes(repository: RepositoryDep, source_id: str | None = None) -> list[KnowledgeNode]:
-    return repository.list_knowledge_nodes(source_id=source_id)
+def knowledge_nodes(
+    repository: RepositoryDep,
+    source_id: str | None = None,
+    version: str | None = None,
+) -> list[KnowledgeNode]:
+    return repository.list_knowledge_nodes(source_id=source_id, version=version)
 
 
 @router.get("/knowledge/evidence")
 def knowledge_evidence(
     repository: RepositoryDep,
     node_id: str | None = None,
+    version: str | None = None,
 ) -> list[KnowledgeEvidenceItem]:
-    return repository.list_knowledge_evidence(node_id=node_id)
+    return repository.list_knowledge_evidence(node_id=node_id, version=version)
 
 
 @router.get("/knowledge/claims")
-def knowledge_claims(repository: RepositoryDep, card_id: str | None = None) -> list[KnowledgeClaim]:
-    return repository.list_knowledge_claims(card_id=card_id)
+def knowledge_claims(
+    repository: RepositoryDep,
+    card_id: str | None = None,
+    version: str | None = None,
+) -> list[KnowledgeClaim]:
+    return repository.list_knowledge_claims(card_id=card_id, version=version)
 
 
 @router.get("/knowledge/cards")
-def knowledge_cards(repository: RepositoryDep) -> list[KnowledgeCard]:
-    return repository.list_knowledge_cards()
+def knowledge_cards(
+    repository: RepositoryDep,
+    version: str | None = None,
+) -> list[KnowledgeCard]:
+    return repository.list_knowledge_cards(version=version)
 
 
 @router.post("/knowledge/query")
