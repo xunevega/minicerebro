@@ -19,7 +19,7 @@ Persistencia con PostgreSQL:
 ```bash
 cp .env.example .env
 docker compose up -d postgres
-export DATABASE_URL=postgresql+psycopg://minicerebro:minicerebro@localhost:5432/minicerebro
+export DATABASE_URL=postgresql://postgres:postgres@localhost:5432/app
 cd backend
 ../.venv/bin/alembic upgrade head
 ../.venv/bin/uvicorn app.main:app --reload
