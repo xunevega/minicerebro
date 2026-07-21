@@ -612,6 +612,11 @@ export function App() {
                   <p className="note">
                     Resultado para "{knowledgeResult.query}" en version {knowledgeResult.version}.
                   </p>
+                  <div className="metricGrid">
+                    <Metric label="Fichas" value={knowledgeResult.card_count} />
+                    <Metric label="Claims" value={knowledgeResult.claim_count} />
+                    <Metric label="Evidencias" value={knowledgeResult.evidence_count} />
+                  </div>
                   {knowledgeResult.cards.length > 0 ? (
                     <div className="knowledgeGrid">
                       {knowledgeResult.cards.map((card) => (
