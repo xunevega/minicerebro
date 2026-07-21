@@ -1,5 +1,7 @@
 import type {
   AuditEvent,
+  AcceptanceCriterion,
+  CerebroAuditCandidate,
   ComparisonResult,
   Contradiction,
   DecisionEvaluation,
@@ -74,6 +76,14 @@ export function evaluateDecision(context: string) {
 
 export function getPersistenceStatus() {
   return request<PersistenceDomain[]>("/persistence/status");
+}
+
+export function getCerebroAuditCandidates() {
+  return request<CerebroAuditCandidate[]>("/cerebro-audit/candidates");
+}
+
+export function getAcceptanceCriteria() {
+  return request<AcceptanceCriterion[]>("/acceptance/v1");
 }
 
 function withContext(path: string, context: string) {

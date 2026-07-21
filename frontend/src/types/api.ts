@@ -205,3 +205,18 @@ export type GeneratedText = {
   learning_applied: boolean;
   created_at: string;
 };
+
+export type CerebroAuditCandidate = {
+  component: string;
+  classification: string;
+  status: string;
+  evidence_required: string[];
+  note: string;
+};
+
+export type AcceptanceCriterion = {
+  id: number;
+  description: string;
+  status: string;
+  evidence: string[];
+};

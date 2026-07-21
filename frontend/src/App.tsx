@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import {
   BookOpen,
   Brain,
+  ClipboardCheck,
   Database,
   FilePenLine,
   FlaskConical,
@@ -9,6 +10,7 @@ import {
   History,
   LayoutDashboard,
   PenLine,
+  Search,
   ShieldCheck,
   SlidersHorizontal,
 } from "lucide-react";
@@ -20,7 +22,9 @@ import {
   deletePreference,
   decideFeedbackProposal,
   evaluateDecision,
+  getAcceptanceCriteria,
   getAuditEvents,
+  getCerebroAuditCandidates,
   getContradictions,
   getDecisionRules,
   getFeedbackProposals,
@@ -42,6 +46,8 @@ import {
 } from "./services/api";
 import type {
   AuditEvent,
+  AcceptanceCriterion,
+  CerebroAuditCandidate,
   ComparisonResult,
   Contradiction,
   DecisionEvaluation,
@@ -74,6 +80,8 @@ const tabs = [
   { id: "compare", label: "Comparador", icon: GitCompare },
   { id: "rules", label: "Reglas", icon: ShieldCheck },
   { id: "persistence", label: "Persistencia", icon: Database },
+  { id: "cerebro", label: "Cerebro", icon: Search },
+  { id: "acceptance", label: "Aceptacion", icon: ClipboardCheck },
   { id: "screens", label: "Pantallas", icon: LayoutDashboard },
   { id: "audit", label: "Auditoria", icon: History },
 ] as const;
@@ -106,6 +114,8 @@ export function App() {
   const [decisionEvaluation, setDecisionEvaluation] = useState<DecisionEvaluation | null>(null);
   const [persistenceDomains, setPersistenceDomains] = useState<PersistenceDomain[]>([]);
   const [generatedTexts, setGeneratedTexts] = useState<GeneratedText[]>([]);
+  const [cerebroCandidates, setCerebroCandidates] = useState<CerebroAuditCandidate[]>([]);
+  const [acceptanceCriteria, setAcceptanceCriteria] = useState<AcceptanceCriterion[]>([]);
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
@@ -139,6 +149,8 @@ export function App() {
       evaluateDecision(activeContext),
       getPersistenceStatus(),
       getGeneratedTexts(activeContext),
+      getCerebroAuditCandidates(),
+      getAcceptanceCriteria(),
     ])
       .then(([
         knowledgeData,
@@ -156,6 +168,8 @@ export function App() {
         decisionData,
         persistenceData,
         textData,
+        cerebroData,
+        acceptanceData,
       ]) => {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
@@ -172,6 +186,8 @@ export function App() {
         setDecisionEvaluation(decisionData);
         setPersistenceDomains(persistenceData);
         setGeneratedTexts(textData);
+        setCerebroCandidates(cerebroData);
+        setAcceptanceCriteria(acceptanceData);
       })
       .catch((nextError: Error) => setError(nextError.message));
   }, [activeContext]);
@@ -942,6 +958,42 @@ export function App() {
                   ))}
                 </div>
               )}
+            </div>
+          </section>
+        )}
+
+        {active === "cerebro" && (
+          <section className="panel">
+            <h2>Auditoria Cerebro</h2>
+            <div className="knowledgeGrid">
+              {cerebroCandidates.map((candidate) => (
+                <article className="knowledgeItem" key={candidate.component}>
+                  <strong>{candidate.component}</strong>
+                  <span>
+                    {candidate.classification} · {candidate.status}
+                  </span>
+                  <List title="Evidencia requerida" items={candidate.evidence_required} />
+                </article>
+              ))}
+            </div>
+          </section>
+        )}
+
+        {active === "acceptance" && (
+          <section className="panel">
+            <h2>Aceptacion V1</h2>
+            <div className="auditList">
+              {acceptanceCriteria.map((criterion) => (
+                <article className="auditItem" key={criterion.id}>
+                  <div>
+                    <strong>
+                      {criterion.id}. {criterion.description}
+                    </strong>
+                    <span>{criterion.status}</span>
+                  </div>
+                  <pre>{criterion.evidence.join("\n")}</pre>
+                </article>
+              ))}
             </div>
           </section>
         )}

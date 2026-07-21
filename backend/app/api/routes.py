@@ -7,6 +7,8 @@ from app.comparison.service import compare_texts
 from app.core.repository import Repository
 from app.core.models import (
     ApplyScoreProposalInput,
+    AcceptanceCriterion,
+    CerebroAuditCandidate,
     ComparisonInput,
     DecisionEvaluation,
     DecisionEvaluationInput,
@@ -25,6 +27,8 @@ from app.core.models import (
     V1Screen,
 )
 from app.api.deps import get_repository
+from app.acceptance.service import v1_acceptance_criteria
+from app.cerebro_audit.service import cerebro_audit_candidates
 from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
@@ -96,6 +100,16 @@ def decision_evaluate(
 @router.get("/persistence/status")
 def persistence_status() -> list[PersistenceDomain]:
     return persistence_domains()
+
+
+@router.get("/cerebro-audit/candidates")
+def cerebro_audit_candidates_list() -> list[CerebroAuditCandidate]:
+    return cerebro_audit_candidates()
+
+
+@router.get("/acceptance/v1")
+def acceptance_v1() -> list[AcceptanceCriterion]:
+    return v1_acceptance_criteria()
 
 
 @router.post("/preferences/interpret")

@@ -233,3 +233,17 @@ def test_decision_rules_and_persistence_status_are_exposed():
     domains = {item["id"]: item for item in persistence.json()}
     assert domains["knowledge"]["storage"] == "seeded registry"
     assert domains["texts"]["status"] == "persisted"
+
+
+def test_cerebro_audit_and_acceptance_are_exposed():
+    audit = client.get("/cerebro-audit/candidates")
+    assert audit.status_code == 200
+    candidates = {item["component"]: item for item in audit.json()}
+    assert candidates["source_registry"]["classification"] == "REFERENCIA"
+    assert candidates["importers"]["classification"] == "DESCARTAR"
+
+    acceptance = client.get("/acceptance/v1")
+    assert acceptance.status_code == 200
+    criteria = acceptance.json()
+    assert len(criteria) == 20
+    assert all(item["status"] == "implemented" for item in criteria)

@@ -290,3 +290,18 @@ class PersistenceDomain(BaseModel):
     storage: str
     status: str
     separated_from_knowledge: bool
+
+
+class CerebroAuditCandidate(BaseModel):
+    component: str
+    classification: str
+    status: str
+    evidence_required: list[str]
+    note: str
+
+
+class AcceptanceCriterion(BaseModel):
+    id: int
+    description: str
+    status: str
+    evidence: list[str]
