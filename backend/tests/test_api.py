@@ -367,6 +367,36 @@ def test_knowledge_query_records_audit_event_without_raw_query():
     assert other_version_response.json() == []
 
 
+def test_knowledge_query_history_is_derived_from_audit_events():
+    query = "precision lexica verificable"
+    response = client.post(
+        "/knowledge/query",
+        json={"query": query, "version": "knowledge-v0", "limit": 3},
+    )
+    assert response.status_code == 200
+    result = response.json()
+
+    history_response = client.get("/knowledge/query-history?version=knowledge-v0")
+    assert history_response.status_code == 200
+    history = history_response.json()
+    assert len(history) > 0
+    item = history[0]
+    assert item["version"] == "knowledge-v0"
+    assert item["query_length"] == len(query)
+    assert item["limit"] == 3
+    assert item["card_count"] == result["card_count"]
+    assert item["claim_count"] == result["claim_count"]
+    assert item["evidence_count"] == result["evidence_count"]
+    assert query not in str(item)
+
+
+def test_knowledge_query_history_rejects_missing_version():
+    response = client.get("/knowledge/query-history?version=missing-version")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Knowledge version not found"
+
+
 def test_knowledge_query_matches_the_full_persisted_chain():
     evidence_match = client.post(
         "/knowledge/query",

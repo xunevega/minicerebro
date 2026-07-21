@@ -105,6 +105,17 @@ export type KnowledgeQueryResult = {
   evidence: KnowledgeEvidenceItem[];
 };
 
+export type KnowledgeQueryHistoryItem = {
+  event_id: number;
+  version: string;
+  query_length: number;
+  limit: number;
+  card_count: number;
+  claim_count: number;
+  evidence_count: number;
+  created_at: string;
+};
+
 export type ProfileSummary = {
   profile_id: string;
   summary: string;

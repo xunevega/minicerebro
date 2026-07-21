@@ -21,6 +21,7 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeQueryInput,
+    KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
     KnowledgeSource,
     KnowledgeVersion,
@@ -149,6 +150,19 @@ def audit_event_from_record(record: AuditEventRecord) -> AuditEvent:
         entity_type=record.entity_type,
         entity_id=record.entity_id,
         payload=record.payload,
+        created_at=record.created_at,
+    )
+
+
+def knowledge_query_history_from_record(record: AuditEventRecord) -> KnowledgeQueryHistoryItem:
+    return KnowledgeQueryHistoryItem(
+        event_id=record.id,
+        version=record.entity_id,
+        query_length=int(record.payload.get("query_length", 0)),
+        limit=int(record.payload.get("limit", 0)),
+        card_count=int(record.payload.get("card_count", 0)),
+        claim_count=int(record.payload.get("claim_count", 0)),
+        evidence_count=int(record.payload.get("evidence_count", 0)),
         created_at=record.created_at,
     )
 
@@ -375,6 +389,25 @@ class Repository:
         )
         self.session.commit()
         return result
+
+    def list_knowledge_query_history(
+        self,
+        version: str,
+        limit: int = 20,
+    ) -> list[KnowledgeQueryHistoryItem]:
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        records = self.session.scalars(
+            select(AuditEventRecord)
+            .where(
+                AuditEventRecord.event_type == "knowledge.query.executed",
+                AuditEventRecord.entity_type == "knowledge_version",
+                AuditEventRecord.entity_id == version,
+            )
+            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
+            .limit(limit)
+        ).all()
+        return [knowledge_query_history_from_record(record) for record in records]
 
     def get_profile(self, profile_id: str) -> Profile:
         record = self.session.scalar(

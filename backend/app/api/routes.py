@@ -25,6 +25,7 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeQueryInput,
+    KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
     KnowledgeSource,
     KnowledgeStatus,
@@ -148,6 +149,19 @@ def knowledge_cards(
 def knowledge_query(payload: KnowledgeQueryInput, repository: RepositoryDep) -> KnowledgeQueryResult:
     try:
         return repository.query_knowledge(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
+
+
+@router.get("/knowledge/query-history")
+def knowledge_query_history(
+    repository: RepositoryDep,
+    version: str = "knowledge-v0",
+    limit: int = 20,
+) -> list[KnowledgeQueryHistoryItem]:
+    bounded_limit = max(1, min(limit, 100))
+    try:
+        return repository.list_knowledge_query_history(version, bounded_limit)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 

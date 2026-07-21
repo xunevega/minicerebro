@@ -219,6 +219,17 @@ class KnowledgeQueryResult(BaseModel):
     evidence: list[KnowledgeEvidenceItem]
 
 
+class KnowledgeQueryHistoryItem(BaseModel):
+    event_id: int
+    version: str
+    query_length: int
+    limit: int
+    card_count: int
+    claim_count: int
+    evidence_count: int
+    created_at: datetime
+
+
 class ComparisonInput(BaseModel):
     original: str = Field(min_length=1)
     revised: str = Field(min_length=1)

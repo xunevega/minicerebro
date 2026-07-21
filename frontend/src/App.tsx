@@ -40,6 +40,7 @@ import {
   getKnowledgeClaims,
   getKnowledgeEvidence,
   getKnowledgeNodes,
+  getKnowledgeQueryHistory,
   getKnowledgeStatus,
   getKnowledgeSources,
   getPersistenceStatus,
@@ -77,6 +78,7 @@ import type {
   KnowledgeClaim,
   KnowledgeEvidenceItem,
   KnowledgeNode,
+  KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
   KnowledgeStatus,
   KnowledgeSource,
@@ -137,6 +139,7 @@ export function App() {
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
   const [knowledgeQuery, setKnowledgeQuery] = useState("precision lexica");
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
+  const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
@@ -192,6 +195,7 @@ export function App() {
           getKnowledgeNodes(undefined, version),
           getKnowledgeEvidence(undefined, version),
           getKnowledgeClaims(undefined, version),
+          getKnowledgeQueryHistory(version),
           getProfileSummary(),
           getProfileStatistics(activeContext),
           getContradictions(activeContext),
@@ -223,6 +227,7 @@ export function App() {
           nodeData,
           evidenceData,
           claimData,
+          queryHistoryData,
           summaryData,
           statisticsData,
           contradictionData,
@@ -251,6 +256,7 @@ export function App() {
         setKnowledgeNodes(nodeData);
         setKnowledgeEvidence(evidenceData);
         setKnowledgeClaims(claimData);
+        setKnowledgeQueryHistory(queryHistoryData);
         setSummary(summaryData);
         setStatistics(statisticsData);
         setContradictions(contradictionData);
@@ -320,6 +326,7 @@ export function App() {
     setError(null);
     try {
       setKnowledgeResult(await queryKnowledge(knowledgeQuery));
+      setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version));
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -1316,6 +1323,27 @@ export function App() {
 
         {active === "audit" && (
           <section className="panel">
+            <h2>Historial de consultas de conocimiento</h2>
+            {knowledgeQueryHistory.length === 0 ? (
+              <p className="note">Todavia no hay consultas de conocimiento registradas.</p>
+            ) : (
+              <div className="auditList">
+                {knowledgeQueryHistory.map((item) => (
+                  <article className="auditItem" key={item.event_id}>
+                    <div>
+                      <strong>{item.version} -&gt; consulta</strong>
+                      <span>
+                        {item.query_length} caracteres · limite {item.limit}
+                      </span>
+                    </div>
+                    <time>{formatDate(item.created_at)}</time>
+                    <pre>
+                      {`${item.card_count} fichas · ${item.claim_count} claims · ${item.evidence_count} evidencias`}
+                    </pre>
+                  </article>
+                ))}
+              </div>
+            )}
             <h2>Eventos recientes</h2>
             <div className="rowActions">
               <select

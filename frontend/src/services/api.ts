@@ -19,6 +19,7 @@ import type {
   KnowledgeClaim,
   KnowledgeEvidenceItem,
   KnowledgeNode,
+  KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
   KnowledgeStatus,
   KnowledgeSource,
@@ -104,6 +105,12 @@ export function queryKnowledge(query: string, version = "knowledge-v0", limit = 
     method: "POST",
     body: JSON.stringify({ query, version, limit }),
   });
+}
+
+export function getKnowledgeQueryHistory(version = "knowledge-v0", limit = 20) {
+  return request<KnowledgeQueryHistoryItem[]>(
+    withParams("/knowledge/query-history", { version, limit: String(limit) }),
+  );
 }
 
 export function getV1Screens() {

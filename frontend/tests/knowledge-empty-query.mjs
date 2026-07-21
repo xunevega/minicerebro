@@ -28,6 +28,8 @@ try {
   }
 
   await page.getByRole("button", { name: "Auditoria" }).click();
+  await page.getByText("Historial de consultas de conocimiento").waitFor();
+  await page.getByText("knowledge-v0 -> consulta").first().waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
