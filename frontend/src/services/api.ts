@@ -62,27 +62,41 @@ export function getKnowledgeStatus() {
   return request<KnowledgeStatus>("/knowledge/status");
 }
 
-export function getKnowledgeCards() {
-  return request<KnowledgeCard[]>("/knowledge/cards");
+function withParams(path: string, params: Record<string, string | undefined>) {
+  const search = new URLSearchParams();
+  for (const [key, value] of Object.entries(params)) {
+    if (value) {
+      search.set(key, value);
+    }
+  }
+  const query = search.toString();
+  return query ? `${path}?${query}` : path;
 }
 
-export function getKnowledgeSources() {
-  return request<KnowledgeSource[]>("/knowledge/sources");
+export function getKnowledgeCards(version?: string) {
+  return request<KnowledgeCard[]>(withParams("/knowledge/cards", { version }));
 }
 
-export function getKnowledgeNodes(sourceId?: string) {
-  const suffix = sourceId ? `?source_id=${encodeURIComponent(sourceId)}` : "";
-  return request<KnowledgeNode[]>(`/knowledge/nodes${suffix}`);
+export function getKnowledgeSources(version?: string) {
+  return request<KnowledgeSource[]>(withParams("/knowledge/sources", { version }));
 }
 
-export function getKnowledgeEvidence(nodeId?: string) {
-  const suffix = nodeId ? `?node_id=${encodeURIComponent(nodeId)}` : "";
-  return request<KnowledgeEvidenceItem[]>(`/knowledge/evidence${suffix}`);
+export function getKnowledgeNodes(sourceId?: string, version?: string) {
+  return request<KnowledgeNode[]>(
+    withParams("/knowledge/nodes", { source_id: sourceId, version }),
+  );
 }
 
-export function getKnowledgeClaims(cardId?: string) {
-  const suffix = cardId ? `?card_id=${encodeURIComponent(cardId)}` : "";
-  return request<KnowledgeClaim[]>(`/knowledge/claims${suffix}`);
+export function getKnowledgeEvidence(nodeId?: string, version?: string) {
+  return request<KnowledgeEvidenceItem[]>(
+    withParams("/knowledge/evidence", { node_id: nodeId, version }),
+  );
+}
+
+export function getKnowledgeClaims(cardId?: string, version?: string) {
+  return request<KnowledgeClaim[]>(
+    withParams("/knowledge/claims", { card_id: cardId, version }),
+  );
 }
 
 export function queryKnowledge(query: string, version = "knowledge-v0", limit = 5) {

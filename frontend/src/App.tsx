@@ -171,64 +171,69 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([
-      getKnowledgeStatus(),
-      getKnowledgeCards(),
-      getKnowledgeSources(),
-      getKnowledgeNodes(),
-      getKnowledgeEvidence(),
-      getKnowledgeClaims(),
-      getProfileSummary(),
-      getProfileStatistics(activeContext),
-      getContradictions(activeContext),
-      getScores(activeContext),
-      getPreferences(activeContext),
-      getAuditEvents(),
-      getFeedbackProposals(),
-      getV1Screens(),
-      getDecisionRules(),
-      evaluateDecision(activeContext),
-      getPersistenceStatus(),
-      getGeneratedTexts(activeContext),
-      getCerebroAuditCandidates(),
-      getAcceptanceCriteria(),
-      getCerebroAuditGates(),
-      getClosureConditions(),
-      getExpectedResult(),
-      getTechnicalClosure(),
-      getContractBoundaries(),
-      getObservabilityStatus(),
-      getTechnicalRoadmap(),
-    ])
-      .then(([
-        knowledgeData,
-        cardData,
-        sourceData,
-        nodeData,
-        evidenceData,
-        claimData,
-        summaryData,
-        statisticsData,
-        contradictionData,
-        scoreData,
-        preferenceData,
-        auditData,
-        feedbackData,
-        screenData,
-        rulesData,
-        decisionData,
-        persistenceData,
-        textData,
-        cerebroData,
-        acceptanceData,
-        gateData,
-        closureData,
-        expectedData,
-        technicalClosureData,
-        boundaryData,
-        observabilityData,
-        roadmapData,
-      ]) => {
+    getKnowledgeStatus()
+      .then((knowledgeData) => {
+        const version = knowledgeData.version;
+        return Promise.all([
+          Promise.resolve(knowledgeData),
+          getKnowledgeCards(version),
+          getKnowledgeSources(version),
+          getKnowledgeNodes(undefined, version),
+          getKnowledgeEvidence(undefined, version),
+          getKnowledgeClaims(undefined, version),
+          getProfileSummary(),
+          getProfileStatistics(activeContext),
+          getContradictions(activeContext),
+          getScores(activeContext),
+          getPreferences(activeContext),
+          getAuditEvents(),
+          getFeedbackProposals(),
+          getV1Screens(),
+          getDecisionRules(),
+          evaluateDecision(activeContext),
+          getPersistenceStatus(),
+          getGeneratedTexts(activeContext),
+          getCerebroAuditCandidates(),
+          getAcceptanceCriteria(),
+          getCerebroAuditGates(),
+          getClosureConditions(),
+          getExpectedResult(),
+          getTechnicalClosure(),
+          getContractBoundaries(),
+          getObservabilityStatus(),
+          getTechnicalRoadmap(),
+        ]);
+      })
+      .then(
+        ([
+          knowledgeData,
+          cardData,
+          sourceData,
+          nodeData,
+          evidenceData,
+          claimData,
+          summaryData,
+          statisticsData,
+          contradictionData,
+          scoreData,
+          preferenceData,
+          auditData,
+          feedbackData,
+          screenData,
+          rulesData,
+          decisionData,
+          persistenceData,
+          textData,
+          cerebroData,
+          acceptanceData,
+          gateData,
+          closureData,
+          expectedData,
+          technicalClosureData,
+          boundaryData,
+          observabilityData,
+          roadmapData,
+        ]) => {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
         setKnowledgeSources(sourceData);
@@ -256,7 +261,8 @@ export function App() {
         setContractBoundaries(boundaryData);
         setObservability(observabilityData);
         setRoadmap(roadmapData);
-      })
+        },
+      )
       .catch((nextError: Error) => setError(nextError.message));
   }, [activeContext]);
 
@@ -558,6 +564,7 @@ export function App() {
             </div>
             <div className="proposalBox">
               <h3>Exploracion persistente</h3>
+              <p className="note">Version navegada: {knowledge?.version ?? "..."}</p>
               <div className="knowledgeGrid">
                 {knowledgeSources.map((source) => (
                   <article className="knowledgeItem" key={source.id}>
