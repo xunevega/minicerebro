@@ -113,6 +113,16 @@ const tabs = [
 ] as const;
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
+const auditEventFilters = [
+  { label: "Todos", eventType: "", entityType: "" },
+  {
+    label: "Consultas de conocimiento",
+    eventType: "knowledge.query.executed",
+    entityType: "knowledge_version",
+  },
+  { label: "Preferencias", eventType: "preference.created", entityType: "preference" },
+  { label: "Textos generados", eventType: "text.generated", entityType: "generated_text" },
+] as const;
 
 type TabId = (typeof tabs)[number]["id"];
 
@@ -166,6 +176,7 @@ export function App() {
   const [labOverrideDelta, setLabOverrideDelta] = useState(0);
   const [labResult, setLabResult] = useState<LabSimulationResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
+  const [auditFilter, setAuditFilter] = useState("Todos");
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -305,7 +316,17 @@ export function App() {
     setError(null);
     try {
       setKnowledgeResult(await queryKnowledge(knowledgeQuery));
-      setAuditEvents(await getAuditEvents());
+      setAuditEvents(await loadAuditEvents(auditFilter));
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleAuditFilter(nextFilter: string) {
+    setError(null);
+    setAuditFilter(nextFilter);
+    try {
+      setAuditEvents(await loadAuditEvents(nextFilter));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -1292,6 +1313,18 @@ export function App() {
         {active === "audit" && (
           <section className="panel">
             <h2>Eventos recientes</h2>
+            <div className="rowActions">
+              <select
+                onChange={(event) => handleAuditFilter(event.target.value)}
+                value={auditFilter}
+              >
+                {auditEventFilters.map((filter) => (
+                  <option key={filter.label} value={filter.label}>
+                    {filter.label}
+                  </option>
+                ))}
+              </select>
+            </div>
             {auditEvents.length === 0 ? (
               <p className="note">Todavia no hay eventos registrados.</p>
             ) : (
@@ -1362,6 +1395,11 @@ function KnowledgeAuditTrace({ event }: { event: AuditEvent }) {
 
 function numberPayloadValue(value: unknown) {
   return typeof value === "number" ? value : 0;
+}
+
+function loadAuditEvents(filterLabel: string) {
+  const filter = auditEventFilters.find((item) => item.label === filterLabel) ?? auditEventFilters[0];
+  return getAuditEvents(filter.eventType, filter.entityType);
 }
 
 function List({ title, items }: { title: string; items: string[] }) {

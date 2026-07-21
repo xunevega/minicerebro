@@ -340,6 +340,16 @@ def test_knowledge_query_records_audit_event_without_raw_query():
     }
     assert query not in str(event["payload"])
 
+    filtered_response = client.get(
+        "/audit/events",
+        params={"event_type": "knowledge.query.executed", "entity_type": "knowledge_version"},
+    )
+    assert filtered_response.status_code == 200
+    filtered_events = filtered_response.json()
+    assert len(filtered_events) > 0
+    assert {item["event_type"] for item in filtered_events} == {"knowledge.query.executed"}
+    assert {item["entity_type"] for item in filtered_events} == {"knowledge_version"}
+
 
 def test_knowledge_query_matches_the_full_persisted_chain():
     evidence_match = client.post(

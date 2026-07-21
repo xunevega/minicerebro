@@ -29,9 +29,14 @@ try {
 
   await page.getByRole("button", { name: "Auditoria" }).click();
   await page
+    .locator(".panel", { hasText: "Eventos recientes" })
+    .locator("select")
+    .selectOption("Consultas de conocimiento");
+  await page
     .getByText("knowledge-v0 -> consulta · 0 fichas · 0 claims · 0 evidencias")
     .first()
     .waitFor();
+  await page.getByText("knowledge.query.executed").first().waitFor();
 } finally {
   await browser.close();
 }

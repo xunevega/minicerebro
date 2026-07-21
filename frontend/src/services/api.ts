@@ -257,8 +257,10 @@ export function decideFeedbackProposal(
   });
 }
 
-export function getAuditEvents() {
-  return request<AuditEvent[]>("/audit/events");
+export function getAuditEvents(eventType?: string, entityType?: string) {
+  return request<AuditEvent[]>(
+    withParams("/audit/events", { event_type: eventType, entity_type: entityType }),
+  );
 }
 
 export function getGeneratedTexts(context: string) {

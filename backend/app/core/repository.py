@@ -770,11 +770,19 @@ class Repository:
         ).all()
         return [generated_text_from_record(record) for record in records]
 
-    def list_audit_events(self, limit: int = 50) -> list[AuditEvent]:
+    def list_audit_events(
+        self,
+        limit: int = 50,
+        event_type: str | None = None,
+        entity_type: str | None = None,
+    ) -> list[AuditEvent]:
+        query = select(AuditEventRecord)
+        if event_type:
+            query = query.where(AuditEventRecord.event_type == event_type)
+        if entity_type:
+            query = query.where(AuditEventRecord.entity_type == entity_type)
         records = self.session.scalars(
-            select(AuditEventRecord)
-            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
-            .limit(limit)
+            query.order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc()).limit(limit)
         ).all()
         return [audit_event_from_record(record) for record in records]
 
