@@ -13,4 +13,5 @@ coverage/
 *.egg-info/
 *.tsbuildinfo
 *-screenshot.png
+*.sqlite3
 *.pyc

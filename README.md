@@ -7,12 +7,25 @@ Aplicacion especializada en escritura en lengua espanola. Esta primera base impl
 Backend:
 
 ```bash
-cd backend
 python -m venv .venv
 source .venv/bin/activate
-pip install -e ".[dev]"
+pip install -e "backend[dev]"
+cd backend
 uvicorn app.main:app --reload
 ```
+
+Persistencia con PostgreSQL:
+
+```bash
+cp .env.example .env
+docker compose up -d postgres
+export DATABASE_URL=postgresql+psycopg://minicerebro:minicerebro@localhost:5432/minicerebro
+cd backend
+../.venv/bin/alembic upgrade head
+../.venv/bin/uvicorn app.main:app --reload
+```
+
+Si `DATABASE_URL` no esta definida, el backend usa `backend/minicerebro.sqlite3` como base local persistente de desarrollo.
 
 Frontend:
 
@@ -28,8 +41,7 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 
 - FastAPI con endpoints iniciales del contrato.
 - React/Vite con pantallas V1 principales.
-- Repositorio en memoria para permitir una primera app usable sin PostgreSQL.
+- SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones y eventos.
 - Tests unitarios del scoring, comparador y API.
 
-PostgreSQL, pgvector, Alembic y generacion LLM quedan preparados como siguiente incremento, no como dependencia obligatoria de esta primera subida.
-
+pgvector y generacion LLM quedan preparados como siguientes incrementos, no como dependencia obligatoria de esta base.
