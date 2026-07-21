@@ -38,11 +38,10 @@ Los puntos 21 y 22 no existen en los documentos V1 versionados. La aplicacion lo
 Comandos de cierre:
 
 ```bash
-source .venv/bin/activate
-ruff check backend/app backend/tests backend/alembic
-pytest backend/tests
-cd frontend
-npm run build
+make validate
+make migrate-sqlite
+make migrate-postgres
+FRONTEND_URL=http://127.0.0.1:5173 make smoke-ui
 ```
 
 Endpoints de prueba:

@@ -3,7 +3,7 @@
 
 **Versión:** 1.0  
 **Estado:** Cerrada para implementación  
-**Documento dependiente de:** `CONTRATO_FUNCIONAL_MINICEREBRO_V1.md`  
+**Documento dependiente de:** `docs/CONTRATO_FUNCIONAL.md`
 **Dominio:** Escritura en lengua española  
 **Objetivo:** Implementar una aplicación especializada que combine conocimiento estable sobre lengua y literatura con un perfil editable y trazable de preferencias de escritura.
 
