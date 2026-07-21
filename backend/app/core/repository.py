@@ -23,6 +23,7 @@ from app.core.models import (
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
+    KnowledgeQuerySummary,
     KnowledgeSource,
     KnowledgeVersion,
     Preference,
@@ -408,6 +409,17 @@ class Repository:
             .limit(limit)
         ).all()
         return [knowledge_query_history_from_record(record) for record in records]
+
+    def get_knowledge_query_summary(self, version: str) -> KnowledgeQuerySummary:
+        history = self.list_knowledge_query_history(version, limit=100)
+        empty_count = sum(1 for item in history if item.card_count == 0)
+        return KnowledgeQuerySummary(
+            version=version,
+            total_count=len(history),
+            empty_count=empty_count,
+            hit_count=len(history) - empty_count,
+            last_query_at=history[0].created_at if history else None,
+        )
 
     def get_profile(self, profile_id: str) -> Profile:
         record = self.session.scalar(

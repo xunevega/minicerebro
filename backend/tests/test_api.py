@@ -390,8 +390,37 @@ def test_knowledge_query_history_is_derived_from_audit_events():
     assert query not in str(item)
 
 
+def test_knowledge_query_summary_is_derived_from_audit_events():
+    empty_response = client.post(
+        "/knowledge/query",
+        json={"query": "zzzinexistente", "version": "knowledge-v0", "limit": 5},
+    )
+    assert empty_response.status_code == 200
+    hit_response = client.post(
+        "/knowledge/query",
+        json={"query": "precision lexica", "version": "knowledge-v0", "limit": 5},
+    )
+    assert hit_response.status_code == 200
+
+    response = client.get("/knowledge/query-summary?version=knowledge-v0")
+    assert response.status_code == 200
+    summary = response.json()
+    assert summary["version"] == "knowledge-v0"
+    assert summary["total_count"] >= 2
+    assert summary["empty_count"] >= 1
+    assert summary["hit_count"] >= 1
+    assert summary["last_query_at"] is not None
+
+
 def test_knowledge_query_history_rejects_missing_version():
     response = client.get("/knowledge/query-history?version=missing-version")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Knowledge version not found"
+
+
+def test_knowledge_query_summary_rejects_missing_version():
+    response = client.get("/knowledge/query-summary?version=missing-version")
 
     assert response.status_code == 404
     assert response.json()["detail"] == "Knowledge version not found"

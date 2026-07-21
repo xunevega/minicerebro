@@ -28,7 +28,10 @@ try {
   }
 
   await page.getByRole("button", { name: "Auditoria" }).click();
+  const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de conocimiento" });
   await page.getByText("Historial de consultas de conocimiento").waitFor();
+  await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
+  await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());

@@ -230,6 +230,14 @@ class KnowledgeQueryHistoryItem(BaseModel):
     created_at: datetime
 
 
+class KnowledgeQuerySummary(BaseModel):
+    version: str
+    total_count: int
+    empty_count: int
+    hit_count: int
+    last_query_at: datetime | None = None
+
+
 class ComparisonInput(BaseModel):
     original: str = Field(min_length=1)
     revised: str = Field(min_length=1)

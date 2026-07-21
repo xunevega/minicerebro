@@ -21,6 +21,7 @@ import type {
   KnowledgeNode,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
+  KnowledgeQuerySummary,
   KnowledgeStatus,
   KnowledgeSource,
   LabOverride,
@@ -111,6 +112,10 @@ export function getKnowledgeQueryHistory(version = "knowledge-v0", limit = 20) {
   return request<KnowledgeQueryHistoryItem[]>(
     withParams("/knowledge/query-history", { version, limit: String(limit) }),
   );
+}
+
+export function getKnowledgeQuerySummary(version = "knowledge-v0") {
+  return request<KnowledgeQuerySummary>(withParams("/knowledge/query-summary", { version }));
 }
 
 export function getV1Screens() {

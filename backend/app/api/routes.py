@@ -27,6 +27,7 @@ from app.core.models import (
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
+    KnowledgeQuerySummary,
     KnowledgeSource,
     KnowledgeStatus,
     KnowledgeVersion,
@@ -162,6 +163,17 @@ def knowledge_query_history(
     bounded_limit = max(1, min(limit, 100))
     try:
         return repository.list_knowledge_query_history(version, bounded_limit)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
+
+
+@router.get("/knowledge/query-summary")
+def knowledge_query_summary(
+    repository: RepositoryDep,
+    version: str = "knowledge-v0",
+) -> KnowledgeQuerySummary:
+    try:
+        return repository.get_knowledge_query_summary(version)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 

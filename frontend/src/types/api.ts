@@ -116,6 +116,14 @@ export type KnowledgeQueryHistoryItem = {
   created_at: string;
 };
 
+export type KnowledgeQuerySummary = {
+  version: string;
+  total_count: number;
+  empty_count: number;
+  hit_count: number;
+  last_query_at: string | null;
+};
+
 export type ProfileSummary = {
   profile_id: string;
   summary: string;

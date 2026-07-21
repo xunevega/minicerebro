@@ -41,6 +41,7 @@ import {
   getKnowledgeEvidence,
   getKnowledgeNodes,
   getKnowledgeQueryHistory,
+  getKnowledgeQuerySummary,
   getKnowledgeStatus,
   getKnowledgeSources,
   getPersistenceStatus,
@@ -80,6 +81,7 @@ import type {
   KnowledgeNode,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
+  KnowledgeQuerySummary,
   KnowledgeStatus,
   KnowledgeSource,
   LabSimulationResult,
@@ -140,6 +142,7 @@ export function App() {
   const [knowledgeQuery, setKnowledgeQuery] = useState("precision lexica");
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
+  const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
@@ -196,6 +199,7 @@ export function App() {
           getKnowledgeEvidence(undefined, version),
           getKnowledgeClaims(undefined, version),
           getKnowledgeQueryHistory(version),
+          getKnowledgeQuerySummary(version),
           getProfileSummary(),
           getProfileStatistics(activeContext),
           getContradictions(activeContext),
@@ -228,6 +232,7 @@ export function App() {
           evidenceData,
           claimData,
           queryHistoryData,
+          querySummaryData,
           summaryData,
           statisticsData,
           contradictionData,
@@ -257,6 +262,7 @@ export function App() {
         setKnowledgeEvidence(evidenceData);
         setKnowledgeClaims(claimData);
         setKnowledgeQueryHistory(queryHistoryData);
+        setKnowledgeQuerySummary(querySummaryData);
         setSummary(summaryData);
         setStatistics(statisticsData);
         setContradictions(contradictionData);
@@ -327,6 +333,7 @@ export function App() {
     try {
       setKnowledgeResult(await queryKnowledge(knowledgeQuery));
       setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version));
+      setKnowledgeQuerySummary(await getKnowledgeQuerySummary(knowledge?.version));
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -1324,6 +1331,17 @@ export function App() {
         {active === "audit" && (
           <section className="panel">
             <h2>Historial de consultas de conocimiento</h2>
+            <div className="metricGrid">
+              <Metric label="Consultas" value={knowledgeQuerySummary?.total_count ?? 0} />
+              <Metric label="Con resultado" value={knowledgeQuerySummary?.hit_count ?? 0} />
+              <Metric label="Sin resultado" value={knowledgeQuerySummary?.empty_count ?? 0} />
+            </div>
+            <p className="note">
+              Ultima consulta:{" "}
+              {knowledgeQuerySummary?.last_query_at
+                ? formatDate(knowledgeQuerySummary.last_query_at)
+                : "sin consultas"}
+            </p>
             {knowledgeQueryHistory.length === 0 ? (
               <p className="note">Todavia no hay consultas de conocimiento registradas.</p>
             ) : (
