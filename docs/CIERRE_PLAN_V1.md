@@ -6,7 +6,7 @@ Repositorio: `xunevega/minicerebro`
 
 ## Estado
 
-El plan V1 queda cerrado hasta el punto 20 del contrato y la arquitectura tecnica.
+El plan V1 queda cerrado hasta el punto 20 del contrato y la arquitectura tecnica. No hay V2 planificada.
 
 Los puntos 21 y 22 no existen en los documentos V1 versionados. La aplicacion los expone como limites de contrato mediante `GET /contract/boundaries`, con estado `not_defined_in_v1`.
 
@@ -60,4 +60,5 @@ curl http://127.0.0.1:8000/contract/boundaries
 - Conocimiento estable y perfil editable siguen separados.
 - Ningun aprendizaje se aplica sin revision o regla explicita.
 - Cerebro no se usa como base arquitectonica automatica.
-- Cualquier alcance posterior requiere nueva version de contrato.
+- No hay V2 ni expansion multidominio planificada.
+- Cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.

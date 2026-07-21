@@ -46,7 +46,7 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 - Cierre V1 documentado en `docs/CIERRE_PLAN_V1.md`.
 - Tests unitarios/API del scoring, comparador, persistencia, feedback, aceptacion y cierre.
 
-`pgvector`, validacion editorial avanzada y fuentes academicas versionadas quedan como siguientes versiones; no son dependencia obligatoria del cierre V1.
+`pgvector`, validacion editorial avanzada y fuentes academicas versionadas no forman parte del cierre V1. No hay V2 planificada; cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.
 
 ## Validacion
 
