@@ -9,7 +9,8 @@
     "preview": "vite preview",
     "test:knowledge-empty": "node tests/knowledge-empty-query.mjs",
     "test:lab-compare": "node tests/lab-compare.mjs",
-    "test:profile-export": "node tests/profile-export.mjs"
+    "test:profile-export": "node tests/profile-export.mjs",
+    "test:closure-surfaces": "node tests/closure-surfaces.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.7.0",
