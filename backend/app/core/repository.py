@@ -530,7 +530,9 @@ class Repository:
         )
         self.session.commit()
 
-    def add_preference(self, profile_id: str, preference: Preference) -> Preference:
+    def add_preference(
+        self, profile_id: str, preference: Preference, duration_ms: int | None = None
+    ) -> Preference:
         profile = self.session.get(ProfileRecord, profile_id)
         if profile is None:
             raise KeyError(profile_id)
@@ -541,7 +543,11 @@ class Repository:
             "preference.created",
             "preference",
             str(preference.id),
-            {"status": preference.status.value, "affected_variables": preference.affected_variables},
+            {
+                "status": preference.status.value,
+                "affected_variables": preference.affected_variables,
+                "duration_ms": duration_ms,
+            },
         )
         self.session.commit()
         return preference
@@ -806,7 +812,9 @@ class Repository:
         self.session.refresh(record)
         return feedback_from_record(record)
 
-    def add_generated_text(self, text: GeneratedText) -> GeneratedText:
+    def add_generated_text(
+        self, text: GeneratedText, duration_ms: int | None = None
+    ) -> GeneratedText:
         if self.session.get(ProfileRecord, text.profile_id) is None:
             raise KeyError(text.profile_id)
         self.session.add(generated_text_to_record(text))
@@ -819,6 +827,7 @@ class Repository:
                 "action": text.action,
                 "provider": text.provider,
                 "used_profile_variables": text.used_profile_variables,
+                "duration_ms": duration_ms,
             },
         )
         self.session.commit()

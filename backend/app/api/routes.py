@@ -1,3 +1,4 @@
+from time import perf_counter
 from typing import Annotated
 from uuid import UUID
 
@@ -255,8 +256,10 @@ def preferences_interpret(payload: PreferenceInput):
 
 @router.post("/preferences")
 def preferences_create(payload: PreferenceInput, repository: RepositoryDep):
+    started_at = perf_counter()
     preference = interpret_preference(payload)
-    return repository.add_preference(DEFAULT_PROFILE_ID, preference)
+    duration_ms = max(0, round((perf_counter() - started_at) * 1000))
+    return repository.add_preference(DEFAULT_PROFILE_ID, preference, duration_ms=duration_ms)
 
 
 @router.get("/preferences")
@@ -443,7 +446,9 @@ def generated_texts_list(
 @router.post("/variants")
 def generation_create(payload: GenerationInput, repository: RepositoryDep):
     variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+    started_at = perf_counter()
     generation = rewrite_with_profile(payload, variables)
+    duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
             profile_id=DEFAULT_PROFILE_ID,
@@ -454,7 +459,8 @@ def generation_create(payload: GenerationInput, repository: RepositoryDep):
             provider=generation.provider,
             used_profile_variables=generation.used_profile_variables,
             learning_applied=generation.learning_applied,
-        )
+        ),
+        duration_ms=duration_ms,
     )
     return generation
 

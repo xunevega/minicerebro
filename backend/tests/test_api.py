@@ -73,6 +73,21 @@ def test_preference_can_be_accepted_and_deleted():
     assert deleted.status_code == 204
 
 
+def test_preference_creation_audits_interpretation_duration():
+    created = client.post(
+        "/preferences",
+        json={"text": "Prefiero un estilo preciso.", "input_type": "prompt"},
+    )
+    assert created.status_code == 200
+
+    response = client.get("/audit/events")
+    assert response.status_code == 200
+    event = response.json()[0]
+    assert event["event_type"] == "preference.created"
+    assert event["payload"]["duration_ms"] >= 0
+    assert "text" not in event["payload"]
+
+
 def test_audit_events_are_exposed():
     created = client.post(
         "/preferences",
@@ -139,6 +154,21 @@ def test_generation_is_persisted_as_text():
     assert payload[0]["input_text"] == "Texto para persistir"
     assert payload[0]["output_text"] == response.json()["output"]
     assert payload[0]["learning_applied"] is False
+
+
+def test_generation_audits_duration_without_raw_text():
+    response = client.post(
+        "/generation",
+        json={"text": "Texto con duracion auditada", "action": "rewrite", "context": "general"},
+    )
+    assert response.status_code == 200
+
+    events = client.get("/audit/events")
+    assert events.status_code == 200
+    event = events.json()[0]
+    assert event["event_type"] == "text.generated"
+    assert event["payload"]["duration_ms"] >= 0
+    assert "Texto con duracion auditada" not in str(event["payload"])
 
 
 def test_lab_simulation_does_not_persist_score_changes():
@@ -624,6 +654,16 @@ def test_closure_observability_roadmap_and_cerebro_gates_are_exposed():
     assert observability.status_code == 200
     observability_items = {item["id"]: item for item in observability.json()}
     assert "adequacy_percentage" in observability_items
+    assert observability_items["interpretation_time"]["status"] == "available"
+    assert (
+        observability_items["interpretation_time"]["source"]
+        == "audit_events preference.created.duration_ms"
+    )
+    assert observability_items["generation_time"]["status"] == "available"
+    assert (
+        observability_items["generation_time"]["source"]
+        == "audit_events text.generated.duration_ms"
+    )
     assert observability_items["retrieval_quality"]["status"] == "available"
     assert (
         observability_items["retrieval_quality"]["source"]
@@ -640,6 +680,16 @@ def test_closure_observability_roadmap_and_cerebro_gates_are_exposed():
     gates = client.get("/cerebro-audit/gates")
     assert gates.status_code == 200
     assert any(item["id"] == "world_model_dependency" for item in gates.json())
+
+
+def test_cerebro_audit_remains_blocked_until_code_evidence_exists():
+    candidates = client.get("/cerebro-audit/candidates")
+    assert candidates.status_code == 200
+    assert {item["status"] for item in candidates.json()} == {"pending_code_evidence"}
+
+    gates = client.get("/cerebro-audit/gates")
+    assert gates.status_code == 200
+    assert {item["status"] for item in gates.json()} == {"blocked_until_checked"}
 
 
 def test_technical_closure_and_contract_boundaries_are_exposed():

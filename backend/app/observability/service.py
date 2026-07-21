@@ -3,8 +3,16 @@ from app.core.models import ObservabilityMetric
 
 def observability_metrics() -> list[ObservabilityMetric]:
     return [
-        ObservabilityMetric(id="interpretation_time", source="pending timer", status="planned"),
-        ObservabilityMetric(id="generation_time", source="pending timer", status="planned"),
+        ObservabilityMetric(
+            id="interpretation_time",
+            source="audit_events preference.created.duration_ms",
+            status="available",
+        ),
+        ObservabilityMetric(
+            id="generation_time",
+            source="audit_events text.generated.duration_ms",
+            status="available",
+        ),
         ObservabilityMetric(id="retrieved_cards", source="knowledge/cards", status="available"),
         ObservabilityMetric(id="adequacy_percentage", source="comparisons.adequacy_score", status="available"),
         ObservabilityMetric(id="average_modification", source="comparisons.modification_score", status="available"),
