@@ -61,6 +61,12 @@ make migrate-sqlite
 make migrate-postgres
 ```
 
+Limpieza de artefactos generados locales:
+
+```bash
+make clean-generated
+```
+
 Smokes UI contra una instancia real de frontend/backend:
 
 ```bash

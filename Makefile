@@ -6,7 +6,7 @@ SQLITE_DATABASE_URL ?= sqlite:////tmp/minicerebro-validate.sqlite3
 POSTGRES_DATABASE_URL ?= postgresql+psycopg://postgres:postgres@localhost:5432/app
 FRONTEND_URL ?= http://127.0.0.1:5173
 
-.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui
+.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui clean-generated
 
 validate: lint test-backend build-frontend
 
@@ -27,3 +27,23 @@ migrate-postgres:
 
 smoke-ui:
 	cd frontend && FRONTEND_URL="$(FRONTEND_URL)" npm run test:smoke-ui
+
+clean-generated:
+	find . -type f \( -name '.DS_Store' -o -name '*.pyc' -o -name '*.pyo' -o -name '*.tsbuildinfo' \) \
+		-not -path './.git/*' \
+		-not -path './.venv/*' \
+		-not -path './frontend/node_modules/*' \
+		-not -path './frontend/dist/*' \
+		-delete
+	find . -type d -name '__pycache__' \
+		-not -path './.git/*' \
+		-not -path './.venv/*' \
+		-not -path './frontend/node_modules/*' \
+		-not -path './frontend/dist/*' \
+		-empty -delete
+	find . -type d \( -name '.pytest_cache' -o -name '.ruff_cache' \) \
+		-not -path './.git/*' \
+		-not -path './.venv/*' \
+		-not -path './frontend/node_modules/*' \
+		-not -path './frontend/dist/*' \
+		-prune -exec rm -rf {} +
