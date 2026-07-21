@@ -342,13 +342,29 @@ def test_knowledge_query_records_audit_event_without_raw_query():
 
     filtered_response = client.get(
         "/audit/events",
-        params={"event_type": "knowledge.query.executed", "entity_type": "knowledge_version"},
+        params={
+            "event_type": "knowledge.query.executed",
+            "entity_type": "knowledge_version",
+            "entity_id": "knowledge-v0",
+        },
     )
     assert filtered_response.status_code == 200
     filtered_events = filtered_response.json()
     assert len(filtered_events) > 0
     assert {item["event_type"] for item in filtered_events} == {"knowledge.query.executed"}
     assert {item["entity_type"] for item in filtered_events} == {"knowledge_version"}
+    assert {item["entity_id"] for item in filtered_events} == {"knowledge-v0"}
+
+    other_version_response = client.get(
+        "/audit/events",
+        params={
+            "event_type": "knowledge.query.executed",
+            "entity_type": "knowledge_version",
+            "entity_id": "missing-version",
+        },
+    )
+    assert other_version_response.status_code == 200
+    assert other_version_response.json() == []
 
 
 def test_knowledge_query_matches_the_full_persisted_chain():

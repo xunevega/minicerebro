@@ -316,7 +316,7 @@ export function App() {
     setError(null);
     try {
       setKnowledgeResult(await queryKnowledge(knowledgeQuery));
-      setAuditEvents(await loadAuditEvents(auditFilter));
+      setAuditEvents(await loadAuditEvents(auditFilter, knowledge?.version));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -326,7 +326,7 @@ export function App() {
     setError(null);
     setAuditFilter(nextFilter);
     try {
-      setAuditEvents(await loadAuditEvents(nextFilter));
+      setAuditEvents(await loadAuditEvents(nextFilter, knowledge?.version));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -1397,9 +1397,11 @@ function numberPayloadValue(value: unknown) {
   return typeof value === "number" ? value : 0;
 }
 
-function loadAuditEvents(filterLabel: string) {
+function loadAuditEvents(filterLabel: string, knowledgeVersion?: string) {
   const filter = auditEventFilters.find((item) => item.label === filterLabel) ?? auditEventFilters[0];
-  return getAuditEvents(filter.eventType, filter.entityType);
+  const entityId =
+    filter.eventType === "knowledge.query.executed" ? knowledgeVersion : undefined;
+  return getAuditEvents(filter.eventType, filter.entityType, entityId);
 }
 
 function List({ title, items }: { title: string; items: string[] }) {

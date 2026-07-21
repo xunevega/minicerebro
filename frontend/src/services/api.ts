@@ -257,9 +257,9 @@ export function decideFeedbackProposal(
   });
 }
 
-export function getAuditEvents(eventType?: string, entityType?: string) {
+export function getAuditEvents(eventType?: string, entityType?: string, entityId?: string) {
   return request<AuditEvent[]>(
-    withParams("/audit/events", { event_type: eventType, entity_type: entityType }),
+    withParams("/audit/events", { event_type: eventType, entity_type: entityType, entity_id: entityId }),
   );
 }
 

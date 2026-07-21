@@ -389,12 +389,14 @@ def audit_events(
     limit: int = 50,
     event_type: str | None = None,
     entity_type: str | None = None,
+    entity_id: str | None = None,
 ):
     bounded_limit = max(1, min(limit, 100))
     return repository.list_audit_events(
         bounded_limit,
         event_type=event_type,
         entity_type=entity_type,
+        entity_id=entity_id,
     )
 
 

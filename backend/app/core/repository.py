@@ -775,12 +775,15 @@ class Repository:
         limit: int = 50,
         event_type: str | None = None,
         entity_type: str | None = None,
+        entity_id: str | None = None,
     ) -> list[AuditEvent]:
         query = select(AuditEventRecord)
         if event_type:
             query = query.where(AuditEventRecord.event_type == event_type)
         if entity_type:
             query = query.where(AuditEventRecord.entity_type == entity_type)
+        if entity_id:
+            query = query.where(AuditEventRecord.entity_id == entity_id)
         records = self.session.scalars(
             query.order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc()).limit(limit)
         ).all()

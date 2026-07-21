@@ -28,10 +28,20 @@ try {
   }
 
   await page.getByRole("button", { name: "Auditoria" }).click();
+  const filteredAuditResponse = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === "/audit/events" &&
+      url.searchParams.get("event_type") === "knowledge.query.executed" &&
+      url.searchParams.get("entity_type") === "knowledge_version" &&
+      url.searchParams.get("entity_id") === "knowledge-v0"
+    );
+  });
   await page
     .locator(".panel", { hasText: "Eventos recientes" })
     .locator("select")
     .selectOption("Consultas de conocimiento");
+  await filteredAuditResponse;
   await page
     .getByText("knowledge-v0 -> consulta · 0 fichas · 0 claims · 0 evidencias")
     .first()
