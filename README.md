@@ -1,6 +1,6 @@
 # Minicerebro
 
-Aplicacion especializada en escritura en lengua espanola. Esta primera base implementa el esqueleto funcional de V1: conocimiento estable separado del perfil, scoring editable con ajuste manual, preferencias trazables, comparador y editor basico.
+Aplicacion especializada en escritura en lengua espanola. La V1 implementa el contrato funcional con conocimiento estable separado del perfil de preferencias, scoring editable, preferencias trazables, editor, comparador, laboratorio, feedback controlado, auditoria y cierre tecnico verificable.
 
 ## Desarrollo local
 
@@ -39,9 +39,28 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 
 ## Estado de esta base
 
-- FastAPI con endpoints iniciales del contrato.
-- React/Vite con pantallas V1 principales.
-- SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones y eventos.
-- Tests unitarios del scoring, comparador y API.
+- FastAPI con endpoints del contrato V1 y superficies de cierre.
+- React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
+- SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.
+- Auditoria de Cerebro declarativa: no se importa ningun modulo completo sin evidencia pieza por pieza.
+- Cierre V1 documentado en `docs/CIERRE_PLAN_V1.md`.
+- Tests unitarios/API del scoring, comparador, persistencia, feedback, aceptacion y cierre.
 
-pgvector y generacion LLM quedan preparados como siguientes incrementos, no como dependencia obligatoria de esta base.
+`pgvector`, validacion editorial avanzada y fuentes academicas versionadas quedan como siguientes versiones; no son dependencia obligatoria del cierre V1.
+
+## Validacion
+
+```bash
+source .venv/bin/activate
+ruff check backend/app backend/tests backend/alembic
+pytest backend/tests
+cd frontend
+npm run build
+```
+
+Endpoints de cierre:
+
+- `GET /acceptance/v1`
+- `GET /closure/conditions`
+- `GET /closure/technical`
+- `GET /contract/boundaries`

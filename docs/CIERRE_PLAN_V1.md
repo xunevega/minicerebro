@@ -1,0 +1,63 @@
+# Cierre del plan V1
+
+Fecha de cierre: 2026-07-21
+
+Repositorio: `xunevega/minicerebro`
+
+## Estado
+
+El plan V1 queda cerrado hasta el punto 20 del contrato y la arquitectura tecnica.
+
+Los puntos 21 y 22 no existen en los documentos V1 versionados. La aplicacion los expone como limites de contrato mediante `GET /contract/boundaries`, con estado `not_defined_in_v1`.
+
+## Puntos cerrados
+
+1. Persistencia real con SQLAlchemy, Alembic y PostgreSQL.
+2. Preferencias trazables y revisables.
+3. Scoring editable con ajuste manual.
+4. Flujo de aceptacion/rechazo de preferencias.
+5. Auditoria de eventos.
+6. Generacion con proveedor determinista y soporte OpenAI opcional.
+7. Comparador con dimensiones y cambios.
+8. Conocimiento seed separado del perfil.
+9. Estadisticas, contradicciones y contextos.
+10. Laboratorio sin aprendizaje automatico.
+11. Retroalimentacion controlada.
+12. Pantallas V1.
+13. Reglas de decision.
+14. Persistencia funcional separada.
+15. Auditoria de Cerebro como cantera, no cimiento.
+16. Criterios de aceptacion V1.
+17. Condiciones de cierre y observabilidad.
+18. Resultado esperado y roadmap tecnico.
+19. Gates de auditoria de Cerebro.
+20. Criterio de cierre tecnico.
+
+## Verificacion local
+
+Comandos de cierre:
+
+```bash
+source .venv/bin/activate
+ruff check backend/app backend/tests backend/alembic
+pytest backend/tests
+cd frontend
+npm run build
+```
+
+Endpoints de prueba:
+
+```bash
+curl http://127.0.0.1:8000/health
+curl http://127.0.0.1:8000/acceptance/v1
+curl http://127.0.0.1:8000/closure/technical
+curl http://127.0.0.1:8000/contract/boundaries
+```
+
+## Condiciones
+
+- V1 solo trata escritura en lengua espanola.
+- Conocimiento estable y perfil editable siguen separados.
+- Ningun aprendizaje se aplica sin revision o regla explicita.
+- Cerebro no se usa como base arquitectonica automatica.
+- Cualquier alcance posterior requiere nueva version de contrato.
