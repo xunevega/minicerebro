@@ -97,6 +97,9 @@ export type KnowledgeEvidenceItem = {
 export type KnowledgeQueryResult = {
   query: string;
   version: string;
+  card_count: number;
+  claim_count: number;
+  evidence_count: number;
   cards: KnowledgeCard[];
   claims: KnowledgeClaim[];
   evidence: KnowledgeEvidenceItem[];

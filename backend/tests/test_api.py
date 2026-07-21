@@ -304,6 +304,9 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
     payload = response.json()
     assert payload["version"] == "knowledge-v0"
     assert payload["cards"][0]["id"] == "lexico-precision"
+    assert payload["card_count"] == len(payload["cards"])
+    assert payload["claim_count"] == len(payload["claims"])
+    assert payload["evidence_count"] == len(payload["evidence"])
     assert {claim["card_id"] for claim in payload["claims"]} <= {
         card["id"] for card in payload["cards"]
     }

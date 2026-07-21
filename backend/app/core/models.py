@@ -211,6 +211,9 @@ class KnowledgeCard(BaseModel):
 class KnowledgeQueryResult(BaseModel):
     query: str
     version: str
+    card_count: int
+    claim_count: int
+    evidence_count: int
     cards: list[KnowledgeCard]
     claims: list[KnowledgeClaim]
     evidence: list[KnowledgeEvidenceItem]

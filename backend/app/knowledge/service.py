@@ -244,6 +244,9 @@ def query_knowledge(
     return KnowledgeQueryResult(
         query=payload.query,
         version=payload.version,
+        card_count=len(ranked_cards),
+        claim_count=len(matched_claims),
+        evidence_count=len(matched_evidence),
         cards=ranked_cards,
         claims=matched_claims,
         evidence=matched_evidence,
