@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import {
   applyScoreProposal,
+  compareLabTexts,
   compareTexts,
   createPreference,
   createFeedbackProposal,
@@ -187,6 +188,10 @@ export function App() {
   const [labOverrideKey, setLabOverrideKey] = useState("");
   const [labOverrideDelta, setLabOverrideDelta] = useState(0);
   const [labResult, setLabResult] = useState<LabSimulationResult | null>(null);
+  const [labComparisonText, setLabComparisonText] = useState(
+    "Prueba aqui una variante para compararla sin guardar.",
+  );
+  const [labComparison, setLabComparison] = useState<ComparisonResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [auditFilter, setAuditFilter] = useState("Todos");
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
@@ -556,6 +561,15 @@ export function App() {
             : [],
         ),
       );
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleLabCompare() {
+    setError(null);
+    try {
+      setLabComparison(await compareLabTexts(labText, labComparisonText, activeContext));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -1084,6 +1098,14 @@ export function App() {
               <button className="primaryButton editorButton" onClick={handleLabSimulation} type="button">
                 Simular
               </button>
+              <textarea
+                aria-label="Texto revisado de laboratorio"
+                onChange={(event) => setLabComparisonText(event.target.value)}
+                value={labComparisonText}
+              />
+              <button className="primaryButton editorButton" onClick={handleLabCompare} type="button">
+                Comparar sin guardar
+              </button>
             </div>
             <div className="inspector">
               <h2>Resultado</h2>
@@ -1104,6 +1126,20 @@ export function App() {
               ) : (
                 <p className="note">El laboratorio no escribe en preferencias, scoring ni evidencias.</p>
               )}
+              {labComparison ? (
+                <>
+                  <h2>Comparacion temporal</h2>
+                  <p className="note">{labComparison.summary}</p>
+                  <Metric label="Modificacion temporal" value={labComparison.modification_score} />
+                  <Metric label="Adecuacion temporal" value={labComparison.adequacy_score} />
+                  <List
+                    title="Cambios temporales"
+                    items={labComparison.changes.map(
+                      (change) => `${change.original} -> ${change.revised}`,
+                    )}
+                  />
+                </>
+              ) : null}
             </div>
           </section>
         )}

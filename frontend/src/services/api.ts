@@ -246,6 +246,13 @@ export function compareTexts(original: string, revised: string, context: string)
   });
 }
 
+export function compareLabTexts(original: string, revised: string, context: string) {
+  return request<ComparisonResult>("/lab/compare", {
+    method: "POST",
+    body: JSON.stringify({ original, revised, context }),
+  });
+}
+
 export function createFeedbackProposal(comparisonId: string, context: string) {
   return request<FeedbackProposal>(`/comparisons/${comparisonId}/feedback`, {
     method: "POST",
