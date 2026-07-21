@@ -26,6 +26,12 @@ try {
   for (const [label, value] of expectedMetrics) {
     await metrics.filter({ hasText: label }).filter({ hasText: value }).waitFor();
   }
+
+  await page.getByRole("button", { name: "Auditoria" }).click();
+  await page
+    .getByText("knowledge-v0 -> consulta · 0 fichas · 0 claims · 0 evidencias")
+    .first()
+    .waitFor();
 } finally {
   await browser.close();
 }

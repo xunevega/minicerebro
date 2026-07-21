@@ -472,6 +472,12 @@ textarea + .primaryButton {
   font-size: 13px;
 }
 
+.auditItem .auditTrace {
+  color: #2c5b4f;
+  font-weight: 700;
+  margin-top: 6px;
+}
+
 .auditItem pre {
   background: #f8faf5;
   border: 1px solid #e3e8df;

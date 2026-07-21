@@ -305,6 +305,7 @@ export function App() {
     setError(null);
     try {
       setKnowledgeResult(await queryKnowledge(knowledgeQuery));
+      setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -1302,6 +1303,7 @@ export function App() {
                       <span>
                         {event.entity_type} · {event.entity_id}
                       </span>
+                      <KnowledgeAuditTrace event={event} />
                     </div>
                     <time>{formatDate(event.created_at)}</time>
                     <pre>{JSON.stringify(event.payload, null, 2)}</pre>
@@ -1339,6 +1341,27 @@ function Metric({ label, value }: { label: string; value: string | number }) {
       <strong>{value}</strong>
     </div>
   );
+}
+
+function KnowledgeAuditTrace({ event }: { event: AuditEvent }) {
+  if (event.event_type !== "knowledge.query.executed") {
+    return null;
+  }
+
+  const cardCount = numberPayloadValue(event.payload.card_count);
+  const claimCount = numberPayloadValue(event.payload.claim_count);
+  const evidenceCount = numberPayloadValue(event.payload.evidence_count);
+
+  return (
+    <span className="auditTrace">
+      {event.entity_id} -&gt; consulta · {cardCount} fichas · {claimCount} claims ·{" "}
+      {evidenceCount} evidencias
+    </span>
+  );
+}
+
+function numberPayloadValue(value: unknown) {
+  return typeof value === "number" ? value : 0;
 }
 
 function List({ title, items }: { title: string; items: string[] }) {
