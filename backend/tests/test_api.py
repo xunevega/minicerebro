@@ -1,7 +1,10 @@
+from datetime import UTC, datetime
+
 from fastapi.testclient import TestClient
 from sqlalchemy import select
 
 from app.db.models import (
+    AuditEventRecord,
     KnowledgeCardRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
@@ -410,6 +413,36 @@ def test_knowledge_query_summary_is_derived_from_audit_events():
     assert summary["empty_count"] >= 1
     assert summary["hit_count"] >= 1
     assert summary["last_query_at"] is not None
+
+
+def test_knowledge_query_summary_counts_beyond_history_window():
+    now = datetime.now(UTC)
+    with SessionLocal() as session:
+        session.add_all(
+            AuditEventRecord(
+                event_type="knowledge.query.executed",
+                entity_type="knowledge_version",
+                entity_id="knowledge-v0",
+                payload={
+                    "query_length": 4,
+                    "limit": 5,
+                    "card_count": 0,
+                    "claim_count": 0,
+                    "evidence_count": 0,
+                },
+                created_at=now,
+            )
+            for _ in range(101)
+        )
+        session.commit()
+
+    summary_response = client.get("/knowledge/query-summary?version=knowledge-v0")
+    assert summary_response.status_code == 200
+    assert summary_response.json()["total_count"] >= 101
+
+    history_response = client.get("/knowledge/query-history?version=knowledge-v0&limit=20")
+    assert history_response.status_code == 200
+    assert len(history_response.json()) == 20
 
 
 def test_knowledge_query_history_rejects_missing_version():

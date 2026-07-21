@@ -411,7 +411,18 @@ class Repository:
         return [knowledge_query_history_from_record(record) for record in records]
 
     def get_knowledge_query_summary(self, version: str) -> KnowledgeQuerySummary:
-        history = self.list_knowledge_query_history(version, limit=100)
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        records = self.session.scalars(
+            select(AuditEventRecord)
+            .where(
+                AuditEventRecord.event_type == "knowledge.query.executed",
+                AuditEventRecord.entity_type == "knowledge_version",
+                AuditEventRecord.entity_id == version,
+            )
+            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
+        ).all()
+        history = [knowledge_query_history_from_record(record) for record in records]
         empty_count = sum(1 for item in history if item.card_count == 0)
         return KnowledgeQuerySummary(
             version=version,
