@@ -252,3 +252,17 @@ export type CerebroAuditGate = {
   status: string;
   reason: string;
 };
+
+export type TechnicalClosureCriterion = {
+  id: number;
+  description: string;
+  status: string;
+  evidence: string[];
+};
+
+export type ContractBoundary = {
+  section: number;
+  status: string;
+  reason: string;
+  next_step: string;
+};

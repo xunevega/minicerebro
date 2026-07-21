@@ -270,3 +270,16 @@ def test_closure_observability_roadmap_and_cerebro_gates_are_exposed():
     gates = client.get("/cerebro-audit/gates")
     assert gates.status_code == 200
     assert any(item["id"] == "world_model_dependency" for item in gates.json())
+
+
+def test_technical_closure_and_contract_boundaries_are_exposed():
+    technical = client.get("/closure/technical")
+    assert technical.status_code == 200
+    assert len(technical.json()) == 8
+    assert technical.json()[0]["status"] == "satisfied"
+
+    boundaries = client.get("/contract/boundaries")
+    assert boundaries.status_code == 200
+    sections = {item["section"]: item for item in boundaries.json()}
+    assert sections[21]["status"] == "not_defined_in_v1"
+    assert sections[22]["status"] == "not_defined_in_v1"

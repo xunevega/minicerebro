@@ -29,6 +29,7 @@ import {
   getCerebroAuditGates,
   getCerebroAuditCandidates,
   getClosureConditions,
+  getContractBoundaries,
   getContradictions,
   getDecisionRules,
   getExpectedResult,
@@ -45,6 +46,7 @@ import {
   getScoreProposal,
   getScores,
   getObservabilityStatus,
+  getTechnicalClosure,
   getTechnicalRoadmap,
   getV1Screens,
   simulateLab,
@@ -58,6 +60,7 @@ import type {
   CerebroAuditCandidate,
   ClosureCondition,
   ComparisonResult,
+  ContractBoundary,
   Contradiction,
   DecisionEvaluation,
   DecisionRule,
@@ -78,6 +81,7 @@ import type {
   ProfileStatistics,
   ScoreProposal,
   ScoreVariable,
+  TechnicalClosureCriterion,
   TechnicalRoadmapPhase,
   V1Screen,
 } from "./types/api";
@@ -133,6 +137,8 @@ export function App() {
   const [acceptanceCriteria, setAcceptanceCriteria] = useState<AcceptanceCriterion[]>([]);
   const [closureConditions, setClosureConditions] = useState<ClosureCondition[]>([]);
   const [expectedResult, setExpectedResult] = useState<ExpectedAnswerLine[]>([]);
+  const [technicalClosure, setTechnicalClosure] = useState<TechnicalClosureCriterion[]>([]);
+  const [contractBoundaries, setContractBoundaries] = useState<ContractBoundary[]>([]);
   const [observability, setObservability] = useState<ObservabilityMetric[]>([]);
   const [roadmap, setRoadmap] = useState<TechnicalRoadmapPhase[]>([]);
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
@@ -173,6 +179,8 @@ export function App() {
       getCerebroAuditGates(),
       getClosureConditions(),
       getExpectedResult(),
+      getTechnicalClosure(),
+      getContractBoundaries(),
       getObservabilityStatus(),
       getTechnicalRoadmap(),
     ])
@@ -197,6 +205,8 @@ export function App() {
         gateData,
         closureData,
         expectedData,
+        technicalClosureData,
+        boundaryData,
         observabilityData,
         roadmapData,
       ]) => {
@@ -220,6 +230,8 @@ export function App() {
         setCerebroGates(gateData);
         setClosureConditions(closureData);
         setExpectedResult(expectedData);
+        setTechnicalClosure(technicalClosureData);
+        setContractBoundaries(boundaryData);
         setObservability(observabilityData);
         setRoadmap(roadmapData);
       })
@@ -1055,6 +1067,27 @@ export function App() {
               </div>
             </div>
             <div className="inspector">
+              <h2>Cierre tecnico</h2>
+              <div className="auditList">
+                {technicalClosure.map((criterion) => (
+                  <article className="auditItem" key={criterion.id}>
+                    <div>
+                      <strong>
+                        {criterion.id}. {criterion.description}
+                      </strong>
+                      <span>{criterion.status}</span>
+                    </div>
+                    <pre>{criterion.evidence.join("\n")}</pre>
+                  </article>
+                ))}
+              </div>
+              <List
+                title="Limites 21/22"
+                items={contractBoundaries.map(
+                  (boundary) =>
+                    `${boundary.section}: ${boundary.status} · ${boundary.reason} · ${boundary.next_step}`,
+                )}
+              />
               <h2>Resultado esperado</h2>
               <div className="auditList">
                 {expectedResult.map((line) => (

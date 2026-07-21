@@ -5,6 +5,7 @@ import type {
   CerebroAuditGate,
   ClosureCondition,
   ComparisonResult,
+  ContractBoundary,
   Contradiction,
   DecisionEvaluation,
   DecisionRule,
@@ -29,6 +30,7 @@ import type {
   ScoreProposalApplyResult,
   ScoreUpdate,
   ScoreVariable,
+  TechnicalClosureCriterion,
   TechnicalRoadmapPhase,
   V1Screen,
 } from "../types/api";
@@ -97,6 +99,14 @@ export function getClosureConditions() {
 
 export function getExpectedResult() {
   return request<ExpectedAnswerLine[]>("/closure/expected-result");
+}
+
+export function getTechnicalClosure() {
+  return request<TechnicalClosureCriterion[]>("/closure/technical");
+}
+
+export function getContractBoundaries() {
+  return request<ContractBoundary[]>("/contract/boundaries");
 }
 
 export function getObservabilityStatus() {

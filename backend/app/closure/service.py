@@ -1,4 +1,4 @@
-from app.core.models import ClosureCondition, ExpectedAnswerLine
+from app.core.models import ClosureCondition, ContractBoundary, ExpectedAnswerLine, TechnicalClosureCriterion
 
 
 def closure_conditions() -> list[ClosureCondition]:
@@ -37,4 +37,38 @@ def expected_answer_lines() -> list[ExpectedAnswerLine]:
     return [
         ExpectedAnswerLine(order=index, text=text, evidence=evidence)
         for index, (text, evidence) in enumerate(lines, start=1)
+    ]
+
+
+def technical_closure_criteria() -> list[TechnicalClosureCriterion]:
+    criteria = [
+        ("Los limites coinciden con el contrato funcional.", ["GET /closure/conditions"]),
+        ("El modelo de datos permite trazabilidad completa.", ["audit_events", "generated_texts"]),
+        ("La base de conocimiento esta separada del perfil.", ["knowledge service", "profile repository"]),
+        ("El scoring es editable.", ["PATCH /profiles/{id}/scores/{variable}"]),
+        ("El ajuste manual prevalece.", ["manual_adjustment", "effective_value"]),
+        ("La consistencia temporal esta contemplada.", ["GET /decision/evaluate"]),
+        ("El comparador distingue cambio superficial y profundo.", ["dimensions", "changes"]),
+        ("La auditoria de Cerebro puede ejecutarse sin redefinir el producto.", ["cerebro-audit/candidates"]),
+    ]
+    return [
+        TechnicalClosureCriterion(id=index, description=description, status="satisfied", evidence=evidence)
+        for index, (description, evidence) in enumerate(criteria, start=1)
+    ]
+
+
+def contract_boundaries() -> list[ContractBoundary]:
+    return [
+        ContractBoundary(
+            section=21,
+            status="not_defined_in_v1",
+            reason="El contrato funcional y la arquitectura tecnica V1 terminan en el cierre tecnico.",
+            next_step="Abrir una nueva version de contrato antes de anadir alcance.",
+        ),
+        ContractBoundary(
+            section=22,
+            status="not_defined_in_v1",
+            reason="No existe una seccion 22 versionada para Minicerebro V1.",
+            next_step="Mantener V1 cerrada y crear V1.1 o V2 si aparece nuevo alcance.",
+        ),
     ]

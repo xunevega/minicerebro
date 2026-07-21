@@ -337,3 +337,17 @@ class CerebroAuditGate(BaseModel):
     id: str
     status: str
     reason: str
+
+
+class TechnicalClosureCriterion(BaseModel):
+    id: int
+    description: str
+    status: str
+    evidence: list[str]
+
+
+class ContractBoundary(BaseModel):
+    section: int
+    status: str
+    reason: str
+    next_step: str
