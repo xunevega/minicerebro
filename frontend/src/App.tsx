@@ -148,6 +148,7 @@ export function App() {
   const [selectedKnowledgeQueryEventId, setSelectedKnowledgeQueryEventId] = useState<number | null>(
     null,
   );
+  const [selectedKnowledgeCardId, setSelectedKnowledgeCardId] = useState<string | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
@@ -303,6 +304,18 @@ export function App() {
     () => new Map(knowledgeCards.map((card) => [card.id, card])),
     [knowledgeCards],
   );
+  const sourceById = useMemo(
+    () => new Map(knowledgeSources.map((source) => [source.id, source])),
+    [knowledgeSources],
+  );
+  const nodeById = useMemo(
+    () => new Map(knowledgeNodes.map((node) => [node.id, node])),
+    [knowledgeNodes],
+  );
+  const evidenceById = useMemo(
+    () => new Map(knowledgeEvidence.map((item) => [item.id, item])),
+    [knowledgeEvidence],
+  );
   const nodesBySource = useMemo(
     () => groupBy(knowledgeNodes, (node) => node.source_id),
     [knowledgeNodes],
@@ -315,6 +328,13 @@ export function App() {
     () => groupBy(knowledgeClaims, (claim) => claim.evidence_id),
     [knowledgeClaims],
   );
+  const claimsByCard = useMemo(
+    () => groupBy(knowledgeClaims, (claim) => claim.card_id),
+    [knowledgeClaims],
+  );
+  const selectedKnowledgeCard = selectedKnowledgeCardId
+    ? (cardById.get(selectedKnowledgeCardId) ?? null)
+    : null;
 
   async function refreshAuditEvents(filterLabel = auditFilter) {
     setAuditEvents(await loadAuditEvents(filterLabel, knowledge?.version));
@@ -627,12 +647,27 @@ export function App() {
                 <article className="knowledgeItem" key={card.id}>
                   <strong>{card.name}</strong>
                   <span>{card.definition}</span>
+                  <button
+                    className="ghostButton"
+                    onClick={() => setSelectedKnowledgeCardId(card.id)}
+                    type="button"
+                  >
+                    Inspeccionar
+                  </button>
                 </article>
               ))}
             </div>
             <div className="proposalBox">
               <h3>Exploracion persistente</h3>
               <p className="note">Version navegada: {knowledge?.version ?? "..."}</p>
+              <h3>Trazabilidad persistente</h3>
+              <div className="metricGrid">
+                <Metric label="Fuentes" value={knowledgeSources.length} />
+                <Metric label="Nodos" value={knowledgeNodes.length} />
+                <Metric label="Evidencias" value={knowledgeEvidence.length} />
+                <Metric label="Claims" value={knowledgeClaims.length} />
+                <Metric label="Fichas" value={knowledgeCards.length} />
+              </div>
               <div className="knowledgeGrid">
                 {knowledgeSources.map((source) => (
                   <article className="knowledgeItem" key={source.id}>
@@ -648,13 +683,24 @@ export function App() {
                           <div className="listBlock" key={item.id}>
                             <h3>{item.reference}</h3>
                             <p className="note">{item.excerpt}</p>
-                            <List
-                              title="Claims"
-                              items={(claimsByEvidence.get(item.id) ?? []).map((claim) => {
-                                const card = cardById.get(claim.card_id);
-                                return `${claim.statement} -> ${card?.name ?? claim.card_id}`;
-                              })}
-                            />
+                            <h3>Claims</h3>
+                            {(claimsByEvidence.get(item.id) ?? []).map((claim) => {
+                              const card = cardById.get(claim.card_id);
+                              return (
+                                <div className="traceClaim" key={claim.id}>
+                                  <span>
+                                    {claim.statement} -&gt; {card?.name ?? claim.card_id}
+                                  </span>
+                                  <button
+                                    className="ghostButton"
+                                    onClick={() => setSelectedKnowledgeCardId(claim.card_id)}
+                                    type="button"
+                                  >
+                                    Ver ficha
+                                  </button>
+                                </div>
+                              );
+                            })}
                           </div>
                         ))}
                       </div>
@@ -663,6 +709,44 @@ export function App() {
                 ))}
               </div>
             </div>
+            {selectedKnowledgeCard ? (
+              <div className="proposalBox">
+                <h3>Ficha seleccionada</h3>
+                <article className="knowledgeItem">
+                  <strong>{selectedKnowledgeCard.name}</strong>
+                  <span>{selectedKnowledgeCard.definition}</span>
+                  <div className="metricGrid">
+                    <Metric label="Confianza" value={selectedKnowledgeCard.confidence} />
+                    <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
+                    <Metric label="Version" value={selectedKnowledgeCard.version} />
+                  </div>
+                  <List title="Senales" items={payloadList(selectedKnowledgeCard.payload.signals)} />
+                  <List title="Riesgos" items={payloadList(selectedKnowledgeCard.payload.risks)} />
+                  <List title="Contextos" items={payloadList(selectedKnowledgeCard.payload.contexts)} />
+                  <div className="auditList">
+                    {(claimsByCard.get(selectedKnowledgeCard.id) ?? []).map((claim) => {
+                      const evidence = evidenceById.get(claim.evidence_id);
+                      const node = evidence ? nodeById.get(evidence.node_id) : null;
+                      const source = evidence ? sourceById.get(evidence.source_id) : null;
+                      return (
+                        <article className="auditItem" key={claim.id}>
+                          <div>
+                            <strong>{claim.statement}</strong>
+                            <span>
+                              {source?.name ?? evidence?.source_id ?? "fuente desconocida"} -&gt;{" "}
+                              {node?.title ?? evidence?.node_id ?? "nodo desconocido"} -&gt;{" "}
+                              {evidence?.reference ?? claim.evidence_id}
+                            </span>
+                          </div>
+                          <span>confianza {claim.confidence}</span>
+                          <pre>{evidence?.excerpt ?? "Evidencia no cargada."}</pre>
+                        </article>
+                      );
+                    })}
+                  </div>
+                </article>
+              </div>
+            ) : null}
             <div className="proposalBox">
               <h3>Consulta</h3>
               <div className="rowActions">
@@ -1563,6 +1647,13 @@ function loadAuditEvents(filterLabel: string, knowledgeVersion?: string) {
   const entityId =
     filter.eventType === "knowledge.query.executed" ? knowledgeVersion : undefined;
   return getAuditEvents(filter.eventType, filter.entityType, entityId);
+}
+
+function payloadList(value: unknown) {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+  return value.filter((item): item is string => typeof item === "string");
 }
 
 function List({ title, items }: { title: string; items: string[] }) {

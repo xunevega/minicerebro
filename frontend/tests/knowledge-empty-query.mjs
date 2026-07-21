@@ -8,6 +8,20 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
+  const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
+  await explorationPanel.getByText("Trazabilidad persistente").waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "2" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "2" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "3" }).waitFor();
+  const precisionClaim = explorationPanel.locator(".traceClaim", {
+    hasText: "La precision lexica favorece formulaciones concretas y verificables.",
+  });
+  await precisionClaim.getByRole("button", { name: "Ver ficha" }).click();
+  const selectedCard = page.locator(".proposalBox", { hasText: "Ficha seleccionada" });
+  await selectedCard.locator("article.knowledgeItem > strong", { hasText: "Precision lexica" }).waitFor();
+  await selectedCard.getByText("Real Academia Espanola").waitFor();
+  await selectedCard.getByText("registro normativo semilla").waitFor();
+
   await page.locator(".proposalBox", { hasText: "Consulta" }).locator("input").fill(emptyQuery);
   await page.getByLabel("Limite de fichas").selectOption("3");
   await page.getByRole("button", { name: "Consultar" }).click();

@@ -429,6 +429,21 @@ textarea + .primaryButton {
   margin-top: 6px;
 }
 
+.traceClaim {
+  border-top: 1px solid #e7ece5;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr auto;
+  margin-top: 10px;
+  padding-top: 10px;
+}
+
+.traceClaim span {
+  color: #34413b;
+  font-size: 13px;
+  margin-top: 0;
+}
+
 .preferenceItem strong,
 .preferenceItem span {
   display: block;
@@ -574,6 +589,10 @@ textarea + .primaryButton {
   }
 
   .knowledgeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .traceClaim {
     grid-template-columns: 1fr;
   }
 
