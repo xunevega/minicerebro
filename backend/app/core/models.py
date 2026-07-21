@@ -21,6 +21,12 @@ class PreferenceStatus(StrEnum):
     rejected = "rejected"
 
 
+class FeedbackStatus(StrEnum):
+    proposed = "proposed"
+    applied = "applied"
+    rejected = "rejected"
+
+
 class ScoreVariable(BaseModel):
     key: str
     label: str
@@ -87,6 +93,37 @@ class PreferencePatch(BaseModel):
 
 class ApplyScoreProposalInput(BaseModel):
     reason: str = Field(min_length=3, max_length=500)
+
+
+class FeedbackProposalInput(BaseModel):
+    context: str = "general"
+    note: str = Field(default="", max_length=500)
+
+
+class FeedbackProposalItem(BaseModel):
+    variable_key: str
+    context: str
+    current_value: int = Field(ge=0, le=1000)
+    proposed_value: int = Field(ge=0, le=1000)
+    delta: int = Field(ge=-300, le=300)
+    reason: str
+
+
+class FeedbackProposal(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    comparison_id: UUID
+    status: FeedbackStatus = FeedbackStatus.proposed
+    context: str
+    items: list[FeedbackProposalItem]
+    rationale: list[str]
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class FeedbackDecisionInput(BaseModel):
+    status: FeedbackStatus
+    reason: str = Field(min_length=3, max_length=500)
+    variable_keys: list[str] | None = None
 
 
 class Profile(BaseModel):
@@ -207,3 +244,11 @@ class Contradiction(BaseModel):
     accepted_count: int
     rejected_count: int
     note: str
+
+
+class V1Screen(BaseModel):
+    id: str
+    label: str
+    route: str
+    status: str
+    functions: list[str]

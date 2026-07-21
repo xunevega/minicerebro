@@ -6,6 +6,7 @@ import {
   FlaskConical,
   GitCompare,
   History,
+  LayoutDashboard,
   PenLine,
   SlidersHorizontal,
 } from "lucide-react";
@@ -13,9 +14,12 @@ import {
   applyScoreProposal,
   compareTexts,
   createPreference,
+  createFeedbackProposal,
   deletePreference,
+  decideFeedbackProposal,
   getAuditEvents,
   getContradictions,
+  getFeedbackProposals,
   generateText,
   getKnowledgeCards,
   getKnowledgeStatus,
@@ -25,6 +29,7 @@ import {
   getProfileStatistics,
   getScoreProposal,
   getScores,
+  getV1Screens,
   simulateLab,
   updatePreferenceStatus,
   updateScore,
@@ -33,6 +38,7 @@ import type {
   AuditEvent,
   ComparisonResult,
   Contradiction,
+  FeedbackProposal,
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
@@ -45,6 +51,7 @@ import type {
   ProfileStatistics,
   ScoreProposal,
   ScoreVariable,
+  V1Screen,
 } from "./types/api";
 
 const tabs = [
@@ -55,6 +62,7 @@ const tabs = [
   { id: "editor", label: "Editor", icon: FilePenLine },
   { id: "lab", label: "Laboratorio", icon: FlaskConical },
   { id: "compare", label: "Comparador", icon: GitCompare },
+  { id: "screens", label: "Pantallas", icon: LayoutDashboard },
   { id: "audit", label: "Auditoria", icon: History },
 ] as const;
 
@@ -79,6 +87,9 @@ export function App() {
   const [original, setOriginal] = useState("Este texto explica una idea de manera general.");
   const [revised, setRevised] = useState("Este texto explica una idea con mas precision y menos rodeo.");
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
+  const [feedbackProposals, setFeedbackProposals] = useState<FeedbackProposal[]>([]);
+  const [activeFeedback, setActiveFeedback] = useState<FeedbackProposal | null>(null);
+  const [screens, setScreens] = useState<V1Screen[]>([]);
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
@@ -106,6 +117,8 @@ export function App() {
       getScores(activeContext),
       getPreferences(activeContext),
       getAuditEvents(),
+      getFeedbackProposals(),
+      getV1Screens(),
     ])
       .then(([
         knowledgeData,
@@ -117,6 +130,8 @@ export function App() {
         scoreData,
         preferenceData,
         auditData,
+        feedbackData,
+        screenData,
       ]) => {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
@@ -127,6 +142,8 @@ export function App() {
         setScores(scoreData);
         setPreferences(preferenceData);
         setAuditEvents(auditData);
+        setFeedbackProposals(feedbackData);
+        setScreens(screenData);
       })
       .catch((nextError: Error) => setError(nextError.message));
   }, [activeContext]);
@@ -192,6 +209,38 @@ export function App() {
     setError(null);
     try {
       setComparison(await compareTexts(original, revised, activeContext));
+      setAuditEvents(await getAuditEvents());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleFeedbackProposal() {
+    if (!comparison) return;
+    setError(null);
+    try {
+      const proposal = await createFeedbackProposal(comparison.id, activeContext);
+      setActiveFeedback(proposal);
+      setFeedbackProposals((current) => [proposal, ...current]);
+      setAuditEvents(await getAuditEvents());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleFeedbackDecision(proposal: FeedbackProposal, status: "applied" | "rejected") {
+    setError(null);
+    try {
+      const decided = await decideFeedbackProposal(
+        proposal.id,
+        status,
+        status === "applied" ? "Aplicar feedback revisado." : "No aprender de este texto.",
+      );
+      setActiveFeedback(decided);
+      setFeedbackProposals((current) =>
+        current.map((item) => (item.id === decided.id ? decided : item)),
+      );
+      setScores(await getScores(activeContext));
       setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -711,11 +760,76 @@ export function App() {
                       (change) => `${change.type}: ${change.original || "vacio"} -> ${change.revised || "vacio"}`,
                     )}
                   />
+                  <button className="primaryButton editorButton" onClick={handleFeedbackProposal} type="button">
+                    Proponer feedback
+                  </button>
                 </>
               ) : (
                 <p className="note">El comparador mide modificacion y adecuacion sin actualizar el perfil.</p>
               )}
+              {activeFeedback ? (
+                <div className="proposalBox">
+                  <h3>Feedback propuesto</h3>
+                  <span className="statusPill">{activeFeedback.status}</span>
+                  {activeFeedback.items.map((item) => (
+                    <div className="proposalItem" key={item.variable_key}>
+                      <strong>
+                        {`${item.variable_key}: ${item.current_value} -> ${item.proposed_value}`}
+                      </strong>
+                      <span>{item.reason}</span>
+                    </div>
+                  ))}
+                  {activeFeedback.status === "proposed" ? (
+                    <div className="rowActions">
+                      <button
+                        className="ghostButton"
+                        onClick={() => handleFeedbackDecision(activeFeedback, "applied")}
+                        type="button"
+                      >
+                        Aplicar
+                      </button>
+                      <button
+                        className="ghostButton danger"
+                        onClick={() => handleFeedbackDecision(activeFeedback, "rejected")}
+                        type="button"
+                      >
+                        No aprender
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              ) : null}
             </div>
+          </section>
+        )}
+
+        {active === "screens" && (
+          <section className="panel">
+            <h2>Pantallas V1</h2>
+            <div className="knowledgeGrid">
+              {screens.map((screen) => (
+                <article className="knowledgeItem" key={screen.id}>
+                  <strong>{screen.label}</strong>
+                  <span>
+                    {screen.status} · {screen.route}
+                  </span>
+                  <List title="Funciones" items={screen.functions} />
+                </article>
+              ))}
+            </div>
+            <List
+              title="Feedback pendiente"
+              items={
+                feedbackProposals.length === 0
+                  ? ["Sin propuestas pendientes."]
+                  : feedbackProposals.map(
+                      (proposal) =>
+                        `${proposal.status}: ${proposal.items.length} variables · ${formatDate(
+                          proposal.created_at,
+                        )}`,
+                    )
+              }
+            />
           </section>
         )}
 

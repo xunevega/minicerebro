@@ -95,6 +95,26 @@ export type ComparisonResult = {
   changes: Array<{ type: string; original: string; revised: string }>;
 };
 
+export type FeedbackStatus = "proposed" | "applied" | "rejected";
+
+export type FeedbackProposal = {
+  id: string;
+  comparison_id: string;
+  status: FeedbackStatus;
+  context: string;
+  items: Array<{
+    variable_key: string;
+    context: string;
+    current_value: number;
+    proposed_value: number;
+    delta: number;
+    reason: string;
+  }>;
+  rationale: string[];
+  created_at: string;
+  updated_at: string;
+};
+
 export type AuditEvent = {
   id: number;
   event_type: string;
@@ -142,4 +162,12 @@ export type Contradiction = {
   accepted_count: number;
   rejected_count: number;
   note: string;
+};
+
+export type V1Screen = {
+  id: string;
+  label: string;
+  route: string;
+  status: string;
+  functions: string[];
 };

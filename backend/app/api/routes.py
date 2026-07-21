@@ -8,6 +8,8 @@ from app.core.repository import Repository
 from app.core.models import (
     ApplyScoreProposalInput,
     ComparisonInput,
+    FeedbackDecisionInput,
+    FeedbackProposalInput,
     GenerationInput,
     KnowledgeStatus,
     LabSimulationInput,
@@ -15,13 +17,16 @@ from app.core.models import (
     PreferenceInput,
     PreferencePatch,
     ScorePatch,
+    V1Screen,
 )
 from app.api.deps import get_repository
 from app.core.seeds import DEFAULT_PROFILE_ID
+from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
 from app.knowledge.service import seed_cards, seed_sources
 from app.preferences.service import build_score_proposal, interpret_preference
 from app.scoring.service import apply_manual_override, score_out
+from app.ui.service import v1_screens
 
 router = APIRouter()
 RepositoryDep = Annotated[Repository, Depends(get_repository)]
@@ -59,6 +64,11 @@ def knowledge_sources():
 @router.get("/knowledge/cards")
 def knowledge_cards():
     return seed_cards()
+
+
+@router.get("/ui/screens")
+def ui_screens() -> list[V1Screen]:
+    return v1_screens()
 
 
 @router.post("/preferences/interpret")
@@ -184,6 +194,42 @@ def comparisons_get(comparison_id: UUID, repository: RepositoryDep):
         return repository.get_comparison(comparison_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Comparison not found") from exc
+
+
+@router.post("/comparisons/{comparison_id}/feedback")
+def comparison_feedback_create(
+    comparison_id: UUID,
+    payload: FeedbackProposalInput,
+    repository: RepositoryDep,
+):
+    try:
+        comparison = repository.get_comparison(comparison_id)
+        variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+        proposal = build_feedback_proposal(comparison, variables, payload.context)
+        if payload.note:
+            proposal.rationale.append(payload.note)
+        return repository.add_feedback_proposal(DEFAULT_PROFILE_ID, proposal)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Comparison not found") from exc
+
+
+@router.get("/feedback/proposals")
+def feedback_proposals_list(repository: RepositoryDep):
+    return repository.list_feedback_proposals(DEFAULT_PROFILE_ID)
+
+
+@router.patch("/feedback/proposals/{proposal_id}")
+def feedback_proposal_decide(
+    proposal_id: UUID,
+    payload: FeedbackDecisionInput,
+    repository: RepositoryDep,
+):
+    try:
+        return repository.decide_feedback_proposal(DEFAULT_PROFILE_ID, proposal_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Feedback proposal not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.get("/audit/events")

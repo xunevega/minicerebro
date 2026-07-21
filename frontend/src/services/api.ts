@@ -2,6 +2,8 @@ import type {
   AuditEvent,
   ComparisonResult,
   Contradiction,
+  FeedbackProposal,
+  FeedbackStatus,
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
@@ -17,6 +19,7 @@ import type {
   ScoreProposalApplyResult,
   ScoreUpdate,
   ScoreVariable,
+  V1Screen,
 } from "../types/api";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
@@ -48,6 +51,10 @@ export function getKnowledgeCards() {
 
 export function getKnowledgeSources() {
   return request<KnowledgeSource[]>("/knowledge/sources");
+}
+
+export function getV1Screens() {
+  return request<V1Screen[]>("/ui/screens");
 }
 
 function withContext(path: string, context: string) {
@@ -120,6 +127,29 @@ export function compareTexts(original: string, revised: string, context: string)
   return request<ComparisonResult>("/comparisons", {
     method: "POST",
     body: JSON.stringify({ original, revised, context }),
+  });
+}
+
+export function createFeedbackProposal(comparisonId: string, context: string) {
+  return request<FeedbackProposal>(`/comparisons/${comparisonId}/feedback`, {
+    method: "POST",
+    body: JSON.stringify({ context }),
+  });
+}
+
+export function getFeedbackProposals() {
+  return request<FeedbackProposal[]>("/feedback/proposals");
+}
+
+export function decideFeedbackProposal(
+  proposalId: string,
+  status: Exclude<FeedbackStatus, "proposed">,
+  reason: string,
+  variableKeys?: string[],
+) {
+  return request<FeedbackProposal>(`/feedback/proposals/${proposalId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status, reason, variable_keys: variableKeys }),
   });
 }
 

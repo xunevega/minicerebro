@@ -159,3 +159,45 @@ def test_comparison_includes_dimensions_and_changes():
     payload = response.json()
     assert "lexico" in payload["dimensions"]
     assert isinstance(payload["changes"], list)
+
+
+def test_feedback_proposal_requires_explicit_application():
+    comparison = client.post(
+        "/comparisons",
+        json={
+            "original": "Texto claro y corto.",
+            "revised": "Texto claro, corto y con mas precision.",
+            "context": "general",
+        },
+    )
+    assert comparison.status_code == 200
+    scores_before = client.get("/profiles/default/scores?context=general").json()
+
+    proposal = client.post(
+        f"/comparisons/{comparison.json()['id']}/feedback",
+        json={"context": "general", "note": "Correccion revisada."},
+    )
+    assert proposal.status_code == 200
+    proposal_payload = proposal.json()
+    assert proposal_payload["status"] == "proposed"
+    assert len(proposal_payload["items"]) >= 1
+
+    scores_after_proposal = client.get("/profiles/default/scores?context=general").json()
+    assert scores_after_proposal == scores_before
+
+    applied = client.patch(
+        f"/feedback/proposals/{proposal_payload['id']}",
+        json={"status": "applied", "reason": "Aplicar aprendizaje revisado."},
+    )
+    assert applied.status_code == 200
+    assert applied.json()["status"] == "applied"
+
+    scores_after_apply = client.get("/profiles/default/scores?context=general").json()
+    assert scores_after_apply != scores_before
+
+
+def test_v1_screens_are_exposed():
+    response = client.get("/ui/screens")
+    assert response.status_code == 200
+    screen_ids = {item["id"] for item in response.json()}
+    assert {"knowledge", "preferences", "profile", "scoring", "editor", "lab", "compare"} <= screen_ids

@@ -88,6 +88,20 @@ class ComparisonRecord(Base):
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class FeedbackProposalRecord(Base):
+    __tablename__ = "feedback_proposals"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    comparison_id: Mapped[str] = mapped_column(ForeignKey("comparisons.id"), nullable=False, index=True)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    context: Mapped[str] = mapped_column(String(120), nullable=False, default="general")
+    items: Mapped[list[dict]] = mapped_column(JSON, nullable=False, default=list)
+    rationale: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class AuditEventRecord(Base):
     __tablename__ = "audit_events"
 
@@ -97,4 +111,3 @@ class AuditEventRecord(Base):
     entity_id: Mapped[str] = mapped_column(String(120), nullable=False)
     payload: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
-

@@ -9,6 +9,10 @@ from sqlalchemy.orm import Session, selectinload
 from app.core.models import (
     AuditEvent,
     ComparisonResult,
+    FeedbackDecisionInput,
+    FeedbackProposal,
+    FeedbackProposalItem,
+    FeedbackStatus,
     Evidence,
     EvidenceType,
     Preference,
@@ -24,6 +28,7 @@ from app.db.models import (
     AuditEventRecord,
     ComparisonRecord,
     EvidenceRecord,
+    FeedbackProposalRecord,
     PreferenceRecord,
     ProfileRecord,
     ScoreVariableRecord,
@@ -128,6 +133,33 @@ def audit_event_from_record(record: AuditEventRecord) -> AuditEvent:
         entity_id=record.entity_id,
         payload=record.payload,
         created_at=record.created_at,
+    )
+
+
+def feedback_from_record(record: FeedbackProposalRecord) -> FeedbackProposal:
+    return FeedbackProposal(
+        id=UUID(record.id),
+        comparison_id=UUID(record.comparison_id),
+        status=FeedbackStatus(record.status),
+        context=record.context,
+        items=[FeedbackProposalItem(**item) for item in record.items],
+        rationale=record.rationale,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+    )
+
+
+def feedback_to_record(profile_id: str, proposal: FeedbackProposal) -> FeedbackProposalRecord:
+    return FeedbackProposalRecord(
+        id=str(proposal.id),
+        comparison_id=str(proposal.comparison_id),
+        profile_id=profile_id,
+        status=proposal.status.value,
+        context=proposal.context,
+        items=[item.model_dump() for item in proposal.items],
+        rationale=proposal.rationale,
+        created_at=proposal.created_at,
+        updated_at=proposal.updated_at,
     )
 
 
@@ -414,6 +446,91 @@ class Repository:
         if record is None:
             raise KeyError(str(comparison_id))
         return comparison_from_record(record)
+
+    def add_feedback_proposal(
+        self, profile_id: str, proposal: FeedbackProposal
+    ) -> FeedbackProposal:
+        if self.session.get(ProfileRecord, profile_id) is None:
+            raise KeyError(profile_id)
+        if self.session.get(ComparisonRecord, str(proposal.comparison_id)) is None:
+            raise KeyError(str(proposal.comparison_id))
+        self.session.add(feedback_to_record(profile_id, proposal))
+        self.add_audit_event(
+            "feedback.proposed",
+            "comparison",
+            str(proposal.comparison_id),
+            {"proposal_id": str(proposal.id), "items": [item.model_dump() for item in proposal.items]},
+        )
+        self.session.commit()
+        return proposal
+
+    def list_feedback_proposals(self, profile_id: str) -> list[FeedbackProposal]:
+        records = self.session.scalars(
+            select(FeedbackProposalRecord)
+            .where(FeedbackProposalRecord.profile_id == profile_id)
+            .order_by(FeedbackProposalRecord.created_at.desc())
+        ).all()
+        return [feedback_from_record(record) for record in records]
+
+    def decide_feedback_proposal(
+        self,
+        profile_id: str,
+        proposal_id: UUID,
+        decision: FeedbackDecisionInput,
+    ) -> FeedbackProposal:
+        record = self.session.scalar(
+            select(FeedbackProposalRecord).where(
+                FeedbackProposalRecord.profile_id == profile_id,
+                FeedbackProposalRecord.id == str(proposal_id),
+            )
+        )
+        if record is None:
+            raise KeyError(str(proposal_id))
+        if record.status != FeedbackStatus.proposed.value:
+            raise ValueError("Feedback proposal is already closed")
+        if decision.status == FeedbackStatus.proposed:
+            raise ValueError("Feedback proposal must be applied or rejected")
+
+        proposal = feedback_from_record(record)
+        selected_keys = set(decision.variable_keys or [item.variable_key for item in proposal.items])
+        applied_items = [item for item in proposal.items if item.variable_key in selected_keys]
+
+        if decision.status == FeedbackStatus.applied:
+            for item in applied_items:
+                variable_record = self.session.scalar(
+                    select(ScoreVariableRecord).where(
+                        ScoreVariableRecord.profile_id == profile_id,
+                        ScoreVariableRecord.key == item.variable_key,
+                        ScoreVariableRecord.context == item.context,
+                    )
+                )
+                if variable_record is None:
+                    continue
+                variable_record.calculated_value = item.proposed_value
+                variable_record.evidence_count += 1
+                variable_record.confidence = min(1, variable_record.confidence + 0.02)
+                variable_record.updated_at = datetime.now(UTC)
+            event_type = "feedback.applied"
+        else:
+            event_type = "feedback.rejected"
+
+        record.status = decision.status.value
+        record.updated_at = datetime.now(UTC)
+        profile = self.session.get(ProfileRecord, profile_id)
+        if profile is not None:
+            profile.updated_at = datetime.now(UTC)
+        self.add_audit_event(
+            event_type,
+            "feedback_proposal",
+            str(proposal_id),
+            {
+                "reason": decision.reason,
+                "applied_items": [item.model_dump() for item in applied_items],
+            },
+        )
+        self.session.commit()
+        self.session.refresh(record)
+        return feedback_from_record(record)
 
     def list_audit_events(self, limit: int = 50) -> list[AuditEvent]:
         records = self.session.scalars(
