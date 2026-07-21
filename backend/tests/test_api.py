@@ -73,3 +73,25 @@ def test_audit_events_are_exposed():
         "score.manual_override",
         "comparison.created",
     }
+
+
+def test_accepted_preference_proposes_and_applies_scoring():
+    created = client.post(
+        "/preferences",
+        json={"text": "Prefiero textos directos y precisos.", "input_type": "prompt"},
+    )
+    preference_id = created.json()["id"]
+    client.patch(f"/preferences/{preference_id}", json={"status": "accepted"})
+
+    proposal = client.get(f"/preferences/{preference_id}/score-proposal")
+    assert proposal.status_code == 200
+    proposal_payload = proposal.json()
+    assert proposal_payload["status"] == "pending_review"
+    assert len(proposal_payload["items"]) >= 1
+
+    applied = client.post(
+        f"/preferences/{preference_id}/score-proposal/apply",
+        json={"reason": "Aplicar preferencia aceptada."},
+    )
+    assert applied.status_code == 200
+    assert len(applied.json()["variables"]) >= 1

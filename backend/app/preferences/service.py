@@ -1,4 +1,13 @@
-from app.core.models import Evidence, Preference, PreferenceInput, PreferenceStatus
+from uuid import UUID
+
+from app.core.models import (
+    Evidence,
+    Preference,
+    PreferenceInput,
+    PreferenceStatus,
+    ScoreProposal,
+    ScoreProposalItem,
+)
 from app.scoring.service import initial_calculated_value
 
 
@@ -40,3 +49,25 @@ def interpret_preference(payload: PreferenceInput) -> Preference:
         affected_variables=affected,
     )
 
+
+def build_score_proposal(preference: Preference) -> ScoreProposal:
+    if preference.status != PreferenceStatus.accepted:
+        return ScoreProposal(preference_id=preference.id, status="not_applicable", items=[])
+
+    base_delta = max(10, min(80, round(preference.evidence.weight * 100)))
+    items = [
+        ScoreProposalItem(
+            variable_key=variable_key,
+            delta=base_delta,
+            reason=(
+                f"Preferencia aceptada desde {preference.evidence.evidence_type.value}: "
+                f"{preference.evidence.summary}"
+            ),
+        )
+        for variable_key in preference.affected_variables
+    ]
+    return ScoreProposal(preference_id=preference.id, status="pending_review", items=items)
+
+
+def empty_score_proposal(preference_id: UUID) -> ScoreProposal:
+    return ScoreProposal(preference_id=preference_id, status="not_found", items=[])

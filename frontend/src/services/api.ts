@@ -5,6 +5,8 @@ import type {
   Preference,
   PreferenceStatus,
   ProfileSummary,
+  ScoreProposal,
+  ScoreProposalApplyResult,
   ScoreUpdate,
   ScoreVariable,
 } from "../types/api";
@@ -62,6 +64,17 @@ export function updatePreferenceStatus(preferenceId: string, status: PreferenceS
   return request<Preference>(`/preferences/${preferenceId}`, {
     method: "PATCH",
     body: JSON.stringify({ status }),
+  });
+}
+
+export function getScoreProposal(preferenceId: string) {
+  return request<ScoreProposal>(`/preferences/${preferenceId}/score-proposal`);
+}
+
+export function applyScoreProposal(preferenceId: string, reason: string) {
+  return request<ScoreProposalApplyResult>(`/preferences/${preferenceId}/score-proposal/apply`, {
+    method: "POST",
+    body: JSON.stringify({ reason }),
   });
 }
 

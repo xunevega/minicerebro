@@ -23,6 +23,21 @@ export type ScoreUpdate = {
   };
 };
 
+export type ScoreProposal = {
+  preference_id: string;
+  status: "pending_review" | "not_applicable" | "not_found";
+  items: Array<{
+    variable_key: string;
+    delta: number;
+    reason: string;
+  }>;
+};
+
+export type ScoreProposalApplyResult = {
+  proposal: ScoreProposal;
+  variables: ScoreVariable[];
+};
+
 export type KnowledgeStatus = {
   version: string;
   state: string;

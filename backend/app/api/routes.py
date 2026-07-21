@@ -6,6 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException
 from app.comparison.service import compare_texts
 from app.core.repository import Repository
 from app.core.models import (
+    ApplyScoreProposalInput,
     ComparisonInput,
     GenerationInput,
     KnowledgeStatus,
@@ -16,7 +17,7 @@ from app.core.models import (
 from app.api.deps import get_repository
 from app.core.seeds import DEFAULT_PROFILE_ID
 from app.generation.service import rewrite_with_profile
-from app.preferences.service import interpret_preference
+from app.preferences.service import build_score_proposal, interpret_preference
 from app.scoring.service import apply_manual_override, score_out
 
 router = APIRouter()
@@ -79,6 +80,30 @@ def preferences_delete(preference_id: UUID, repository: RepositoryDep):
         repository.delete_preference(DEFAULT_PROFILE_ID, preference_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Preference not found") from exc
+
+
+@router.get("/preferences/{preference_id}/score-proposal")
+def preference_score_proposal(preference_id: UUID, repository: RepositoryDep):
+    try:
+        preference = repository.get_preference(DEFAULT_PROFILE_ID, preference_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Preference not found") from exc
+    return build_score_proposal(preference)
+
+
+@router.post("/preferences/{preference_id}/score-proposal/apply")
+def preference_score_proposal_apply(
+    preference_id: UUID, payload: ApplyScoreProposalInput, repository: RepositoryDep
+):
+    try:
+        preference = repository.get_preference(DEFAULT_PROFILE_ID, preference_id)
+        proposal = build_score_proposal(preference)
+        updated = repository.apply_score_proposal(DEFAULT_PROFILE_ID, proposal, payload.reason)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Preference not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"proposal": proposal, "variables": [score_out(variable) for variable in updated]}
 
 
 @router.get("/profiles/{profile_id}")

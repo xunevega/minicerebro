@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { BookOpen, Brain, GitCompare, History, PenLine, SlidersHorizontal } from "lucide-react";
 import {
+  applyScoreProposal,
   compareTexts,
   createPreference,
   deletePreference,
@@ -8,6 +9,7 @@ import {
   getKnowledgeStatus,
   getPreferences,
   getProfileSummary,
+  getScoreProposal,
   getScores,
   updatePreferenceStatus,
   updateScore,
@@ -19,6 +21,7 @@ import type {
   Preference,
   PreferenceStatus,
   ProfileSummary,
+  ScoreProposal,
   ScoreVariable,
 } from "./types/api";
 
@@ -41,6 +44,7 @@ export function App() {
   const [preferenceText, setPreferenceText] = useState("Me gusta un estilo sobrio, preciso y con ritmo.");
   const [preference, setPreference] = useState<Preference | null>(null);
   const [preferences, setPreferences] = useState<Preference[]>([]);
+  const [scoreProposal, setScoreProposal] = useState<ScoreProposal | null>(null);
   const [original, setOriginal] = useState("Este texto explica una idea de manera general.");
   const [revised, setRevised] = useState("Este texto explica una idea con mas precision y menos rodeo.");
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
@@ -95,6 +99,11 @@ export function App() {
       if (preference?.id === preferenceId) {
         setPreference(updated);
       }
+      if (status === "accepted") {
+        setScoreProposal(await getScoreProposal(preferenceId));
+      } else if (preference?.id === preferenceId) {
+        setScoreProposal(null);
+      }
       setAuditEvents(await getAuditEvents());
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -109,6 +118,9 @@ export function App() {
       if (preference?.id === preferenceId) {
         setPreference(null);
       }
+      if (scoreProposal?.preference_id === preferenceId) {
+        setScoreProposal(null);
+      }
       setSummary(await getProfileSummary());
       setAuditEvents(await getAuditEvents());
     } catch (nextError) {
@@ -121,6 +133,36 @@ export function App() {
     try {
       setComparison(await compareTexts(original, revised));
       setAuditEvents(await getAuditEvents());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleScoreProposal(preferenceId: string) {
+    setError(null);
+    try {
+      setScoreProposal(await getScoreProposal(preferenceId));
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleApplyScoreProposal() {
+    if (!scoreProposal) return;
+    setError(null);
+    try {
+      const applied = await applyScoreProposal(
+        scoreProposal.preference_id,
+        "Aplicar propuesta revisada desde Preferencias.",
+      );
+      setScores((current) =>
+        current.map(
+          (item) => applied.variables.find((variable) => variable.key === item.key) ?? item,
+        ),
+      );
+      setScoreProposal(applied.proposal);
+      setAuditEvents(await getAuditEvents());
+      setActive("scoring");
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -224,6 +266,15 @@ export function App() {
                         >
                           Aceptar
                         </button>
+                        {item.status === "accepted" ? (
+                          <button
+                            className="ghostButton"
+                            onClick={() => handleScoreProposal(item.id)}
+                            type="button"
+                          >
+                            Ver propuesta
+                          </button>
+                        ) : null}
                         <button
                           className="ghostButton"
                           onClick={() => handlePreferenceStatus(item.id, "rejected")}
@@ -255,6 +306,29 @@ export function App() {
               ) : (
                 <p className="note">La entrada se registra como propuesta; no consolida aprendizaje sola.</p>
               )}
+              {scoreProposal ? (
+                <div className="proposalBox">
+                  <h3>Propuesta de scoring</h3>
+                  {scoreProposal.items.length === 0 ? (
+                    <p className="note">Esta preferencia todavia no genera cambios aplicables.</p>
+                  ) : (
+                    <>
+                      {scoreProposal.items.map((item) => (
+                        <div className="proposalItem" key={item.variable_key}>
+                          <strong>
+                            {item.variable_key} {item.delta > 0 ? "+" : ""}
+                            {item.delta}
+                          </strong>
+                          <span>{item.reason}</span>
+                        </div>
+                      ))}
+                      <button className="primaryButton" onClick={handleApplyScoreProposal} type="button">
+                        Aplicar al scoring
+                      </button>
+                    </>
+                  )}
+                </div>
+              ) : null}
             </div>
           </section>
         )}

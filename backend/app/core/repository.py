@@ -14,6 +14,7 @@ from app.core.models import (
     Preference,
     PreferenceStatus,
     Profile,
+    ScoreProposal,
     ScoreVariable,
 )
 from app.db.models import (
@@ -194,6 +195,19 @@ class Repository:
         self.session.refresh(record)
         return preference_from_record(record)
 
+    def get_preference(self, profile_id: str, preference_id: UUID) -> Preference:
+        record = self.session.scalar(
+            select(PreferenceRecord)
+            .where(
+                PreferenceRecord.profile_id == profile_id,
+                PreferenceRecord.id == str(preference_id),
+            )
+            .options(selectinload(PreferenceRecord.evidence))
+        )
+        if record is None:
+            raise KeyError(str(preference_id))
+        return preference_from_record(record)
+
     def delete_preference(self, profile_id: str, preference_id: UUID) -> None:
         record = self.session.scalar(
             select(PreferenceRecord).where(
@@ -236,6 +250,44 @@ class Repository:
             {"manual_adjustment": variable.manual_adjustment, "reason": evidence.summary},
         )
         self.session.commit()
+
+    def apply_score_proposal(
+        self, profile_id: str, proposal: ScoreProposal, reason: str
+    ) -> list[ScoreVariable]:
+        if proposal.status != "pending_review":
+            raise ValueError("Score proposal is not pending review")
+
+        updated_variables: list[ScoreVariable] = []
+        for item in proposal.items:
+            record = self.session.scalar(
+                select(ScoreVariableRecord).where(
+                    ScoreVariableRecord.profile_id == profile_id,
+                    ScoreVariableRecord.key == item.variable_key,
+                )
+            )
+            if record is None:
+                continue
+            record.calculated_value = max(0, min(1000, record.calculated_value + item.delta))
+            record.evidence_count += 1
+            record.confidence = min(1, record.confidence + 0.03)
+            record.updated_at = datetime.now(UTC)
+            updated_variables.append(score_from_record(record))
+
+        profile = self.session.get(ProfileRecord, profile_id)
+        if profile is not None:
+            profile.updated_at = datetime.now(UTC)
+
+        self.add_audit_event(
+            "score.proposal_applied",
+            "preference",
+            str(proposal.preference_id),
+            {
+                "reason": reason,
+                "items": [item.model_dump() for item in proposal.items],
+            },
+        )
+        self.session.commit()
+        return updated_variables
 
     def add_comparison(self, comparison: ComparisonResult) -> ComparisonResult:
         record = ComparisonRecord(

@@ -309,6 +309,30 @@ textarea + .primaryButton {
   padding: 14px;
 }
 
+.proposalBox {
+  border-top: 1px solid #e0e5df;
+  margin-top: 20px;
+  padding-top: 18px;
+}
+
+.proposalItem {
+  border: 1px solid #e0e6df;
+  border-radius: 8px;
+  margin-bottom: 10px;
+  padding: 12px;
+}
+
+.proposalItem strong,
+.proposalItem span {
+  display: block;
+}
+
+.proposalItem span {
+  color: #69756f;
+  font-size: 13px;
+  margin-top: 6px;
+}
+
 .preferenceItem strong,
 .preferenceItem span {
   display: block;

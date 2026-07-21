@@ -42,6 +42,18 @@ class ScorePatch(BaseModel):
     reason: str = Field(min_length=3, max_length=500)
 
 
+class ScoreProposalItem(BaseModel):
+    variable_key: str
+    delta: int = Field(ge=-300, le=300)
+    reason: str
+
+
+class ScoreProposal(BaseModel):
+    preference_id: UUID
+    status: str
+    items: list[ScoreProposalItem]
+
+
 class Evidence(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     evidence_type: EvidenceType
@@ -70,6 +82,10 @@ class PreferenceInput(BaseModel):
 
 class PreferencePatch(BaseModel):
     status: PreferenceStatus
+
+
+class ApplyScoreProposalInput(BaseModel):
+    reason: str = Field(min_length=3, max_length=500)
 
 
 class Profile(BaseModel):
