@@ -622,11 +622,20 @@ def test_closure_observability_roadmap_and_cerebro_gates_are_exposed():
 
     observability = client.get("/observability/status")
     assert observability.status_code == 200
-    assert any(item["id"] == "adequacy_percentage" for item in observability.json())
+    observability_items = {item["id"]: item for item in observability.json()}
+    assert "adequacy_percentage" in observability_items
+    assert observability_items["retrieval_quality"]["status"] == "available"
+    assert (
+        observability_items["retrieval_quality"]["source"]
+        == "knowledge/query-history.pending_validation_count"
+    )
 
     roadmap = client.get("/roadmap/technical")
     assert roadmap.status_code == 200
-    assert roadmap.json()[0]["name"] == "Esqueleto"
+    roadmap_items = {item["name"]: item for item in roadmap.json()}
+    assert roadmap_items["Esqueleto"]["status"] == "done"
+    assert roadmap_items["Conocimiento"]["status"] == "done"
+    assert "validacion visible y auditada" in roadmap_items["Conocimiento"]["items"]
 
     gates = client.get("/cerebro-audit/gates")
     assert gates.status_code == 200

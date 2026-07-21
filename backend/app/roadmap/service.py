@@ -8,7 +8,7 @@ def technical_roadmap() -> list[TechnicalRoadmapPhase]:
         ("Generacion", "done", ["editor", "contextos", "protecciones", "variantes", "textos persistidos"]),
         ("Comparacion", "done", ["diff", "dimensiones", "adecuacion", "feedback"]),
         ("Estadisticas", "done", ["confianza", "consistencia", "cobertura", "contradicciones"]),
-        ("Conocimiento", "partial", ["registro", "fichas", "versiones", "validacion pendiente"]),
+        ("Conocimiento", "done", ["registro", "fichas", "versiones", "validacion visible y auditada"]),
         ("Laboratorio", "done", ["simulacion", "A/B inicial", "sin guardado automatico"]),
     ]
     return [

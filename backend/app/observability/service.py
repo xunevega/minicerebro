@@ -13,5 +13,9 @@ def observability_metrics() -> list[ObservabilityMetric]:
         ObservabilityMetric(id="approval_count", source="audit_events feedback.applied", status="available"),
         ObservabilityMetric(id="rejection_count", source="audit_events feedback.rejected", status="available"),
         ObservabilityMetric(id="manual_adjustment_ratio", source="score_variables", status="available"),
-        ObservabilityMetric(id="retrieval_quality", source="pending validation set", status="planned"),
+        ObservabilityMetric(
+            id="retrieval_quality",
+            source="knowledge/query-history.pending_validation_count",
+            status="available",
+        ),
     ]
