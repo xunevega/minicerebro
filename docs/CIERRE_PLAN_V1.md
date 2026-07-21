@@ -52,12 +52,14 @@ curl http://127.0.0.1:8000/health
 curl http://127.0.0.1:8000/acceptance/v1
 curl http://127.0.0.1:8000/closure/technical
 curl http://127.0.0.1:8000/contract/boundaries
+curl http://127.0.0.1:8000/profiles/default/export
 ```
 
 ## Condiciones
 
 - V1 solo trata escritura en lengua espanola.
 - Conocimiento estable y perfil editable siguen separados.
+- El perfil es exportable sin incluir ni modificar la base de conocimiento.
 - Conocimiento expone fuente, nodo, evidencia, claim, ficha, version, consulta e historial.
 - La validacion visible de conocimiento queda auditada por consulta.
 - La observabilidad V1 usa eventos reales para interpretacion, generacion, recuperacion, comparacion, scoring y feedback.
