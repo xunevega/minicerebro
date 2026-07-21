@@ -221,6 +221,11 @@ textarea + .primaryButton {
   padding: 7px 11px;
 }
 
+.knowledgeItem .statusPill {
+  margin-top: 10px;
+  width: fit-content;
+}
+
 .error {
   background: #fff0ee;
   border: 1px solid #f0c7c1;

@@ -335,6 +335,13 @@ export function App() {
   const selectedKnowledgeCard = selectedKnowledgeCardId
     ? (cardById.get(selectedKnowledgeCardId) ?? null)
     : null;
+  const pendingKnowledgeValidationCount = useMemo(
+    () =>
+      [...knowledgeCards, ...knowledgeClaims, ...knowledgeEvidence].filter(
+        (item) => validationLabel(item.confidence) === "Validacion pendiente",
+      ).length,
+    [knowledgeCards, knowledgeClaims, knowledgeEvidence],
+  );
 
   async function refreshAuditEvents(filterLabel = auditFilter) {
     setAuditEvents(await loadAuditEvents(filterLabel, knowledge?.version));
@@ -630,6 +637,7 @@ export function App() {
               <Metric label="Version" value={knowledge?.version ?? "..."} />
               <Metric label="Estado" value={knowledge?.state ?? "..."} />
               <Metric label="Cobertura" value={`${knowledge?.coverage.length ?? 0} areas`} />
+              <Metric label="Validacion" value={`${pendingKnowledgeValidationCount} pendientes`} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
             <div className="knowledgeGrid">
@@ -715,6 +723,7 @@ export function App() {
                 <article className="knowledgeItem">
                   <strong>{selectedKnowledgeCard.name}</strong>
                   <span>{selectedKnowledgeCard.definition}</span>
+                  <ValidationPill confidence={selectedKnowledgeCard.confidence} />
                   <div className="metricGrid">
                     <Metric label="Confianza" value={selectedKnowledgeCard.confidence} />
                     <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
@@ -737,9 +746,15 @@ export function App() {
                               {node?.title ?? evidence?.node_id ?? "nodo desconocido"} -&gt;{" "}
                               {evidence?.reference ?? claim.evidence_id}
                             </span>
+                            <ValidationPill confidence={claim.confidence} />
                           </div>
                           <span>confianza {claim.confidence}</span>
-                          <pre>{evidence?.excerpt ?? "Evidencia no cargada."}</pre>
+                          <pre>
+                            {evidence?.excerpt ?? "Evidencia no cargada."}
+                            {evidence
+                              ? `\nValidacion evidencia: ${validationLabel(evidence.confidence)}`
+                              : ""}
+                          </pre>
                         </article>
                       );
                     })}
@@ -779,6 +794,18 @@ export function App() {
                     <Metric label="Fichas" value={knowledgeResult.card_count} />
                     <Metric label="Claims" value={knowledgeResult.claim_count} />
                     <Metric label="Evidencias" value={knowledgeResult.evidence_count} />
+                    <Metric
+                      label="Validacion"
+                      value={`${
+                        [
+                          ...knowledgeResult.cards,
+                          ...knowledgeResult.claims,
+                          ...knowledgeResult.evidence,
+                        ].filter(
+                          (item) => validationLabel(item.confidence) === "Validacion pendiente",
+                        ).length
+                      } pendientes`}
+                    />
                   </div>
                   {knowledgeResult.cards.length > 0 ? (
                     <div className="knowledgeGrid">
@@ -797,16 +824,30 @@ export function App() {
                           <article className="knowledgeItem" key={card.id}>
                             <strong>{card.name}</strong>
                             <span>{card.definition}</span>
+                            <ValidationPill confidence={card.confidence} />
                             <List
                               title="Claims"
-                              items={cardClaims.map((claim) => claim.statement)}
+                              items={cardClaims.map(
+                                (claim) =>
+                                  `${claim.statement} · ${validationLabel(claim.confidence)}`,
+                              )}
                             />
                             <List
                               title="Evidencia"
                               items={cardEvidence.map(
-                                (item) => `${item.reference}: ${item.excerpt}`,
+                                (item) =>
+                                  `${item.reference}: ${item.excerpt} · ${validationLabel(
+                                    item.confidence,
+                                  )}`,
                               )}
                             />
+                            <button
+                              className="ghostButton"
+                              onClick={() => setSelectedKnowledgeCardId(card.id)}
+                              type="button"
+                            >
+                              Inspeccionar
+                            </button>
                           </article>
                         );
                       })}
@@ -1654,6 +1695,14 @@ function payloadList(value: unknown) {
     return [];
   }
   return value.filter((item): item is string => typeof item === "string");
+}
+
+function validationLabel(confidence: number) {
+  return confidence >= 0.7 ? "Validado" : "Validacion pendiente";
+}
+
+function ValidationPill({ confidence }: { confidence: number }) {
+  return <span className="statusPill">{validationLabel(confidence)}</span>;
 }
 
 function List({ title, items }: { title: string; items: string[] }) {

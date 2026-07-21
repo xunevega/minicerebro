@@ -8,6 +8,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
+  await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "9 pendientes" }).first().waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
   await explorationPanel.getByText("Trazabilidad persistente").waitFor();
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "2" }).waitFor();
@@ -21,11 +22,22 @@ try {
   await selectedCard.locator("article.knowledgeItem > strong", { hasText: "Precision lexica" }).waitFor();
   await selectedCard.getByText("Real Academia Espanola").waitFor();
   await selectedCard.getByText("registro normativo semilla").waitFor();
+  await selectedCard.getByText("Validacion pendiente").first().waitFor();
 
-  await page.locator(".proposalBox", { hasText: "Consulta" }).locator("input").fill(emptyQuery);
+  const queryPanel = page.locator(".proposalBox", { hasText: "Consulta" });
+  await queryPanel.locator("input").fill("precision lexica");
   await page.getByLabel("Limite de fichas").selectOption("3");
   await page.getByRole("button", { name: "Consultar" }).click();
+  await queryPanel.getByText('Resultado para "precision lexica"').waitFor();
+  await queryPanel.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "9 pendientes" }).waitFor();
+  await queryPanel
+    .locator(".knowledgeItem", { hasText: "Precision lexica" })
+    .getByText("Validacion pendiente")
+    .first()
+    .waitFor();
 
+  await queryPanel.locator("input").fill(emptyQuery);
+  await page.getByRole("button", { name: "Consultar" }).click();
   await page.getByText("Consulta valida sin resultados").waitFor();
   await page
     .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v0.")
