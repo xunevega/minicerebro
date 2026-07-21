@@ -10,7 +10,10 @@
     "test:knowledge-empty": "node tests/knowledge-empty-query.mjs",
     "test:lab-compare": "node tests/lab-compare.mjs",
     "test:profile-export": "node tests/profile-export.mjs",
-    "test:closure-surfaces": "node tests/closure-surfaces.mjs"
+    "test:closure-surfaces": "node tests/closure-surfaces.mjs",
+    "test:cerebro-acceptance": "node tests/cerebro-acceptance.mjs",
+    "test:feedback-flow": "node tests/feedback-flow.mjs",
+    "test:scoring-manual": "node tests/scoring-manual.mjs"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.7.0",
