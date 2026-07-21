@@ -349,6 +349,8 @@ class Repository:
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
         return query_knowledge(
             payload,
+            sources=self.list_knowledge_sources(),
+            nodes=self.list_knowledge_nodes(version=payload.version),
             cards=self.list_knowledge_cards(version=payload.version),
             claims=self.list_knowledge_claims(version=payload.version),
             evidence=self.list_knowledge_evidence(version=payload.version),

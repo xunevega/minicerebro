@@ -176,16 +176,40 @@ def seed_versions() -> list[KnowledgeVersion]:
 
 def query_knowledge(
     payload: KnowledgeQueryInput,
+    sources: list[KnowledgeSource] | None = None,
+    nodes: list[KnowledgeNode] | None = None,
     cards: list[KnowledgeCard] | None = None,
     claims: list[KnowledgeClaim] | None = None,
     evidence: list[KnowledgeEvidenceItem] | None = None,
 ) -> KnowledgeQueryResult:
     terms = {term for term in payload.query.lower().split() if len(term) > 2}
+    sources = sources if sources is not None else seed_sources()
+    nodes = nodes if nodes is not None else seed_nodes()
     cards = cards if cards is not None else seed_cards()
     claims = claims if claims is not None else seed_claims()
     evidence = evidence if evidence is not None else seed_evidence()
+    sources_by_id = {source.id: source for source in sources}
+    nodes_by_id = {node.id: node for node in nodes}
+    evidence_by_id = {item.id: item for item in evidence}
+    claims_by_card: dict[str, list[KnowledgeClaim]] = {}
+    for claim in claims:
+        claims_by_card.setdefault(claim.card_id, []).append(claim)
 
     def score_card(card: KnowledgeCard) -> int:
+        linked_claims = claims_by_card.get(card.id, [])
+        linked_evidence = [
+            evidence_by_id[claim.evidence_id]
+            for claim in linked_claims
+            if claim.evidence_id in evidence_by_id
+        ]
+        linked_nodes = [
+            nodes_by_id[item.node_id] for item in linked_evidence if item.node_id in nodes_by_id
+        ]
+        linked_sources = [
+            sources_by_id[item.source_id]
+            for item in linked_evidence
+            if item.source_id in sources_by_id
+        ]
         haystack = " ".join(
             [
                 card.id,
@@ -193,6 +217,13 @@ def query_knowledge(
                 card.name,
                 card.definition,
                 " ".join(str(value) for value in card.payload.values()),
+                " ".join(claim.statement for claim in linked_claims),
+                " ".join(f"{item.reference} {item.excerpt}" for item in linked_evidence),
+                " ".join(f"{node.title} {node.summary} {node.node_type}" for node in linked_nodes),
+                " ".join(
+                    f"{source.name} {source.source_type} {source.status}"
+                    for source in linked_sources
+                ),
             ]
         ).lower()
         return sum(1 for term in terms if term in haystack)

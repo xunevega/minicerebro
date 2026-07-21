@@ -261,6 +261,29 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
     }
 
 
+def test_knowledge_query_matches_the_full_persisted_chain():
+    evidence_match = client.post(
+        "/knowledge/query",
+        json={"query": "ambiguedad", "version": "knowledge-v0", "limit": 3},
+    )
+    assert evidence_match.status_code == 200
+    assert evidence_match.json()["cards"][0]["id"] == "lexico-precision"
+
+    node_match = client.post(
+        "/knowledge/query",
+        json={"query": "reglas normativas", "version": "knowledge-v0", "limit": 3},
+    )
+    assert node_match.status_code == 200
+    assert node_match.json()["cards"][0]["id"] == "lexico-precision"
+
+    source_match = client.post(
+        "/knowledge/query",
+        json={"query": "Real Academia Espanola", "version": "knowledge-v0", "limit": 3},
+    )
+    assert source_match.status_code == 200
+    assert source_match.json()["cards"][0]["id"] == "lexico-precision"
+
+
 def test_knowledge_pipeline_is_persisted():
     response = client.get("/knowledge/versions")
     assert response.status_code == 200
