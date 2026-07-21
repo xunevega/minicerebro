@@ -20,6 +20,7 @@ from app.core.models import (
     FeedbackProposalInput,
     GeneratedText,
     GenerationInput,
+    KnowledgeSource,
     KnowledgeStatus,
     LabSimulationInput,
     LabSimulationResult,
@@ -83,7 +84,7 @@ def knowledge_versions() -> dict[str, list[dict[str, str]]]:
 
 
 @router.get("/knowledge/sources")
-def knowledge_sources():
+def knowledge_sources() -> list[KnowledgeSource]:
     return seed_sources()
 
 

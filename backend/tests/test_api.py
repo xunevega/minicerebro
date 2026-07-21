@@ -166,6 +166,22 @@ def test_knowledge_cards_and_statistics_are_exposed():
     assert stats.json()["profile_id"] == "default"
 
 
+def test_knowledge_sources_are_exposed():
+    response = client.get("/knowledge/sources")
+    assert response.status_code == 200
+
+    sources = response.json()
+    assert len(sources) >= 1
+    assert sources[0] == {
+        "id": "rae",
+        "name": "Real Academia Espanola",
+        "source_type": "normative",
+        "authority_level": 5,
+        "priority": 1,
+        "status": "registered",
+    }
+
+
 def test_comparison_includes_dimensions_and_changes():
     response = client.post(
         "/comparisons",
