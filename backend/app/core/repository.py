@@ -166,6 +166,7 @@ def knowledge_query_history_from_record(record: AuditEventRecord) -> KnowledgeQu
         card_count=card_count,
         claim_count=int(record.payload.get("claim_count", 0)),
         evidence_count=int(record.payload.get("evidence_count", 0)),
+        pending_validation_count=int(record.payload.get("pending_validation_count", 0)),
         created_at=record.created_at,
     )
 
@@ -378,6 +379,11 @@ class Repository:
             claims=self.list_knowledge_claims(version=payload.version),
             evidence=self.list_knowledge_evidence(version=payload.version),
         )
+        pending_validation_count = sum(
+            1
+            for item in [*result.cards, *result.claims, *result.evidence]
+            if item.confidence < 0.7
+        )
         self.add_audit_event(
             "knowledge.query.executed",
             "knowledge_version",
@@ -388,6 +394,7 @@ class Repository:
                 "card_count": result.card_count,
                 "claim_count": result.claim_count,
                 "evidence_count": result.evidence_count,
+                "pending_validation_count": pending_validation_count,
             },
         )
         self.session.commit()

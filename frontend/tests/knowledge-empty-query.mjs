@@ -72,12 +72,17 @@ try {
   await page.getByLabel("Limite historial").selectOption("50");
   await historyLimitResponse;
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
-  const historyItem = auditPanel.locator(".auditItem", { hasText: "knowledge-v0 -> consulta" }).first();
+  const historyItem = auditPanel.locator(".auditItem", {
+    hasText: "9 validaciones pendientes",
+  }).first();
+  await historyItem.getByText("9 validaciones pendientes").waitFor();
   await historyItem.getByRole("button", { name: "Detalle" }).click();
   await historyItem.locator("dt", { hasText: "Evento" }).waitFor();
   await historyItem.locator("dt", { hasText: "Version" }).waitFor();
   await historyItem.locator("dt", { hasText: "Longitud" }).waitFor();
   await historyItem.locator("dt", { hasText: "Recorrido" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Validacion" }).waitFor();
+  await historyItem.getByText("9 pendientes").waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (

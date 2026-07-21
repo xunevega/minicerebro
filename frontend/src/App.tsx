@@ -1557,7 +1557,7 @@ export function App() {
                         </button>
                       </div>
                       <pre>
-                        {`${item.card_count} fichas · ${item.claim_count} claims · ${item.evidence_count} evidencias`}
+                        {`${item.card_count} fichas · ${item.claim_count} claims · ${item.evidence_count} evidencias · ${item.pending_validation_count} validaciones pendientes`}
                       </pre>
                       {selectedKnowledgeQueryEventId === item.event_id && (
                         <dl className="auditDetail">
@@ -1587,6 +1587,10 @@ export function App() {
                               {item.card_count} fichas · {item.claim_count} claims ·{" "}
                               {item.evidence_count} evidencias
                             </dd>
+                          </div>
+                          <div>
+                            <dt>Validacion</dt>
+                            <dd>{item.pending_validation_count} pendientes</dd>
                           </div>
                         </dl>
                       )}

@@ -340,6 +340,9 @@ def test_knowledge_query_records_audit_event_without_raw_query():
         "card_count": result["card_count"],
         "claim_count": result["claim_count"],
         "evidence_count": result["evidence_count"],
+        "pending_validation_count": (
+            result["card_count"] + result["claim_count"] + result["evidence_count"]
+        ),
     }
     assert query not in str(event["payload"])
 
@@ -391,6 +394,9 @@ def test_knowledge_query_history_is_derived_from_audit_events():
     assert item["card_count"] == result["card_count"]
     assert item["claim_count"] == result["claim_count"]
     assert item["evidence_count"] == result["evidence_count"]
+    assert item["pending_validation_count"] == (
+        result["card_count"] + result["claim_count"] + result["evidence_count"]
+    )
     assert query not in str(item)
 
 
@@ -444,6 +450,7 @@ def test_knowledge_query_summary_counts_beyond_history_window():
     history_response = client.get("/knowledge/query-history?version=knowledge-v0&limit=20")
     assert history_response.status_code == 200
     assert len(history_response.json()) == 20
+    assert history_response.json()[0]["pending_validation_count"] == 0
 
 
 def test_knowledge_query_history_rejects_missing_version():

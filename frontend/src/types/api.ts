@@ -114,6 +114,7 @@ export type KnowledgeQueryHistoryItem = {
   card_count: number;
   claim_count: number;
   evidence_count: number;
+  pending_validation_count: number;
   created_at: string;
 };
 

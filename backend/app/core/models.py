@@ -228,6 +228,7 @@ class KnowledgeQueryHistoryItem(BaseModel):
     card_count: int
     claim_count: int
     evidence_count: int
+    pending_validation_count: int
     created_at: datetime
 
 
