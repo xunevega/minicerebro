@@ -23,8 +23,11 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeNode,
+    KnowledgeQueryInput,
+    KnowledgeQueryResult,
     KnowledgeSource,
     KnowledgeStatus,
+    KnowledgeVersion,
     LabSimulationInput,
     LabSimulationResult,
     ObservabilityMetric,
@@ -50,7 +53,15 @@ from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
-from app.knowledge.service import seed_cards, seed_claims, seed_evidence, seed_nodes, seed_sources
+from app.knowledge.service import (
+    query_knowledge,
+    seed_cards,
+    seed_claims,
+    seed_evidence,
+    seed_nodes,
+    seed_sources,
+    seed_versions,
+)
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
@@ -82,8 +93,8 @@ def knowledge_coverage() -> dict[str, list[str]]:
 
 
 @router.get("/knowledge/versions")
-def knowledge_versions() -> dict[str, list[dict[str, str]]]:
-    return {"versions": [{"id": "knowledge-v0", "status": "seed", "published_at": "not-published"}]}
+def knowledge_versions() -> list[KnowledgeVersion]:
+    return seed_versions()
 
 
 @router.get("/knowledge/sources")
@@ -118,6 +129,11 @@ def knowledge_claims(card_id: str | None = None) -> list[KnowledgeClaim]:
 @router.get("/knowledge/cards")
 def knowledge_cards():
     return seed_cards()
+
+
+@router.post("/knowledge/query")
+def knowledge_query(payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
+    return query_knowledge(payload)
 
 
 @router.get("/ui/screens")

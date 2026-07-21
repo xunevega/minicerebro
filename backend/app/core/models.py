@@ -144,6 +144,17 @@ class KnowledgeStatus(BaseModel):
     sources_policy: str
 
 
+class KnowledgeVersion(BaseModel):
+    id: str
+    status: str
+    published_at: str
+    source_count: int
+    node_count: int
+    evidence_count: int
+    claim_count: int
+    card_count: int
+
+
 class KnowledgeSource(BaseModel):
     id: str
     name: str
@@ -181,6 +192,12 @@ class KnowledgeClaim(BaseModel):
     version: str
 
 
+class KnowledgeQueryInput(BaseModel):
+    query: str = Field(min_length=1, max_length=500)
+    version: str = "knowledge-v0"
+    limit: int = Field(default=5, ge=1, le=20)
+
+
 class KnowledgeCard(BaseModel):
     id: str
     card_type: str
@@ -189,6 +206,14 @@ class KnowledgeCard(BaseModel):
     confidence: float = Field(ge=0, le=1)
     version: str
     payload: dict
+
+
+class KnowledgeQueryResult(BaseModel):
+    query: str
+    version: str
+    cards: list[KnowledgeCard]
+    claims: list[KnowledgeClaim]
+    evidence: list[KnowledgeEvidenceItem]
 
 
 class ComparisonInput(BaseModel):

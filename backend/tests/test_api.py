@@ -221,6 +221,37 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     assert all(claim["card_id"] == "lexico-precision" for claim in filtered.json())
 
 
+def test_knowledge_versions_include_chain_counts():
+    response = client.get("/knowledge/versions")
+    assert response.status_code == 200
+
+    versions = response.json()
+    assert versions[0]["id"] == "knowledge-v0"
+    assert versions[0]["source_count"] >= 1
+    assert versions[0]["node_count"] >= 1
+    assert versions[0]["evidence_count"] >= 1
+    assert versions[0]["claim_count"] >= 1
+    assert versions[0]["card_count"] >= 1
+
+
+def test_knowledge_query_returns_cards_claims_and_evidence():
+    response = client.post(
+        "/knowledge/query",
+        json={"query": "precision lexica verificable", "version": "knowledge-v0", "limit": 3},
+    )
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["version"] == "knowledge-v0"
+    assert payload["cards"][0]["id"] == "lexico-precision"
+    assert {claim["card_id"] for claim in payload["claims"]} <= {
+        card["id"] for card in payload["cards"]
+    }
+    assert {item["id"] for item in payload["evidence"]} >= {
+        claim["evidence_id"] for claim in payload["claims"]
+    }
+
+
 def test_comparison_includes_dimensions_and_changes():
     response = client.post(
         "/comparisons",
