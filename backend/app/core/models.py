@@ -153,6 +153,15 @@ class KnowledgeSource(BaseModel):
     status: str
 
 
+class KnowledgeNode(BaseModel):
+    id: str
+    source_id: str
+    node_type: str
+    title: str
+    summary: str
+    version: str
+
+
 class KnowledgeCard(BaseModel):
     id: str
     card_type: str

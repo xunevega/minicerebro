@@ -1,4 +1,4 @@
-from app.core.models import KnowledgeCard, KnowledgeSource
+from app.core.models import KnowledgeCard, KnowledgeNode, KnowledgeSource
 
 
 def seed_sources() -> list[KnowledgeSource]:
@@ -18,6 +18,27 @@ def seed_sources() -> list[KnowledgeSource]:
             authority_level=3,
             priority=2,
             status="seed",
+        ),
+    ]
+
+
+def seed_nodes() -> list[KnowledgeNode]:
+    return [
+        KnowledgeNode(
+            id="rae-norma-estilo",
+            source_id="rae",
+            node_type="source_section",
+            title="Norma y uso en lengua espanola",
+            summary="Nodo semilla para reglas normativas y criterios de uso estable.",
+            version="knowledge-v0",
+        ),
+        KnowledgeNode(
+            id="manual-rasgos-escritura",
+            source_id="manual-estilo",
+            node_type="internal_manual_section",
+            title="Rasgos operativos de escritura",
+            summary="Nodo semilla para rasgos editables como dinamismo, sobriedad y precision.",
+            version="knowledge-v0",
         ),
     ]
 
@@ -64,4 +85,3 @@ def seed_cards() -> list[KnowledgeCard]:
             },
         ),
     ]
-

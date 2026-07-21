@@ -20,6 +20,7 @@ from app.core.models import (
     FeedbackProposalInput,
     GeneratedText,
     GenerationInput,
+    KnowledgeNode,
     KnowledgeSource,
     KnowledgeStatus,
     LabSimulationInput,
@@ -47,7 +48,7 @@ from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
-from app.knowledge.service import seed_cards, seed_sources
+from app.knowledge.service import seed_cards, seed_nodes, seed_sources
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
@@ -86,6 +87,14 @@ def knowledge_versions() -> dict[str, list[dict[str, str]]]:
 @router.get("/knowledge/sources")
 def knowledge_sources() -> list[KnowledgeSource]:
     return seed_sources()
+
+
+@router.get("/knowledge/nodes")
+def knowledge_nodes(source_id: str | None = None) -> list[KnowledgeNode]:
+    nodes = seed_nodes()
+    if source_id:
+        return [node for node in nodes if node.source_id == source_id]
+    return nodes
 
 
 @router.get("/knowledge/cards")

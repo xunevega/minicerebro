@@ -182,6 +182,20 @@ def test_knowledge_sources_are_exposed():
     }
 
 
+def test_knowledge_nodes_link_to_sources():
+    response = client.get("/knowledge/nodes")
+    assert response.status_code == 200
+
+    nodes = response.json()
+    source_ids = {source["id"] for source in client.get("/knowledge/sources").json()}
+    assert len(nodes) >= 1
+    assert {node["source_id"] for node in nodes} <= source_ids
+
+    filtered = client.get("/knowledge/nodes?source_id=rae")
+    assert filtered.status_code == 200
+    assert all(node["source_id"] == "rae" for node in filtered.json())
+
+
 def test_comparison_includes_dimensions_and_changes():
     response = client.post(
         "/comparisons",
