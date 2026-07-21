@@ -649,7 +649,12 @@ export function App() {
                       })}
                     </div>
                   ) : (
-                    <p className="note">Sin fichas para esta consulta.</p>
+                    <article className="knowledgeItem">
+                      <strong>Consulta valida sin resultados</strong>
+                      <span>
+                        0 fichas, 0 claims y 0 evidencias en version {knowledgeResult.version}.
+                      </span>
+                    </article>
                   )}
                 </>
               ) : null}
