@@ -534,26 +534,35 @@ export function App() {
                 </button>
               </div>
               {knowledgeResult ? (
-                <div className="knowledgeGrid">
-                  {knowledgeResult.cards.map((card) => (
-                    <article className="knowledgeItem" key={card.id}>
-                      <strong>{card.name}</strong>
-                      <span>{card.definition}</span>
-                      <List
-                        title="Claims"
-                        items={knowledgeResult.claims
-                          .filter((claim) => claim.card_id === card.id)
-                          .map((claim) => claim.statement)}
-                      />
-                      <List
-                        title="Evidencia"
-                        items={knowledgeResult.evidence.map(
-                          (item) => `${item.reference}: ${item.excerpt}`,
-                        )}
-                      />
-                    </article>
-                  ))}
-                </div>
+                <>
+                  <p className="note">
+                    Resultado para "{knowledgeResult.query}" en version {knowledgeResult.version}.
+                  </p>
+                  {knowledgeResult.cards.length > 0 ? (
+                    <div className="knowledgeGrid">
+                      {knowledgeResult.cards.map((card) => (
+                        <article className="knowledgeItem" key={card.id}>
+                          <strong>{card.name}</strong>
+                          <span>{card.definition}</span>
+                          <List
+                            title="Claims"
+                            items={knowledgeResult.claims
+                              .filter((claim) => claim.card_id === card.id)
+                              .map((claim) => claim.statement)}
+                          />
+                          <List
+                            title="Evidencia"
+                            items={knowledgeResult.evidence.map(
+                              (item) => `${item.reference}: ${item.excerpt}`,
+                            )}
+                          />
+                        </article>
+                      ))}
+                    </div>
+                  ) : (
+                    <p className="note">Sin fichas para esta consulta.</p>
+                  )}
+                </>
               ) : null}
             </div>
             <List title="Cobertura" items={knowledge?.coverage ?? []} />
