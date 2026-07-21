@@ -46,6 +46,8 @@ export type Preference = {
   affected_variables: string[];
 };
 
+export type PreferenceStatus = Preference["status"];
+
 export type ComparisonResult = {
   id: string;
   modification_score: number;

@@ -38,3 +38,18 @@ def test_preference_interpretation_is_proposed():
     )
     assert response.status_code == 200
     assert response.json()["status"] == "proposed"
+
+
+def test_preference_can_be_accepted_and_deleted():
+    created = client.post(
+        "/preferences",
+        json={"text": "Prefiero frases directas y precisas.", "input_type": "prompt"},
+    )
+    preference_id = created.json()["id"]
+
+    patched = client.patch(f"/preferences/{preference_id}", json={"status": "accepted"})
+    assert patched.status_code == 200
+    assert patched.json()["status"] == "accepted"
+
+    deleted = client.delete(f"/preferences/{preference_id}")
+    assert deleted.status_code == 204

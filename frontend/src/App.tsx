@@ -3,12 +3,22 @@ import { BookOpen, Brain, GitCompare, PenLine, SlidersHorizontal } from "lucide-
 import {
   compareTexts,
   createPreference,
+  deletePreference,
   getKnowledgeStatus,
+  getPreferences,
   getProfileSummary,
   getScores,
+  updatePreferenceStatus,
   updateScore,
 } from "./services/api";
-import type { ComparisonResult, KnowledgeStatus, Preference, ProfileSummary, ScoreVariable } from "./types/api";
+import type {
+  ComparisonResult,
+  KnowledgeStatus,
+  Preference,
+  PreferenceStatus,
+  ProfileSummary,
+  ScoreVariable,
+} from "./types/api";
 
 const tabs = [
   { id: "knowledge", label: "Conocimiento", icon: BookOpen },
@@ -27,6 +37,7 @@ export function App() {
   const [scores, setScores] = useState<ScoreVariable[]>([]);
   const [preferenceText, setPreferenceText] = useState("Me gusta un estilo sobrio, preciso y con ritmo.");
   const [preference, setPreference] = useState<Preference | null>(null);
+  const [preferences, setPreferences] = useState<Preference[]>([]);
   const [original, setOriginal] = useState("Este texto explica una idea de manera general.");
   const [revised, setRevised] = useState("Este texto explica una idea con mas precision y menos rodeo.");
   const [comparison, setComparison] = useState<ComparisonResult | null>(null);
@@ -35,11 +46,12 @@ export function App() {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    Promise.all([getKnowledgeStatus(), getProfileSummary(), getScores()])
-      .then(([knowledgeData, summaryData, scoreData]) => {
+    Promise.all([getKnowledgeStatus(), getProfileSummary(), getScores(), getPreferences()])
+      .then(([knowledgeData, summaryData, scoreData, preferenceData]) => {
         setKnowledge(knowledgeData);
         setSummary(summaryData);
         setScores(scoreData);
+        setPreferences(preferenceData);
       })
       .catch((nextError: Error) => setError(nextError.message));
   }, []);
@@ -52,7 +64,38 @@ export function App() {
   async function handlePreference() {
     setError(null);
     try {
-      setPreference(await createPreference(preferenceText));
+      const created = await createPreference(preferenceText);
+      setPreference(created);
+      setPreferences((current) => [created, ...current]);
+      setSummary(await getProfileSummary());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handlePreferenceStatus(preferenceId: string, status: PreferenceStatus) {
+    setError(null);
+    try {
+      const updated = await updatePreferenceStatus(preferenceId, status);
+      setPreferences((current) =>
+        current.map((item) => (item.id === preferenceId ? updated : item)),
+      );
+      if (preference?.id === preferenceId) {
+        setPreference(updated);
+      }
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handlePreferenceDelete(preferenceId: string) {
+    setError(null);
+    try {
+      await deletePreference(preferenceId);
+      setPreferences((current) => current.filter((item) => item.id !== preferenceId));
+      if (preference?.id === preferenceId) {
+        setPreference(null);
+      }
       setSummary(await getProfileSummary());
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -145,6 +188,45 @@ export function App() {
               <button className="primaryButton" onClick={handlePreference} type="button">
                 Revisar interpretacion
               </button>
+              <div className="preferenceList">
+                <h2>Revision pendiente</h2>
+                {preferences.length === 0 ? (
+                  <p className="note">Todavia no hay preferencias registradas.</p>
+                ) : (
+                  preferences.map((item) => (
+                    <article className="preferenceItem" key={item.id}>
+                      <div>
+                        <strong>{item.text}</strong>
+                        <span>{item.affected_variables.join(", ")}</span>
+                      </div>
+                      <span className="statusPill">{item.status}</span>
+                      <div className="rowActions">
+                        <button
+                          className="ghostButton"
+                          onClick={() => handlePreferenceStatus(item.id, "accepted")}
+                          type="button"
+                        >
+                          Aceptar
+                        </button>
+                        <button
+                          className="ghostButton"
+                          onClick={() => handlePreferenceStatus(item.id, "rejected")}
+                          type="button"
+                        >
+                          Descartar
+                        </button>
+                        <button
+                          className="ghostButton danger"
+                          onClick={() => handlePreferenceDelete(item.id)}
+                          type="button"
+                        >
+                          Eliminar
+                        </button>
+                      </div>
+                    </article>
+                  ))
+                )}
+              </div>
             </div>
             <div className="inspector">
               <h2>Interpretacion</h2>

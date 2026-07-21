@@ -2,6 +2,7 @@ import type {
   ComparisonResult,
   KnowledgeStatus,
   Preference,
+  PreferenceStatus,
   ProfileSummary,
   ScoreUpdate,
   ScoreVariable,
@@ -17,6 +18,10 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
 
   if (!response.ok) {
     throw new Error(`API ${response.status}: ${await response.text()}`);
+  }
+
+  if (response.status === 204) {
+    return undefined as T;
   }
 
   return response.json() as Promise<T>;
@@ -46,6 +51,21 @@ export function createPreference(text: string) {
     method: "POST",
     body: JSON.stringify({ text, input_type: "prompt", context: "general" }),
   });
+}
+
+export function getPreferences() {
+  return request<Preference[]>("/preferences");
+}
+
+export function updatePreferenceStatus(preferenceId: string, status: PreferenceStatus) {
+  return request<Preference>(`/preferences/${preferenceId}`, {
+    method: "PATCH",
+    body: JSON.stringify({ status }),
+  });
+}
+
+export async function deletePreference(preferenceId: string) {
+  await request<void>(`/preferences/${preferenceId}`, { method: "DELETE" });
 }
 
 export function compareTexts(original: string, revised: string) {

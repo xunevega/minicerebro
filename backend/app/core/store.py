@@ -1,6 +1,8 @@
 from datetime import UTC, datetime
 
-from app.core.models import ComparisonResult, Preference, Profile, ScoreVariable
+from uuid import UUID
+
+from app.core.models import ComparisonResult, Preference, PreferenceStatus, Profile, ScoreVariable
 from app.core.seeds import DEFAULT_PROFILE_ID, seed_variables
 
 
@@ -32,10 +34,29 @@ class InMemoryStore:
         self.profile.updated_at = datetime.now(UTC)
         return preference
 
+    def update_preference_status(
+        self, preference_id: UUID, status: PreferenceStatus
+    ) -> Preference:
+        for index, preference in enumerate(self.profile.preferences):
+            if preference.id == preference_id:
+                updated = preference.model_copy(update={"status": status})
+                self.profile.preferences[index] = updated
+                self.profile.updated_at = datetime.now(UTC)
+                return updated
+        raise KeyError(str(preference_id))
+
+    def delete_preference(self, preference_id: UUID) -> None:
+        next_preferences = [
+            preference for preference in self.profile.preferences if preference.id != preference_id
+        ]
+        if len(next_preferences) == len(self.profile.preferences):
+            raise KeyError(str(preference_id))
+        self.profile.preferences = next_preferences
+        self.profile.updated_at = datetime.now(UTC)
+
     def add_comparison(self, comparison: ComparisonResult) -> ComparisonResult:
         self.comparisons[str(comparison.id)] = comparison
         return comparison
 
 
 store = InMemoryStore()
-

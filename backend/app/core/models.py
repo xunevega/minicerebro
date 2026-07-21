@@ -68,6 +68,10 @@ class PreferenceInput(BaseModel):
     context: str = "general"
 
 
+class PreferencePatch(BaseModel):
+    status: PreferenceStatus
+
+
 class Profile(BaseModel):
     id: str
     name: str

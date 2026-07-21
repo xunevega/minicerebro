@@ -1,4 +1,5 @@
 from fastapi import APIRouter, HTTPException
+from uuid import UUID
 
 from app.comparison.service import compare_texts
 from app.core.models import (
@@ -6,6 +7,7 @@ from app.core.models import (
     GenerationInput,
     KnowledgeStatus,
     PreferenceInput,
+    PreferencePatch,
     ScorePatch,
 )
 from app.core.store import store
@@ -54,6 +56,22 @@ def preferences_create(payload: PreferenceInput):
 @router.get("/preferences")
 def preferences_list():
     return store.profile.preferences
+
+
+@router.patch("/preferences/{preference_id}")
+def preferences_patch(preference_id: UUID, payload: PreferencePatch):
+    try:
+        return store.update_preference_status(preference_id, payload.status)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Preference not found") from exc
+
+
+@router.delete("/preferences/{preference_id}", status_code=204)
+def preferences_delete(preference_id: UUID):
+    try:
+        store.delete_preference(preference_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Preference not found") from exc
 
 
 @router.get("/profiles/{profile_id}")
@@ -112,4 +130,3 @@ def comparisons_get(comparison_id: str):
 @router.post("/continue")
 def generation_create(payload: GenerationInput):
     return rewrite_with_profile(payload, store.profile.variables)
-
