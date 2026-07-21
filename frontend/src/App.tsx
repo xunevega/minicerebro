@@ -619,24 +619,34 @@ export function App() {
                   </div>
                   {knowledgeResult.cards.length > 0 ? (
                     <div className="knowledgeGrid">
-                      {knowledgeResult.cards.map((card) => (
-                        <article className="knowledgeItem" key={card.id}>
-                          <strong>{card.name}</strong>
-                          <span>{card.definition}</span>
-                          <List
-                            title="Claims"
-                            items={knowledgeResult.claims
-                              .filter((claim) => claim.card_id === card.id)
-                              .map((claim) => claim.statement)}
-                          />
-                          <List
-                            title="Evidencia"
-                            items={knowledgeResult.evidence.map(
-                              (item) => `${item.reference}: ${item.excerpt}`,
-                            )}
-                          />
-                        </article>
-                      ))}
+                      {knowledgeResult.cards.map((card) => {
+                        const cardClaims = knowledgeResult.claims.filter(
+                          (claim) => claim.card_id === card.id,
+                        );
+                        const cardEvidenceIds = new Set(
+                          cardClaims.map((claim) => claim.evidence_id),
+                        );
+                        const cardEvidence = knowledgeResult.evidence.filter((item) =>
+                          cardEvidenceIds.has(item.id),
+                        );
+
+                        return (
+                          <article className="knowledgeItem" key={card.id}>
+                            <strong>{card.name}</strong>
+                            <span>{card.definition}</span>
+                            <List
+                              title="Claims"
+                              items={cardClaims.map((claim) => claim.statement)}
+                            />
+                            <List
+                              title="Evidencia"
+                              items={cardEvidence.map(
+                                (item) => `${item.reference}: ${item.excerpt}`,
+                              )}
+                            />
+                          </article>
+                        );
+                      })}
                     </div>
                   ) : (
                     <p className="note">Sin fichas para esta consulta.</p>
