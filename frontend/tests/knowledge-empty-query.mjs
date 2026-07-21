@@ -35,6 +35,16 @@ try {
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
   await auditPanel.getByText("sin resultado").first().waitFor();
   await auditPanel.getByText("14 caracteres · limite 3").first().waitFor();
+  const historyLimitResponse = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return (
+      url.pathname === "/knowledge/query-history" &&
+      url.searchParams.get("version") === "knowledge-v0" &&
+      url.searchParams.get("limit") === "50"
+    );
+  });
+  await page.getByLabel("Limite historial").selectOption("50");
+  await historyLimitResponse;
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
@@ -45,10 +55,7 @@ try {
       url.searchParams.get("entity_id") === "knowledge-v0"
     );
   });
-  await page
-    .locator(".panel", { hasText: "Eventos recientes" })
-    .locator("select")
-    .selectOption("Consultas de conocimiento");
+  await page.getByLabel("Filtro auditoria").selectOption("Consultas de conocimiento");
   await filteredAuditResponse;
   await page
     .getByText("knowledge-v0 -> consulta · 0 fichas · 0 claims · 0 evidencias")

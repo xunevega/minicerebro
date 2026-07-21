@@ -144,6 +144,7 @@ export function App() {
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
   const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
+  const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(20);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
@@ -335,7 +336,9 @@ export function App() {
       setKnowledgeResult(
         await queryKnowledge(knowledgeQuery, knowledge?.version, knowledgeQueryLimit),
       );
-      setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version));
+      setKnowledgeQueryHistory(
+        await getKnowledgeQueryHistory(knowledge?.version, knowledgeQueryHistoryLimit),
+      );
       setKnowledgeQuerySummary(await getKnowledgeQuerySummary(knowledge?.version));
       await refreshAuditEvents();
     } catch (nextError) {
@@ -348,6 +351,16 @@ export function App() {
     setAuditFilter(nextFilter);
     try {
       await refreshAuditEvents(nextFilter);
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleKnowledgeQueryHistoryLimit(nextLimit: number) {
+    setError(null);
+    setKnowledgeQueryHistoryLimit(nextLimit);
+    try {
+      setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version, nextLimit));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -1356,6 +1369,21 @@ export function App() {
                 ? formatDate(knowledgeQuerySummary.last_query_at)
                 : "sin consultas"}
             </p>
+            <div className="rowActions">
+              <select
+                aria-label="Limite historial"
+                onChange={(event) =>
+                  handleKnowledgeQueryHistoryLimit(Number.parseInt(event.target.value, 10))
+                }
+                value={knowledgeQueryHistoryLimit}
+              >
+                {[20, 50, 100].map((limit) => (
+                  <option key={limit} value={limit}>
+                    {limit} consultas
+                  </option>
+                ))}
+              </select>
+            </div>
             {knowledgeQueryHistory.length === 0 ? (
               <p className="note">Todavia no hay consultas de conocimiento registradas.</p>
             ) : (
@@ -1380,6 +1408,7 @@ export function App() {
             <h2>Eventos recientes</h2>
             <div className="rowActions">
               <select
+                aria-label="Filtro auditoria"
                 onChange={(event) => handleAuditFilter(event.target.value)}
                 value={auditFilter}
               >
