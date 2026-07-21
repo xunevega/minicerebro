@@ -16,6 +16,7 @@ import type {
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
+  KnowledgeQueryResult,
   KnowledgeStatus,
   KnowledgeSource,
   LabOverride,
@@ -64,6 +65,13 @@ export function getKnowledgeCards() {
 
 export function getKnowledgeSources() {
   return request<KnowledgeSource[]>("/knowledge/sources");
+}
+
+export function queryKnowledge(query: string, version = "knowledge-v0", limit = 5) {
+  return request<KnowledgeQueryResult>("/knowledge/query", {
+    method: "POST",
+    body: JSON.stringify({ query, version, limit }),
+  });
 }
 
 export function getV1Screens() {

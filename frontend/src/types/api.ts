@@ -66,6 +66,33 @@ export type KnowledgeSource = {
   status: string;
 };
 
+export type KnowledgeClaim = {
+  id: string;
+  evidence_id: string;
+  card_id: string;
+  statement: string;
+  confidence: number;
+  version: string;
+};
+
+export type KnowledgeEvidenceItem = {
+  id: string;
+  node_id: string;
+  source_id: string;
+  reference: string;
+  excerpt: string;
+  confidence: number;
+  version: string;
+};
+
+export type KnowledgeQueryResult = {
+  query: string;
+  version: string;
+  cards: KnowledgeCard[];
+  claims: KnowledgeClaim[];
+  evidence: KnowledgeEvidenceItem[];
+};
+
 export type ProfileSummary = {
   profile_id: string;
   summary: string;

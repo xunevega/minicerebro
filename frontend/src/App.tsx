@@ -49,6 +49,7 @@ import {
   getTechnicalClosure,
   getTechnicalRoadmap,
   getV1Screens,
+  queryKnowledge,
   simulateLab,
   updatePreferenceStatus,
   updateScore,
@@ -70,6 +71,7 @@ import type {
   GenerationAction,
   GenerationResult,
   KnowledgeCard,
+  KnowledgeQueryResult,
   KnowledgeStatus,
   KnowledgeSource,
   LabSimulationResult,
@@ -114,6 +116,8 @@ export function App() {
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
   const [knowledgeSources, setKnowledgeSources] = useState<KnowledgeSource[]>([]);
+  const [knowledgeQuery, setKnowledgeQuery] = useState("precision lexica");
+  const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
@@ -251,6 +255,15 @@ export function App() {
       setPreferences((current) => [created, ...current]);
       setSummary(await getProfileSummary());
       setAuditEvents(await getAuditEvents());
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleKnowledgeQuery() {
+    setError(null);
+    try {
+      setKnowledgeResult(await queryKnowledge(knowledgeQuery));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -507,6 +520,41 @@ export function App() {
                   <span>{card.definition}</span>
                 </article>
               ))}
+            </div>
+            <div className="proposalBox">
+              <h3>Consulta</h3>
+              <div className="rowActions">
+                <input
+                  className="textInput"
+                  onChange={(event) => setKnowledgeQuery(event.target.value)}
+                  value={knowledgeQuery}
+                />
+                <button className="primaryButton" onClick={handleKnowledgeQuery} type="button">
+                  Consultar
+                </button>
+              </div>
+              {knowledgeResult ? (
+                <div className="knowledgeGrid">
+                  {knowledgeResult.cards.map((card) => (
+                    <article className="knowledgeItem" key={card.id}>
+                      <strong>{card.name}</strong>
+                      <span>{card.definition}</span>
+                      <List
+                        title="Claims"
+                        items={knowledgeResult.claims
+                          .filter((claim) => claim.card_id === card.id)
+                          .map((claim) => claim.statement)}
+                      />
+                      <List
+                        title="Evidencia"
+                        items={knowledgeResult.evidence.map(
+                          (item) => `${item.reference}: ${item.excerpt}`,
+                        )}
+                      />
+                    </article>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <List title="Cobertura" items={knowledge?.coverage ?? []} />
             <List title="Lagunas" items={knowledge?.gaps ?? []} />
