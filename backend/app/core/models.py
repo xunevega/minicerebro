@@ -157,11 +157,36 @@ class KnowledgeVersion(BaseModel):
 
 class KnowledgeSource(BaseModel):
     id: str
+    catalog_id: str
     name: str
+    responsible: str
     source_type: str
+    domains: list[str]
     authority_level: int
     priority: int
     status: str
+    edition: str
+    publication_date: str
+    location: str
+    acquisition_status: str
+    validation_status: str
+    rights: str
+    structure: list[str]
+    locator_system: list[str]
+    editions: list["KnowledgeSourceEdition"] = Field(default_factory=list)
+
+
+class KnowledgeSourceEdition(BaseModel):
+    id: str
+    source_id: str
+    label: str
+    publication_date: str
+    location: str
+    acquisition_status: str
+    validation_status: str
+    rights: str
+    structure: list[str]
+    locator_system: list[str]
 
 
 class KnowledgeNode(BaseModel):

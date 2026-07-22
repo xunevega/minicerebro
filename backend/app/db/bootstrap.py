@@ -13,12 +13,20 @@ from app.db.models import (
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
     KnowledgeSourceRecord,
+    KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
     ProfileRecord,
     ScoreVariableRecord,
 )
 from app.db.session import database_url
-from app.knowledge.service import seed_cards, seed_claims, seed_evidence, seed_nodes, seed_sources
+from app.knowledge.service import (
+    seed_cards,
+    seed_claims,
+    seed_evidence,
+    seed_nodes,
+    seed_source_editions,
+    seed_sources,
+)
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 
@@ -79,22 +87,40 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             )
         )
     for source in seed_sources():
-        if session.get(KnowledgeSourceRecord, source.id) is not None:
+        source_record = session.get(KnowledgeSourceRecord, source.id)
+        values = {
+            "catalog_id": source.catalog_id,
+            "name": source.name,
+            "responsible": source.responsible,
+            "source_type": source.source_type,
+            "domains": source.domains,
+            "authority_level": source.authority_level,
+            "priority": source.priority,
+            "status": source.status,
+            "edition": source.edition,
+            "publication_date": source.publication_date,
+            "location": source.location,
+            "acquisition_status": source.acquisition_status,
+            "validation_status": source.validation_status,
+            "rights": source.rights,
+            "structure": source.structure,
+            "locator_system": source.locator_system,
+        }
+        if source_record is not None:
+            for field, value in values.items():
+                setattr(source_record, field, value)
             continue
-        session.add(
-            KnowledgeSourceRecord(
-                id=source.id,
-                name=source.name,
-                source_type=source.source_type,
-                authority_level=source.authority_level,
-                priority=source.priority,
-                status=source.status,
-            )
-        )
+        session.add(KnowledgeSourceRecord(id=source.id, **values))
     session.flush()
 
     for node in seed_nodes():
-        if session.get(KnowledgeNodeRecord, node.id) is not None:
+        node_record = session.get(KnowledgeNodeRecord, node.id)
+        if node_record is not None:
+            node_record.source_id = node.source_id
+            node_record.node_type = node.node_type
+            node_record.title = node.title
+            node_record.summary = node.summary
+            node_record.version = node.version
             continue
         session.add(
             KnowledgeNodeRecord(
@@ -123,7 +149,14 @@ def ensure_knowledge_seed_data(session: Session) -> None:
     session.flush()
 
     for evidence in seed_evidence():
-        if session.get(KnowledgeEvidenceItemRecord, evidence.id) is not None:
+        evidence_record = session.get(KnowledgeEvidenceItemRecord, evidence.id)
+        if evidence_record is not None:
+            evidence_record.node_id = evidence.node_id
+            evidence_record.source_id = evidence.source_id
+            evidence_record.reference = evidence.reference
+            evidence_record.excerpt = evidence.excerpt
+            evidence_record.confidence = evidence.confidence
+            evidence_record.version = evidence.version
             continue
         session.add(
             KnowledgeEvidenceItemRecord(
@@ -151,3 +184,34 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 version=claim.version,
             )
         )
+
+    for edition in seed_source_editions():
+        edition_record = session.get(KnowledgeSourceEditionRecord, edition.id)
+        values = {
+            "source_id": edition.source_id,
+            "label": edition.label,
+            "publication_date": edition.publication_date,
+            "location": edition.location,
+            "acquisition_status": edition.acquisition_status,
+            "validation_status": edition.validation_status,
+            "rights": edition.rights,
+            "structure": edition.structure,
+            "locator_system": edition.locator_system,
+        }
+        if edition_record is not None:
+            for field, value in values.items():
+                setattr(edition_record, field, value)
+            continue
+        session.add(KnowledgeSourceEditionRecord(id=edition.id, **values))
+
+    seed_edition_ids = {edition.id for edition in seed_source_editions()}
+    stale_editions = session.scalars(select(KnowledgeSourceEditionRecord)).all()
+    for stale_edition in stale_editions:
+        if stale_edition.id not in seed_edition_ids:
+            session.delete(stale_edition)
+
+    seed_source_ids = {source.id for source in seed_sources()}
+    stale_sources = session.scalars(select(KnowledgeSourceRecord)).all()
+    for stale_source in stale_sources:
+        if stale_source.id not in seed_source_ids:
+            session.delete(stale_source)

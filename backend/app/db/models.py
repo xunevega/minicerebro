@@ -129,11 +129,37 @@ class KnowledgeSourceRecord(Base):
     __tablename__ = "knowledge_sources"
 
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    catalog_id: Mapped[str] = mapped_column(String(40), nullable=False)
     name: Mapped[str] = mapped_column(String(240), nullable=False)
+    responsible: Mapped[str] = mapped_column(String(320), nullable=False)
     source_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    domains: Mapped[list[str]] = mapped_column(JSON, nullable=False)
     authority_level: Mapped[int] = mapped_column(Integer, nullable=False)
     priority: Mapped[int] = mapped_column(Integer, nullable=False)
     status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    edition: Mapped[str] = mapped_column(String(160), nullable=False)
+    publication_date: Mapped[str] = mapped_column(String(80), nullable=False)
+    location: Mapped[str] = mapped_column(String(320), nullable=False)
+    acquisition_status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    validation_status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    rights: Mapped[str] = mapped_column(Text, nullable=False)
+    structure: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    locator_system: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+
+
+class KnowledgeSourceEditionRecord(Base):
+    __tablename__ = "knowledge_source_editions"
+
+    id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    source_id: Mapped[str] = mapped_column(ForeignKey("knowledge_sources.id"), nullable=False)
+    label: Mapped[str] = mapped_column(String(160), nullable=False)
+    publication_date: Mapped[str] = mapped_column(String(80), nullable=False)
+    location: Mapped[str] = mapped_column(String(320), nullable=False)
+    acquisition_status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    validation_status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    rights: Mapped[str] = mapped_column(Text, nullable=False)
+    structure: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    locator_system: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
 
 class KnowledgeNodeRecord(Base):

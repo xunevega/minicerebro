@@ -85,7 +85,7 @@ def knowledge_status() -> KnowledgeStatus:
         state="seed",
         coverage=["lengua espanola", "escritura", "estilo", "comparacion textual"],
         gaps=[
-            "fuera de alcance V1: fuentes academicas versionadas",
+            "fuera de alcance V1: ingestion bibliografica completa",
             "fuera de alcance V1: pgvector",
             "fuera de alcance V1: validacion editorial avanzada",
         ],

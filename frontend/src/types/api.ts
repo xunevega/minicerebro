@@ -59,11 +59,36 @@ export type KnowledgeCard = {
 
 export type KnowledgeSource = {
   id: string;
+  catalog_id: string;
   name: string;
+  responsible: string;
   source_type: string;
+  domains: string[];
   authority_level: number;
   priority: number;
   status: string;
+  edition: string;
+  publication_date: string;
+  location: string;
+  acquisition_status: string;
+  validation_status: string;
+  rights: string;
+  structure: string[];
+  locator_system: string[];
+  editions: KnowledgeSourceEdition[];
+};
+
+export type KnowledgeSourceEdition = {
+  id: string;
+  source_id: string;
+  label: string;
+  publication_date: string;
+  location: string;
+  acquisition_status: string;
+  validation_status: string;
+  rights: string;
+  structure: string[];
+  locator_system: string[];
 };
 
 export type KnowledgeNode = {

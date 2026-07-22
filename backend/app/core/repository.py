@@ -25,6 +25,7 @@ from app.core.models import (
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
     KnowledgeSource,
+    KnowledgeSourceEdition,
     KnowledgeVersion,
     Preference,
     PreferenceStatus,
@@ -46,6 +47,7 @@ from app.db.models import (
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
     KnowledgeSourceRecord,
+    KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
     PreferenceRecord,
     ProfileRecord,
@@ -228,14 +230,44 @@ def generated_text_to_record(text: GeneratedText) -> GeneratedTextRecord:
     )
 
 
-def knowledge_source_from_record(record: KnowledgeSourceRecord) -> KnowledgeSource:
+def knowledge_source_edition_from_record(record: KnowledgeSourceEditionRecord) -> KnowledgeSourceEdition:
+    return KnowledgeSourceEdition(
+        id=record.id,
+        source_id=record.source_id,
+        label=record.label,
+        publication_date=record.publication_date,
+        location=record.location,
+        acquisition_status=record.acquisition_status,
+        validation_status=record.validation_status,
+        rights=record.rights,
+        structure=record.structure,
+        locator_system=record.locator_system,
+    )
+
+
+def knowledge_source_from_record(
+    record: KnowledgeSourceRecord,
+    editions: list[KnowledgeSourceEdition] | None = None,
+) -> KnowledgeSource:
     return KnowledgeSource(
         id=record.id,
+        catalog_id=record.catalog_id,
         name=record.name,
+        responsible=record.responsible,
         source_type=record.source_type,
+        domains=record.domains,
         authority_level=record.authority_level,
         priority=record.priority,
         status=record.status,
+        edition=record.edition,
+        publication_date=record.publication_date,
+        location=record.location,
+        acquisition_status=record.acquisition_status,
+        validation_status=record.validation_status,
+        rights=record.rights,
+        structure=record.structure,
+        locator_system=record.locator_system,
+        editions=editions or [],
     )
 
 
@@ -314,13 +346,21 @@ class Repository:
 
     def list_knowledge_sources(self, version: str | None = None) -> list[KnowledgeSource]:
         query = select(KnowledgeSourceRecord)
-        if version:
-            query = query.join(
-                KnowledgeNodeRecord,
-                KnowledgeNodeRecord.source_id == KnowledgeSourceRecord.id,
-            ).where(KnowledgeNodeRecord.version == version)
-        records = self.session.scalars(query.order_by(KnowledgeSourceRecord.priority)).all()
-        return [knowledge_source_from_record(record) for record in records]
+        records = self.session.scalars(
+            query.order_by(KnowledgeSourceRecord.priority, KnowledgeSourceRecord.catalog_id)
+        ).all()
+        editions = self.session.scalars(
+            select(KnowledgeSourceEditionRecord).order_by(KnowledgeSourceEditionRecord.id)
+        ).all()
+        editions_by_source: dict[str, list[KnowledgeSourceEdition]] = {}
+        for edition in editions:
+            editions_by_source.setdefault(edition.source_id, []).append(
+                knowledge_source_edition_from_record(edition)
+            )
+        return [
+            knowledge_source_from_record(record, editions_by_source.get(record.id, []))
+            for record in records
+        ]
 
     def list_knowledge_nodes(
         self,

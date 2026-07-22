@@ -10,6 +10,7 @@ from app.db.models import (
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
     KnowledgeSourceRecord,
+    KnowledgeSourceEditionRecord,
 )
 from app.db.session import SessionLocal
 from app.main import app
@@ -371,19 +372,64 @@ def test_knowledge_sources_are_exposed():
     assert response.status_code == 200
 
     sources = response.json()
-    assert len(sources) >= 1
+    assert len(sources) == 23
+    assert {source["catalog_id"] for source in sources} == {f"F{index:03}" for index in range(1, 24)}
+    assert "manual-estilo" not in {source["id"] for source in sources}
     assert sources[0] == {
-        "id": "rae",
-        "name": "Real Academia Espanola",
-        "source_type": "normative",
+        "id": "rae-ngle",
+        "catalog_id": "F001",
+        "name": "Nueva gramatica de la lengua espanola",
+        "responsible": "Real Academia Espanola y Asociacion de Academias de la Lengua Espanola",
+        "source_type": "gramatica descriptiva y normativa",
+        "domains": [
+            "morfologia",
+            "sintaxis",
+            "categorias gramaticales",
+            "funciones",
+            "construcciones",
+        ],
         "authority_level": 5,
         "priority": 1,
         "status": "registered",
+        "edition": "pendiente de identificacion",
+        "publication_date": "pendiente de identificacion",
+        "location": "pendiente de adquisicion",
+        "acquisition_status": "registered",
+        "validation_status": "not_validated",
+        "rights": "registro autorizado; contenido no ingerido",
+        "structure": ["pendiente de estructuracion"],
+        "locator_system": ["edicion", "parte", "capitulo", "seccion", "pagina", "entrada", "url"],
+        "editions": [
+            {
+                "id": "rae-ngle:pending-edition",
+                "source_id": "rae-ngle",
+                "label": "pendiente de identificacion",
+                "publication_date": "pendiente de identificacion",
+                "location": "pendiente de adquisicion",
+                "acquisition_status": "registered",
+                "validation_status": "not_validated",
+                "rights": "registro autorizado; contenido no ingerido",
+                "structure": ["pendiente de estructuracion"],
+                "locator_system": [
+                    "edicion",
+                    "parte",
+                    "capitulo",
+                    "seccion",
+                    "pagina",
+                    "entrada",
+                    "url",
+                ],
+            }
+        ],
+    }
+    assert all(len(source["editions"]) == 1 for source in sources)
+    assert {source["editions"][0]["source_id"] for source in sources} == {
+        source["id"] for source in sources
     }
 
     versioned = client.get("/knowledge/sources?version=knowledge-v0")
     assert versioned.status_code == 200
-    assert {source["id"] for source in versioned.json()} == {"rae", "manual-estilo"}
+    assert {source["id"] for source in versioned.json()} == {source["id"] for source in sources}
 
     missing_version = client.get("/knowledge/sources?version=missing-version")
     assert missing_version.status_code == 404
@@ -399,11 +445,11 @@ def test_knowledge_nodes_link_to_sources():
     assert len(nodes) >= 1
     assert {node["source_id"] for node in nodes} <= source_ids
 
-    filtered = client.get("/knowledge/nodes?source_id=rae")
+    filtered = client.get("/knowledge/nodes?source_id=rae-ngle")
     assert filtered.status_code == 200
-    assert all(node["source_id"] == "rae" for node in filtered.json())
+    assert all(node["source_id"] == "rae-ngle" for node in filtered.json())
 
-    versioned = client.get("/knowledge/nodes?source_id=rae&version=knowledge-v0")
+    versioned = client.get("/knowledge/nodes?source_id=rae-ngle&version=knowledge-v0")
     assert versioned.status_code == 200
     assert [node["id"] for node in versioned.json()] == ["rae-norma-estilo"]
 
@@ -671,7 +717,7 @@ def test_knowledge_query_matches_the_full_persisted_chain():
 
     source_match = client.post(
         "/knowledge/query",
-        json={"query": "Real Academia Espanola", "version": "knowledge-v0", "limit": 3},
+        json={"query": "Diccionario lengua espanola", "version": "knowledge-v0", "limit": 3},
     )
     assert source_match.status_code == 200
     assert source_match.json()["cards"][0]["id"] == "lexico-precision"
@@ -696,6 +742,7 @@ def test_knowledge_pipeline_is_persisted():
 
     with SessionLocal() as session:
         sources = session.scalars(select(KnowledgeSourceRecord)).all()
+        source_editions = session.scalars(select(KnowledgeSourceEditionRecord)).all()
         nodes = session.scalars(select(KnowledgeNodeRecord)).all()
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
         claims = session.scalars(select(KnowledgeClaimRecord)).all()
@@ -707,6 +754,8 @@ def test_knowledge_pipeline_is_persisted():
     assert version["evidence_count"] == len(evidence)
     assert version["claim_count"] == len(claims)
     assert version["card_count"] == len(cards)
+    assert len(source_editions) == 23
+    assert {edition.source_id for edition in source_editions} == {source.id for source in sources}
     assert {node.source_id for node in nodes} <= {source.id for source in sources}
     assert {item.node_id for item in evidence} <= {node.id for node in nodes}
     assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
