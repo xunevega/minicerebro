@@ -16,6 +16,7 @@ from app.db.models import (
     KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
+    KnowledgeObjectRevisionRecord,
     KnowledgeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
@@ -33,6 +34,7 @@ from app.knowledge.service import (
     seed_evidence_revisions,
     seed_node_relations,
     seed_nodes,
+    seed_object_revisions,
     seed_relations,
     seed_source_editions,
     seed_sources,
@@ -219,6 +221,26 @@ def ensure_knowledge_seed_data(session: Session) -> None:
     for stale_relation in stale_graph_relations:
         if stale_relation.id not in seed_graph_relation_ids:
             session.delete(stale_relation)
+
+    for revision in seed_object_revisions():
+        revision_record = session.get(KnowledgeObjectRevisionRecord, revision.id)
+        values = {
+            "object_type": revision.object_type,
+            "object_id": revision.object_id,
+            "revision_number": revision.revision_number,
+            "object_version": revision.object_version,
+            "knowledge_version": revision.knowledge_version,
+            "author": revision.author,
+            "reason": revision.reason,
+            "before": revision.before,
+            "after": revision.after,
+            "created_at": revision.created_at,
+        }
+        if revision_record is not None:
+            for field, value in values.items():
+                setattr(revision_record, field, value)
+            continue
+        session.add(KnowledgeObjectRevisionRecord(id=revision.id, **values))
     for card in seed_cards():
         if session.get(KnowledgeCardRecord, card.id) is not None:
             continue

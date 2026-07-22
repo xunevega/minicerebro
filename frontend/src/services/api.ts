@@ -19,12 +19,14 @@ import type {
   KnowledgeClaim,
   KnowledgeEvidenceItem,
   KnowledgeNode,
+  KnowledgeObjectRevision,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
   KnowledgeQuerySummary,
   KnowledgeRelation,
   KnowledgeStatus,
   KnowledgeSource,
+  KnowledgeVersioningPolicy,
   LabOverride,
   LabSimulationResult,
   ObservabilityMetric,
@@ -83,6 +85,14 @@ export function getKnowledgeCards(version?: string) {
 
 export function getKnowledgeSources(version?: string) {
   return request<KnowledgeSource[]>(withParams("/knowledge/sources", { version }));
+}
+
+export function getKnowledgeVersioning() {
+  return request<KnowledgeVersioningPolicy>("/knowledge/versioning");
+}
+
+export function getKnowledgeRevisions(version?: string) {
+  return request<KnowledgeObjectRevision[]>(withParams("/knowledge/revisions", { version }));
 }
 
 export function getKnowledgeNodes(sourceId?: string, version?: string) {

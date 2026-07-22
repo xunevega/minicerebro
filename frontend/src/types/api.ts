@@ -78,6 +78,33 @@ export type KnowledgeSource = {
   editions: KnowledgeSourceEdition[];
 };
 
+export type KnowledgeObjectRevision = {
+  id: string;
+  object_type: string;
+  object_id: string;
+  revision_number: number;
+  object_version: string;
+  knowledge_version: string;
+  author: string;
+  reason: string;
+  before: Record<string, unknown>;
+  after: Record<string, unknown>;
+  created_at: string;
+};
+
+export type KnowledgeVersioningPolicy = {
+  versioned_object_types: string[];
+  excluded_object_types: string[];
+  revision_triggers: string[];
+  identifiers: Record<string, string>;
+  immutable_after_publication: boolean;
+  history_fields: string[];
+  historical_recovery: string[];
+  compatibility_policy: string;
+  publication_checks: string[];
+  release_chain: string[];
+};
+
 export type KnowledgeSourceEdition = {
   id: string;
   source_id: string;

@@ -27,6 +27,7 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeNode,
+    KnowledgeObjectRevision,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
@@ -35,6 +36,7 @@ from app.core.models import (
     KnowledgeSource,
     KnowledgeStatus,
     KnowledgeVersion,
+    KnowledgeVersioningPolicy,
     ProfileExport,
     LabSimulationInput,
     LabSimulationResult,
@@ -116,6 +118,26 @@ def knowledge_coverage() -> dict[str, list[str]]:
 @router.get("/knowledge/versions")
 def knowledge_versions(repository: RepositoryDep) -> list[KnowledgeVersion]:
     return repository.list_knowledge_versions()
+
+
+@router.get("/knowledge/versioning")
+def knowledge_versioning(repository: RepositoryDep) -> KnowledgeVersioningPolicy:
+    return repository.knowledge_versioning_policy()
+
+
+@router.get("/knowledge/revisions")
+def knowledge_revisions(
+    repository: RepositoryDep,
+    object_type: str | None = None,
+    object_id: str | None = None,
+    version: str | None = None,
+) -> list[KnowledgeObjectRevision]:
+    ensure_knowledge_version(repository, version)
+    return repository.list_knowledge_object_revisions(
+        object_type=object_type,
+        object_id=object_id,
+        knowledge_version=version,
+    )
 
 
 @router.get("/knowledge/sources")

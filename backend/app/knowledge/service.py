@@ -5,12 +5,14 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeNodeRelation,
+    KnowledgeObjectRevision,
     KnowledgeQueryInput,
     KnowledgeQueryResult,
     KnowledgeRelation,
     KnowledgeSource,
     KnowledgeSourceEdition,
     KnowledgeVersion,
+    KnowledgeVersioningPolicy,
 )
 
 KNOWLEDGE_VERSION = "knowledge-v0"
@@ -23,6 +25,78 @@ DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
 DEFAULT_SOURCE_RIGHTS = "registro autorizado; contenido no ingerido"
 DEFAULT_SOURCE_STRUCTURE = ["pendiente de estructuracion"]
 DEFAULT_SOURCE_LOCATORS = ["edicion", "parte", "capitulo", "seccion", "pagina", "entrada", "url"]
+
+VERSIONED_OBJECT_TYPES = [
+    "source",
+    "source_edition",
+    "node",
+    "relation",
+    "evidence",
+    "claim",
+    "knowledge_card",
+    "tree",
+    "ontology",
+    "schema",
+    "knowledge_version",
+]
+
+EXCLUDED_VERSIONED_OBJECT_TYPES = [
+    "profile",
+    "preference",
+    "scoring",
+    "feedback",
+    "laboratory",
+    "prompt",
+    "query",
+    "generation",
+    "user_history",
+]
+
+
+def versioning_policy() -> KnowledgeVersioningPolicy:
+    return KnowledgeVersioningPolicy(
+        versioned_object_types=VERSIONED_OBJECT_TYPES,
+        excluded_object_types=EXCLUDED_VERSIONED_OBJECT_TYPES,
+        revision_triggers=[
+            "cambia una definicion",
+            "cambia una relacion",
+            "cambia una evidencia",
+            "cambia un claim",
+            "cambia la estructura de un nodo",
+            "cambia una fuente o edicion",
+            "cambia una ficha",
+            "cambia el arbol, ontologia o esquema",
+        ],
+        identifiers={
+            "revision_number": "revision incremental dentro del objeto",
+            "object_version": "version estable del objeto revisionado",
+            "knowledge_version": "snapshot de conocimiento al que pertenece",
+            "release": "publicacion inmutable construida desde una knowledge_version",
+        },
+        immutable_after_publication=True,
+        history_fields=["author", "created_at", "reason", "before", "after"],
+        historical_recovery=[
+            "como era un nodo en una knowledge_version",
+            "que claim existia",
+            "que evidencia lo sustentaba",
+            "que relaciones tenia",
+        ],
+        compatibility_policy=(
+            "Las referencias antiguas no se rompen; los objetos se sustituyen, deprecian o "
+            "archivan mediante nuevas revisiones."
+        ),
+        publication_checks=[
+            "migraciones aplicadas",
+            "fuentes y ediciones registradas",
+            "nodos conectados",
+            "evidencias con fuente, edicion y localizador",
+            "claims con tipo, alcance y evidencia",
+            "relaciones tipadas y versionadas",
+            "fichas reconstruibles desde claims",
+            "validacion automatica completa",
+        ],
+        release_chain=["knowledge-v0"],
+    )
 
 
 def _source(
@@ -804,6 +878,154 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(seed_cards()),
         )
     ]
+
+
+def _object_revision(object_type: str, object_id: str, after: dict) -> KnowledgeObjectRevision:
+    return KnowledgeObjectRevision(
+        id=f"rev-{object_type}-{object_id}-r1",
+        object_type=object_type,
+        object_id=object_id,
+        revision_number=1,
+        object_version=f"{object_id}@r1",
+        knowledge_version=KNOWLEDGE_VERSION,
+        author="minicerebro-seed",
+        reason="registro inicial segun contrato de versionado V1",
+        before={},
+        after=after,
+        created_at=RELATION_UPDATED_AT,
+    )
+
+
+def seed_object_revisions() -> list[KnowledgeObjectRevision]:
+    revisions: list[KnowledgeObjectRevision] = []
+    revisions.extend(
+        _object_revision(
+            "source",
+            source.id,
+            {
+                "catalog_id": source.catalog_id,
+                "name": source.name,
+                "status": source.status,
+                "authority_level": source.authority_level,
+            },
+        )
+        for source in seed_sources()
+    )
+    revisions.extend(
+        _object_revision(
+            "source_edition",
+            edition.id,
+            {
+                "source_id": edition.source_id,
+                "label": edition.label,
+                "acquisition_status": edition.acquisition_status,
+                "validation_status": edition.validation_status,
+            },
+        )
+        for edition in seed_source_editions()
+    )
+    revisions.extend(
+        _object_revision(
+            "node",
+            node.id,
+            {
+                "canonical_name": node.canonical_name,
+                "node_type": node.node_type,
+                "primary_branch": node.primary_branch,
+                "status": node.status,
+                "relations": [relation.id for relation in seed_node_relations() if relation.source_node_id == node.id],
+            },
+        )
+        for node in seed_nodes()
+    )
+    revisions.extend(
+        _object_revision(
+            "relation",
+            relation.id,
+            {
+                "source_entity_type": relation.source_entity_type,
+                "source_entity_id": relation.source_entity_id,
+                "relation_type": relation.relation_type,
+                "target_entity_type": relation.target_entity_type,
+                "target_entity_id": relation.target_entity_id,
+                "status": relation.status,
+            },
+        )
+        for relation in seed_relations()
+    )
+    revisions.extend(
+        _object_revision(
+            "evidence",
+            evidence.id,
+            {
+                "source_id": evidence.source_id,
+                "source_edition_id": evidence.source_edition_id,
+                "node_id": evidence.node_id,
+                "status": evidence.status,
+                "locator": evidence.locator,
+            },
+        )
+        for evidence in seed_evidence()
+    )
+    revisions.extend(
+        _object_revision(
+            "claim",
+            claim.id,
+            {
+                "statement": claim.statement,
+                "claim_type": claim.claim_type,
+                "node_id": claim.node_id,
+                "status": claim.status,
+                "evidence_id": claim.evidence_id,
+            },
+        )
+        for claim in seed_claims()
+    )
+    revisions.extend(
+        _object_revision(
+            "knowledge_card",
+            card.id,
+            {
+                "name": card.name,
+                "card_type": card.card_type,
+                "version": card.version,
+                "payload_keys": sorted(card.payload),
+            },
+        )
+        for card in seed_cards()
+    )
+    revisions.extend(
+        [
+            _object_revision(
+                "tree",
+                "knowledge-tree-v0",
+                {"root": "knowledge-v0", "node_ids": [node.id for node in seed_nodes()]},
+            ),
+            _object_revision(
+                "ontology",
+                "knowledge-ontology-v0",
+                {
+                    "node_types": sorted({node.node_type for node in seed_nodes()}),
+                    "relation_types": sorted({relation.relation_type for relation in seed_relations()}),
+                },
+            ),
+            _object_revision(
+                "schema",
+                "knowledge-schema-v0",
+                {"versioned_object_types": VERSIONED_OBJECT_TYPES},
+            ),
+            _object_revision(
+                "knowledge_version",
+                KNOWLEDGE_VERSION,
+                {
+                    "status": "seed",
+                    "published_at": "not-published",
+                    "immutable_after_publication": True,
+                },
+            ),
+        ]
+    )
+    return revisions
 
 
 def query_knowledge(

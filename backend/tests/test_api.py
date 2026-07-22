@@ -13,6 +13,7 @@ from app.db.models import (
     KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
+    KnowledgeObjectRevisionRecord,
     KnowledgeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
@@ -667,6 +668,83 @@ def test_knowledge_versions_include_chain_counts():
     assert versions[0]["card_count"] >= 1
 
 
+def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_state():
+    response = client.get("/knowledge/versioning")
+    assert response.status_code == 200
+    policy = response.json()
+
+    assert {
+        "source",
+        "source_edition",
+        "node",
+        "relation",
+        "evidence",
+        "claim",
+        "knowledge_card",
+        "tree",
+        "ontology",
+        "schema",
+        "knowledge_version",
+    } <= set(policy["versioned_object_types"])
+    assert {
+        "profile",
+        "preference",
+        "scoring",
+        "feedback",
+        "laboratory",
+        "prompt",
+        "query",
+        "generation",
+        "user_history",
+    } <= set(policy["excluded_object_types"])
+    assert policy["immutable_after_publication"] is True
+    assert set(policy["history_fields"]) == {"author", "created_at", "reason", "before", "after"}
+    assert "revision_number" in policy["identifiers"]
+    assert "knowledge_version" in policy["identifiers"]
+    assert "release" in policy["identifiers"]
+    assert "knowledge-v0" in policy["release_chain"]
+    assert "relaciones tipadas y versionadas" in policy["publication_checks"]
+
+
+def test_knowledge_revisions_allow_historical_recovery():
+    response = client.get("/knowledge/revisions?version=knowledge-v0")
+    assert response.status_code == 200
+    revisions = response.json()
+    assert len(revisions) >= 1
+    assert {
+        "source",
+        "source_edition",
+        "node",
+        "relation",
+        "evidence",
+        "claim",
+        "knowledge_card",
+        "tree",
+        "ontology",
+        "schema",
+        "knowledge_version",
+    } <= {revision["object_type"] for revision in revisions}
+    assert all(revision["revision_number"] >= 1 for revision in revisions)
+    assert all(revision["object_version"] for revision in revisions)
+    assert all(revision["knowledge_version"] == "knowledge-v0" for revision in revisions)
+    assert all(revision["author"] for revision in revisions)
+    assert all(revision["reason"] for revision in revisions)
+    assert all("after" in revision for revision in revisions)
+
+    node_response = client.get(
+        "/knowledge/revisions?version=knowledge-v0&object_type=node&object_id=rae-norma-estilo"
+    )
+    assert node_response.status_code == 200
+    node_revisions = node_response.json()
+    assert len(node_revisions) == 1
+    assert node_revisions[0]["after"]["canonical_name"] == "Norma y uso en lengua espanola"
+    assert "relations" in node_revisions[0]["after"]
+
+    missing_version = client.get("/knowledge/revisions?version=missing-version")
+    assert missing_version.status_code == 404
+    assert missing_version.json()["detail"] == "Knowledge version not found"
+
+
 def test_knowledge_query_returns_cards_claims_and_evidence():
     response = client.post(
         "/knowledge/query",
@@ -881,6 +959,7 @@ def test_knowledge_pipeline_is_persisted():
         source_editions = session.scalars(select(KnowledgeSourceEditionRecord)).all()
         nodes = session.scalars(select(KnowledgeNodeRecord)).all()
         node_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
+        object_revisions = session.scalars(select(KnowledgeObjectRevisionRecord)).all()
         relations = session.scalars(select(KnowledgeRelationRecord)).all()
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
         evidence_revisions = session.scalars(select(KnowledgeEvidenceRevisionRecord)).all()
@@ -909,6 +988,20 @@ def test_knowledge_pipeline_is_persisted():
     assert all(relation.relation_type for relation in relations)
     assert {relation.direction for relation in relations} == {"outgoing"}
     assert {relation.version for relation in relations} == {"knowledge-v0"}
+    assert len(object_revisions) >= len(sources) + len(source_editions) + len(nodes)
+    assert {
+        "source",
+        "source_edition",
+        "node",
+        "relation",
+        "evidence",
+        "claim",
+        "knowledge_card",
+        "tree",
+        "ontology",
+        "schema",
+        "knowledge_version",
+    } <= {revision.object_type for revision in object_revisions}
     assert {item.node_id for item in evidence} <= {node.id for node in nodes}
     assert {item.source_edition_id for item in evidence} <= {
         edition.id for edition in source_editions

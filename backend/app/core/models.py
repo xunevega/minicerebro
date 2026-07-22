@@ -155,6 +155,33 @@ class KnowledgeVersion(BaseModel):
     card_count: int
 
 
+class KnowledgeObjectRevision(BaseModel):
+    id: str
+    object_type: str
+    object_id: str
+    revision_number: int = Field(ge=1)
+    object_version: str
+    knowledge_version: str
+    author: str
+    reason: str
+    before: dict
+    after: dict
+    created_at: str
+
+
+class KnowledgeVersioningPolicy(BaseModel):
+    versioned_object_types: list[str]
+    excluded_object_types: list[str]
+    revision_triggers: list[str]
+    identifiers: dict[str, str]
+    immutable_after_publication: bool
+    history_fields: list[str]
+    historical_recovery: list[str]
+    compatibility_policy: str
+    publication_checks: list[str]
+    release_chain: list[str]
+
+
 class KnowledgeSource(BaseModel):
     id: str
     catalog_id: str

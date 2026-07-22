@@ -125,6 +125,22 @@ class KnowledgeVersionRecord(Base):
     published_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
+class KnowledgeObjectRevisionRecord(Base):
+    __tablename__ = "knowledge_object_revisions"
+
+    id: Mapped[str] = mapped_column(String(260), primary_key=True)
+    object_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    object_id: Mapped[str] = mapped_column(String(180), nullable=False, index=True)
+    revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
+    object_version: Mapped[str] = mapped_column(String(180), nullable=False)
+    knowledge_version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    author: Mapped[str] = mapped_column(String(120), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    before: Mapped[dict] = mapped_column(JSON, nullable=False)
+    after: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class KnowledgeSourceRecord(Base):
     __tablename__ = "knowledge_sources"
 

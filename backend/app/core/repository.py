@@ -22,6 +22,7 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeNodeRelation,
+    KnowledgeObjectRevision,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
@@ -30,6 +31,7 @@ from app.core.models import (
     KnowledgeSource,
     KnowledgeSourceEdition,
     KnowledgeVersion,
+    KnowledgeVersioningPolicy,
     Preference,
     PreferenceStatus,
     Profile,
@@ -51,6 +53,7 @@ from app.db.models import (
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
+    KnowledgeObjectRevisionRecord,
     KnowledgeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
@@ -59,7 +62,7 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
-from app.knowledge.service import query_knowledge
+from app.knowledge.service import query_knowledge, versioning_policy
 
 
 def evidence_from_record(record: EvidenceRecord) -> Evidence:
@@ -315,6 +318,24 @@ def knowledge_relation_from_record(record: KnowledgeRelationRecord) -> Knowledge
     )
 
 
+def knowledge_object_revision_from_record(
+    record: KnowledgeObjectRevisionRecord,
+) -> KnowledgeObjectRevision:
+    return KnowledgeObjectRevision(
+        id=record.id,
+        object_type=record.object_type,
+        object_id=record.object_id,
+        revision_number=record.revision_number,
+        object_version=record.object_version,
+        knowledge_version=record.knowledge_version,
+        author=record.author,
+        reason=record.reason,
+        before=record.before,
+        after=record.after,
+        created_at=record.created_at,
+    )
+
+
 def knowledge_node_from_record(
     record: KnowledgeNodeRecord,
     relations: list[KnowledgeNodeRelation] | None = None,
@@ -438,6 +459,33 @@ class Repository:
             select(KnowledgeVersionRecord).order_by(KnowledgeVersionRecord.id)
         ).all()
         return [knowledge_version_from_record(record, self) for record in records]
+
+    def knowledge_versioning_policy(self) -> KnowledgeVersioningPolicy:
+        return versioning_policy()
+
+    def list_knowledge_object_revisions(
+        self,
+        object_type: str | None = None,
+        object_id: str | None = None,
+        knowledge_version: str | None = None,
+    ) -> list[KnowledgeObjectRevision]:
+        query = select(KnowledgeObjectRevisionRecord)
+        if object_type:
+            query = query.where(KnowledgeObjectRevisionRecord.object_type == object_type)
+        if object_id:
+            query = query.where(KnowledgeObjectRevisionRecord.object_id == object_id)
+        if knowledge_version:
+            query = query.where(
+                KnowledgeObjectRevisionRecord.knowledge_version == knowledge_version
+            )
+        records = self.session.scalars(
+            query.order_by(
+                KnowledgeObjectRevisionRecord.object_type,
+                KnowledgeObjectRevisionRecord.object_id,
+                KnowledgeObjectRevisionRecord.revision_number,
+            )
+        ).all()
+        return [knowledge_object_revision_from_record(record) for record in records]
 
     def list_knowledge_sources(self, version: str | None = None) -> list[KnowledgeSource]:
         query = select(KnowledgeSourceRecord)
