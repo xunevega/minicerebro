@@ -3,6 +3,7 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeNode,
+    KnowledgeNodeRelation,
     KnowledgeQueryInput,
     KnowledgeQueryResult,
     KnowledgeSource,
@@ -11,6 +12,7 @@ from app.core.models import (
 )
 
 KNOWLEDGE_VERSION = "knowledge-v0"
+KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
@@ -316,18 +318,63 @@ def seed_nodes() -> list[KnowledgeNode]:
         KnowledgeNode(
             id="rae-norma-estilo",
             source_id="rae-ngle",
-            node_type="source_section",
+            node_type="norma",
             title="Norma y uso en lengua espanola",
             summary="Nodo semilla para reglas normativas y criterios de uso estable.",
+            canonical_name="Norma y uso en lengua espanola",
+            primary_branch="lengua espanola",
+            secondary_branch="norma y uso",
+            short_definition="Concepto que agrupa criterios normativos y descriptivos estables.",
+            long_definition=(
+                "Nodo conceptual publicado para conectar fuentes academicas registradas, "
+                "evidencias normativas y claims sobre uso estable de la lengua espanola."
+            ),
+            status="published",
             version=KNOWLEDGE_VERSION,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
+            published_at=KNOWLEDGE_PUBLISHED_AT,
+            aliases=["criterio normativo", "uso estable"],
         ),
         KnowledgeNode(
             id="manual-rasgos-escritura",
             source_id="rae-lese",
-            node_type="source_section",
+            node_type="categoria",
             title="Aplicacion practica de estilo",
             summary="Nodo semilla para rasgos de redaccion, estilo, dinamismo y sobriedad.",
+            canonical_name="Aplicacion practica de estilo",
+            primary_branch="escritura",
+            secondary_branch="estilo",
+            short_definition="Concepto que agrupa criterios practicos de estilo aplicados a escritura.",
+            long_definition=(
+                "Nodo conceptual publicado para conectar fuentes de estilo registradas, "
+                "evidencias de redaccion y claims sobre dinamismo, sobriedad y claridad."
+            ),
+            status="published",
             version=KNOWLEDGE_VERSION,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
+            published_at=KNOWLEDGE_PUBLISHED_AT,
+            aliases=["criterio de estilo", "redaccion aplicada"],
+        ),
+    ]
+
+
+def seed_node_relations() -> list[KnowledgeNodeRelation]:
+    return [
+        KnowledgeNodeRelation(
+            id="rel-norma-define-estilo",
+            source_node_id="rae-norma-estilo",
+            target_node_id="manual-rasgos-escritura",
+            relation_type="define",
+            version=KNOWLEDGE_VERSION,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
+        ),
+        KnowledgeNodeRelation(
+            id="rel-estilo-depende-norma",
+            source_node_id="manual-rasgos-escritura",
+            target_node_id="rae-norma-estilo",
+            relation_type="depende_de",
+            version=KNOWLEDGE_VERSION,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
         ),
     ]
 
@@ -497,7 +544,22 @@ def query_knowledge(
                 " ".join(str(value) for value in card.payload.values()),
                 " ".join(claim.statement for claim in linked_claims),
                 " ".join(f"{item.reference} {item.excerpt}" for item in linked_evidence),
-                " ".join(f"{node.title} {node.summary} {node.node_type}" for node in linked_nodes),
+                " ".join(
+                    " ".join(
+                        [
+                            node.title,
+                            node.summary,
+                            node.node_type,
+                            node.canonical_name,
+                            node.primary_branch,
+                            node.secondary_branch,
+                            node.short_definition,
+                            node.long_definition,
+                            " ".join(node.aliases),
+                        ]
+                    )
+                    for node in linked_nodes
+                ),
                 " ".join(
                     f"{source.name} {source.source_type} {source.status}"
                     for source in linked_sources

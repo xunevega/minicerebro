@@ -20,6 +20,7 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeNode,
+    KnowledgeNodeRelation,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
@@ -46,6 +47,7 @@ from app.db.models import (
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
+    KnowledgeNodeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
@@ -271,14 +273,38 @@ def knowledge_source_from_record(
     )
 
 
-def knowledge_node_from_record(record: KnowledgeNodeRecord) -> KnowledgeNode:
+def knowledge_node_relation_from_record(record: KnowledgeNodeRelationRecord) -> KnowledgeNodeRelation:
+    return KnowledgeNodeRelation(
+        id=record.id,
+        source_node_id=record.source_node_id,
+        target_node_id=record.target_node_id,
+        relation_type=record.relation_type,
+        version=record.version,
+        created_at=record.created_at,
+    )
+
+
+def knowledge_node_from_record(
+    record: KnowledgeNodeRecord,
+    relations: list[KnowledgeNodeRelation] | None = None,
+) -> KnowledgeNode:
     return KnowledgeNode(
         id=record.id,
         source_id=record.source_id,
         node_type=record.node_type,
         title=record.title,
         summary=record.summary,
+        canonical_name=record.canonical_name,
+        primary_branch=record.primary_branch,
+        secondary_branch=record.secondary_branch,
+        short_definition=record.short_definition,
+        long_definition=record.long_definition,
+        status=record.status,
         version=record.version,
+        created_at=record.created_at,
+        published_at=record.published_at,
+        aliases=record.aliases,
+        relations=relations or [],
     )
 
 
@@ -373,7 +399,21 @@ class Repository:
         if version:
             query = query.where(KnowledgeNodeRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeNodeRecord.id)).all()
-        return [knowledge_node_from_record(record) for record in records]
+        relation_query = select(KnowledgeNodeRelationRecord)
+        if version:
+            relation_query = relation_query.where(KnowledgeNodeRelationRecord.version == version)
+        relations = self.session.scalars(
+            relation_query.order_by(KnowledgeNodeRelationRecord.id)
+        ).all()
+        relations_by_node: dict[str, list[KnowledgeNodeRelation]] = {}
+        for relation in relations:
+            relations_by_node.setdefault(relation.source_node_id, []).append(
+                knowledge_node_relation_from_record(relation)
+            )
+        return [
+            knowledge_node_from_record(record, relations_by_node.get(record.id, []))
+            for record in records
+        ]
 
     def list_knowledge_evidence(
         self,

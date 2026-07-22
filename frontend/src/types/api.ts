@@ -97,7 +97,26 @@ export type KnowledgeNode = {
   node_type: string;
   title: string;
   summary: string;
+  canonical_name: string;
+  primary_branch: string;
+  secondary_branch: string;
+  short_definition: string;
+  long_definition: string;
+  status: string;
   version: string;
+  created_at: string;
+  published_at: string;
+  aliases: string[];
+  relations: KnowledgeNodeRelation[];
+};
+
+export type KnowledgeNodeRelation = {
+  id: string;
+  source_node_id: string;
+  target_node_id: string;
+  relation_type: string;
+  version: string;
+  created_at: string;
 };
 
 export type KnowledgeClaim = {

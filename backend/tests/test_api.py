@@ -9,6 +9,7 @@ from app.db.models import (
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
+    KnowledgeNodeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
 )
@@ -444,6 +445,36 @@ def test_knowledge_nodes_link_to_sources():
     source_ids = {source["id"] for source in client.get("/knowledge/sources").json()}
     assert len(nodes) >= 1
     assert {node["source_id"] for node in nodes} <= source_ids
+    assert all(node["canonical_name"] for node in nodes)
+    assert all(node["primary_branch"] for node in nodes)
+    assert all(node["secondary_branch"] for node in nodes)
+    assert all(node["short_definition"] for node in nodes)
+    assert all(node["long_definition"] for node in nodes)
+    assert {node["status"] for node in nodes} == {"published"}
+    assert all(node["created_at"] == "2026-07-22" for node in nodes)
+    assert all(node["published_at"] == "2026-07-22" for node in nodes)
+    assert all(len(node["relations"]) >= 1 for node in nodes)
+    assert {
+        relation["relation_type"]
+        for node in nodes
+        for relation in node["relations"]
+    } <= {
+        "es_parte_de",
+        "contiene",
+        "depende_de",
+        "contradice",
+        "equivale_a",
+        "ejemplifica",
+        "define",
+        "usa",
+        "describe",
+        "aparece_en",
+        "estudiado_por",
+        "deriva_de",
+        "requiere",
+        "compara_con",
+        "relacionado_con",
+    }
 
     filtered = client.get("/knowledge/nodes?source_id=rae-ngle")
     assert filtered.status_code == 200
@@ -451,7 +482,9 @@ def test_knowledge_nodes_link_to_sources():
 
     versioned = client.get("/knowledge/nodes?source_id=rae-ngle&version=knowledge-v0")
     assert versioned.status_code == 200
-    assert [node["id"] for node in versioned.json()] == ["rae-norma-estilo"]
+    assert versioned.json()[0]["id"] == "rae-norma-estilo"
+    assert versioned.json()[0]["canonical_name"] == "Norma y uso en lengua espanola"
+    assert versioned.json()[0]["relations"][0]["target_node_id"] == "manual-rasgos-escritura"
 
     missing_version = client.get("/knowledge/nodes?version=missing-version")
     assert missing_version.status_code == 404
@@ -744,6 +777,7 @@ def test_knowledge_pipeline_is_persisted():
         sources = session.scalars(select(KnowledgeSourceRecord)).all()
         source_editions = session.scalars(select(KnowledgeSourceEditionRecord)).all()
         nodes = session.scalars(select(KnowledgeNodeRecord)).all()
+        node_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
         claims = session.scalars(select(KnowledgeClaimRecord)).all()
         cards = session.scalars(select(KnowledgeCardRecord)).all()
@@ -756,7 +790,10 @@ def test_knowledge_pipeline_is_persisted():
     assert version["card_count"] == len(cards)
     assert len(source_editions) == 23
     assert {edition.source_id for edition in source_editions} == {source.id for source in sources}
+    assert len(node_relations) >= len(nodes)
     assert {node.source_id for node in nodes} <= {source.id for source in sources}
+    assert {relation.source_node_id for relation in node_relations} == {node.id for node in nodes}
+    assert {relation.target_node_id for relation in node_relations} <= {node.id for node in nodes}
     assert {item.node_id for item in evidence} <= {node.id for node in nodes}
     assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
     assert {claim.card_id for claim in claims} <= {card.id for card in cards}

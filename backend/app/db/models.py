@@ -170,7 +170,27 @@ class KnowledgeNodeRecord(Base):
     node_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
     title: Mapped[str] = mapped_column(String(240), nullable=False)
     summary: Mapped[str] = mapped_column(Text, nullable=False)
+    canonical_name: Mapped[str] = mapped_column(String(240), nullable=False)
+    primary_branch: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
+    secondary_branch: Mapped[str] = mapped_column(String(120), nullable=False)
+    short_definition: Mapped[str] = mapped_column(String(320), nullable=False)
+    long_definition: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    published_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    aliases: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+
+
+class KnowledgeNodeRelationRecord(Base):
+    __tablename__ = "knowledge_node_relations"
+
+    id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    source_node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
+    target_node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
+    relation_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class KnowledgeEvidenceItemRecord(Base):

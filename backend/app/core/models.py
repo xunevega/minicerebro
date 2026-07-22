@@ -195,7 +195,26 @@ class KnowledgeNode(BaseModel):
     node_type: str
     title: str
     summary: str
+    canonical_name: str
+    primary_branch: str
+    secondary_branch: str
+    short_definition: str
+    long_definition: str
+    status: str
     version: str
+    created_at: str
+    published_at: str
+    aliases: list[str]
+    relations: list["KnowledgeNodeRelation"] = Field(default_factory=list)
+
+
+class KnowledgeNodeRelation(BaseModel):
+    id: str
+    source_node_id: str
+    target_node_id: str
+    relation_type: str
+    version: str
+    created_at: str
 
 
 class KnowledgeEvidenceItem(BaseModel):

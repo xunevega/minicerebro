@@ -12,6 +12,7 @@ from app.db.models import (
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
+    KnowledgeNodeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
@@ -23,6 +24,7 @@ from app.knowledge.service import (
     seed_cards,
     seed_claims,
     seed_evidence,
+    seed_node_relations,
     seed_nodes,
     seed_source_editions,
     seed_sources,
@@ -120,7 +122,16 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             node_record.node_type = node.node_type
             node_record.title = node.title
             node_record.summary = node.summary
+            node_record.canonical_name = node.canonical_name
+            node_record.primary_branch = node.primary_branch
+            node_record.secondary_branch = node.secondary_branch
+            node_record.short_definition = node.short_definition
+            node_record.long_definition = node.long_definition
+            node_record.status = node.status
             node_record.version = node.version
+            node_record.created_at = node.created_at
+            node_record.published_at = node.published_at
+            node_record.aliases = node.aliases
             continue
         session.add(
             KnowledgeNodeRecord(
@@ -129,9 +140,40 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 node_type=node.node_type,
                 title=node.title,
                 summary=node.summary,
+                canonical_name=node.canonical_name,
+                primary_branch=node.primary_branch,
+                secondary_branch=node.secondary_branch,
+                short_definition=node.short_definition,
+                long_definition=node.long_definition,
+                status=node.status,
                 version=node.version,
+                created_at=node.created_at,
+                published_at=node.published_at,
+                aliases=node.aliases,
             )
         )
+    session.flush()
+
+    for relation in seed_node_relations():
+        relation_record = session.get(KnowledgeNodeRelationRecord, relation.id)
+        values = {
+            "source_node_id": relation.source_node_id,
+            "target_node_id": relation.target_node_id,
+            "relation_type": relation.relation_type,
+            "version": relation.version,
+            "created_at": relation.created_at,
+        }
+        if relation_record is not None:
+            for field, value in values.items():
+                setattr(relation_record, field, value)
+            continue
+        session.add(KnowledgeNodeRelationRecord(id=relation.id, **values))
+
+    seed_relation_ids = {relation.id for relation in seed_node_relations()}
+    stale_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
+    for stale_relation in stale_relations:
+        if stale_relation.id not in seed_relation_ids:
+            session.delete(stale_relation)
     for card in seed_cards():
         if session.get(KnowledgeCardRecord, card.id) is not None:
             continue
