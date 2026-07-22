@@ -239,12 +239,42 @@ export type KnowledgeEvidenceItem = {
 export type KnowledgeQueryResult = {
   query: string;
   version: string;
+  requested_version: string;
+  resolved_version: string;
+  query_type: string[];
+  domain: string[];
+  context: Record<string, unknown>;
+  status: string;
   card_count: number;
   claim_count: number;
   evidence_count: number;
   cards: KnowledgeCard[];
   claims: KnowledgeClaim[];
   evidence: KnowledgeEvidenceItem[];
+  sources: KnowledgeSource[];
+  relations_followed: KnowledgeRelation[];
+  contradictions: Array<Record<string, unknown>>;
+  ranking: Array<{
+    card_id: string;
+    final_score: number;
+    factors: Record<string, number>;
+    reasons: string[];
+  }>;
+  retrieved_cards: Array<{
+    card_id: string;
+    node_id: string;
+    name: string;
+    summary: string;
+    score: number;
+    reasons: string[];
+    claim_ids: string[];
+    source_ids: string[];
+    relation_paths: string[];
+    confidence: number;
+  }>;
+  retrieval_trace: Record<string, unknown>;
+  limits: Record<string, unknown>;
+  generated_at: string;
 };
 
 export type KnowledgeQueryHistoryItem = {

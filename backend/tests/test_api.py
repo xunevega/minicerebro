@@ -800,16 +800,54 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
 
     payload = response.json()
     assert payload["version"] == "knowledge-v0"
+    assert payload["requested_version"] == "knowledge-v0"
+    assert payload["resolved_version"] == "knowledge-v0"
+    assert payload["query_type"] == ["writing_recommendation"]
+    assert "LENGUA" in payload["domain"]
+    assert payload["status"] == "low_confidence"
     assert payload["cards"][0]["id"] == "lexico-precision"
     assert payload["card_count"] == len(payload["cards"])
     assert payload["claim_count"] == len(payload["claims"])
     assert payload["evidence_count"] == len(payload["evidence"])
+    assert payload["sources"][0]["id"] == "rae-dle"
+    assert payload["retrieved_cards"][0]["card_id"] == "lexico-precision"
+    assert payload["retrieved_cards"][0]["node_id"] == "rae-norma-estilo"
+    assert payload["retrieved_cards"][0]["claim_ids"] == ["claim-precision-lexica"]
+    assert payload["ranking"][0]["card_id"] == "lexico-precision"
+    assert "concept_match" in payload["ranking"][0]["factors"]
+    assert payload["retrieval_trace"]["normalized_query"] == "precision lexica verificable"
+    assert payload["retrieval_trace"]["selected_cards"] == ["lexico-precision"]
+    assert payload["limits"]["max_cards"] == 3
     assert {claim["card_id"] for claim in payload["claims"]} <= {
         card["id"] for card in payload["cards"]
     }
     assert {item["id"] for item in payload["evidence"]} >= {
         claim["evidence_id"] for claim in payload["claims"]
     }
+
+
+def test_knowledge_query_resolves_latest_and_declares_no_match():
+    latest_response = client.post(
+        "/knowledge/query",
+        json={"query": "precision lexica", "version": "latest", "limit": 1},
+    )
+    assert latest_response.status_code == 200
+    latest_payload = latest_response.json()
+    assert latest_payload["requested_version"] == "latest"
+    assert latest_payload["resolved_version"] == "knowledge-v0"
+    assert latest_payload["version"] == "knowledge-v0"
+    assert latest_payload["card_count"] == 1
+
+    empty_response = client.post(
+        "/knowledge/query",
+        json={"query": "complemento directo", "version": "knowledge-v0", "limit": 3},
+    )
+    assert empty_response.status_code == 200
+    empty_payload = empty_response.json()
+    assert empty_payload["status"] == "no_match"
+    assert empty_payload["cards"] == []
+    assert empty_payload["retrieval_trace"]["candidate_cards"] == []
+    assert empty_payload["retrieval_trace"]["selected_claims"] == []
 
 
 def test_knowledge_query_records_audit_event_without_raw_query():
@@ -827,16 +865,20 @@ def test_knowledge_query_records_audit_event_without_raw_query():
     assert event["event_type"] == "knowledge.query.executed"
     assert event["entity_type"] == "knowledge_version"
     assert event["entity_id"] == "knowledge-v0"
-    assert event["payload"] == {
-        "query_length": len(query),
-        "limit": 3,
-        "card_count": result["card_count"],
-        "claim_count": result["claim_count"],
-        "evidence_count": result["evidence_count"],
-        "pending_validation_count": (
-            result["card_count"] + result["claim_count"] + result["evidence_count"]
-        ),
-    }
+    assert event["payload"]["query_length"] == len(query)
+    assert event["payload"]["limit"] == 3
+    assert event["payload"]["card_count"] == result["card_count"]
+    assert event["payload"]["claim_count"] == result["claim_count"]
+    assert event["payload"]["evidence_count"] == result["evidence_count"]
+    assert event["payload"]["pending_validation_count"] == (
+        result["card_count"] + result["claim_count"] + result["evidence_count"]
+    )
+    assert event["payload"]["requested_version"] == "knowledge-v0"
+    assert event["payload"]["resolved_version"] == "knowledge-v0"
+    assert event["payload"]["status"] == "low_confidence"
+    assert event["payload"]["candidate_nodes"] >= 1
+    assert event["payload"]["selected_cards"] == result["card_count"]
+    assert event["payload"]["cache_hit"] is False
     assert query not in str(event["payload"])
 
     filtered_response = client.get(

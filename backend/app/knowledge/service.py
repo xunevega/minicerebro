@@ -1,3 +1,6 @@
+from datetime import UTC, datetime
+from unicodedata import category, normalize
+
 from app.core.models import (
     KnowledgeCard,
     KnowledgeClaim,
@@ -9,6 +12,7 @@ from app.core.models import (
     KnowledgeQueryInput,
     KnowledgeQueryResult,
     KnowledgeRelation,
+    RetrievedKnowledgeCard,
     KnowledgeSource,
     KnowledgeSourceEdition,
     KnowledgeVersion,
@@ -18,6 +22,7 @@ from app.core.models import (
 KNOWLEDGE_VERSION = "knowledge-v0"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 RELATION_UPDATED_AT = "2026-07-23"
+LATEST_KNOWLEDGE_VERSION = KNOWLEDGE_VERSION
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
@@ -1112,6 +1117,81 @@ def seed_object_revisions() -> list[KnowledgeObjectRevision]:
     return revisions
 
 
+QUERY_TYPE_KEYWORDS = {
+    "definition": ["que es", "define", "definicion", "significa"],
+    "normative_correction": ["correct", "coma", "debe", "norma", "lleva"],
+    "descriptive_explanation": ["por que", "ambigua", "explica"],
+    "writing_recommendation": ["claro", "mejor", "escritura", "parrafo", "estilo"],
+    "literary_analysis": ["narrador", "focalizacion", "metafora", "literario"],
+    "terminological": ["termino", "mismo", "alias", "equivale"],
+    "historical": ["histor", "cambio", "version", "antes"],
+    "evidence": ["fuente", "evidencia", "sostiene", "justifica"],
+    "comparative": ["diferencia", "compara", "frente", "versus"],
+}
+
+DOMAIN_KEYWORDS = {
+    "LENGUA": ["lengua", "norma", "coma", "gramatica", "lexica", "lexico"],
+    "ESCRITURA": ["escritura", "estilo", "claro", "sobriedad", "dinamismo", "parrafo"],
+    "TEORIA LITERARIA": ["narrador", "focalizacion", "metafora", "comparacion"],
+    "GLOSARIO": ["termino", "definicion", "significa"],
+}
+
+QUERY_TYPE_RELATION_PRIORITIES = {
+    "definition": ["define", "equivale_a", "es_parte_de"],
+    "normative_correction": ["contradice", "requiere", "describe"],
+    "writing_recommendation": ["usa", "ejemplifica", "relacionado_con", "depende_de"],
+    "literary_analysis": ["aparece_en", "estudiado_por", "usa"],
+    "comparative": ["compara_con", "contradice", "equivale_a", "relacionado_con"],
+}
+
+
+def resolve_knowledge_version(version: str) -> str:
+    if version == "latest":
+        return LATEST_KNOWLEDGE_VERSION
+    return version
+
+
+def _normalize_query(query: str) -> str:
+    decomposed = normalize("NFKD", query.lower())
+    without_accents = "".join(char for char in decomposed if category(char) != "Mn")
+    return " ".join(without_accents.split())
+
+
+def _query_terms(normalized_query: str) -> set[str]:
+    return {term for term in normalized_query.split() if len(term) > 2}
+
+
+def _detect_query_types(normalized_query: str) -> list[str]:
+    detected = [
+        query_type
+        for query_type, keywords in QUERY_TYPE_KEYWORDS.items()
+        if any(keyword in normalized_query for keyword in keywords)
+    ]
+    return detected or ["writing_recommendation"]
+
+
+def _detect_domains(normalized_query: str, matched_nodes: list[KnowledgeNode]) -> list[str]:
+    detected = [
+        domain
+        for domain, keywords in DOMAIN_KEYWORDS.items()
+        if any(keyword in normalized_query for keyword in keywords)
+    ]
+    for node in matched_nodes:
+        branch = node.primary_branch.upper()
+        if "LENGUA" in branch and "LENGUA" not in detected:
+            detected.append("LENGUA")
+        if "ESCRITURA" in branch and "ESCRITURA" not in detected:
+            detected.append("ESCRITURA")
+    return detected or ["ESCRITURA"]
+
+
+def _text_match_score(terms: set[str], haystack: str) -> float:
+    if not terms:
+        return 0.0
+    normalized_haystack = _normalize_query(haystack)
+    return sum(1 for term in terms if term in normalized_haystack) / len(terms)
+
+
 def query_knowledge(
     payload: KnowledgeQueryInput,
     sources: list[KnowledgeSource] | None = None,
@@ -1120,7 +1200,11 @@ def query_knowledge(
     claims: list[KnowledgeClaim] | None = None,
     evidence: list[KnowledgeEvidenceItem] | None = None,
 ) -> KnowledgeQueryResult:
-    terms = {term for term in payload.query.lower().split() if len(term) > 2}
+    requested_version = payload.version
+    resolved_version = resolve_knowledge_version(payload.version)
+    normalized_query = _normalize_query(payload.query)
+    terms = _query_terms(normalized_query)
+    query_types = _detect_query_types(normalized_query)
     sources = sources if sources is not None else seed_sources()
     nodes = nodes if nodes is not None else seed_nodes()
     cards = cards if cards is not None else seed_cards()
@@ -1133,7 +1217,18 @@ def query_knowledge(
     for claim in claims:
         claims_by_card.setdefault(claim.card_id, []).append(claim)
 
-    def score_card(card: KnowledgeCard) -> int:
+    relations = seed_relations()
+    relations_by_source = {
+        (relation.source_entity_type, relation.source_entity_id): relation
+        for relation in relations
+        if relation.version == resolved_version and relation.confidence >= 0.5
+    }
+    allowed_statuses = {"published", "draft"}
+    candidate_nodes: set[str] = set()
+    discarded_claims: list[str] = []
+    ranking: list[dict] = []
+
+    def evaluate_card(card: KnowledgeCard) -> tuple[float, dict, list[str], list[str]]:
         linked_claims = claims_by_card.get(card.id, [])
         linked_evidence = [
             evidence_by_id[claim.evidence_id]
@@ -1192,29 +1287,211 @@ def query_knowledge(
                     for source in linked_sources
                 ),
             ]
-        ).lower()
-        return sum(1 for term in terms if term in haystack)
+        )
+        concept_match = _text_match_score(terms, haystack)
+        domain_match = 1.0 if any(term in haystack.lower() for term in ("lexic", "estilo", "escrit")) else 0.5
+        scope_match = 1.0 if any(claim.scope.get("language") == "es" for claim in linked_claims) else 0.0
+        context_match = 1.0 if any("general" in item.context for item in linked_evidence) else 0.5
+        authority_score = (
+            max((source.authority_level for source in linked_sources), default=0) / 5
+        )
+        evidence_score = max((item.confidence for item in linked_evidence), default=0)
+        claim_confidence = max((claim.confidence for claim in linked_claims), default=0)
+        relation_score = 0.0
+        relation_paths: list[str] = []
+        for item in linked_evidence:
+            relation = relations_by_source.get(("node", item.node_id))
+            if relation is None:
+                continue
+            relation_score = max(relation_score, relation.confidence * relation.weight)
+            relation_paths.append(relation.id)
+        status_score = 1.0 if card.version == resolved_version else 0.0
+        version_score = 1.0 if card.version == resolved_version else 0.0
+        factors = {
+            "concept_match": round(concept_match, 3),
+            "domain_match": round(domain_match, 3),
+            "scope_match": round(scope_match, 3),
+            "context_match": round(context_match, 3),
+            "authority_score": round(authority_score, 3),
+            "evidence_score": round(evidence_score, 3),
+            "claim_confidence": round(claim_confidence, 3),
+            "relation_score": round(relation_score, 3),
+            "version_score": round(version_score, 3),
+            "status_score": round(status_score, 3),
+        }
+        score = round(
+            concept_match
+            + domain_match
+            + scope_match
+            + authority_score
+            + evidence_score
+            + context_match
+            + relation_score
+            + version_score
+            + status_score,
+            3,
+        )
+        reasons = []
+        if concept_match:
+            reasons.append("coincidencia conceptual con consulta normalizada")
+        if linked_claims:
+            reasons.append("contiene claims aplicables")
+        if linked_evidence:
+            reasons.append("conserva evidencias trazables")
+        if linked_sources:
+            reasons.append("identifica fuentes de respaldo")
+        if relation_paths:
+            reasons.append("expansion controlada por relaciones")
+        return score, factors, reasons, relation_paths
 
-    ranked_cards = [
-        card
-        for card in sorted(cards, key=score_card, reverse=True)
-        if score_card(card) > 0 and card.version == payload.version
-    ][: payload.limit]
+    evaluated_cards = []
+    for card in cards:
+        if card.version != resolved_version:
+            continue
+        score, factors, reasons, relation_paths = evaluate_card(card)
+        if score <= 0 or factors["concept_match"] <= 0:
+            continue
+        evaluated_cards.append((card, score, factors, reasons, relation_paths))
+        ranking.append(
+            {
+                "card_id": card.id,
+                "final_score": score,
+                "factors": factors,
+                "reasons": reasons,
+            }
+        )
+
+    ranked_evaluations = sorted(evaluated_cards, key=lambda item: item[1], reverse=True)[
+        : payload.limit
+    ]
+    ranked_cards = [item[0] for item in ranked_evaluations]
     card_ids = {card.id for card in ranked_cards}
     matched_claims = [
-        claim for claim in claims if claim.card_id in card_ids and claim.version == payload.version
+        claim
+        for claim in claims
+        if claim.card_id in card_ids
+        and claim.version == resolved_version
+        and claim.status in allowed_statuses
+        and claim.confidence >= 0.4
     ]
+    for claim in claims:
+        if claim.version == resolved_version and claim.card_id in card_ids and claim not in matched_claims:
+            discarded_claims.append(claim.id)
     evidence_ids = {claim.evidence_id for claim in matched_claims}
     matched_evidence = [
-        item for item in evidence if item.id in evidence_ids and item.version == payload.version
+        item
+        for item in evidence
+        if item.id in evidence_ids
+        and item.version == resolved_version
+        and item.status in allowed_statuses
+        and item.confidence >= 0.4
     ]
+    matched_source_ids = {item.source_id for item in matched_evidence}
+    matched_sources = [source for source in sources if source.id in matched_source_ids]
+    matched_nodes = [
+        nodes_by_id[item.node_id] for item in matched_evidence if item.node_id in nodes_by_id
+    ]
+    for node in matched_nodes:
+        candidate_nodes.add(node.id)
+    matched_relation_ids = {
+        relation_path
+        for _, _, _, _, relation_paths in ranked_evaluations
+        for relation_path in relation_paths[:20]
+    }
+    relations_followed = [
+        relation for relation in relations if relation.id in matched_relation_ids
+    ][:20]
+    domains = _detect_domains(normalized_query, matched_nodes)
+    retrieved_cards = []
+    for card, score, _, reasons, relation_paths in ranked_evaluations:
+        card_claims = [claim for claim in matched_claims if claim.card_id == card.id]
+        card_evidence = [
+            item for item in matched_evidence if item.id in {claim.evidence_id for claim in card_claims}
+        ]
+        node_id = card_claims[0].node_id if card_claims else ""
+        source_ids = sorted({item.source_id for item in card_evidence})
+        retrieved_cards.append(
+            RetrievedKnowledgeCard(
+                card_id=card.id,
+                node_id=node_id,
+                name=card.name,
+                summary=card.definition,
+                score=score,
+                reasons=reasons,
+                claim_ids=[claim.id for claim in card_claims],
+                source_ids=source_ids,
+                relation_paths=relation_paths[:2],
+                confidence=card.confidence,
+            )
+        )
+    status = "ok"
+    if not ranked_cards:
+        status = "no_match"
+    elif not matched_evidence:
+        status = "insufficient_evidence"
+    elif any(claim.confidence < 0.6 for claim in matched_claims):
+        status = "low_confidence"
     return KnowledgeQueryResult(
         query=payload.query,
-        version=payload.version,
+        version=resolved_version,
+        requested_version=requested_version,
+        resolved_version=resolved_version,
+        query_type=query_types,
+        domain=domains,
+        context={
+            "normalized_query": normalized_query,
+            "primary_domain": domains[0] if domains else None,
+            "profile_influence": "presentation_only",
+        },
+        status=status,
         card_count=len(ranked_cards),
         claim_count=len(matched_claims),
         evidence_count=len(matched_evidence),
         cards=ranked_cards,
         claims=matched_claims,
         evidence=matched_evidence,
+        sources=matched_sources,
+        relations_followed=relations_followed,
+        contradictions=[],
+        ranking=ranking[: payload.limit],
+        retrieved_cards=retrieved_cards,
+        retrieval_trace={
+            "original_query_preserved_in_response": True,
+            "normalized_query": normalized_query,
+            "requested_version": requested_version,
+            "resolved_version": resolved_version,
+            "filters": {
+                "claim_status": sorted(allowed_statuses),
+                "minimum_claim_confidence": 0.4,
+                "minimum_evidence_confidence": 0.4,
+                "max_relation_depth": 2,
+                "max_nodes": 20,
+            },
+            "candidate_nodes": sorted(candidate_nodes),
+            "candidate_cards": [item[0].id for item in evaluated_cards],
+            "selected_cards": [card.id for card in ranked_cards],
+            "selected_claims": [claim.id for claim in matched_claims],
+            "selected_evidence": [item.id for item in matched_evidence],
+            "discarded_claims": discarded_claims,
+            "relations_followed": [relation.id for relation in relations_followed],
+            "ranking_factors": [item["factors"] for item in ranking[: payload.limit]],
+            "thresholds": {
+                "supporting_claim_min_confidence": 0.4,
+                "published_claim_min_confidence": 0.6,
+                "primary_answer_min_confidence": 0.75,
+            },
+            "timings": {
+                "interpretation_time": 0,
+                "retrieval_time": 0,
+            },
+        },
+        limits={
+            "max_cards": payload.limit,
+            "max_claims": len(matched_claims),
+            "max_evidence": len(matched_evidence),
+            "max_relation_depth": 2,
+            "max_total_tokens": 0,
+            "timeout": 0,
+        },
+        generated_at=datetime.now(UTC).isoformat(),
     )

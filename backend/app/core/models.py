@@ -350,15 +350,42 @@ class KnowledgeCard(BaseModel):
     payload: dict
 
 
+class RetrievedKnowledgeCard(BaseModel):
+    card_id: str
+    node_id: str
+    name: str
+    summary: str
+    score: float = Field(ge=0)
+    reasons: list[str]
+    claim_ids: list[str]
+    source_ids: list[str]
+    relation_paths: list[str]
+    confidence: float = Field(ge=0, le=1)
+
+
 class KnowledgeQueryResult(BaseModel):
     query: str
     version: str
+    requested_version: str
+    resolved_version: str
+    query_type: list[str]
+    domain: list[str]
+    context: dict
+    status: str
     card_count: int
     claim_count: int
     evidence_count: int
     cards: list[KnowledgeCard]
     claims: list[KnowledgeClaim]
     evidence: list[KnowledgeEvidenceItem]
+    sources: list[KnowledgeSource]
+    relations_followed: list[KnowledgeRelation]
+    contradictions: list[dict]
+    ranking: list[dict]
+    retrieved_cards: list[RetrievedKnowledgeCard]
+    retrieval_trace: dict
+    limits: dict
+    generated_at: str
 
 
 class KnowledgeQueryHistoryItem(BaseModel):

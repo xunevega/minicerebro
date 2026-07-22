@@ -62,7 +62,7 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
-from app.knowledge.service import query_knowledge, versioning_policy
+from app.knowledge.service import query_knowledge, resolve_knowledge_version, versioning_policy
 
 
 def evidence_from_record(record: EvidenceRecord) -> Evidence:
@@ -602,15 +602,16 @@ class Repository:
         return [knowledge_card_from_record(record) for record in records]
 
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
-        if self.session.get(KnowledgeVersionRecord, payload.version) is None:
-            raise KeyError(payload.version)
+        resolved_version = resolve_knowledge_version(payload.version)
+        if self.session.get(KnowledgeVersionRecord, resolved_version) is None:
+            raise KeyError(resolved_version)
         result = query_knowledge(
             payload,
-            sources=self.list_knowledge_sources(version=payload.version),
-            nodes=self.list_knowledge_nodes(version=payload.version),
-            cards=self.list_knowledge_cards(version=payload.version),
-            claims=self.list_knowledge_claims(version=payload.version),
-            evidence=self.list_knowledge_evidence(version=payload.version),
+            sources=self.list_knowledge_sources(version=resolved_version),
+            nodes=self.list_knowledge_nodes(version=resolved_version),
+            cards=self.list_knowledge_cards(version=resolved_version),
+            claims=self.list_knowledge_claims(version=resolved_version),
+            evidence=self.list_knowledge_evidence(version=resolved_version),
         )
         pending_validation_count = sum(
             1
@@ -620,7 +621,7 @@ class Repository:
         self.add_audit_event(
             "knowledge.query.executed",
             "knowledge_version",
-            payload.version,
+            resolved_version,
             {
                 "query_length": len(payload.query),
                 "limit": payload.limit,
@@ -628,6 +629,19 @@ class Repository:
                 "claim_count": result.claim_count,
                 "evidence_count": result.evidence_count,
                 "pending_validation_count": pending_validation_count,
+                "requested_version": result.requested_version,
+                "resolved_version": result.resolved_version,
+                "query_type": result.query_type,
+                "domain": result.domain,
+                "status": result.status,
+                "candidate_nodes": len(result.retrieval_trace["candidate_nodes"]),
+                "candidate_cards": len(result.retrieval_trace["candidate_cards"]),
+                "selected_cards": result.card_count,
+                "selected_claims": result.claim_count,
+                "selected_evidence": result.evidence_count,
+                "relations_traversed": len(result.relations_followed),
+                "max_depth_reached": 1 if result.relations_followed else 0,
+                "cache_hit": False,
             },
         )
         self.session.commit()
