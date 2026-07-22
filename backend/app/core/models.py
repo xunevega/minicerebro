@@ -162,23 +162,38 @@ class KnowledgeObjectRevision(BaseModel):
     revision_number: int = Field(ge=1)
     object_version: str
     knowledge_version: str
+    status: str
+    change_type: str
     author: str
     reason: str
+    previous_revision: int | None = None
+    replaces_object_id: str | None = None
+    replaced_by_object_id: str | None = None
     before: dict
     after: dict
     created_at: str
+    updated_at: str
 
 
 class KnowledgeVersioningPolicy(BaseModel):
     versioned_object_types: list[str]
     excluded_object_types: list[str]
+    versioning_levels: list[str]
     revision_triggers: list[str]
+    non_revision_changes: list[str]
     identifiers: dict[str, str]
     immutable_after_publication: bool
+    object_statuses: list[str]
     history_fields: list[str]
     historical_recovery: list[str]
     compatibility_policy: str
+    audit_events: list[str]
+    source_versioning_levels: list[str]
+    integrity_rules: list[str]
     publication_checks: list[str]
+    publication_failure_state: str
+    acceptance_criteria: list[str]
+    closure_questions: list[str]
     release_chain: list[str]
 
 

@@ -230,11 +230,17 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "revision_number": revision.revision_number,
             "object_version": revision.object_version,
             "knowledge_version": revision.knowledge_version,
+            "status": revision.status,
+            "change_type": revision.change_type,
             "author": revision.author,
             "reason": revision.reason,
+            "previous_revision": revision.previous_revision,
+            "replaces_object_id": revision.replaces_object_id,
+            "replaced_by_object_id": revision.replaced_by_object_id,
             "before": revision.before,
             "after": revision.after,
             "created_at": revision.created_at,
+            "updated_at": revision.updated_at,
         }
         if revision_record is not None:
             for field, value in values.items():

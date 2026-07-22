@@ -85,23 +85,38 @@ export type KnowledgeObjectRevision = {
   revision_number: number;
   object_version: string;
   knowledge_version: string;
+  status: string;
+  change_type: string;
   author: string;
   reason: string;
+  previous_revision: number | null;
+  replaces_object_id: string | null;
+  replaced_by_object_id: string | null;
   before: Record<string, unknown>;
   after: Record<string, unknown>;
   created_at: string;
+  updated_at: string;
 };
 
 export type KnowledgeVersioningPolicy = {
   versioned_object_types: string[];
   excluded_object_types: string[];
+  versioning_levels: string[];
   revision_triggers: string[];
+  non_revision_changes: string[];
   identifiers: Record<string, string>;
   immutable_after_publication: boolean;
+  object_statuses: string[];
   history_fields: string[];
   historical_recovery: string[];
   compatibility_policy: string;
+  audit_events: string[];
+  source_versioning_levels: string[];
+  integrity_rules: string[];
   publication_checks: string[];
+  publication_failure_state: string;
+  acceptance_criteria: string[];
+  closure_questions: string[];
   release_chain: string[];
 };
 

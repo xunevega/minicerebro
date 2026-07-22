@@ -328,11 +328,17 @@ def knowledge_object_revision_from_record(
         revision_number=record.revision_number,
         object_version=record.object_version,
         knowledge_version=record.knowledge_version,
+        status=record.status,
+        change_type=record.change_type,
         author=record.author,
         reason=record.reason,
+        previous_revision=record.previous_revision,
+        replaces_object_id=record.replaces_object_id,
+        replaced_by_object_id=record.replaced_by_object_id,
         before=record.before,
         after=record.after,
         created_at=record.created_at,
+        updated_at=record.updated_at,
     )
 
 

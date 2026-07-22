@@ -59,7 +59,7 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 - Evidencias V1 como objetos documentales trazables en `/knowledge/evidence`: fuente, edicion, nodo, tipo, localizador, contexto, confianza, estado e historial de revision.
 - Claims V1 como afirmaciones documentales en `/knowledge/claims`: tipo, nodo, dominio, alcance, estado, origen, enlaces de evidencia y revision.
 - Relaciones V1 como grafo tipado en `/knowledge/relations`: origen, destino, tipo, direccion, cardinalidad, peso, confianza, contexto, estado y version.
-- Versionado V1 en `/knowledge/versioning` y `/knowledge/revisions`: revisiones historicas para fuentes, ediciones, nodos, relaciones, evidencias, claims, fichas, arbol, ontologia, esquemas y versiones de conocimiento; perfil/preferencias/scoring quedan fuera del conocimiento estable.
+- Versionado V1 en `/knowledge/versioning` y `/knowledge/revisions`: revisiones historicas inmutables para fuentes, ediciones, nodos, relaciones, evidencias, claims, fichas, arbol, ontologia, esquemas y versiones de conocimiento, con estado, tipo de cambio, revision anterior y sustituciones; perfil/preferencias/scoring/eventos temporales quedan fuera del conocimiento estable.
 - Perfil exportable mediante `GET /profiles/{profile_id}/export`, con preferencias, evidencias, variables por contexto, estadisticas y contradicciones sin incluir la base de conocimiento.
 - Observabilidad V1 disponible desde auditoria: tiempos de interpretacion/generacion, calidad de recuperacion por validacion pendiente, scoring, comparaciones y feedback.
 - Auditoria de Cerebro declarativa: no se importa ningun modulo completo sin evidencia pieza por pieza.

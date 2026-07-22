@@ -696,13 +696,55 @@ def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_sta
         "query",
         "generation",
         "user_history",
+        "temporary_event",
     } <= set(policy["excluded_object_types"])
+    assert policy["versioning_levels"] == [
+        "revision",
+        "object_version",
+        "knowledge_version",
+        "release",
+    ]
+    assert "cambia la confianza" in policy["revision_triggers"]
+    assert "cambia el localizador" in policy["revision_triggers"]
+    assert "cambia un alias" in policy["revision_triggers"]
+    assert "cache" in policy["non_revision_changes"]
     assert policy["immutable_after_publication"] is True
-    assert set(policy["history_fields"]) == {"author", "created_at", "reason", "before", "after"}
+    assert {"active", "superseded", "deprecated", "withdrawn", "archived"} <= set(
+        policy["object_statuses"]
+    )
+    assert {
+        "author",
+        "created_at",
+        "updated_at",
+        "reason",
+        "change_type",
+        "object_id",
+        "before",
+        "after",
+        "previous_revision",
+    } <= set(policy["history_fields"])
+    assert policy["source_versioning_levels"] == [
+        "logical_source",
+        "edition",
+        "document_version",
+    ]
+    assert {
+        "version.created",
+        "revision.created",
+        "revision.published",
+        "revision.superseded",
+        "knowledge.published",
+        "knowledge.archived",
+    } <= set(policy["audit_events"])
+    assert "no puede existir una revision sin objeto" in policy["integrity_rules"]
+    assert policy["publication_failure_state"] == "cancelled"
     assert "revision_number" in policy["identifiers"]
+    assert "object_id" in policy["identifiers"]
     assert "knowledge_version" in policy["identifiers"]
     assert "release" in policy["identifiers"]
     assert "knowledge-v0" in policy["release_chain"]
+    assert "la publicacion genera una instantanea inmutable" in policy["acceptance_criteria"]
+    assert "que lo sustituyo despues" in policy["closure_questions"]
     assert "relaciones tipadas y versionadas" in policy["publication_checks"]
 
 
@@ -727,8 +769,12 @@ def test_knowledge_revisions_allow_historical_recovery():
     assert all(revision["revision_number"] >= 1 for revision in revisions)
     assert all(revision["object_version"] for revision in revisions)
     assert all(revision["knowledge_version"] == "knowledge-v0" for revision in revisions)
+    assert all(revision["status"] == "active" for revision in revisions)
+    assert all(revision["change_type"] == "created" for revision in revisions)
     assert all(revision["author"] for revision in revisions)
     assert all(revision["reason"] for revision in revisions)
+    assert all(revision["previous_revision"] is None for revision in revisions)
+    assert all(revision["updated_at"] >= revision["created_at"] for revision in revisions)
     assert all("after" in revision for revision in revisions)
 
     node_response = client.get(

@@ -134,11 +134,17 @@ class KnowledgeObjectRevisionRecord(Base):
     revision_number: Mapped[int] = mapped_column(Integer, nullable=False)
     object_version: Mapped[str] = mapped_column(String(180), nullable=False)
     knowledge_version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False)
+    change_type: Mapped[str] = mapped_column(String(80), nullable=False)
     author: Mapped[str] = mapped_column(String(120), nullable=False)
     reason: Mapped[str] = mapped_column(Text, nullable=False)
+    previous_revision: Mapped[int | None] = mapped_column(Integer, nullable=True)
+    replaces_object_id: Mapped[str | None] = mapped_column(String(180), nullable=True)
+    replaced_by_object_id: Mapped[str | None] = mapped_column(String(180), nullable=True)
     before: Mapped[dict] = mapped_column(JSON, nullable=False)
     after: Mapped[dict] = mapped_column(JSON, nullable=False)
     created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class KnowledgeSourceRecord(Base):
