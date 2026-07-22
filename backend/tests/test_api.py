@@ -748,6 +748,72 @@ def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_sta
     assert "relaciones tipadas y versionadas" in policy["publication_checks"]
 
 
+def test_knowledge_publication_policy_closes_publication_contract():
+    response = client.get("/knowledge/publication")
+    assert response.status_code == 200
+    policy = response.json()
+
+    assert "conocimiento estable recuperable" in policy["meaning"]
+    assert policy["publication_unit"] == "knowledge_version"
+    assert {"source", "node", "claim"} <= set(policy["non_publication_units"])
+    assert policy["lifecycle"] == [
+        "draft",
+        "review",
+        "validated",
+        "candidate",
+        "published",
+        "deprecated",
+        "archived",
+    ]
+    assert {
+        "integridad referencial",
+        "sin nodos huerfanos",
+        "sin claims sin evidencia",
+        "sin evidencias sin fuente",
+        "sin fichas vacias",
+        "sin relaciones rotas",
+        "sin conflictos criticos",
+    } <= set(policy["requirements"])
+    assert {"estructura", "documentacion", "consistencia", "tests"} <= set(
+        policy["validations"]
+    )
+    assert {"congelar version", "crear snapshot completo", "registrar auditoria"} <= set(
+        policy["publication_effects"]
+    )
+    assert policy["immutable_after_publication"] is True
+    assert policy["partial_publications_allowed"] is False
+    assert {"author", "created_at", "object", "reason", "base_version"} <= set(
+        policy["audit_fields"]
+    )
+    assert "published_at contiene una fecha concreta" in policy["closure_criteria"]
+
+
+def test_knowledge_publication_readiness_reports_real_blockers():
+    response = client.get("/knowledge/publication/readiness?version=knowledge-v0")
+    assert response.status_code == 200
+    readiness = response.json()
+
+    assert readiness["version"] == "knowledge-v0"
+    assert readiness["status"] == "seed"
+    assert readiness["publication_unit"] == "knowledge_version"
+    assert readiness["partial_publications_allowed"] is False
+    assert readiness["publishable"] is False
+    assert "validacion documental completa" in readiness["blockers"]
+    checks = {check["id"]: check for check in readiness["checks"]}
+    assert checks["orphan_nodes"]["passed"] is True
+    assert checks["claims_without_evidence"]["passed"] is True
+    assert checks["evidence_without_source"]["passed"] is True
+    assert checks["empty_cards"]["passed"] is True
+    assert checks["broken_relations"]["passed"] is True
+    assert checks["documentation_validated"]["passed"] is False
+    assert readiness["audit_preview"]["event_type"] == "knowledge.published"
+    assert readiness["audit_preview"]["entity_id"] == "knowledge-v0"
+
+    missing_version = client.get("/knowledge/publication/readiness?version=missing-version")
+    assert missing_version.status_code == 404
+    assert missing_version.json()["detail"] == "Knowledge version not found"
+
+
 def test_knowledge_revisions_allow_historical_recovery():
     response = client.get("/knowledge/revisions?version=knowledge-v0")
     assert response.status_code == 200

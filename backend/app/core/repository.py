@@ -23,6 +23,8 @@ from app.core.models import (
     KnowledgeNode,
     KnowledgeNodeRelation,
     KnowledgeObjectRevision,
+    KnowledgePublicationPolicy,
+    KnowledgePublicationReadiness,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
@@ -62,7 +64,13 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
-from app.knowledge.service import query_knowledge, resolve_knowledge_version, versioning_policy
+from app.knowledge.service import (
+    evaluate_publication_readiness,
+    publication_policy,
+    query_knowledge,
+    resolve_knowledge_version,
+    versioning_policy,
+)
 
 
 def evidence_from_record(record: EvidenceRecord) -> Evidence:
@@ -468,6 +476,24 @@ class Repository:
 
     def knowledge_versioning_policy(self) -> KnowledgeVersioningPolicy:
         return versioning_policy()
+
+    def knowledge_publication_policy(self) -> KnowledgePublicationPolicy:
+        return publication_policy()
+
+    def knowledge_publication_readiness(self, version: str) -> KnowledgePublicationReadiness:
+        record = self.session.get(KnowledgeVersionRecord, version)
+        if record is None:
+            raise KeyError(version)
+        knowledge_version = knowledge_version_from_record(record, self)
+        return evaluate_publication_readiness(
+            knowledge_version,
+            sources=self.list_knowledge_sources(version=version),
+            nodes=self.list_knowledge_nodes(version=version),
+            relations=self.list_knowledge_relations(version=version),
+            evidence=self.list_knowledge_evidence(version=version),
+            claims=self.list_knowledge_claims(version=version),
+            cards=self.list_knowledge_cards(version=version),
+        )
 
     def list_knowledge_object_revisions(
         self,

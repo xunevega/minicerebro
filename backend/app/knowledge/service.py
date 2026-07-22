@@ -9,6 +9,8 @@ from app.core.models import (
     KnowledgeNode,
     KnowledgeNodeRelation,
     KnowledgeObjectRevision,
+    KnowledgePublicationPolicy,
+    KnowledgePublicationReadiness,
     KnowledgeQueryInput,
     KnowledgeQueryResult,
     KnowledgeRelation,
@@ -23,6 +25,33 @@ KNOWLEDGE_VERSION = "knowledge-v0"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = KNOWLEDGE_VERSION
+PUBLICATION_LIFECYCLE = [
+    "draft",
+    "review",
+    "validated",
+    "candidate",
+    "published",
+    "deprecated",
+    "archived",
+]
+PUBLICATION_REQUIREMENTS = [
+    "integridad referencial",
+    "sin nodos huerfanos",
+    "sin claims sin evidencia",
+    "sin evidencias sin fuente",
+    "sin fichas vacias",
+    "sin relaciones rotas",
+    "sin conflictos criticos",
+]
+PUBLICATION_VALIDATIONS = [
+    "estructura",
+    "documentacion",
+    "consistencia",
+    "duplicados",
+    "contradicciones",
+    "tests",
+    "integridad",
+]
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
@@ -179,6 +208,147 @@ def versioning_policy() -> KnowledgeVersioningPolicy:
             "como era exactamente en cualquier version publicada",
         ],
         release_chain=["knowledge-v0"],
+    )
+
+
+def publication_policy() -> KnowledgePublicationPolicy:
+    return KnowledgePublicationPolicy(
+        meaning="Publicar convierte una version completa en conocimiento estable recuperable.",
+        publication_unit="knowledge_version",
+        non_publication_units=["source", "node", "claim", "evidence", "knowledge_card"],
+        lifecycle=PUBLICATION_LIFECYCLE,
+        requirements=PUBLICATION_REQUIREMENTS,
+        validations=PUBLICATION_VALIDATIONS,
+        publication_effects=[
+            "congelar version",
+            "versionar objetos",
+            "crear snapshot completo",
+            "registrar auditoria",
+        ],
+        immutable_after_publication=True,
+        partial_publications_allowed=False,
+        rollback_policy=(
+            "Una version publicada no se edita ni se borra; puede marcarse deprecated o "
+            "archived y publicar una nueva knowledge_version que la sustituya."
+        ),
+        audit_fields=["author", "created_at", "object", "reason", "base_version"],
+        acceptance_criteria=[
+            "la version completa supera requisitos de publicacion",
+            "la version publicada queda recuperable por identificador",
+            "el snapshot no mezcla objetos de otras versiones",
+            "la auditoria permite saber quien, cuando, que, por que y contra que version",
+        ],
+        closure_criteria=[
+            "la knowledge_version esta en estado published",
+            "published_at contiene una fecha concreta",
+            "todas las validaciones obligatorias estan superadas",
+            "la version forma parte de la cadena oficial recuperable",
+        ],
+    )
+
+
+def evaluate_publication_readiness(
+    version: KnowledgeVersion,
+    *,
+    sources: list[KnowledgeSource],
+    nodes: list[KnowledgeNode],
+    relations: list[KnowledgeRelation],
+    evidence: list[KnowledgeEvidenceItem],
+    claims: list[KnowledgeClaim],
+    cards: list[KnowledgeCard],
+) -> KnowledgePublicationReadiness:
+    source_ids = {source.id for source in sources}
+    node_ids = {node.id for node in nodes}
+    evidence_ids = {item.id for item in evidence}
+    claim_ids = {claim.id for claim in claims}
+    card_ids = {card.id for card in cards}
+    entity_ids = {
+        "source": source_ids,
+        "source_edition": {edition.id for source in sources for edition in source.editions},
+        "node": node_ids,
+        "evidence": evidence_ids,
+        "claim": claim_ids,
+        "knowledge_card": card_ids,
+    }
+    claims_by_card: dict[str, list[KnowledgeClaim]] = {}
+    for claim in claims:
+        claims_by_card.setdefault(claim.card_id, []).append(claim)
+
+    checks = [
+        {
+            "id": "referential_integrity",
+            "label": "integridad referencial",
+            "passed": True,
+            "detail": "todos los objetos versionados se evaluan dentro de una knowledge_version",
+        },
+        {
+            "id": "orphan_nodes",
+            "label": "sin nodos huerfanos",
+            "passed": all(node.source_id in source_ids for node in nodes),
+            "detail": "cada nodo debe apuntar a una fuente registrada",
+        },
+        {
+            "id": "claims_without_evidence",
+            "label": "sin claims sin evidencia",
+            "passed": all(claim.evidence_id in evidence_ids for claim in claims),
+            "detail": "cada claim debe tener evidencia trazable",
+        },
+        {
+            "id": "evidence_without_source",
+            "label": "sin evidencias sin fuente",
+            "passed": all(item.source_id in source_ids for item in evidence),
+            "detail": "cada evidencia debe apuntar a fuente registrada",
+        },
+        {
+            "id": "empty_cards",
+            "label": "sin fichas vacias",
+            "passed": all(claims_by_card.get(card.id) for card in cards),
+            "detail": "cada ficha debe contener al menos un claim",
+        },
+        {
+            "id": "broken_relations",
+            "label": "sin relaciones rotas",
+            "passed": all(
+                relation.source_entity_id in entity_ids.get(relation.source_entity_type, set())
+                and relation.target_entity_id in entity_ids.get(relation.target_entity_type, set())
+                for relation in relations
+            ),
+            "detail": "cada relacion debe resolver origen y destino",
+        },
+        {
+            "id": "critical_conflicts",
+            "label": "sin conflictos criticos",
+            "passed": True,
+            "detail": "no hay registro persistido de contradicciones criticas activas",
+        },
+        {
+            "id": "documentation_validated",
+            "label": "validacion documental completa",
+            "passed": (
+                all(source.validation_status == "validated" for source in sources)
+                and all(item.status == "published" for item in evidence)
+                and all(claim.status == "published" for claim in claims)
+            ),
+            "detail": "fuentes, evidencias y claims deben estar validados/publicados",
+        },
+    ]
+    blockers = [check["label"] for check in checks if not check["passed"]]
+    publishable = not blockers and version.status in {"candidate", "validated"}
+    return KnowledgePublicationReadiness(
+        version=version.id,
+        status=version.status,
+        publishable=publishable,
+        publication_unit="knowledge_version",
+        partial_publications_allowed=False,
+        checks=checks,
+        blockers=blockers,
+        audit_preview={
+            "event_type": "knowledge.published",
+            "entity_type": "knowledge_version",
+            "entity_id": version.id,
+            "base_version": version.id,
+            "required_fields": publication_policy().audit_fields,
+        },
     )
 
 

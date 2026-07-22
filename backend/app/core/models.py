@@ -197,6 +197,33 @@ class KnowledgeVersioningPolicy(BaseModel):
     release_chain: list[str]
 
 
+class KnowledgePublicationPolicy(BaseModel):
+    meaning: str
+    publication_unit: str
+    non_publication_units: list[str]
+    lifecycle: list[str]
+    requirements: list[str]
+    validations: list[str]
+    publication_effects: list[str]
+    immutable_after_publication: bool
+    partial_publications_allowed: bool
+    rollback_policy: str
+    audit_fields: list[str]
+    acceptance_criteria: list[str]
+    closure_criteria: list[str]
+
+
+class KnowledgePublicationReadiness(BaseModel):
+    version: str
+    status: str
+    publishable: bool
+    publication_unit: str
+    partial_publications_allowed: bool
+    checks: list[dict]
+    blockers: list[str]
+    audit_preview: dict
+
+
 class KnowledgeSource(BaseModel):
     id: str
     catalog_id: str

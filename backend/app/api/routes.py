@@ -28,6 +28,8 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeObjectRevision,
+    KnowledgePublicationPolicy,
+    KnowledgePublicationReadiness,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
@@ -123,6 +125,22 @@ def knowledge_versions(repository: RepositoryDep) -> list[KnowledgeVersion]:
 @router.get("/knowledge/versioning")
 def knowledge_versioning(repository: RepositoryDep) -> KnowledgeVersioningPolicy:
     return repository.knowledge_versioning_policy()
+
+
+@router.get("/knowledge/publication")
+def knowledge_publication(repository: RepositoryDep) -> KnowledgePublicationPolicy:
+    return repository.knowledge_publication_policy()
+
+
+@router.get("/knowledge/publication/readiness")
+def knowledge_publication_readiness(
+    repository: RepositoryDep,
+    version: str = "knowledge-v0",
+) -> KnowledgePublicationReadiness:
+    try:
+        return repository.knowledge_publication_readiness(version)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 
 
 @router.get("/knowledge/revisions")

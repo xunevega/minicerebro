@@ -120,6 +120,38 @@ export type KnowledgeVersioningPolicy = {
   release_chain: string[];
 };
 
+export type KnowledgePublicationPolicy = {
+  meaning: string;
+  publication_unit: string;
+  non_publication_units: string[];
+  lifecycle: string[];
+  requirements: string[];
+  validations: string[];
+  publication_effects: string[];
+  immutable_after_publication: boolean;
+  partial_publications_allowed: boolean;
+  rollback_policy: string;
+  audit_fields: string[];
+  acceptance_criteria: string[];
+  closure_criteria: string[];
+};
+
+export type KnowledgePublicationReadiness = {
+  version: string;
+  status: string;
+  publishable: boolean;
+  publication_unit: string;
+  partial_publications_allowed: boolean;
+  checks: Array<{
+    id: string;
+    label: string;
+    passed: boolean;
+    detail: string;
+  }>;
+  blockers: string[];
+  audit_preview: Record<string, unknown>;
+};
+
 export type KnowledgeSourceEdition = {
   id: string;
   source_id: string;

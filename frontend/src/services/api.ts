@@ -20,6 +20,8 @@ import type {
   KnowledgeEvidenceItem,
   KnowledgeNode,
   KnowledgeObjectRevision,
+  KnowledgePublicationPolicy,
+  KnowledgePublicationReadiness,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
   KnowledgeQuerySummary,
@@ -89,6 +91,16 @@ export function getKnowledgeSources(version?: string) {
 
 export function getKnowledgeVersioning() {
   return request<KnowledgeVersioningPolicy>("/knowledge/versioning");
+}
+
+export function getKnowledgePublication() {
+  return request<KnowledgePublicationPolicy>("/knowledge/publication");
+}
+
+export function getKnowledgePublicationReadiness(version?: string) {
+  return request<KnowledgePublicationReadiness>(
+    withParams("/knowledge/publication/readiness", { version }),
+  );
 }
 
 export function getKnowledgeRevisions(version?: string) {
