@@ -6,7 +6,9 @@ from sqlalchemy import select
 from app.db.models import (
     AuditEventRecord,
     KnowledgeCardRecord,
+    KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
+    KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
@@ -528,6 +530,26 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     assert len(claim_payload) >= 1
     assert {claim["evidence_id"] for claim in claim_payload} <= evidence_ids
     assert {claim["card_id"] for claim in claim_payload} <= card_ids
+    assert {claim["node_id"] for claim in claim_payload} <= nodes
+    assert {claim["claim_type"] for claim in claim_payload} == {"stylistic"}
+    assert all(claim["domain"] for claim in claim_payload)
+    assert all(claim["scope"]["language"] == "es" for claim in claim_payload)
+    assert all(claim["scope"]["register"] == "general" for claim in claim_payload)
+    assert {claim["status"] for claim in claim_payload} == {"draft"}
+    assert {claim["origin"] for claim in claim_payload} == {"seed_contract_entry"}
+    assert {claim["revision"] for claim in claim_payload} == {1}
+    assert {claim["published_at"] for claim in claim_payload} == {None}
+    assert all(len(claim["evidence_links"]) >= 1 for claim in claim_payload)
+    assert {
+        link["role"]
+        for claim in claim_payload
+        for link in claim["evidence_links"]
+    } == {"primary"}
+    assert {
+        link["evidence_id"]
+        for claim in claim_payload
+        for link in claim["evidence_links"]
+    } <= evidence_ids
 
     filtered = client.get("/knowledge/claims?card_id=lexico-precision")
     assert filtered.status_code == 200
@@ -549,6 +571,8 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     )
     assert versioned_claims.status_code == 200
     assert [claim["id"] for claim in versioned_claims.json()] == ["claim-precision-lexica"]
+    assert versioned_claims.json()[0]["node_id"] == "rae-norma-estilo"
+    assert versioned_claims.json()[0]["evidence_links"][0]["role"] == "primary"
 
     missing_claims = client.get("/knowledge/claims?version=missing-version")
     assert missing_claims.status_code == 404
@@ -800,6 +824,8 @@ def test_knowledge_pipeline_is_persisted():
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
         evidence_revisions = session.scalars(select(KnowledgeEvidenceRevisionRecord)).all()
         claims = session.scalars(select(KnowledgeClaimRecord)).all()
+        claim_links = session.scalars(select(KnowledgeClaimEvidenceLinkRecord)).all()
+        claim_revisions = session.scalars(select(KnowledgeClaimRevisionRecord)).all()
         cards = session.scalars(select(KnowledgeCardRecord)).all()
 
     version = response.json()[0]
@@ -822,6 +848,15 @@ def test_knowledge_pipeline_is_persisted():
     assert len(evidence_revisions) == len(evidence)
     assert {revision.evidence_id for revision in evidence_revisions} == {item.id for item in evidence}
     assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
+    assert {claim.node_id for claim in claims} <= {node.id for node in nodes}
+    assert {claim.status for claim in claims} == {"draft"}
+    assert {claim.claim_type for claim in claims} == {"stylistic"}
+    assert len(claim_links) == len(claims)
+    assert {link.claim_id for link in claim_links} == {claim.id for claim in claims}
+    assert {link.evidence_id for link in claim_links} <= {item.id for item in evidence}
+    assert {link.role for link in claim_links} == {"primary"}
+    assert len(claim_revisions) == len(claims)
+    assert {revision.claim_id for revision in claim_revisions} == {claim.id for claim in claims}
     assert {claim.card_id for claim in claims} <= {card.id for card in cards}
 
 

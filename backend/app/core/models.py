@@ -243,8 +243,28 @@ class KnowledgeClaim(BaseModel):
     evidence_id: str
     card_id: str
     statement: str
+    claim_type: str
+    node_id: str
+    related_node_ids: list[str]
+    domain: str
+    scope: dict
+    status: str
     confidence: float = Field(ge=0, le=1)
+    origin: str
     version: str
+    revision: int = Field(ge=1)
+    created_at: str
+    updated_at: str
+    published_at: str | None = None
+    evidence_links: list["KnowledgeClaimEvidenceLink"] = Field(default_factory=list)
+
+
+class KnowledgeClaimEvidenceLink(BaseModel):
+    id: str
+    claim_id: str
+    evidence_id: str
+    role: str
+    created_at: str
 
 
 class KnowledgeQueryInput(BaseModel):

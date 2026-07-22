@@ -253,8 +253,46 @@ class KnowledgeClaimRecord(Base):
     )
     card_id: Mapped[str] = mapped_column(ForeignKey("knowledge_cards.id"), nullable=False)
     statement: Mapped[str] = mapped_column(Text, nullable=False)
+    claim_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
+    related_node_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    domain: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    scope: Mapped[dict] = mapped_column(JSON, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    origin: Mapped[str] = mapped_column(String(120), nullable=False)
     version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    published_at: Mapped[str | None] = mapped_column(String(80), nullable=True)
+
+
+class KnowledgeClaimEvidenceLinkRecord(Base):
+    __tablename__ = "knowledge_claim_evidence_links"
+
+    id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    claim_id: Mapped[str] = mapped_column(ForeignKey("knowledge_claims.id"), nullable=False)
+    evidence_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_evidence_items.id"), nullable=False
+    )
+    role: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
+class KnowledgeClaimRevisionRecord(Base):
+    __tablename__ = "knowledge_claim_revisions"
+
+    id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    claim_id: Mapped[str] = mapped_column(ForeignKey("knowledge_claims.id"), nullable=False)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    knowledge_version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    author: Mapped[str] = mapped_column(String(120), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    changed_fields: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    previous_claim: Mapped[dict] = mapped_column(JSON, nullable=False)
+    new_claim: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class AuditEventRecord(Base):

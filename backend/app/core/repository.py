@@ -18,6 +18,7 @@ from app.core.models import (
     EvidenceType,
     KnowledgeCard,
     KnowledgeClaim,
+    KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeNodeRelation,
@@ -44,6 +45,7 @@ from app.db.models import (
     FeedbackProposalRecord,
     GeneratedTextRecord,
     KnowledgeCardRecord,
+    KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeNodeRecord,
@@ -333,14 +335,41 @@ def knowledge_evidence_from_record(
     )
 
 
-def knowledge_claim_from_record(record: KnowledgeClaimRecord) -> KnowledgeClaim:
+def knowledge_claim_evidence_link_from_record(
+    record: KnowledgeClaimEvidenceLinkRecord,
+) -> KnowledgeClaimEvidenceLink:
+    return KnowledgeClaimEvidenceLink(
+        id=record.id,
+        claim_id=record.claim_id,
+        evidence_id=record.evidence_id,
+        role=record.role,
+        created_at=record.created_at,
+    )
+
+
+def knowledge_claim_from_record(
+    record: KnowledgeClaimRecord,
+    evidence_links: list[KnowledgeClaimEvidenceLink] | None = None,
+) -> KnowledgeClaim:
     return KnowledgeClaim(
         id=record.id,
         evidence_id=record.evidence_id,
         card_id=record.card_id,
         statement=record.statement,
+        claim_type=record.claim_type,
+        node_id=record.node_id,
+        related_node_ids=record.related_node_ids,
+        domain=record.domain,
+        scope=record.scope,
+        status=record.status,
         confidence=record.confidence,
+        origin=record.origin,
         version=record.version,
+        revision=record.revision,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        published_at=record.published_at,
+        evidence_links=evidence_links or [],
     )
 
 
@@ -450,7 +479,18 @@ class Repository:
         if version:
             query = query.where(KnowledgeClaimRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeClaimRecord.id)).all()
-        return [knowledge_claim_from_record(record) for record in records]
+        links = self.session.scalars(
+            select(KnowledgeClaimEvidenceLinkRecord).order_by(KnowledgeClaimEvidenceLinkRecord.id)
+        ).all()
+        links_by_claim: dict[str, list[KnowledgeClaimEvidenceLink]] = {}
+        for link in links:
+            links_by_claim.setdefault(link.claim_id, []).append(
+                knowledge_claim_evidence_link_from_record(link)
+            )
+        return [
+            knowledge_claim_from_record(record, links_by_claim.get(record.id, []))
+            for record in records
+        ]
 
     def list_knowledge_cards(self, version: str | None = None) -> list[KnowledgeCard]:
         query = select(KnowledgeCardRecord)

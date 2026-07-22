@@ -124,8 +124,28 @@ export type KnowledgeClaim = {
   evidence_id: string;
   card_id: string;
   statement: string;
+  claim_type: string;
+  node_id: string;
+  related_node_ids: string[];
+  domain: string;
+  scope: Record<string, unknown>;
+  status: string;
   confidence: number;
+  origin: string;
   version: string;
+  revision: number;
+  created_at: string;
+  updated_at: string;
+  published_at: string | null;
+  evidence_links: KnowledgeClaimEvidenceLink[];
+};
+
+export type KnowledgeClaimEvidenceLink = {
+  id: string;
+  claim_id: string;
+  evidence_id: string;
+  role: string;
+  created_at: string;
 };
 
 export type KnowledgeEvidenceItem = {

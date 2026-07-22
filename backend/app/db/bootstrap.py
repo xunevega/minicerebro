@@ -9,7 +9,9 @@ from sqlalchemy.orm import Session
 from app.core.seeds import DEFAULT_PROFILE_ID, seed_variables
 from app.db.models import (
     KnowledgeCardRecord,
+    KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
+    KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
@@ -23,6 +25,8 @@ from app.db.models import (
 from app.db.session import database_url
 from app.knowledge.service import (
     seed_cards,
+    seed_claim_evidence_links,
+    seed_claim_revisions,
     seed_claims,
     seed_evidence,
     seed_evidence_revisions,
@@ -254,18 +258,65 @@ def ensure_knowledge_seed_data(session: Session) -> None:
         session.add(KnowledgeEvidenceRevisionRecord(id=revision["id"], **values))
 
     for claim in seed_claims():
-        if session.get(KnowledgeClaimRecord, claim.id) is not None:
+        claim_record = session.get(KnowledgeClaimRecord, claim.id)
+        values = {
+            "evidence_id": claim.evidence_id,
+            "card_id": claim.card_id,
+            "statement": claim.statement,
+            "claim_type": claim.claim_type,
+            "node_id": claim.node_id,
+            "related_node_ids": claim.related_node_ids,
+            "domain": claim.domain,
+            "scope": claim.scope,
+            "status": claim.status,
+            "confidence": claim.confidence,
+            "origin": claim.origin,
+            "version": claim.version,
+            "revision": claim.revision,
+            "created_at": claim.created_at,
+            "updated_at": claim.updated_at,
+            "published_at": claim.published_at,
+        }
+        if claim_record is not None:
+            for field, value in values.items():
+                setattr(claim_record, field, value)
             continue
-        session.add(
-            KnowledgeClaimRecord(
-                id=claim.id,
-                evidence_id=claim.evidence_id,
-                card_id=claim.card_id,
-                statement=claim.statement,
-                confidence=claim.confidence,
-                version=claim.version,
-            )
-        )
+        session.add(KnowledgeClaimRecord(id=claim.id, **values))
+
+    session.flush()
+
+    for link in seed_claim_evidence_links():
+        link_record = session.get(KnowledgeClaimEvidenceLinkRecord, link.id)
+        values = {
+            "claim_id": link.claim_id,
+            "evidence_id": link.evidence_id,
+            "role": link.role,
+            "created_at": link.created_at,
+        }
+        if link_record is not None:
+            for field, value in values.items():
+                setattr(link_record, field, value)
+            continue
+        session.add(KnowledgeClaimEvidenceLinkRecord(id=link.id, **values))
+
+    for revision in seed_claim_revisions():
+        revision_record = session.get(KnowledgeClaimRevisionRecord, revision["id"])
+        values = {
+            "claim_id": revision["claim_id"],
+            "revision": revision["revision"],
+            "knowledge_version": revision["knowledge_version"],
+            "author": revision["author"],
+            "reason": revision["reason"],
+            "changed_fields": revision["changed_fields"],
+            "previous_claim": revision["previous_claim"],
+            "new_claim": revision["new_claim"],
+            "created_at": revision["created_at"],
+        }
+        if revision_record is not None:
+            for field, value in values.items():
+                setattr(revision_record, field, value)
+            continue
+        session.add(KnowledgeClaimRevisionRecord(id=revision["id"], **values))
 
     for edition in seed_source_editions():
         edition_record = session.get(KnowledgeSourceEditionRecord, edition.id)

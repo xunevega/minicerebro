@@ -57,6 +57,7 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 - Pipeline de conocimiento persistente e inspeccionable: fuentes, ediciones de fuente, nodos, evidencias, claims, fichas, version, consulta, historial y validacion auditada.
 - Catalogo cerrado de 23 fuentes V1 registrado en `/knowledge/sources`; cada fuente expone su edicion pendiente, estados de adquisicion/validacion y sistema de localizadores.
 - Evidencias V1 como objetos documentales trazables en `/knowledge/evidence`: fuente, edicion, nodo, tipo, localizador, contexto, confianza, estado e historial de revision.
+- Claims V1 como afirmaciones documentales en `/knowledge/claims`: tipo, nodo, dominio, alcance, estado, origen, enlaces de evidencia y revision.
 - Perfil exportable mediante `GET /profiles/{profile_id}/export`, con preferencias, evidencias, variables por contexto, estadisticas y contradicciones sin incluir la base de conocimiento.
 - Observabilidad V1 disponible desde auditoria: tiempos de interpretacion/generacion, calidad de recuperacion por validacion pendiente, scoring, comparaciones y feedback.
 - Auditoria de Cerebro declarativa: no se importa ningun modulo completo sin evidencia pieza por pieza.

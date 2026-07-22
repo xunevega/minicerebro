@@ -1,6 +1,7 @@
 from app.core.models import (
     KnowledgeCard,
     KnowledgeClaim,
+    KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
     KnowledgeNode,
     KnowledgeNodeRelation,
@@ -488,25 +489,123 @@ def seed_claims() -> list[KnowledgeClaim]:
             evidence_id="ev-dinamismo-frase",
             card_id="frase-dinamismo",
             statement="El dinamismo de frase se asocia a avance sintactico y verbos activos.",
+            claim_type="stylistic",
+            node_id="manual-rasgos-escritura",
+            related_node_ids=["rae-norma-estilo"],
+            domain="writing.style",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "writing",
+            },
+            status="draft",
             confidence=0.52,
+            origin="seed_contract_entry",
             version=KNOWLEDGE_VERSION,
+            revision=1,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
+            updated_at=KNOWLEDGE_PUBLISHED_AT,
+            published_at=None,
         ),
         KnowledgeClaim(
             id="claim-precision-lexica",
             evidence_id="ev-precision-lexica",
             card_id="lexico-precision",
             statement="La precision lexica favorece formulaciones concretas y verificables.",
+            claim_type="stylistic",
+            node_id="rae-norma-estilo",
+            related_node_ids=["manual-rasgos-escritura"],
+            domain="writing.lexicon",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "writing",
+            },
+            status="draft",
             confidence=0.58,
+            origin="seed_contract_entry",
             version=KNOWLEDGE_VERSION,
+            revision=1,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
+            updated_at=KNOWLEDGE_PUBLISHED_AT,
+            published_at=None,
         ),
         KnowledgeClaim(
             id="claim-sobriedad-voz",
             evidence_id="ev-sobriedad-voz",
             card_id="voz-sobriedad",
             statement="La sobriedad reduce enfasis decorativo y mantiene autoridad tonal.",
+            claim_type="stylistic",
+            node_id="manual-rasgos-escritura",
+            related_node_ids=["rae-norma-estilo"],
+            domain="writing.style",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "writing",
+            },
+            status="draft",
             confidence=0.5,
+            origin="seed_contract_entry",
             version=KNOWLEDGE_VERSION,
+            revision=1,
+            created_at=KNOWLEDGE_PUBLISHED_AT,
+            updated_at=KNOWLEDGE_PUBLISHED_AT,
+            published_at=None,
         ),
+    ]
+
+
+def seed_claim_evidence_links() -> list[KnowledgeClaimEvidenceLink]:
+    return [
+        KnowledgeClaimEvidenceLink(
+            id=f"{claim.id}:{claim.evidence_id}:primary",
+            claim_id=claim.id,
+            evidence_id=claim.evidence_id,
+            role="primary",
+            created_at=claim.created_at,
+        )
+        for claim in seed_claims()
+    ]
+
+
+def seed_claim_revisions() -> list[dict]:
+    return [
+        {
+            "id": f"{claim.id}:r1",
+            "claim_id": claim.id,
+            "revision": 1,
+            "knowledge_version": claim.version,
+            "author": "minicerebro-seed",
+            "reason": "registro inicial segun contrato de claims V1",
+            "changed_fields": [
+                "statement",
+                "claim_type",
+                "node_id",
+                "domain",
+                "scope",
+                "status",
+                "evidence_links",
+            ],
+            "previous_claim": {},
+            "new_claim": {
+                "statement": claim.statement,
+                "claim_type": claim.claim_type,
+                "node_id": claim.node_id,
+                "domain": claim.domain,
+                "scope": claim.scope,
+                "status": claim.status,
+                "evidence_id": claim.evidence_id,
+            },
+            "created_at": claim.created_at,
+        }
+        for claim in seed_claims()
     ]
 
 
@@ -612,7 +711,21 @@ def query_knowledge(
                 card.name,
                 card.definition,
                 " ".join(str(value) for value in card.payload.values()),
-                " ".join(claim.statement for claim in linked_claims),
+                " ".join(
+                    " ".join(
+                        [
+                            claim.statement,
+                            claim.claim_type,
+                            claim.node_id,
+                            " ".join(claim.related_node_ids),
+                            claim.domain,
+                            " ".join(str(value) for value in claim.scope.values()),
+                            claim.status,
+                            claim.origin,
+                        ]
+                    )
+                    for claim in linked_claims
+                ),
                 " ".join(f"{item.reference} {item.excerpt}" for item in linked_evidence),
                 " ".join(
                     " ".join(
