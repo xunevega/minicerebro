@@ -213,8 +213,33 @@ class KnowledgeNodeRelation(BaseModel):
     source_node_id: str
     target_node_id: str
     relation_type: str
+    direction: str
+    cardinality: str
+    weight: float = Field(ge=0, le=1)
+    confidence: float = Field(ge=0, le=1)
+    context: str
+    status: str
     version: str
     created_at: str
+    updated_at: str
+
+
+class KnowledgeRelation(BaseModel):
+    id: str
+    source_entity_type: str
+    source_entity_id: str
+    target_entity_type: str
+    target_entity_id: str
+    relation_type: str
+    direction: str
+    cardinality: str
+    weight: float = Field(ge=0, le=1)
+    confidence: float = Field(ge=0, le=1)
+    context: str
+    status: str
+    version: str
+    created_at: str
+    updated_at: str
 
 
 class KnowledgeEvidenceItem(BaseModel):

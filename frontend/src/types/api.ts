@@ -115,8 +115,33 @@ export type KnowledgeNodeRelation = {
   source_node_id: string;
   target_node_id: string;
   relation_type: string;
+  direction: string;
+  cardinality: string;
+  weight: number;
+  confidence: number;
+  context: string;
+  status: string;
   version: string;
   created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeRelation = {
+  id: string;
+  source_entity_type: string;
+  source_entity_id: string;
+  target_entity_type: string;
+  target_entity_id: string;
+  relation_type: string;
+  direction: string;
+  cardinality: string;
+  weight: number;
+  confidence: number;
+  context: string;
+  status: string;
+  version: string;
+  created_at: string;
+  updated_at: string;
 };
 
 export type KnowledgeClaim = {

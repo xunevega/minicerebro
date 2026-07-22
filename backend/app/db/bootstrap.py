@@ -16,6 +16,7 @@ from app.db.models import (
     KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
+    KnowledgeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
@@ -32,6 +33,7 @@ from app.knowledge.service import (
     seed_evidence_revisions,
     seed_node_relations,
     seed_nodes,
+    seed_relations,
     seed_source_editions,
     seed_sources,
 )
@@ -166,8 +168,15 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "source_node_id": relation.source_node_id,
             "target_node_id": relation.target_node_id,
             "relation_type": relation.relation_type,
+            "direction": relation.direction,
+            "cardinality": relation.cardinality,
+            "weight": relation.weight,
+            "confidence": relation.confidence,
+            "context": relation.context,
+            "status": relation.status,
             "version": relation.version,
             "created_at": relation.created_at,
+            "updated_at": relation.updated_at,
         }
         if relation_record is not None:
             for field, value in values.items():
@@ -179,6 +188,36 @@ def ensure_knowledge_seed_data(session: Session) -> None:
     stale_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
     for stale_relation in stale_relations:
         if stale_relation.id not in seed_relation_ids:
+            session.delete(stale_relation)
+
+    for relation in seed_relations():
+        relation_record = session.get(KnowledgeRelationRecord, relation.id)
+        values = {
+            "source_entity_type": relation.source_entity_type,
+            "source_entity_id": relation.source_entity_id,
+            "target_entity_type": relation.target_entity_type,
+            "target_entity_id": relation.target_entity_id,
+            "relation_type": relation.relation_type,
+            "direction": relation.direction,
+            "cardinality": relation.cardinality,
+            "weight": relation.weight,
+            "confidence": relation.confidence,
+            "context": relation.context,
+            "status": relation.status,
+            "version": relation.version,
+            "created_at": relation.created_at,
+            "updated_at": relation.updated_at,
+        }
+        if relation_record is not None:
+            for field, value in values.items():
+                setattr(relation_record, field, value)
+            continue
+        session.add(KnowledgeRelationRecord(id=relation.id, **values))
+
+    seed_graph_relation_ids = {relation.id for relation in seed_relations()}
+    stale_graph_relations = session.scalars(select(KnowledgeRelationRecord)).all()
+    for stale_relation in stale_graph_relations:
+        if stale_relation.id not in seed_graph_relation_ids:
             session.delete(stale_relation)
     for card in seed_cards():
         if session.get(KnowledgeCardRecord, card.id) is not None:

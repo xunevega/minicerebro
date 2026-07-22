@@ -7,6 +7,7 @@ from app.core.models import (
     KnowledgeNodeRelation,
     KnowledgeQueryInput,
     KnowledgeQueryResult,
+    KnowledgeRelation,
     KnowledgeSource,
     KnowledgeSourceEdition,
     KnowledgeVersion,
@@ -14,6 +15,7 @@ from app.core.models import (
 
 KNOWLEDGE_VERSION = "knowledge-v0"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
+RELATION_UPDATED_AT = "2026-07-23"
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
@@ -366,17 +368,153 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             source_node_id="rae-norma-estilo",
             target_node_id="manual-rasgos-escritura",
             relation_type="define",
+            direction="outgoing",
+            cardinality="N:N",
+            weight=0.72,
+            confidence=0.58,
+            context="knowledge_graph",
+            status="published",
             version=KNOWLEDGE_VERSION,
             created_at=KNOWLEDGE_PUBLISHED_AT,
+            updated_at=RELATION_UPDATED_AT,
         ),
         KnowledgeNodeRelation(
             id="rel-estilo-depende-norma",
             source_node_id="manual-rasgos-escritura",
             target_node_id="rae-norma-estilo",
             relation_type="depende_de",
+            direction="outgoing",
+            cardinality="N:N",
+            weight=0.68,
+            confidence=0.58,
+            context="knowledge_graph",
+            status="published",
             version=KNOWLEDGE_VERSION,
             created_at=KNOWLEDGE_PUBLISHED_AT,
+            updated_at=RELATION_UPDATED_AT,
         ),
+    ]
+
+
+def _relation(
+    source_type: str,
+    source_id: str,
+    relation_type: str,
+    target_type: str,
+    target_id: str,
+    *,
+    cardinality: str = "N:N",
+    weight: float = 1.0,
+    confidence: float = 0.58,
+    context: str = "knowledge_graph",
+    status: str = "published",
+) -> KnowledgeRelation:
+    return KnowledgeRelation(
+        id=f"rel-{source_type}-{source_id}-{relation_type}-{target_type}-{target_id}",
+        source_entity_type=source_type,
+        source_entity_id=source_id,
+        target_entity_type=target_type,
+        target_entity_id=target_id,
+        relation_type=relation_type,
+        direction="outgoing",
+        cardinality=cardinality,
+        weight=weight,
+        confidence=confidence,
+        context=context,
+        status=status,
+        version=KNOWLEDGE_VERSION,
+        created_at=KNOWLEDGE_PUBLISHED_AT,
+        updated_at=RELATION_UPDATED_AT,
+    )
+
+
+def seed_relations() -> list[KnowledgeRelation]:
+    source_to_edition = [
+        _relation("source", source.id, "contiene", "source_edition", f"{source.id}:pending-edition")
+        for source in seed_sources()
+    ]
+    source_to_node = [
+        _relation("source", node.source_id, "documentado_en", "node", node.id)
+        for node in seed_nodes()
+    ]
+    node_to_node = [
+        _relation(
+            "node",
+            relation.source_node_id,
+            relation.relation_type,
+            "node",
+            relation.target_node_id,
+            weight=relation.weight,
+            confidence=relation.confidence,
+            context=relation.context,
+            status=relation.status,
+        )
+        for relation in seed_node_relations()
+    ]
+    node_to_evidence = [
+        _relation(
+            "node",
+            evidence.node_id,
+            "sostenido_por",
+            "evidence",
+            evidence.id,
+            cardinality="1:N",
+            confidence=evidence.confidence,
+            context=evidence.context,
+            status=evidence.status,
+        )
+        for evidence in seed_evidence()
+    ]
+    evidence_to_claim = [
+        _relation(
+            "evidence",
+            claim.evidence_id,
+            "sostenido_por",
+            "claim",
+            claim.id,
+            cardinality="1:N",
+            confidence=claim.confidence,
+            context=claim.domain,
+            status=claim.status,
+        )
+        for claim in seed_claims()
+    ]
+    claim_to_card = [
+        _relation(
+            "claim",
+            claim.id,
+            "aplicacion_de",
+            "knowledge_card",
+            claim.card_id,
+            cardinality="N:1",
+            confidence=claim.confidence,
+            context=claim.domain,
+            status=claim.status,
+        )
+        for claim in seed_claims()
+    ]
+    source_to_evidence = [
+        _relation(
+            "source_edition",
+            evidence.source_edition_id,
+            "documentado_en",
+            "evidence",
+            evidence.id,
+            cardinality="1:N",
+            confidence=evidence.confidence,
+            context=evidence.context,
+            status=evidence.status,
+        )
+        for evidence in seed_evidence()
+    ]
+    return [
+        *source_to_edition,
+        *source_to_node,
+        *node_to_node,
+        *node_to_evidence,
+        *source_to_evidence,
+        *evidence_to_claim,
+        *claim_to_card,
     ]
 
 

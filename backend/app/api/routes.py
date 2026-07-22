@@ -31,6 +31,7 @@ from app.core.models import (
     KnowledgeQueryHistoryItem,
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
+    KnowledgeRelation,
     KnowledgeSource,
     KnowledgeStatus,
     KnowledgeVersion,
@@ -134,6 +135,23 @@ def knowledge_nodes(
 ) -> list[KnowledgeNode]:
     ensure_knowledge_version(repository, version)
     return repository.list_knowledge_nodes(source_id=source_id, version=version)
+
+
+@router.get("/knowledge/relations")
+def knowledge_relations(
+    repository: RepositoryDep,
+    version: str | None = None,
+    source_entity_type: str | None = None,
+    source_entity_id: str | None = None,
+    relation_type: str | None = None,
+) -> list[KnowledgeRelation]:
+    ensure_knowledge_version(repository, version)
+    return repository.list_knowledge_relations(
+        version=version,
+        source_entity_type=source_entity_type,
+        source_entity_id=source_entity_id,
+        relation_type=relation_type,
+    )
 
 
 @router.get("/knowledge/evidence")

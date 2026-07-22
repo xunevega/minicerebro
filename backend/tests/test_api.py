@@ -13,6 +13,7 @@ from app.db.models import (
     KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
+    KnowledgeRelationRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
 )
@@ -457,6 +458,15 @@ def test_knowledge_nodes_link_to_sources():
     assert all(node["created_at"] == "2026-07-22" for node in nodes)
     assert all(node["published_at"] == "2026-07-22" for node in nodes)
     assert all(len(node["relations"]) >= 1 for node in nodes)
+    assert all(relation["direction"] == "outgoing" for node in nodes for relation in node["relations"])
+    assert all(relation["cardinality"] == "N:N" for node in nodes for relation in node["relations"])
+    assert all(0 <= relation["weight"] <= 1 for node in nodes for relation in node["relations"])
+    assert all(0 <= relation["confidence"] <= 1 for node in nodes for relation in node["relations"])
+    assert all(relation["context"] for node in nodes for relation in node["relations"])
+    assert {relation["status"] for node in nodes for relation in node["relations"]} == {"published"}
+    assert all(
+        relation["updated_at"] == "2026-07-23" for node in nodes for relation in node["relations"]
+    )
     assert {
         relation["relation_type"]
         for node in nodes
@@ -490,6 +500,56 @@ def test_knowledge_nodes_link_to_sources():
     assert versioned.json()[0]["relations"][0]["target_node_id"] == "manual-rasgos-escritura"
 
     missing_version = client.get("/knowledge/nodes?version=missing-version")
+    assert missing_version.status_code == 404
+    assert missing_version.json()["detail"] == "Knowledge version not found"
+
+
+def test_knowledge_relations_expose_typed_graph():
+    response = client.get("/knowledge/relations?version=knowledge-v0")
+    assert response.status_code == 200
+    relations = response.json()
+    assert len(relations) >= 1
+    assert all(relation["source_entity_type"] for relation in relations)
+    assert all(relation["source_entity_id"] for relation in relations)
+    assert all(relation["target_entity_type"] for relation in relations)
+    assert all(relation["target_entity_id"] for relation in relations)
+    assert all(relation["relation_type"] for relation in relations)
+    assert all(relation["direction"] == "outgoing" for relation in relations)
+    assert {relation["cardinality"] for relation in relations} <= {"1:1", "1:N", "N:1", "N:N"}
+    assert all(0 <= relation["weight"] <= 1 for relation in relations)
+    assert all(0 <= relation["confidence"] <= 1 for relation in relations)
+    assert all(relation["context"] for relation in relations)
+    assert {relation["status"] for relation in relations} <= {
+        "draft",
+        "validated",
+        "published",
+        "deprecated",
+        "archived",
+    }
+    assert all(relation["version"] == "knowledge-v0" for relation in relations)
+    assert all(relation["updated_at"] == "2026-07-23" for relation in relations)
+    assert {
+        ("source", "contiene", "source_edition"),
+        ("node", "sostenido_por", "evidence"),
+        ("evidence", "sostenido_por", "claim"),
+        ("claim", "aplicacion_de", "knowledge_card"),
+    } <= {
+        (
+            relation["source_entity_type"],
+            relation["relation_type"],
+            relation["target_entity_type"],
+        )
+        for relation in relations
+    }
+
+    filtered = client.get(
+        "/knowledge/relations?version=knowledge-v0&source_entity_type=node&relation_type=sostenido_por"
+    )
+    assert filtered.status_code == 200
+    assert all(relation["source_entity_type"] == "node" for relation in filtered.json())
+    assert all(relation["relation_type"] == "sostenido_por" for relation in filtered.json())
+
+    missing_version = client.get("/knowledge/relations?version=missing-version")
     assert missing_version.status_code == 404
     assert missing_version.json()["detail"] == "Knowledge version not found"
 
@@ -821,6 +881,7 @@ def test_knowledge_pipeline_is_persisted():
         source_editions = session.scalars(select(KnowledgeSourceEditionRecord)).all()
         nodes = session.scalars(select(KnowledgeNodeRecord)).all()
         node_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
+        relations = session.scalars(select(KnowledgeRelationRecord)).all()
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
         evidence_revisions = session.scalars(select(KnowledgeEvidenceRevisionRecord)).all()
         claims = session.scalars(select(KnowledgeClaimRecord)).all()
@@ -840,6 +901,14 @@ def test_knowledge_pipeline_is_persisted():
     assert {node.source_id for node in nodes} <= {source.id for source in sources}
     assert {relation.source_node_id for relation in node_relations} == {node.id for node in nodes}
     assert {relation.target_node_id for relation in node_relations} <= {node.id for node in nodes}
+    assert len(relations) >= (
+        len(source_editions) + len(nodes) + len(evidence) + len(claims) + len(cards)
+    )
+    assert all(relation.source_entity_id for relation in relations)
+    assert all(relation.target_entity_id for relation in relations)
+    assert all(relation.relation_type for relation in relations)
+    assert {relation.direction for relation in relations} == {"outgoing"}
+    assert {relation.version for relation in relations} == {"knowledge-v0"}
     assert {item.node_id for item in evidence} <= {node.id for node in nodes}
     assert {item.source_edition_id for item in evidence} <= {
         edition.id for edition in source_editions

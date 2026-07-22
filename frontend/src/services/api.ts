@@ -22,6 +22,7 @@ import type {
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
   KnowledgeQuerySummary,
+  KnowledgeRelation,
   KnowledgeStatus,
   KnowledgeSource,
   LabOverride,
@@ -88,6 +89,10 @@ export function getKnowledgeNodes(sourceId?: string, version?: string) {
   return request<KnowledgeNode[]>(
     withParams("/knowledge/nodes", { source_id: sourceId, version }),
   );
+}
+
+export function getKnowledgeRelations(version?: string) {
+  return request<KnowledgeRelation[]>(withParams("/knowledge/relations", { version }));
 }
 
 export function getKnowledgeEvidence(nodeId?: string, version?: string) {

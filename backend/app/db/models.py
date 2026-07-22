@@ -189,8 +189,35 @@ class KnowledgeNodeRelationRecord(Base):
     source_node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
     target_node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
     relation_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    direction: Mapped[str] = mapped_column(String(40), nullable=False)
+    cardinality: Mapped[str] = mapped_column(String(20), nullable=False)
+    weight: Mapped[float] = mapped_column(Float, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    context: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
     created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
+class KnowledgeRelationRecord(Base):
+    __tablename__ = "knowledge_relations"
+
+    id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    source_entity_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    source_entity_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    target_entity_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    target_entity_id: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    relation_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    direction: Mapped[str] = mapped_column(String(40), nullable=False)
+    cardinality: Mapped[str] = mapped_column(String(20), nullable=False)
+    weight: Mapped[float] = mapped_column(Float, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    context: Mapped[str] = mapped_column(String(160), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class KnowledgeEvidenceItemRecord(Base):
