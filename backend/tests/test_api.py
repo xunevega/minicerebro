@@ -8,6 +8,7 @@ from app.db.models import (
     KnowledgeCardRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
+    KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeSourceRecord,
@@ -497,10 +498,27 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     evidence_payload = evidence.json()
 
     nodes = {node["id"] for node in client.get("/knowledge/nodes").json()}
-    sources = {source["id"] for source in client.get("/knowledge/sources").json()}
+    source_payload = client.get("/knowledge/sources").json()
+    sources = {source["id"] for source in source_payload}
+    source_editions = {
+        edition["id"]
+        for source in source_payload
+        for edition in source["editions"]
+    }
     assert len(evidence_payload) >= 1
     assert {item["node_id"] for item in evidence_payload} <= nodes
     assert {item["source_id"] for item in evidence_payload} <= sources
+    assert {item["source_edition_id"] for item in evidence_payload} <= source_editions
+    assert all(item["evidence_type"] == "documented_paraphrase" for item in evidence_payload)
+    assert all(item["locator"]["locator"] for item in evidence_payload)
+    assert all(item["context"] in {"general_rule", "commentary"} for item in evidence_payload)
+    assert {item["confidence_level"] for item in evidence_payload} == {2}
+    assert {item["status"] for item in evidence_payload} == {"draft"}
+    assert all(item["created_at"] == "2026-07-22" for item in evidence_payload)
+    assert all(item["updated_at"] == "2026-07-22" for item in evidence_payload)
+    assert {item["incorporated_by"] for item in evidence_payload} == {"minicerebro-seed"}
+    assert {item["reviewed_by"] for item in evidence_payload} == {None}
+    assert {item["revision"] for item in evidence_payload} == {1}
 
     claims = client.get("/knowledge/claims")
     assert claims.status_code == 200
@@ -520,6 +538,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     )
     assert versioned_evidence.status_code == 200
     assert [item["id"] for item in versioned_evidence.json()] == ["ev-precision-lexica"]
+    assert versioned_evidence.json()[0]["source_edition_id"] == "rae-dle:pending-edition"
 
     missing_evidence = client.get("/knowledge/evidence?version=missing-version")
     assert missing_evidence.status_code == 404
@@ -779,6 +798,7 @@ def test_knowledge_pipeline_is_persisted():
         nodes = session.scalars(select(KnowledgeNodeRecord)).all()
         node_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
+        evidence_revisions = session.scalars(select(KnowledgeEvidenceRevisionRecord)).all()
         claims = session.scalars(select(KnowledgeClaimRecord)).all()
         cards = session.scalars(select(KnowledgeCardRecord)).all()
 
@@ -795,6 +815,12 @@ def test_knowledge_pipeline_is_persisted():
     assert {relation.source_node_id for relation in node_relations} == {node.id for node in nodes}
     assert {relation.target_node_id for relation in node_relations} <= {node.id for node in nodes}
     assert {item.node_id for item in evidence} <= {node.id for node in nodes}
+    assert {item.source_edition_id for item in evidence} <= {
+        edition.id for edition in source_editions
+    }
+    assert {item.status for item in evidence} == {"draft"}
+    assert len(evidence_revisions) == len(evidence)
+    assert {revision.evidence_id for revision in evidence_revisions} == {item.id for item in evidence}
     assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
     assert {claim.card_id for claim in claims} <= {card.id for card in cards}
 

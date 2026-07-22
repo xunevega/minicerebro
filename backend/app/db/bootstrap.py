@@ -11,6 +11,7 @@ from app.db.models import (
     KnowledgeCardRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
+    KnowledgeEvidenceRevisionRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeSourceRecord,
@@ -24,6 +25,7 @@ from app.knowledge.service import (
     seed_cards,
     seed_claims,
     seed_evidence,
+    seed_evidence_revisions,
     seed_node_relations,
     seed_nodes,
     seed_source_editions,
@@ -195,23 +197,61 @@ def ensure_knowledge_seed_data(session: Session) -> None:
         if evidence_record is not None:
             evidence_record.node_id = evidence.node_id
             evidence_record.source_id = evidence.source_id
+            evidence_record.source_edition_id = evidence.source_edition_id
+            evidence_record.evidence_type = evidence.evidence_type
+            evidence_record.locator = evidence.locator
             evidence_record.reference = evidence.reference
             evidence_record.excerpt = evidence.excerpt
+            evidence_record.context = evidence.context
             evidence_record.confidence = evidence.confidence
+            evidence_record.confidence_level = evidence.confidence_level
+            evidence_record.status = evidence.status
             evidence_record.version = evidence.version
+            evidence_record.created_at = evidence.created_at
+            evidence_record.updated_at = evidence.updated_at
+            evidence_record.incorporated_by = evidence.incorporated_by
+            evidence_record.reviewed_by = evidence.reviewed_by
+            evidence_record.revision = evidence.revision
             continue
         session.add(
             KnowledgeEvidenceItemRecord(
                 id=evidence.id,
                 node_id=evidence.node_id,
                 source_id=evidence.source_id,
+                source_edition_id=evidence.source_edition_id,
+                evidence_type=evidence.evidence_type,
+                locator=evidence.locator,
                 reference=evidence.reference,
                 excerpt=evidence.excerpt,
+                context=evidence.context,
                 confidence=evidence.confidence,
+                confidence_level=evidence.confidence_level,
+                status=evidence.status,
                 version=evidence.version,
+                created_at=evidence.created_at,
+                updated_at=evidence.updated_at,
+                incorporated_by=evidence.incorporated_by,
+                reviewed_by=evidence.reviewed_by,
+                revision=evidence.revision,
             )
         )
     session.flush()
+
+    for revision in seed_evidence_revisions():
+        revision_record = session.get(KnowledgeEvidenceRevisionRecord, revision["id"])
+        values = {
+            "evidence_id": revision["evidence_id"],
+            "revision": revision["revision"],
+            "author": revision["author"],
+            "reason": revision["reason"],
+            "changes": revision["changes"],
+            "created_at": revision["created_at"],
+        }
+        if revision_record is not None:
+            for field, value in values.items():
+                setattr(revision_record, field, value)
+            continue
+        session.add(KnowledgeEvidenceRevisionRecord(id=revision["id"], **values))
 
     for claim in seed_claims():
         if session.get(KnowledgeClaimRecord, claim.id) is not None:

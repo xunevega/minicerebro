@@ -132,10 +132,21 @@ export type KnowledgeEvidenceItem = {
   id: string;
   node_id: string;
   source_id: string;
+  source_edition_id: string;
+  evidence_type: string;
+  locator: Record<string, unknown>;
   reference: string;
   excerpt: string;
+  context: string;
   confidence: number;
+  confidence_level: number;
+  status: string;
   version: string;
+  created_at: string;
+  updated_at: string;
+  incorporated_by: string;
+  reviewed_by: string | null;
+  revision: number;
 };
 
 export type KnowledgeQueryResult = {

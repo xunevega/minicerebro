@@ -315,10 +315,21 @@ def knowledge_evidence_from_record(
         id=record.id,
         node_id=record.node_id,
         source_id=record.source_id,
+        source_edition_id=record.source_edition_id,
+        evidence_type=record.evidence_type,
+        locator=record.locator,
         reference=record.reference,
         excerpt=record.excerpt,
+        context=record.context,
         confidence=record.confidence,
+        confidence_level=record.confidence_level,
+        status=record.status,
         version=record.version,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        incorporated_by=record.incorporated_by,
+        reviewed_by=record.reviewed_by,
+        revision=record.revision,
     )
 
 

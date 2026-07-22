@@ -199,10 +199,37 @@ class KnowledgeEvidenceItemRecord(Base):
     id: Mapped[str] = mapped_column(String(80), primary_key=True)
     node_id: Mapped[str] = mapped_column(ForeignKey("knowledge_nodes.id"), nullable=False)
     source_id: Mapped[str] = mapped_column(ForeignKey("knowledge_sources.id"), nullable=False)
+    source_edition_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_source_editions.id"), nullable=False
+    )
+    evidence_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    locator: Mapped[dict] = mapped_column(JSON, nullable=False)
     reference: Mapped[str] = mapped_column(String(240), nullable=False)
     excerpt: Mapped[str] = mapped_column(Text, nullable=False)
+    context: Mapped[str] = mapped_column(String(120), nullable=False, index=True)
     confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    confidence_level: Mapped[int] = mapped_column(Integer, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
     version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    incorporated_by: Mapped[str] = mapped_column(String(120), nullable=False)
+    reviewed_by: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+
+
+class KnowledgeEvidenceRevisionRecord(Base):
+    __tablename__ = "knowledge_evidence_revisions"
+
+    id: Mapped[str] = mapped_column(String(120), primary_key=True)
+    evidence_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_evidence_items.id"), nullable=False
+    )
+    revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    author: Mapped[str] = mapped_column(String(120), nullable=False)
+    reason: Mapped[str] = mapped_column(Text, nullable=False)
+    changes: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
 class KnowledgeCardRecord(Base):

@@ -221,10 +221,21 @@ class KnowledgeEvidenceItem(BaseModel):
     id: str
     node_id: str
     source_id: str
+    source_edition_id: str
+    evidence_type: str
+    locator: dict
     reference: str
     excerpt: str
+    context: str
     confidence: float = Field(ge=0, le=1)
+    confidence_level: int = Field(ge=1, le=5)
+    status: str
     version: str
+    created_at: str
+    updated_at: str
+    incorporated_by: str
+    reviewed_by: str | None = None
+    revision: int = Field(ge=1)
 
 
 class KnowledgeClaim(BaseModel):
