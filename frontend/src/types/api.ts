@@ -152,6 +152,19 @@ export type KnowledgeVersion = {
   card_count: number;
 };
 
+export type KnowledgeCandidateVersionCreate = {
+  id: string;
+  base_version: string;
+  author: string;
+  reason: string;
+};
+
+export type KnowledgePublicationCreate = {
+  version: string;
+  author: string;
+  reason: string;
+};
+
 export type KnowledgeSourceCreate = {
   id: string;
   catalog_id: string;

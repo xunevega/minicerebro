@@ -108,7 +108,6 @@ from app.knowledge.service import (
     publication_policy,
     query_contract,
     query_knowledge,
-    resolve_knowledge_version,
     versioning_policy,
 )
 
@@ -2243,27 +2242,51 @@ class Repository:
     def knowledge_query_contract(self) -> KnowledgeQueryContract:
         return query_contract()
 
+    def _resolve_knowledge_version(self, version: str) -> str:
+        if version != "latest":
+            return version
+        record = self.session.scalars(
+            select(KnowledgeVersionRecord)
+            .where(KnowledgeVersionRecord.status == "published")
+            .order_by(KnowledgeVersionRecord.published_at.desc(), KnowledgeVersionRecord.id.desc())
+        ).first()
+        if record is None:
+            raise KeyError(version)
+        return record.id
+
     def interpret_knowledge_query(
         self,
         payload: KnowledgeQueryInput,
     ) -> KnowledgeQueryInterpretation:
-        resolved_version = resolve_knowledge_version(payload.version)
+        resolved_version = self._resolve_knowledge_version(payload.version)
         if self.session.get(KnowledgeVersionRecord, resolved_version) is None:
             raise KeyError(resolved_version)
-        return build_knowledge_query_interpretation(payload)
+        interpretation = build_knowledge_query_interpretation(
+            KnowledgeQueryInput(query=payload.query, version=resolved_version, limit=payload.limit)
+        )
+        interpretation.requested_version = payload.version
+        interpretation.resolved_version = resolved_version
+        interpretation.restrictions["requested_version"] = payload.version
+        interpretation.restrictions["resolved_version"] = resolved_version
+        interpretation.retrieval_request["version"] = resolved_version
+        return interpretation
 
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
-        resolved_version = resolve_knowledge_version(payload.version)
+        resolved_version = self._resolve_knowledge_version(payload.version)
         if self.session.get(KnowledgeVersionRecord, resolved_version) is None:
             raise KeyError(resolved_version)
         result = query_knowledge(
-            payload,
+            KnowledgeQueryInput(query=payload.query, version=resolved_version, limit=payload.limit),
             sources=self.list_knowledge_sources(version=resolved_version),
             nodes=self.list_knowledge_nodes(version=resolved_version),
             cards=self.list_knowledge_cards(version=resolved_version),
             claims=self.list_knowledge_claims(version=resolved_version),
             evidence=self.list_knowledge_evidence(version=resolved_version),
         )
+        result.requested_version = payload.version
+        result.resolved_version = resolved_version
+        result.retrieval_trace["requested_version"] = payload.version
+        result.retrieval_trace["resolved_version"] = resolved_version
         pending_validation_count = sum(
             1
             for item in [*result.cards, *result.claims, *result.evidence]

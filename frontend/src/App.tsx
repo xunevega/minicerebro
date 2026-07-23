@@ -21,6 +21,7 @@ import {
   applyScoreProposal,
   compareLabTexts,
   compareTexts,
+  createKnowledgeCandidate,
   createPreference,
   createFeedbackProposal,
   deletePreference,
@@ -43,6 +44,7 @@ import {
   getKnowledgeEvidence,
   getKnowledgeNodes,
   getKnowledgeProposals,
+  getKnowledgePublicationReadiness,
   getKnowledgeQueryHistory,
   getKnowledgeQuerySummary,
   getKnowledgeStatus,
@@ -64,6 +66,7 @@ import {
   getV1Screens,
   approveKnowledgeProposal,
   queryKnowledge,
+  publishKnowledgeVersion,
   registerKnowledgeExtractionRun,
   registerKnowledgeIndexEntries,
   registerKnowledgeProposals,
@@ -97,6 +100,7 @@ import type {
   KnowledgeExtractionRun,
   KnowledgeIndexEntry,
   KnowledgeNode,
+  KnowledgePublicationReadiness,
   KnowledgeProposal,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
@@ -231,6 +235,16 @@ export function App() {
     useState<KnowledgeExtractionRun | null>(null);
   const [manualIngestionProposals, setManualIngestionProposals] = useState<KnowledgeProposal[]>([]);
   const [manualIngestionBusy, setManualIngestionBusy] = useState(false);
+  const [candidateVersionId, setCandidateVersionId] = useState(`knowledge-candidate-${Date.now().toString(36)}`);
+  const [candidateBaseVersion, setCandidateBaseVersion] = useState("knowledge-v1");
+  const [candidateAuthor, setCandidateAuthor] = useState("minicerebro-ui");
+  const [candidateReason, setCandidateReason] = useState(
+    "Candidato creado desde la interfaz para revision de publicacion.",
+  );
+  const [publicationReadiness, setPublicationReadiness] =
+    useState<KnowledgePublicationReadiness | null>(null);
+  const [publicationTargetVersion, setPublicationTargetVersion] = useState("");
+  const [publicationBusy, setPublicationBusy] = useState(false);
   const [knowledgeQuery, setKnowledgeQuery] = useState("complemento directo");
   const [knowledgeQueryLimit, setKnowledgeQueryLimit] = useState(5);
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
@@ -510,6 +524,11 @@ export function App() {
     knowledgeSourceIngestionStatuses[0] ??
     null;
   const manualIngestionSourceIdValue = manualIngestionStatus?.source_id ?? "";
+  const candidateVersions = knowledgeVersions.filter((version) =>
+    ["candidate", "validated"].includes(version.status),
+  );
+  const publishableReadiness =
+    publicationReadiness?.version === publicationTargetVersion && publicationReadiness.publishable;
 
   async function refreshAuditEvents(filterLabel = auditFilter) {
     setAuditEvents(await loadAuditEvents(filterLabel, loadedKnowledgeVersion));
@@ -733,6 +752,80 @@ export function App() {
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
+    }
+  }
+
+  async function handleCheckPublicationReadiness(version = publicationTargetVersion) {
+    if (!version) {
+      setError("Selecciona una version candidata para comprobar publicacion.");
+      return null;
+    }
+    setError(null);
+    try {
+      const readiness = await getKnowledgePublicationReadiness(version);
+      setPublicationReadiness(readiness);
+      return readiness;
+    } catch (nextError) {
+      setError((nextError as Error).message);
+      return null;
+    }
+  }
+
+  async function handleCreateCandidateVersion() {
+    setPublicationBusy(true);
+    setError(null);
+    try {
+      const candidate = await createKnowledgeCandidate({
+        id: candidateVersionId,
+        base_version: candidateBaseVersion,
+        author: candidateAuthor,
+        reason: candidateReason,
+      });
+      const versions = await getKnowledgeVersions();
+      setKnowledgeVersions(versions);
+      setPublicationTargetVersion(candidate.id);
+      setSelectedKnowledgeVersion(candidate.id);
+      setCandidateVersionId(`knowledge-candidate-${Date.now().toString(36)}`);
+      setPublicationReadiness(await getKnowledgePublicationReadiness(candidate.id));
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setPublicationBusy(false);
+    }
+  }
+
+  async function handlePublishCandidateVersion() {
+    if (!publicationTargetVersion) {
+      setError("Selecciona una version candidata para publicar.");
+      return;
+    }
+    setPublicationBusy(true);
+    setError(null);
+    try {
+      const readiness =
+        publicationReadiness?.version === publicationTargetVersion
+          ? publicationReadiness
+          : await getKnowledgePublicationReadiness(publicationTargetVersion);
+      setPublicationReadiness(readiness);
+      if (!readiness.publishable) {
+        setError(`La version no es publicable: ${readiness.blockers.join(", ")}`);
+        return;
+      }
+      const published = await publishKnowledgeVersion({
+        version: publicationTargetVersion,
+        author: candidateAuthor,
+        reason: candidateReason,
+      });
+      const versions = await getKnowledgeVersions();
+      setKnowledgeVersions(versions);
+      setSelectedKnowledgeVersion(published.id);
+      setPublicationReadiness(await getKnowledgePublicationReadiness(published.id));
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setPublicationBusy(false);
     }
   }
 
@@ -1223,6 +1316,110 @@ export function App() {
                     </article>
                   ))}
                 </div>
+              ) : null}
+            </div>
+            <div className="proposalBox">
+              <h3>Candidato y publicacion</h3>
+              <p className="note">
+                Crear candidato congela un snapshot revisable. Publicar solo activa una version si
+                readiness pasa todos los gates.
+              </p>
+              <div className="rowActions">
+                <input
+                  aria-label="ID de candidate"
+                  className="textInput"
+                  onChange={(event) => setCandidateVersionId(event.target.value)}
+                  value={candidateVersionId}
+                />
+                <select
+                  aria-label="Version base de candidate"
+                  onChange={(event) => setCandidateBaseVersion(event.target.value)}
+                  value={candidateBaseVersion}
+                >
+                  {knowledgeVersions.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      base {version.id}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  aria-label="Autor de candidate"
+                  className="textInput"
+                  onChange={(event) => setCandidateAuthor(event.target.value)}
+                  value={candidateAuthor}
+                />
+                <button
+                  className="primaryButton"
+                  disabled={publicationBusy || !candidateVersionId || !candidateAuthor || !candidateReason}
+                  onClick={handleCreateCandidateVersion}
+                  type="button"
+                >
+                  Crear candidate
+                </button>
+              </div>
+              <label className="fieldLabel" htmlFor="candidateReason">
+                Motivo
+              </label>
+              <textarea
+                id="candidateReason"
+                onChange={(event) => setCandidateReason(event.target.value)}
+                value={candidateReason}
+              />
+              <div className="rowActions">
+                <select
+                  aria-label="Version candidata para publicar"
+                  onChange={(event) => {
+                    setPublicationTargetVersion(event.target.value);
+                    setPublicationReadiness(null);
+                  }}
+                  value={publicationTargetVersion}
+                >
+                  <option value="">Seleccionar candidate</option>
+                  {candidateVersions.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {version.id} · {version.status}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="ghostButton"
+                  disabled={!publicationTargetVersion || publicationBusy}
+                  onClick={() => void handleCheckPublicationReadiness()}
+                  type="button"
+                >
+                  Ver readiness
+                </button>
+                <button
+                  className="primaryButton"
+                  disabled={!publishableReadiness || publicationBusy}
+                  onClick={handlePublishCandidateVersion}
+                  type="button"
+                >
+                  Publicar candidate
+                </button>
+              </div>
+              {publicationReadiness ? (
+                <>
+                  <div className="metricGrid">
+                    <Metric label="Version" value={publicationReadiness.version} />
+                    <Metric label="Estado" value={publicationReadiness.status} />
+                    <Metric
+                      label="Publicable"
+                      value={publicationReadiness.publishable ? "si" : "no"}
+                    />
+                    <Metric label="Bloqueos" value={publicationReadiness.blockers.length} />
+                  </div>
+                  <div className="knowledgeGrid">
+                    {publicationReadiness.checks.map((check) => (
+                      <article className="knowledgeItem" key={check.id}>
+                        <strong>{check.label}</strong>
+                        <span>{check.passed ? "pasa" : "bloquea"}</span>
+                        <p className="note">{check.detail}</p>
+                      </article>
+                    ))}
+                  </div>
+                  <List title="Blockers" items={publicationReadiness.blockers} />
+                </>
               ) : null}
             </div>
             <div className="knowledgeGrid">

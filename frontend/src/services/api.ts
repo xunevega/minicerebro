@@ -15,6 +15,7 @@ import type {
   GeneratedText,
   GenerationAction,
   GenerationResult,
+  KnowledgeCandidateVersionCreate,
   KnowledgeCard,
   KnowledgeClaim,
   KnowledgeEvidenceItem,
@@ -29,6 +30,7 @@ import type {
   KnowledgeNode,
   KnowledgeObjectRevision,
   KnowledgePublicationPolicy,
+  KnowledgePublicationCreate,
   KnowledgePublicationReadiness,
   KnowledgeProposal,
   KnowledgeProposalCreate,
@@ -121,6 +123,20 @@ export function getKnowledgeSourceIngestionStatuses(sourceId?: string) {
 
 export function getKnowledgeVersions() {
   return request<KnowledgeVersion[]>("/knowledge/versions");
+}
+
+export function createKnowledgeCandidate(payload: KnowledgeCandidateVersionCreate) {
+  return request<KnowledgeVersion>("/knowledge/candidates", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
+export function publishKnowledgeVersion(payload: KnowledgePublicationCreate) {
+  return request<KnowledgeVersion>("/knowledge/publications", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 export function registerKnowledgeSource(payload: KnowledgeSourceCreate) {

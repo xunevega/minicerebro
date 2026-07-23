@@ -2954,6 +2954,16 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
         assert query_payload["claims"][0]["status"] == "published"
         assert query_payload["evidence"][0]["status"] == "published"
 
+        latest_query = client.post(
+            "/knowledge/query",
+            json={"query": "conocimiento trazable", "version": "latest", "limit": 3},
+        )
+        assert latest_query.status_code == 200
+        latest_payload = latest_query.json()
+        assert latest_payload["requested_version"] == "latest"
+        assert latest_payload["resolved_version"] == candidate_id
+        assert latest_payload["version"] == candidate_id
+
         with SessionLocal() as session:
             snapshot = session.get(KnowledgeVersionSnapshotRecord, candidate_id)
             assert snapshot is not None

@@ -9,6 +9,7 @@
     "preview": "vite preview",
     "test:knowledge-empty": "node tests/knowledge-empty-query.mjs",
     "test:knowledge-manual-ingestion": "node tests/knowledge-manual-ingestion.mjs",
+    "test:knowledge-publication-flow": "node tests/knowledge-publication-flow.mjs",
     "test:lab-compare": "node tests/lab-compare.mjs",
     "test:profile-export": "node tests/profile-export.mjs",
     "test:closure-surfaces": "node tests/closure-surfaces.mjs",
@@ -17,7 +18,7 @@
     "test:scoring-manual": "node tests/scoring-manual.mjs",
     "test:editor-persistence": "node tests/editor-persistence.mjs",
     "test:profile-knowledge-card": "node tests/profile-knowledge-card.mjs",
-    "test:smoke-ui": "npm run test:knowledge-empty && npm run test:knowledge-manual-ingestion && npm run test:lab-compare && npm run test:profile-export && npm run test:closure-surfaces && npm run test:cerebro-acceptance && npm run test:feedback-flow && npm run test:scoring-manual && npm run test:editor-persistence && npm run test:profile-knowledge-card"
+    "test:smoke-ui": "npm run test:knowledge-empty && npm run test:knowledge-manual-ingestion && npm run test:knowledge-publication-flow && npm run test:lab-compare && npm run test:profile-export && npm run test:closure-surfaces && npm run test:cerebro-acceptance && npm run test:feedback-flow && npm run test:scoring-manual && npm run test:editor-persistence && npm run test:profile-knowledge-card"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.7.0",
