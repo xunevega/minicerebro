@@ -57,6 +57,7 @@ Variables necesarias en el servicio backend:
 
 ```bash
 DATABASE_URL=postgresql://...
+CORS_ALLOW_ORIGINS=https://<tu-frontend>.up.railway.app
 ```
 
 Variable opcional para generacion real:

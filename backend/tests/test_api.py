@@ -40,6 +40,22 @@ def test_health():
     assert response.json() == {"status": "ok"}
 
 
+def test_cors_origins_include_configured_frontend_without_trailing_slash(monkeypatch):
+    from app import main
+
+    monkeypatch.setenv(
+        "CORS_ALLOW_ORIGINS",
+        "https://frontend-production-834c.up.railway.app/, https://otro.example",
+    )
+
+    assert main.cors_allow_origins() == [
+        "http://localhost:5173",
+        "http://127.0.0.1:5173",
+        "https://frontend-production-834c.up.railway.app",
+        "https://otro.example",
+    ]
+
+
 def test_profile_scores_include_effective_value():
     response = client.get("/profiles/default/scores")
     assert response.status_code == 200
