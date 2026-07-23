@@ -632,23 +632,121 @@ class Repository:
         status: str,
         created_at: str,
     ) -> KnowledgeVersionSnapshotRecord:
-        def ids(model: type, field_name: str = "id") -> list[str]:
-            field = getattr(model, field_name)
-            return list(self.session.scalars(select(field).order_by(field)).all())
+        publishable_statuses = {"validated", "published"}
+        claims = self.session.scalars(
+            select(KnowledgeClaimRecord)
+            .where(KnowledgeClaimRecord.status.in_(publishable_statuses))
+            .order_by(KnowledgeClaimRecord.id)
+        ).all()
+        claim_ids = [claim.id for claim in claims]
+        evidence_ids = sorted({claim.evidence_id for claim in claims})
+        card_ids = sorted({claim.card_id for claim in claims})
+        claim_node_ids = {claim.node_id for claim in claims}
+        related_node_ids = {
+            node_id
+            for claim in claims
+            for node_id in claim.related_node_ids
+        }
+        evidence = self.session.scalars(
+            select(KnowledgeEvidenceItemRecord)
+            .where(
+                KnowledgeEvidenceItemRecord.id.in_(evidence_ids),
+                KnowledgeEvidenceItemRecord.status.in_(publishable_statuses),
+            )
+            .order_by(KnowledgeEvidenceItemRecord.id)
+        ).all()
+        evidence_ids = [item.id for item in evidence]
+        evidence_node_ids = {item.node_id for item in evidence}
+        source_ids = sorted({item.source_id for item in evidence})
+        source_edition_ids = sorted({item.source_edition_id for item in evidence})
+        node_ids = sorted(claim_node_ids | related_node_ids | evidence_node_ids)
+        node_records = self.session.scalars(
+            select(KnowledgeNodeRecord)
+            .where(
+                KnowledgeNodeRecord.id.in_(node_ids),
+                KnowledgeNodeRecord.status.in_(publishable_statuses),
+            )
+            .order_by(KnowledgeNodeRecord.id)
+        ).all()
+        node_ids = [node.id for node in node_records]
+        resolved_node_ids = set(node_ids)
+        resolved_evidence_ids = set(evidence_ids)
+        claims = [
+            claim
+            for claim in claims
+            if claim.evidence_id in resolved_evidence_ids
+            and claim.node_id in resolved_node_ids
+            and set(claim.related_node_ids).issubset(resolved_node_ids)
+        ]
+        claim_ids = [claim.id for claim in claims]
+        card_ids = sorted({claim.card_id for claim in claims})
+        source_ids = sorted(set(source_ids) | {node.source_id for node in node_records})
+        node_relation_ids = list(
+            self.session.scalars(
+                select(KnowledgeNodeRelationRecord.id)
+                .where(
+                    KnowledgeNodeRelationRecord.source_node_id.in_(node_ids),
+                    KnowledgeNodeRelationRecord.target_node_id.in_(node_ids),
+                    KnowledgeNodeRelationRecord.status.in_(publishable_statuses),
+                )
+                .order_by(KnowledgeNodeRelationRecord.id)
+            ).all()
+        )
+        snapshot_object_ids = {
+            *source_ids,
+            *source_edition_ids,
+            *node_ids,
+            *evidence_ids,
+            *claim_ids,
+        }
+        relations = self.session.scalars(
+            select(KnowledgeRelationRecord)
+            .where(KnowledgeRelationRecord.status.in_(publishable_statuses))
+            .order_by(KnowledgeRelationRecord.id)
+        ).all()
+        relation_ids = [
+            relation.id
+            for relation in relations
+            if relation.source_entity_id in snapshot_object_ids
+            or relation.target_entity_id in snapshot_object_ids
+        ]
+        claim_evidence_link_ids = list(
+            self.session.scalars(
+                select(KnowledgeClaimEvidenceLinkRecord.id)
+                .where(KnowledgeClaimEvidenceLinkRecord.claim_id.in_(claim_ids))
+                .order_by(KnowledgeClaimEvidenceLinkRecord.id)
+            ).all()
+        )
+        revision_object_ids = [
+            *source_ids,
+            *source_edition_ids,
+            *node_ids,
+            *relation_ids,
+            *evidence_ids,
+            *claim_ids,
+            *card_ids,
+        ]
+        revision_ids = list(
+            self.session.scalars(
+                select(KnowledgeObjectRevisionRecord.id)
+                .where(KnowledgeObjectRevisionRecord.object_id.in_(revision_object_ids))
+                .order_by(KnowledgeObjectRevisionRecord.id)
+            ).all()
+        )
 
         return KnowledgeVersionSnapshotRecord(
             version_id=version_id,
             status=status,
-            source_ids=ids(KnowledgeSourceRecord),
-            source_edition_ids=ids(KnowledgeSourceEditionRecord),
-            node_ids=ids(KnowledgeNodeRecord),
-            node_relation_ids=ids(KnowledgeNodeRelationRecord),
-            relation_ids=ids(KnowledgeRelationRecord),
-            evidence_ids=ids(KnowledgeEvidenceItemRecord),
-            claim_ids=ids(KnowledgeClaimRecord),
-            claim_evidence_link_ids=ids(KnowledgeClaimEvidenceLinkRecord),
-            card_ids=ids(KnowledgeCardRecord),
-            revision_ids=ids(KnowledgeObjectRevisionRecord),
+            source_ids=source_ids,
+            source_edition_ids=source_edition_ids,
+            node_ids=node_ids,
+            node_relation_ids=node_relation_ids,
+            relation_ids=relation_ids,
+            evidence_ids=evidence_ids,
+            claim_ids=claim_ids,
+            claim_evidence_link_ids=claim_evidence_link_ids,
+            card_ids=card_ids,
+            revision_ids=revision_ids,
             created_at=created_at,
             updated_at=created_at,
         )
@@ -795,6 +893,7 @@ class Repository:
                 "Knowledge version is not publishable: " + ", ".join(readiness.blockers)
             )
         now = datetime.now(UTC).isoformat()
+        promoted = self._promote_snapshot_to_published(snapshot, payload.version, now)
         record.status = "published"
         record.published_at = now
         snapshot.status = "published"
@@ -809,6 +908,7 @@ class Repository:
                 "base_version": payload.version,
                 "snapshot_created": False,
                 "snapshot_activated": True,
+                "promoted": promoted,
                 "source_count": len(snapshot.source_ids),
                 "node_count": len(snapshot.node_ids),
                 "evidence_count": len(snapshot.evidence_ids),
@@ -818,6 +918,102 @@ class Repository:
         )
         self.session.commit()
         return knowledge_version_from_record(record, self)
+
+    def _promote_snapshot_to_published(
+        self,
+        snapshot: KnowledgeVersionSnapshotRecord,
+        version: str,
+        published_at: str,
+    ) -> dict[str, int]:
+        node_count = 0
+        for node in self.session.scalars(
+            select(KnowledgeNodeRecord).where(KnowledgeNodeRecord.id.in_(snapshot.node_ids))
+        ).all():
+            node.status = "published"
+            node.version = version
+            node.published_at = published_at
+            node_count += 1
+
+        node_relation_count = 0
+        for relation in self.session.scalars(
+            select(KnowledgeNodeRelationRecord).where(
+                KnowledgeNodeRelationRecord.id.in_(snapshot.node_relation_ids)
+            )
+        ).all():
+            relation.status = "published"
+            relation.version = version
+            relation.updated_at = published_at
+            node_relation_count += 1
+
+        relation_count = 0
+        for relation in self.session.scalars(
+            select(KnowledgeRelationRecord).where(
+                KnowledgeRelationRecord.id.in_(snapshot.relation_ids)
+            )
+        ).all():
+            relation.status = "published"
+            relation.version = version
+            relation.updated_at = published_at
+            relation_count += 1
+
+        evidence_count = 0
+        for evidence in self.session.scalars(
+            select(KnowledgeEvidenceItemRecord).where(
+                KnowledgeEvidenceItemRecord.id.in_(snapshot.evidence_ids)
+            )
+        ).all():
+            evidence.status = "published"
+            evidence.version = version
+            evidence.updated_at = published_at
+            evidence_count += 1
+
+        claim_count = 0
+        for claim in self.session.scalars(
+            select(KnowledgeClaimRecord).where(KnowledgeClaimRecord.id.in_(snapshot.claim_ids))
+        ).all():
+            claim.status = "published"
+            claim.version = version
+            claim.published_at = published_at
+            claim.updated_at = published_at
+            claim_count += 1
+
+        card_count = 0
+        for card in self.session.scalars(
+            select(KnowledgeCardRecord).where(KnowledgeCardRecord.id.in_(snapshot.card_ids))
+        ).all():
+            card.version = version
+            card_count += 1
+
+        revision_count = 0
+        for revision in self.session.scalars(
+            select(KnowledgeObjectRevisionRecord).where(
+                KnowledgeObjectRevisionRecord.id.in_(snapshot.revision_ids)
+            )
+        ).all():
+            revision.status = "published"
+            revision.knowledge_version = version
+            revision.updated_at = published_at
+            revision_count += 1
+
+        claim_revision_count = 0
+        for revision in self.session.scalars(
+            select(KnowledgeClaimRevisionRecord).where(
+                KnowledgeClaimRevisionRecord.claim_id.in_(snapshot.claim_ids)
+            )
+        ).all():
+            revision.knowledge_version = version
+            claim_revision_count += 1
+
+        return {
+            "nodes": node_count,
+            "node_relations": node_relation_count,
+            "relations": relation_count,
+            "evidence": evidence_count,
+            "claims": claim_count,
+            "cards": card_count,
+            "object_revisions": revision_count,
+            "claim_revisions": claim_revision_count,
+        }
 
     def list_knowledge_object_revisions(
         self,
@@ -1607,27 +1803,27 @@ class Repository:
         if self.session.get(KnowledgeVersionRecord, version) is None:
             raise KeyError(version)
         now = datetime.now(UTC).isoformat()
-        self.session.add(
-            KnowledgeClaimRecord(
-                id=claim_id,
-                evidence_id=evidence_id,
-                card_id=card_id,
-                statement=self._required_payload_value(proposal, "statement"),
-                claim_type=self._required_payload_value(proposal, "claim_type"),
-                node_id=node_id,
-                related_node_ids=related_node_ids,
-                domain=self._required_payload_value(proposal, "domain"),
-                scope=scope,
-                status="validated",
-                confidence=proposal.confidence,
-                origin="approved_knowledge_proposal",
-                version=version,
-                revision=1,
-                created_at=now,
-                updated_at=now,
-                published_at=None,
-            )
+        claim_record = KnowledgeClaimRecord(
+            id=claim_id,
+            evidence_id=evidence_id,
+            card_id=card_id,
+            statement=self._required_payload_value(proposal, "statement"),
+            claim_type=self._required_payload_value(proposal, "claim_type"),
+            node_id=node_id,
+            related_node_ids=related_node_ids,
+            domain=self._required_payload_value(proposal, "domain"),
+            scope=scope,
+            status="validated",
+            confidence=proposal.confidence,
+            origin="approved_knowledge_proposal",
+            version=version,
+            revision=1,
+            created_at=now,
+            updated_at=now,
+            published_at=None,
         )
+        self.session.add(claim_record)
+        self.session.flush()
         self.session.add(
             KnowledgeClaimEvidenceLinkRecord(
                 id=f"{claim_id}:{evidence_id}:primary",

@@ -189,12 +189,6 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             continue
         session.add(KnowledgeNodeRelationRecord(id=relation.id, **values))
 
-    seed_relation_ids = {relation.id for relation in seed_node_relations()}
-    stale_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
-    for stale_relation in stale_relations:
-        if stale_relation.id not in seed_relation_ids:
-            session.delete(stale_relation)
-
     for relation in seed_relations():
         relation_record = session.get(KnowledgeRelationRecord, relation.id)
         values = {
@@ -218,12 +212,6 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 setattr(relation_record, field, value)
             continue
         session.add(KnowledgeRelationRecord(id=relation.id, **values))
-
-    seed_graph_relation_ids = {relation.id for relation in seed_relations()}
-    stale_graph_relations = session.scalars(select(KnowledgeRelationRecord)).all()
-    for stale_relation in stale_graph_relations:
-        if stale_relation.id not in seed_graph_relation_ids:
-            session.delete(stale_relation)
 
     for revision in seed_object_revisions():
         revision_record = session.get(KnowledgeObjectRevisionRecord, revision.id)
@@ -446,12 +434,6 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 setattr(batch_record, field, value)
             continue
         session.add(KnowledgeIngestionBatchRecord(id=batch.id, **values))
-
-    seed_batch_ids = {batch.id for batch in seed_ingestion_batches()}
-    stale_batches = session.scalars(select(KnowledgeIngestionBatchRecord)).all()
-    for stale_batch in stale_batches:
-        if stale_batch.id not in seed_batch_ids:
-            session.delete(stale_batch)
 
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v0") is None:
         session.add(

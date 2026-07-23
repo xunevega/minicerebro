@@ -624,8 +624,17 @@ def evaluate_publication_readiness(
     claims_by_card: dict[str, list[KnowledgeClaim]] = {}
     for claim in claims:
         claims_by_card.setdefault(claim.card_id, []).append(claim)
+    accepted_object_statuses = (
+        {"published"} if version.status == "published" else {"validated", "published"}
+    )
 
     checks = [
+        {
+            "id": "non_empty_snapshot",
+            "label": "snapshot de conocimiento no vacio",
+            "passed": bool(sources and nodes and evidence and claims and cards),
+            "detail": "la publicacion debe contener fuente, nodo, evidencia, claim y ficha",
+        },
         {
             "id": "referential_integrity",
             "label": "integridad referencial",
@@ -677,8 +686,8 @@ def evaluate_publication_readiness(
             "label": "validacion documental completa",
             "passed": (
                 all(source.validation_status == "validated" for source in sources)
-                and all(item.status == "published" for item in evidence)
-                and all(claim.status == "published" for claim in claims)
+                and all(item.status in accepted_object_statuses for item in evidence)
+                and all(claim.status in accepted_object_statuses for claim in claims)
             ),
             "detail": "fuentes, evidencias y claims deben estar validados/publicados",
         },

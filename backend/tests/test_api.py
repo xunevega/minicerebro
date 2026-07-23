@@ -2146,8 +2146,11 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
         assert candidate["id"] == candidate_id
         assert candidate["status"] == "candidate"
         assert candidate["published_at"] == "not-published"
-        assert candidate["source_count"] >= 23
-        assert candidate["node_count"] >= 2
+        assert candidate["source_count"] == 0
+        assert candidate["node_count"] == 0
+        assert candidate["evidence_count"] == 0
+        assert candidate["claim_count"] == 0
+        assert candidate["card_count"] == 0
 
         with SessionLocal() as session:
             snapshot = session.get(KnowledgeVersionSnapshotRecord, candidate_id)
@@ -2182,6 +2185,7 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
         )
         assert blocked_publication.status_code == 409
         assert "Knowledge version is not publishable" in blocked_publication.json()["detail"]
+        assert "snapshot de conocimiento no vacio" in blocked_publication.json()["detail"]
 
         seed_publication = client.post(
             "/knowledge/publications",
@@ -2230,6 +2234,368 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
             session.query(KnowledgeVersionRecord).filter(
                 KnowledgeVersionRecord.id == candidate_id
             ).delete(synchronize_session=False)
+            session.commit()
+
+
+def test_candidate_publication_promotes_validated_snapshot_to_published():
+    candidate_id = "test-candidate-published"
+    source_id = "test-publication-source"
+    edition_id = "test-publication-source:edition"
+    entry_id = "test-publication-source:edition:index"
+    segment_id = "test-publication-source:edition:index:seg"
+    node_id = "test-publication-node"
+    evidence_id = "test-publication-evidence"
+    claim_id = "test-publication-claim"
+    relation_id = "test-publication-relation"
+    decision = {
+        "reviewer": "test-editor",
+        "reason": "validar cadena candidata para publicacion",
+    }
+    proposals: list[dict] = []
+    extraction: dict | None = None
+    try:
+        source_response = client.post(
+            "/knowledge/sources",
+            json={
+                "id": source_id,
+                "catalog_id": "TEST-PUB-001",
+                "name": "Fuente validada para publicacion",
+                "responsible": "Equipo editorial",
+                "source_type": "manual de prueba",
+                "domains": ["trazabilidad"],
+                "authority_level": 4,
+                "priority": 180,
+                "status": "registered",
+                "acquisition_status": "available",
+                "validation_status": "validated",
+                "rights": "uso local autorizado; contenido no ingerido automaticamente",
+                "structure": ["capitulo", "seccion"],
+            },
+        )
+        assert source_response.status_code == 200
+        assert client.post(
+            f"/knowledge/sources/{source_id}/editions",
+            json={
+                "id": edition_id,
+                "source_id": source_id,
+                "title": "Fuente validada para publicacion",
+                "edition_label": "Edicion de prueba",
+                "publication_year": "2026",
+                "publisher": "Editorial de prueba",
+                "isbn": "978-0-000000-01-7",
+                "language": "es",
+                "format": "pdf",
+                "access_location": "/tmp/fuente-publicacion.pdf",
+                "rights_status": "uso local autorizado; contenido no ingerido automaticamente",
+                "status": "available",
+                "notes": "Edicion usada para probar publicacion real.",
+            },
+        ).status_code == 200
+        assert client.post(
+            f"/knowledge/editions/{edition_id}/index",
+            json=[
+                {
+                    "id": entry_id,
+                    "edition_id": edition_id,
+                    "parent_id": None,
+                    "level": 1,
+                    "order": 1,
+                    "title": "Trazabilidad editorial",
+                    "locator": "capitulo 1",
+                    "page_start": "1",
+                    "page_end": "4",
+                    "status": "registered",
+                }
+            ],
+        ).status_code == 200
+        assert client.post(
+            f"/knowledge/index/{entry_id}/segments",
+            json=[
+                {
+                    "id": segment_id,
+                    "index_entry_id": entry_id,
+                    "parent_segment_id": None,
+                    "segment_type": "paragraph",
+                    "title": "Segmento publicable",
+                    "text": "La publicacion convierte objetos validados en conocimiento trazable.",
+                    "order": 1,
+                    "start_locator": "capitulo 1 > p1",
+                    "end_locator": "capitulo 1 > p1",
+                    "language": "es",
+                    "status": "registered",
+                }
+            ],
+        ).status_code == 200
+        extraction_response = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json={
+                "extractor_type": "deterministic",
+                "extractor_name": "manual-placeholder",
+                "extractor_version": "1.0",
+                "configuration": {"mode": "publication-promotion"},
+            },
+        )
+        assert extraction_response.status_code == 200
+        extraction = extraction_response.json()
+        response = client.post(
+            f"/knowledge/extractions/{extraction['id']}/proposals",
+            json=[
+                {
+                    "proposal_type": "node",
+                    "title": "Nodo publicable de prueba",
+                    "payload": {
+                        "id": node_id,
+                        "source_id": source_id,
+                        "node_type": "concepto",
+                        "title": "Nodo publicable de prueba",
+                        "summary": "Nodo validado para probar publicacion.",
+                        "canonical_name": "Nodo publicable de prueba",
+                        "primary_branch": "lengua espanola",
+                        "secondary_branch": "trazabilidad",
+                        "short_definition": "Concepto validado para publicacion.",
+                        "long_definition": (
+                            "Concepto creado para verificar que la publicacion "
+                            "promueve objetos validados."
+                        ),
+                        "aliases": ["publicacion trazable"],
+                    },
+                    "rationale": "El segmento contiene un concepto publicable.",
+                    "confidence": 0.88,
+                    "source_locator": "capitulo 1 > p1",
+                },
+                {
+                    "proposal_type": "evidence",
+                    "title": "Evidencia publicable de prueba",
+                    "payload": {
+                        "id": evidence_id,
+                        "node_id": node_id,
+                        "source_id": source_id,
+                        "source_edition_id": edition_id,
+                        "evidence_type": "documented_paraphrase",
+                        "locator": {
+                            "catalog_id": "TEST-PUB-001",
+                            "edition": "Edicion de prueba",
+                            "unit": "capitulo 1",
+                            "locator": "capitulo 1 > p1",
+                            "url": None,
+                        },
+                        "reference": "capitulo 1 > p1",
+                        "excerpt": (
+                            "La publicacion convierte objetos validados "
+                            "en conocimiento trazable."
+                        ),
+                        "context": "reviewed_proposal",
+                        "confidence_level": 4,
+                    },
+                    "rationale": "La evidencia procede del segmento revisado.",
+                    "confidence": 0.89,
+                    "source_locator": "capitulo 1 > p1",
+                },
+                {
+                    "proposal_type": "claim",
+                    "title": "Claim publicable de prueba",
+                    "payload": {
+                        "id": claim_id,
+                        "evidence_id": evidence_id,
+                        "card_id": "lexico-precision",
+                        "statement": (
+                            "La publicacion oficializa conocimiento trazable "
+                            "solo desde objetos validados."
+                        ),
+                        "claim_type": "architectural",
+                        "node_id": node_id,
+                        "related_node_ids": [],
+                        "domain": "knowledge.publication",
+                        "scope": {"language": "es", "register": "technical"},
+                    },
+                    "rationale": "El claim queda sustentado por la evidencia validada.",
+                    "confidence": 0.9,
+                    "source_locator": "capitulo 1 > p1",
+                },
+                {
+                    "proposal_type": "relation",
+                    "title": "Relacion publicable de prueba",
+                    "payload": {
+                        "id": relation_id,
+                        "source_entity_type": "claim",
+                        "source_entity_id": claim_id,
+                        "target_entity_type": "evidence",
+                        "target_entity_id": evidence_id,
+                        "relation_type": "depende_de",
+                        "direction": "outgoing",
+                        "cardinality": "N:1",
+                        "weight": 1.0,
+                        "context": "publication_readiness",
+                    },
+                    "rationale": "El claim depende de la evidencia revisada.",
+                    "confidence": 0.87,
+                    "source_locator": "capitulo 1 > p1",
+                },
+            ],
+        )
+        assert response.status_code == 200
+        proposals = response.json()
+        proposal_by_type = {proposal["proposal_type"]: proposal for proposal in proposals}
+        for proposal_type in ("node", "evidence", "claim", "relation"):
+            approved = client.post(
+                f"/knowledge/proposals/{proposal_by_type[proposal_type]['id']}/approve",
+                json=decision,
+            )
+            assert approved.status_code == 200
+            assert approved.json()["status"] == "approved"
+
+        with SessionLocal() as session:
+            relation = session.get(KnowledgeRelationRecord, relation_id)
+            assert relation is not None
+            assert relation.status == "validated"
+            assert relation.source_entity_id == claim_id
+            assert relation.target_entity_id == evidence_id
+
+        candidate = client.post(
+            "/knowledge/candidates",
+            json={
+                "id": candidate_id,
+                "base_version": "knowledge-v0",
+                "author": "test-editor",
+                "reason": "crear version candidata con snapshot validado",
+            },
+        )
+        assert candidate.status_code == 200
+        assert candidate.json()["source_count"] == 1
+        assert candidate.json()["node_count"] == 1
+        assert candidate.json()["evidence_count"] == 1
+        assert candidate.json()["claim_count"] == 1
+        assert candidate.json()["card_count"] == 1
+
+        readiness = client.get(f"/knowledge/publication/readiness?version={candidate_id}")
+        assert readiness.status_code == 200
+        assert readiness.json()["publishable"] is True
+        assert readiness.json()["blockers"] == []
+
+        publication = client.post(
+            "/knowledge/publications",
+            json={
+                "version": candidate_id,
+                "author": "test-editor",
+                "reason": "publicar snapshot validado de prueba",
+            },
+        )
+        assert publication.status_code == 200
+        published = publication.json()
+        assert published["status"] == "published"
+        assert published["published_at"] != "not-published"
+
+        query = client.post(
+            "/knowledge/query",
+            json={"query": "conocimiento trazable", "version": candidate_id, "limit": 3},
+        )
+        assert query.status_code == 200
+        query_payload = query.json()
+        assert query_payload["card_count"] == 1
+        assert query_payload["cards"][0]["id"] == "lexico-precision"
+        assert query_payload["claims"][0]["status"] == "published"
+        assert query_payload["evidence"][0]["status"] == "published"
+
+        with SessionLocal() as session:
+            snapshot = session.get(KnowledgeVersionSnapshotRecord, candidate_id)
+            assert snapshot is not None
+            assert snapshot.status == "published"
+            assert snapshot.source_ids == [source_id]
+            assert snapshot.node_ids == [node_id]
+            assert snapshot.evidence_ids == [evidence_id]
+            assert snapshot.claim_ids == [claim_id]
+            assert snapshot.relation_ids == [relation_id]
+            node = session.get(KnowledgeNodeRecord, node_id)
+            evidence = session.get(KnowledgeEvidenceItemRecord, evidence_id)
+            claim = session.get(KnowledgeClaimRecord, claim_id)
+            relation = session.get(KnowledgeRelationRecord, relation_id)
+            assert node is not None and node.status == "published"
+            assert evidence is not None and evidence.status == "published"
+            assert claim is not None and claim.status == "published"
+            assert relation is not None and relation.status == "published"
+            assert {node.version, evidence.version, claim.version, relation.version} == {
+                candidate_id
+            }
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.published",
+                    AuditEventRecord.entity_id == candidate_id,
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["snapshot_activated"] is True
+            assert event.payload["promoted"]["nodes"] == 1
+            assert event.payload["promoted"]["evidence"] == 1
+            assert event.payload["promoted"]["claims"] == 1
+            assert event.payload["promoted"]["relations"] == 1
+    finally:
+        proposal_ids = [proposal["id"] for proposal in proposals]
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_(
+                    [
+                        candidate_id,
+                        source_id,
+                        edition_id,
+                        entry_id,
+                        segment_id,
+                        extraction["id"] if extraction is not None else "",
+                        *proposal_ids,
+                    ]
+                )
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeVersionSnapshotRecord).filter(
+                KnowledgeVersionSnapshotRecord.version_id == candidate_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeVersionRecord).filter(
+                KnowledgeVersionRecord.id == candidate_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeClaimRevisionRecord).filter(
+                KnowledgeClaimRevisionRecord.claim_id == claim_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeClaimEvidenceLinkRecord).filter(
+                KnowledgeClaimEvidenceLinkRecord.claim_id == claim_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeClaimRecord).filter(
+                KnowledgeClaimRecord.id == claim_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeEvidenceRevisionRecord).filter(
+                KnowledgeEvidenceRevisionRecord.evidence_id == evidence_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeEvidenceItemRecord).filter(
+                KnowledgeEvidenceItemRecord.id == evidence_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeObjectRevisionRecord).filter(
+                KnowledgeObjectRevisionRecord.object_id == node_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeRelationRecord).filter(
+                KnowledgeRelationRecord.id == relation_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeNodeRecord).filter(
+                KnowledgeNodeRecord.id == node_id
+            ).delete(synchronize_session=False)
+            if extraction is not None:
+                session.query(KnowledgeProposalRecord).filter(
+                    KnowledgeProposalRecord.extraction_id == extraction["id"]
+                ).delete(synchronize_session=False)
+                session.query(KnowledgeExtractionRunRecord).filter(
+                    KnowledgeExtractionRunRecord.id == extraction["id"]
+                ).delete(synchronize_session=False)
+            session.query(KnowledgeSegmentRecord).filter(
+                KnowledgeSegmentRecord.id == segment_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.id == entry_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete(synchronize_session=False)
+            card = session.get(KnowledgeCardRecord, "lexico-precision")
+            if card is not None:
+                card.version = "knowledge-v0"
             session.commit()
 
 
