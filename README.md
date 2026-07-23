@@ -79,6 +79,42 @@ En Railway, genera el dominio del servicio apuntando al puerto `8000` y verifica
 https://<tu-dominio>.up.railway.app/health
 ```
 
+## Railway frontend
+
+El frontend se despliega como un servicio Railway separado con `Root Directory` apuntando a `frontend`.
+El directorio incluye `railway.json`, que construye el bundle Vite y lo sirve con `vite preview`.
+
+Variables necesarias en el servicio frontend:
+
+```bash
+VITE_API_BASE=https://<tu-backend>.up.railway.app
+```
+
+Configuracion esperada:
+
+```text
+Root Directory: frontend
+Pre-deploy command: vacio
+Custom Start Command: vacio
+```
+
+Railway debe usar `frontend/railway.json`:
+
+```bash
+npm ci && npm run build
+npm run start
+```
+
+Tras cada bloque fuerte de cambios, verificar en produccion:
+
+```bash
+curl https://<backend>.up.railway.app/health
+curl https://<backend>.up.railway.app/knowledge/status
+curl -X POST https://<backend>.up.railway.app/knowledge/query \
+  -H 'Content-Type: application/json' \
+  -d '{"query":"terminologia gramatical categorias funciones","version":"latest","limit":3}'
+```
+
 ## Estado de esta base
 
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
