@@ -17,6 +17,7 @@ from app.db.models import (
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
     KnowledgeRelationRecord,
+    KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
 )
@@ -833,6 +834,191 @@ def test_register_knowledge_index_entries_builds_document_tree_without_knowledge
             session.query(AuditEventRecord).filter(
                 AuditEventRecord.entity_id.in_([source_id, edition_id])
             ).delete(synchronize_session=False)
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.edition_id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
+def test_register_knowledge_segments_preserves_text_without_creating_knowledge():
+    source_id = "test-fuente-segmentos"
+    edition_id = "test-fuente-segmentos:primera"
+    entry_id = "test-fuente-segmentos:primera:sec-1-1"
+    segment_id = "test-fuente-segmentos:primera:sec-1-1:seg-1"
+    child_segment_id = "test-fuente-segmentos:primera:sec-1-1:seg-1-a"
+    source_payload = {
+        "id": source_id,
+        "catalog_id": "TEST-F004",
+        "name": "Fuente de prueba con segmentos",
+        "responsible": "Equipo editorial",
+        "source_type": "manual de prueba",
+        "domains": ["sintaxis"],
+        "authority_level": 3,
+        "priority": 102,
+    }
+    edition_payload = {
+        "id": edition_id,
+        "source_id": source_id,
+        "title": "Fuente de prueba con segmentos",
+        "edition_label": "Primera edicion segmentable",
+        "publication_year": "2026",
+        "publisher": "Editorial de prueba",
+        "isbn": "978-0-000000-00-4",
+        "language": "es",
+        "format": "pdf",
+        "access_location": "/tmp/fuente-segmentos.pdf",
+        "rights_status": "uso local autorizado; contenido no ingerido",
+        "status": "available",
+        "notes": "Registro bibliografico para prueba de segmentos.",
+    }
+    index_payload = [
+        {
+            "id": entry_id,
+            "edition_id": edition_id,
+            "parent_id": None,
+            "level": 1,
+            "order": 1,
+            "title": "Complemento directo",
+            "locator": "capitulo 1 > 1.1",
+            "page_start": "10",
+            "page_end": "14",
+            "status": "registered",
+        }
+    ]
+    segment_payload = [
+        {
+            "id": segment_id,
+            "index_entry_id": entry_id,
+            "parent_segment_id": None,
+            "segment_type": "paragraph",
+            "title": "Parrafo inicial",
+            "text": "El complemento directo aparece descrito en este apartado documental.",
+            "order": 1,
+            "start_locator": "capitulo 1 > 1.1 > p1",
+            "end_locator": "capitulo 1 > 1.1 > p1",
+            "language": "es",
+            "status": "registered",
+        },
+        {
+            "id": child_segment_id,
+            "index_entry_id": entry_id,
+            "parent_segment_id": segment_id,
+            "segment_type": "sentence",
+            "title": "Oracion 1",
+            "text": "El complemento directo aparece descrito.",
+            "order": 1,
+            "start_locator": "capitulo 1 > 1.1 > p1:s1",
+            "end_locator": "capitulo 1 > 1.1 > p1:s1",
+            "language": "es",
+            "status": "registered",
+        },
+    ]
+    try:
+        assert client.post("/knowledge/sources", json=source_payload).status_code == 200
+        assert (
+            client.post(f"/knowledge/sources/{source_id}/editions", json=edition_payload).status_code
+            == 200
+        )
+        assert client.post(f"/knowledge/editions/{edition_id}/index", json=index_payload).status_code == 200
+
+        response = client.post(f"/knowledge/index/{entry_id}/segments", json=segment_payload)
+        assert response.status_code == 200
+        created = response.json()
+        assert [segment["id"] for segment in created] == [segment_id, child_segment_id]
+        assert created[0]["index_entry_id"] == entry_id
+        assert created[0]["parent_segment_id"] is None
+        assert created[0]["segment_type"] == "paragraph"
+        assert created[0]["order"] == 1
+        assert created[0]["start_locator"] == "capitulo 1 > 1.1 > p1"
+        assert created[0]["end_locator"] == "capitulo 1 > 1.1 > p1"
+        assert created[0]["text"] == (
+            "El complemento directo aparece descrito en este apartado documental."
+        )
+        assert created[1]["parent_segment_id"] == segment_id
+
+        by_entry = client.get(f"/knowledge/index/{entry_id}/segments")
+        assert by_entry.status_code == 200
+        assert [segment["id"] for segment in by_entry.json()] == [segment_id, child_segment_id]
+
+        detail = client.get(f"/knowledge/segments/{child_segment_id}")
+        assert detail.status_code == 200
+        assert detail.json()["text"] == "El complemento directo aparece descrito."
+
+        duplicate_order = client.post(
+            f"/knowledge/index/{entry_id}/segments",
+            json=[
+                {
+                    **segment_payload[0],
+                    "id": "test-fuente-segmentos:primera:sec-1-1:seg-duplicado",
+                }
+            ],
+        )
+        assert duplicate_order.status_code == 409
+        assert duplicate_order.json()["detail"] == "Knowledge segment order already exists for parent"
+
+        missing_parent = client.post(
+            f"/knowledge/index/{entry_id}/segments",
+            json=[
+                {
+                    **segment_payload[0],
+                    "id": "test-fuente-segmentos:primera:sec-1-1:seg-huerfano",
+                    "parent_segment_id": "missing-segment",
+                    "order": 2,
+                }
+            ],
+        )
+        assert missing_parent.status_code == 409
+        assert missing_parent.json()["detail"] == "Knowledge segment parent not found"
+
+        missing_entry = client.post(
+            "/knowledge/index/entrada-inexistente/segments",
+            json=[{**segment_payload[0], "index_entry_id": "entrada-inexistente"}],
+        )
+        assert missing_entry.status_code == 404
+        assert missing_entry.json()["detail"] == "Knowledge index entry not found"
+
+        missing_segment = client.get("/knowledge/segments/segmento-inexistente")
+        assert missing_segment.status_code == 404
+        assert missing_segment.json()["detail"] == "Knowledge segment not found"
+
+        nodes_after = client.get(f"/knowledge/nodes?source_id={source_id}")
+        assert nodes_after.status_code == 200
+        assert nodes_after.json() == []
+
+        with SessionLocal() as session:
+            records = session.scalars(
+                select(KnowledgeSegmentRecord).where(
+                    KnowledgeSegmentRecord.index_entry_id == entry_id
+                )
+            ).all()
+            assert len(records) == 2
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.segment.registered",
+                    AuditEventRecord.entity_id == entry_id,
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["segment_count"] == 2
+            assert event.payload["interprets_text"] is False
+            assert event.payload["summarizes_text"] is False
+            assert event.payload["embeddings_created"] is False
+            assert event.payload["nodes_created"] is False
+            assert event.payload["knowledge_created"] is False
+    finally:
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_([source_id, edition_id, entry_id])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeSegmentRecord).filter(
+                KnowledgeSegmentRecord.index_entry_id == entry_id
+            ).delete()
             session.query(KnowledgeIndexEntryRecord).filter(
                 KnowledgeIndexEntryRecord.edition_id == edition_id
             ).delete()

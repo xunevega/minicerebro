@@ -43,6 +43,8 @@ from app.core.models import (
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
     KnowledgeRelation,
+    KnowledgeSegment,
+    KnowledgeSegmentCreate,
     KnowledgeSource,
     KnowledgeSourceCreate,
     KnowledgeSourceEdition,
@@ -296,6 +298,42 @@ def knowledge_index_entry(
         return repository.get_knowledge_index_entry(entry_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge index entry not found") from exc
+
+
+@router.post("/knowledge/index/{entry_id}/segments")
+def register_knowledge_segments(
+    entry_id: str,
+    payload: list[KnowledgeSegmentCreate],
+    repository: RepositoryDep,
+) -> list[KnowledgeSegment]:
+    try:
+        return repository.register_knowledge_segments(entry_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge index entry not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/knowledge/index/{entry_id}/segments")
+def knowledge_segments(
+    entry_id: str,
+    repository: RepositoryDep,
+) -> list[KnowledgeSegment]:
+    try:
+        return repository.list_knowledge_segments(entry_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge index entry not found") from exc
+
+
+@router.get("/knowledge/segments/{segment_id}")
+def knowledge_segment(
+    segment_id: str,
+    repository: RepositoryDep,
+) -> KnowledgeSegment:
+    try:
+        return repository.get_knowledge_segment(segment_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge segment not found") from exc
 
 
 @router.get("/knowledge/nodes")

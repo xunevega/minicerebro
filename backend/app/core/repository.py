@@ -38,6 +38,8 @@ from app.core.models import (
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
     KnowledgeRelation,
+    KnowledgeSegment,
+    KnowledgeSegmentCreate,
     KnowledgeSource,
     KnowledgeSourceCreate,
     KnowledgeSourceEdition,
@@ -69,6 +71,7 @@ from app.db.models import (
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
     KnowledgeRelationRecord,
+    KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
@@ -336,6 +339,24 @@ def knowledge_index_entry_from_record(
         created_at=record.created_at,
         updated_at=record.updated_at,
         children=children or [],
+    )
+
+
+def knowledge_segment_from_record(record: KnowledgeSegmentRecord) -> KnowledgeSegment:
+    return KnowledgeSegment(
+        id=record.id,
+        index_entry_id=record.index_entry_id,
+        parent_segment_id=record.parent_segment_id,
+        segment_type=record.segment_type,
+        title=record.title,
+        text=record.text,
+        order=record.segment_order,
+        start_locator=record.start_locator,
+        end_locator=record.end_locator,
+        language=record.language,
+        status=record.status,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
     )
 
 
@@ -893,6 +914,98 @@ class Repository:
         if record is None:
             raise KeyError(entry_id)
         return knowledge_index_entry_from_record(record)
+
+    def register_knowledge_segments(
+        self,
+        entry_id: str,
+        payload: list[KnowledgeSegmentCreate],
+    ) -> list[KnowledgeSegment]:
+        if self.session.get(KnowledgeIndexEntryRecord, entry_id) is None:
+            raise KeyError(entry_id)
+        if not payload:
+            raise ValueError("Knowledge segments cannot be empty")
+        payload_ids = {segment.id for segment in payload}
+        if len(payload_ids) != len(payload):
+            raise ValueError("Knowledge segment ids must be unique")
+        for segment in payload:
+            if segment.index_entry_id != entry_id:
+                raise ValueError("Knowledge segment index_entry_id does not match path")
+            if self.session.get(KnowledgeSegmentRecord, segment.id) is not None:
+                raise ValueError("Knowledge segment already exists")
+        existing_records = self.session.scalars(
+            select(KnowledgeSegmentRecord).where(
+                KnowledgeSegmentRecord.index_entry_id == entry_id
+            )
+        ).all()
+        existing_ids = {record.id for record in existing_records}
+        existing_parent_orders = {
+            (record.parent_segment_id, record.segment_order) for record in existing_records
+        }
+        payload_parent_orders: set[tuple[str | None, int]] = set()
+        valid_parent_ids = existing_ids | payload_ids
+        for segment in payload:
+            if segment.parent_segment_id is not None and segment.parent_segment_id not in valid_parent_ids:
+                raise ValueError("Knowledge segment parent not found")
+            parent_order = (segment.parent_segment_id, segment.order)
+            if parent_order in existing_parent_orders or parent_order in payload_parent_orders:
+                raise ValueError("Knowledge segment order already exists for parent")
+            payload_parent_orders.add(parent_order)
+        now = datetime.now(UTC).isoformat()
+        records = [
+            KnowledgeSegmentRecord(
+                id=segment.id,
+                index_entry_id=entry_id,
+                parent_segment_id=segment.parent_segment_id,
+                segment_type=segment.segment_type,
+                title=segment.title,
+                text=segment.text,
+                segment_order=segment.order,
+                start_locator=segment.start_locator,
+                end_locator=segment.end_locator,
+                language=segment.language,
+                status=segment.status,
+                created_at=now,
+                updated_at=now,
+            )
+            for segment in payload
+        ]
+        self.session.add_all(records)
+        self.add_audit_event(
+            "knowledge.segment.registered",
+            "knowledge_index_entry",
+            entry_id,
+            {
+                "segment_count": len(records),
+                "index_entry_id": entry_id,
+                "interprets_text": False,
+                "summarizes_text": False,
+                "embeddings_created": False,
+                "nodes_created": False,
+                "knowledge_created": False,
+            },
+        )
+        self.session.commit()
+        return [knowledge_segment_from_record(record) for record in records]
+
+    def list_knowledge_segments(self, entry_id: str) -> list[KnowledgeSegment]:
+        if self.session.get(KnowledgeIndexEntryRecord, entry_id) is None:
+            raise KeyError(entry_id)
+        records = self.session.scalars(
+            select(KnowledgeSegmentRecord)
+            .where(KnowledgeSegmentRecord.index_entry_id == entry_id)
+            .order_by(
+                KnowledgeSegmentRecord.parent_segment_id,
+                KnowledgeSegmentRecord.segment_order,
+                KnowledgeSegmentRecord.id,
+            )
+        ).all()
+        return [knowledge_segment_from_record(record) for record in records]
+
+    def get_knowledge_segment(self, segment_id: str) -> KnowledgeSegment:
+        record = self.session.get(KnowledgeSegmentRecord, segment_id)
+        if record is None:
+            raise KeyError(segment_id)
+        return knowledge_segment_from_record(record)
 
     def list_knowledge_nodes(
         self,

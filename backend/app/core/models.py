@@ -407,6 +407,36 @@ class KnowledgeIndexEntryCreate(BaseModel):
     status: Literal["registered", "available", "blocked", "archived"] = "registered"
 
 
+class KnowledgeSegment(BaseModel):
+    id: str
+    index_entry_id: str
+    parent_segment_id: str | None
+    segment_type: str
+    title: str
+    text: str
+    order: int
+    start_locator: str
+    end_locator: str
+    language: str
+    status: str
+    created_at: str
+    updated_at: str
+
+
+class KnowledgeSegmentCreate(BaseModel):
+    id: str = Field(min_length=3, max_length=180, pattern=r"^[a-z0-9][a-z0-9:.-]*$")
+    index_entry_id: str = Field(min_length=3, max_length=160, pattern=r"^[a-z0-9][a-z0-9:.-]*$")
+    parent_segment_id: str | None = Field(default=None, max_length=180)
+    segment_type: str = Field(min_length=2, max_length=80)
+    title: str = Field(min_length=1, max_length=320)
+    text: str = Field(min_length=1)
+    order: int = Field(ge=1)
+    start_locator: str = Field(min_length=1, max_length=240)
+    end_locator: str = Field(min_length=1, max_length=240)
+    language: str = Field(min_length=2, max_length=40)
+    status: Literal["registered", "available", "blocked", "archived"] = "registered"
+
+
 class KnowledgeNode(BaseModel):
     id: str
     source_id: str

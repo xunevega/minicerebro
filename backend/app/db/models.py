@@ -242,6 +242,28 @@ class KnowledgeIndexEntryRecord(Base):
     updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
+class KnowledgeSegmentRecord(Base):
+    __tablename__ = "knowledge_segments"
+
+    id: Mapped[str] = mapped_column(String(180), primary_key=True)
+    index_entry_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_index_entries.id"), nullable=False, index=True
+    )
+    parent_segment_id: Mapped[str | None] = mapped_column(
+        ForeignKey("knowledge_segments.id"), nullable=True, index=True
+    )
+    segment_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    title: Mapped[str] = mapped_column(String(320), nullable=False)
+    text: Mapped[str] = mapped_column(Text, nullable=False)
+    segment_order: Mapped[int] = mapped_column(Integer, nullable=False)
+    start_locator: Mapped[str] = mapped_column(String(240), nullable=False)
+    end_locator: Mapped[str] = mapped_column(String(240), nullable=False)
+    language: Mapped[str] = mapped_column(String(40), nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class KnowledgeNodeRecord(Base):
     __tablename__ = "knowledge_nodes"
 

@@ -314,6 +314,36 @@ export type KnowledgeIndexEntryCreate = {
   status?: "registered" | "available" | "blocked" | "archived";
 };
 
+export type KnowledgeSegment = {
+  id: string;
+  index_entry_id: string;
+  parent_segment_id: string | null;
+  segment_type: string;
+  title: string;
+  text: string;
+  order: number;
+  start_locator: string;
+  end_locator: string;
+  language: string;
+  status: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeSegmentCreate = {
+  id: string;
+  index_entry_id: string;
+  parent_segment_id?: string | null;
+  segment_type: string;
+  title: string;
+  text: string;
+  order: number;
+  start_locator: string;
+  end_locator: string;
+  language: string;
+  status?: "registered" | "available" | "blocked" | "archived";
+};
+
 export type KnowledgeNode = {
   id: string;
   source_id: string;

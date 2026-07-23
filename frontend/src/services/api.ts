@@ -34,6 +34,8 @@ import type {
   KnowledgeQueryResult,
   KnowledgeQuerySummary,
   KnowledgeRelation,
+  KnowledgeSegment,
+  KnowledgeSegmentCreate,
   KnowledgeStatus,
   KnowledgeSource,
   KnowledgeSourceCreate,
@@ -153,6 +155,28 @@ export function getKnowledgeIndexTree(editionId: string) {
 
 export function getKnowledgeIndexEntry(entryId: string) {
   return request<KnowledgeIndexEntry>(`/knowledge/index/${encodeURIComponent(entryId)}`);
+}
+
+export function registerKnowledgeSegments(entryId: string, payload: KnowledgeSegmentCreate[]) {
+  return request<KnowledgeSegment[]>(
+    `/knowledge/index/${encodeURIComponent(entryId)}/segments`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getKnowledgeSegments(entryId: string) {
+  return request<KnowledgeSegment[]>(
+    `/knowledge/index/${encodeURIComponent(entryId)}/segments`,
+  );
+}
+
+export function getKnowledgeSegment(segmentId: string) {
+  return request<KnowledgeSegment>(
+    `/knowledge/segments/${encodeURIComponent(segmentId)}`,
+  );
 }
 
 export function getKnowledgeVersioning() {
