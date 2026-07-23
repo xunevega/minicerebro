@@ -82,7 +82,7 @@ https://<tu-dominio>.up.railway.app/health
 ## Railway frontend
 
 El frontend se despliega como un servicio Railway separado con `Root Directory` apuntando a `frontend`.
-El directorio incluye `railway.json`, que construye el bundle Vite y lo sirve con `vite preview`.
+Railway debe autodetectar la app Vite con Railpack; no se fuerza `railway.json` para evitar builds con una version de Node incompatible con Vite.
 
 Variables necesarias en el servicio frontend:
 
@@ -96,13 +96,6 @@ Configuracion esperada:
 Root Directory: frontend
 Pre-deploy command: vacio
 Custom Start Command: vacio
-```
-
-Railway debe usar `frontend/railway.json`:
-
-```bash
-npm ci && npm run build
-npm run start
 ```
 
 Tras cada bloque fuerte de cambios, verificar en produccion:
