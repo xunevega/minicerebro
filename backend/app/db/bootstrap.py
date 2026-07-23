@@ -22,6 +22,7 @@ from app.db.models import (
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
+    KnowledgeVersionSnapshotRecord,
     ProfileRecord,
     ScoreVariableRecord,
 )
@@ -451,3 +452,23 @@ def ensure_knowledge_seed_data(session: Session) -> None:
     for stale_batch in stale_batches:
         if stale_batch.id not in seed_batch_ids:
             session.delete(stale_batch)
+
+    if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v0") is None:
+        session.add(
+            KnowledgeVersionSnapshotRecord(
+                version_id="knowledge-v0",
+                status="seed_snapshot",
+                source_ids=[source.id for source in seed_sources()],
+                source_edition_ids=[edition.id for edition in seed_source_editions()],
+                node_ids=[node.id for node in seed_nodes()],
+                node_relation_ids=[relation.id for relation in seed_node_relations()],
+                relation_ids=[relation.id for relation in seed_relations()],
+                evidence_ids=[evidence.id for evidence in seed_evidence()],
+                claim_ids=[claim.id for claim in seed_claims()],
+                claim_evidence_link_ids=[link.id for link in seed_claim_evidence_links()],
+                card_ids=[card.id for card in seed_cards()],
+                revision_ids=[revision.id for revision in seed_object_revisions()],
+                created_at="2026-07-22",
+                updated_at="2026-07-22",
+            )
+        )

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from hashlib import sha256
 from datetime import UTC, datetime
+from hashlib import sha256
 from uuid import UUID, uuid4
 
 from sqlalchemy import select
@@ -82,6 +82,7 @@ from app.db.models import (
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
+    KnowledgeVersionSnapshotRecord,
     PreferenceRecord,
     ProfileRecord,
     ScoreVariableRecord,
@@ -614,6 +615,12 @@ class Repository:
     def __init__(self, session: Session) -> None:
         self.session = session
 
+    def _knowledge_snapshot(self, version: str) -> KnowledgeVersionSnapshotRecord:
+        record = self.session.get(KnowledgeVersionSnapshotRecord, version)
+        if record is None:
+            raise KeyError(version)
+        return record
+
     def list_knowledge_versions(self) -> list[KnowledgeVersion]:
         records = self.session.scalars(
             select(KnowledgeVersionRecord).order_by(KnowledgeVersionRecord.id)
@@ -703,6 +710,9 @@ class Repository:
         knowledge_version: str | None = None,
     ) -> list[KnowledgeObjectRevision]:
         query = select(KnowledgeObjectRevisionRecord)
+        if knowledge_version:
+            snapshot = self._knowledge_snapshot(knowledge_version)
+            query = query.where(KnowledgeObjectRevisionRecord.id.in_(snapshot.revision_ids))
         if object_type:
             query = query.where(KnowledgeObjectRevisionRecord.object_type == object_type)
         if object_id:
@@ -722,12 +732,18 @@ class Repository:
 
     def list_knowledge_sources(self, version: str | None = None) -> list[KnowledgeSource]:
         query = select(KnowledgeSourceRecord)
+        snapshot = self._knowledge_snapshot(version) if version else None
+        if snapshot is not None:
+            query = query.where(KnowledgeSourceRecord.id.in_(snapshot.source_ids))
         records = self.session.scalars(
             query.order_by(KnowledgeSourceRecord.priority, KnowledgeSourceRecord.catalog_id)
         ).all()
-        editions = self.session.scalars(
-            select(KnowledgeSourceEditionRecord).order_by(KnowledgeSourceEditionRecord.id)
-        ).all()
+        edition_query = select(KnowledgeSourceEditionRecord)
+        if snapshot is not None:
+            edition_query = edition_query.where(
+                KnowledgeSourceEditionRecord.id.in_(snapshot.source_edition_ids)
+            )
+        editions = self.session.scalars(edition_query.order_by(KnowledgeSourceEditionRecord.id)).all()
         editions_by_source: dict[str, list[KnowledgeSourceEdition]] = {}
         for edition in editions:
             editions_by_source.setdefault(edition.source_id, []).append(
@@ -1236,12 +1252,19 @@ class Repository:
         version: str | None = None,
     ) -> list[KnowledgeNode]:
         query = select(KnowledgeNodeRecord)
+        snapshot = self._knowledge_snapshot(version) if version else None
+        if snapshot is not None:
+            query = query.where(KnowledgeNodeRecord.id.in_(snapshot.node_ids))
         if source_id:
             query = query.where(KnowledgeNodeRecord.source_id == source_id)
         if version:
             query = query.where(KnowledgeNodeRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeNodeRecord.id)).all()
         relation_query = select(KnowledgeNodeRelationRecord)
+        if snapshot is not None:
+            relation_query = relation_query.where(
+                KnowledgeNodeRelationRecord.id.in_(snapshot.node_relation_ids)
+            )
         if version:
             relation_query = relation_query.where(KnowledgeNodeRelationRecord.version == version)
         relations = self.session.scalars(
@@ -1265,6 +1288,9 @@ class Repository:
         relation_type: str | None = None,
     ) -> list[KnowledgeRelation]:
         query = select(KnowledgeRelationRecord)
+        snapshot = self._knowledge_snapshot(version) if version else None
+        if snapshot is not None:
+            query = query.where(KnowledgeRelationRecord.id.in_(snapshot.relation_ids))
         if version:
             query = query.where(KnowledgeRelationRecord.version == version)
         if source_entity_type:
@@ -1282,6 +1308,9 @@ class Repository:
         version: str | None = None,
     ) -> list[KnowledgeEvidenceItem]:
         query = select(KnowledgeEvidenceItemRecord)
+        snapshot = self._knowledge_snapshot(version) if version else None
+        if snapshot is not None:
+            query = query.where(KnowledgeEvidenceItemRecord.id.in_(snapshot.evidence_ids))
         if node_id:
             query = query.where(KnowledgeEvidenceItemRecord.node_id == node_id)
         if version:
@@ -1295,14 +1324,20 @@ class Repository:
         version: str | None = None,
     ) -> list[KnowledgeClaim]:
         query = select(KnowledgeClaimRecord)
+        snapshot = self._knowledge_snapshot(version) if version else None
+        if snapshot is not None:
+            query = query.where(KnowledgeClaimRecord.id.in_(snapshot.claim_ids))
         if card_id:
             query = query.where(KnowledgeClaimRecord.card_id == card_id)
         if version:
             query = query.where(KnowledgeClaimRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeClaimRecord.id)).all()
-        links = self.session.scalars(
-            select(KnowledgeClaimEvidenceLinkRecord).order_by(KnowledgeClaimEvidenceLinkRecord.id)
-        ).all()
+        link_query = select(KnowledgeClaimEvidenceLinkRecord)
+        if snapshot is not None:
+            link_query = link_query.where(
+                KnowledgeClaimEvidenceLinkRecord.id.in_(snapshot.claim_evidence_link_ids)
+            )
+        links = self.session.scalars(link_query.order_by(KnowledgeClaimEvidenceLinkRecord.id)).all()
         links_by_claim: dict[str, list[KnowledgeClaimEvidenceLink]] = {}
         for link in links:
             links_by_claim.setdefault(link.claim_id, []).append(
@@ -1315,6 +1350,9 @@ class Repository:
 
     def list_knowledge_cards(self, version: str | None = None) -> list[KnowledgeCard]:
         query = select(KnowledgeCardRecord)
+        snapshot = self._knowledge_snapshot(version) if version else None
+        if snapshot is not None:
+            query = query.where(KnowledgeCardRecord.id.in_(snapshot.card_ids))
         if version:
             query = query.where(KnowledgeCardRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeCardRecord.id)).all()

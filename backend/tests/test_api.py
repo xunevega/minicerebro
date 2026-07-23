@@ -22,6 +22,7 @@ from app.db.models import (
     KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
+    KnowledgeVersionSnapshotRecord,
 )
 from app.db.session import SessionLocal
 from app.main import app
@@ -503,6 +504,9 @@ def test_register_knowledge_source_persists_without_registering_edition_or_publi
         listed = client.get("/knowledge/sources").json()
         persisted = next(source for source in listed if source["id"] == source_id)
         assert persisted["editions"] == []
+        versioned = client.get("/knowledge/sources?version=knowledge-v0")
+        assert versioned.status_code == 200
+        assert source_id not in {source["id"] for source in versioned.json()}
 
         duplicate = client.post("/knowledge/sources", json=payload)
         assert duplicate.status_code == 409
@@ -2340,8 +2344,16 @@ def test_knowledge_pipeline_is_persisted():
         claim_links = session.scalars(select(KnowledgeClaimEvidenceLinkRecord)).all()
         claim_revisions = session.scalars(select(KnowledgeClaimRevisionRecord)).all()
         cards = session.scalars(select(KnowledgeCardRecord)).all()
+        snapshot = session.get(KnowledgeVersionSnapshotRecord, "knowledge-v0")
 
     version = response.json()[0]
+    assert snapshot is not None
+    assert set(snapshot.source_ids) == {source.id for source in sources}
+    assert set(snapshot.source_edition_ids) == {edition.id for edition in source_editions}
+    assert set(snapshot.node_ids) == {node.id for node in nodes}
+    assert set(snapshot.evidence_ids) == {item.id for item in evidence}
+    assert set(snapshot.claim_ids) == {claim.id for claim in claims}
+    assert set(snapshot.card_ids) == {card.id for card in cards}
     assert version["source_count"] == len(sources)
     assert version["node_count"] == len(nodes)
     assert version["evidence_count"] == len(evidence)

@@ -125,6 +125,25 @@ class KnowledgeVersionRecord(Base):
     published_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
+class KnowledgeVersionSnapshotRecord(Base):
+    __tablename__ = "knowledge_version_snapshots"
+
+    version_id: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), primary_key=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    source_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    source_edition_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    node_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    node_relation_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    relation_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    evidence_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    claim_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    claim_evidence_link_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    card_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    revision_ids: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class KnowledgeObjectRevisionRecord(Base):
     __tablename__ = "knowledge_object_revisions"
 
