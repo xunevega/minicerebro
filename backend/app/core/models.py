@@ -247,6 +247,7 @@ class KnowledgeIngestionPolicy(BaseModel):
     final_state: str
     acceptance_criteria: list[str]
     closure_flow: list[str]
+    closure_criteria: list[str]
 
 
 class KnowledgeIngestionBatch(BaseModel):

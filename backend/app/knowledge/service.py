@@ -416,6 +416,14 @@ def ingestion_policy() -> KnowledgeIngestionPolicy:
             "candidate_version",
             "publication",
         ],
+        closure_criteria=[
+            "cualquier obra puede seguir el mismo recorrido completo",
+            "el recorrido empieza en fuente y edicion identificadas",
+            "el indice, la segmentacion y la extraccion son reconstruibles",
+            "nodos, evidencias, claims y fichas quedan trazados",
+            "la validacion precede siempre a la version candidata",
+            "la publicacion solo ocurre despues de una version candidata valida",
+        ],
     )
 
 

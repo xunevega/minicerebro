@@ -175,6 +175,7 @@ export type KnowledgeIngestionPolicy = {
   final_state: string;
   acceptance_criteria: string[];
   closure_flow: string[];
+  closure_criteria: string[];
 };
 
 export type KnowledgeIngestionBatch = {

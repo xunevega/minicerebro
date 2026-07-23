@@ -846,7 +846,26 @@ def test_knowledge_ingestion_policy_closes_documental_pipeline_contract():
     assert "ingestion.completed" in policy["required_events"]
     assert "missing_edition" in policy["stop_conditions"]
     assert policy["final_state"] == "candidate"
-    assert policy["closure_flow"][-1] == "publication"
+    assert policy["closure_flow"] == [
+        "source",
+        "edition",
+        "index",
+        "segmentation",
+        "extraction",
+        "nodes",
+        "evidence",
+        "claims",
+        "cards",
+        "validation",
+        "candidate_version",
+        "publication",
+    ]
+    assert "cualquier obra puede seguir el mismo recorrido completo" in policy[
+        "closure_criteria"
+    ]
+    assert "la validacion precede siempre a la version candidata" in policy[
+        "closure_criteria"
+    ]
 
 
 def test_knowledge_ingestion_batches_are_persisted_and_exportable():
