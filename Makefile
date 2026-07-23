@@ -7,7 +7,7 @@ POSTGRES_DATABASE_URL ?= postgresql+psycopg://postgres:postgres@localhost:5432/a
 FRONTEND_URL ?= http://127.0.0.1:5173
 BACKEND_URL ?= https://backend-production-4652.up.railway.app
 PRODUCTION_FRONTEND_URL ?= https://frontend-production-834c.up.railway.app
-EXPECTED_VERSION ?= knowledge-v6
+EXPECTED_VERSION ?= knowledge-v7
 
 .PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production clean-generated
 

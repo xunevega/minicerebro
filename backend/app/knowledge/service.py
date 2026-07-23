@@ -38,7 +38,8 @@ KNOWLEDGE_V2_VERSION = "knowledge-v2"
 KNOWLEDGE_V3_VERSION = "knowledge-v3"
 KNOWLEDGE_V4_VERSION = "knowledge-v4"
 KNOWLEDGE_V5_VERSION = "knowledge-v5"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v6"
+KNOWLEDGE_V6_VERSION = "knowledge-v6"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v7"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -46,6 +47,7 @@ KNOWLEDGE_V3_PUBLISHED_AT = "2026-07-23T02:00:00+00:00"
 KNOWLEDGE_V4_PUBLISHED_AT = "2026-07-23T03:00:00+00:00"
 KNOWLEDGE_V5_PUBLISHED_AT = "2026-07-23T04:00:00+00:00"
 KNOWLEDGE_V6_PUBLISHED_AT = "2026-07-23T05:00:00+00:00"
+KNOWLEDGE_V7_PUBLISHED_AT = "2026-07-23T06:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -276,6 +278,214 @@ V6_SEED_ITEMS = [
         "claim_type": "editing",
         "domain": "editing.consistency",
         "related_node_ids": ["manual-rasgos-escritura", "rae-gtg-terminologia-gramatical"],
+    },
+]
+
+V7_SEED_ITEMS = [
+    {
+        "key": "sujeto",
+        "source_id": "rae-ngle",
+        "source_edition_id": "rae-ngle:manual-2010",
+        "index_id": "rae-ngle:manual-2010:sujeto",
+        "index_title": "Sujeto",
+        "index_locator": "Manual academico 2010 > sintaxis > funciones sintacticas > sujeto",
+        "segment_id": "rae-ngle:manual-2010:sujeto:seg-1",
+        "segment_title": "Sujeto como funcion sintactica",
+        "segment_text": (
+            "Resumen editorial minimo: el sujeto es una funcion sintactica vinculada "
+            "a la predicacion y a la concordancia con el verbo finito."
+        ),
+        "extraction_id": "ext-rae-ngle-2010-sujeto-1",
+        "node_id": "rae-ngle-sujeto",
+        "canonical_name": "Sujeto",
+        "node_type": "concepto",
+        "primary_branch": "sintaxis",
+        "secondary_branch": "funciones sintacticas",
+        "node_summary": "Funcion sintactica vinculada a la predicacion y la concordancia verbal.",
+        "short_definition": "Funcion sintactica que participa en la predicacion y concuerda con el verbo.",
+        "aliases": ["sujeto gramatical"],
+        "relation_target": "rae-norma-estilo",
+        "relation_type": "depende_de",
+        "card_id": "card-sujeto",
+        "card_type": "grammar_concept",
+        "card_name": "Sujeto",
+        "card_definition": "Funcion sintactica que organiza la predicacion y la concordancia verbal.",
+        "signals": ["concordancia verbal", "predicacion", "funcion sintactica"],
+        "risks": ["confundir sujeto gramatical con tema discursivo"],
+        "contexts": ["gramatica", "sintaxis", "revision linguistica"],
+        "evidence_id": "ev-rae-ngle-sujeto",
+        "evidence_section": "sujeto",
+        "confidence": 0.64,
+        "claim_id": "claim-rae-ngle-sujeto",
+        "statement": (
+            "El sujeto debe analizarse como funcion sintactica vinculada a la "
+            "predicacion y a la concordancia verbal."
+        ),
+        "related_node_ids": ["rae-norma-estilo", "rae-gtg-terminologia-gramatical"],
+    },
+    {
+        "key": "predicado",
+        "source_id": "rae-ngle",
+        "source_edition_id": "rae-ngle:manual-2010",
+        "index_id": "rae-ngle:manual-2010:predicado",
+        "index_title": "Predicado",
+        "index_locator": "Manual academico 2010 > sintaxis > funciones sintacticas > predicado",
+        "segment_id": "rae-ngle:manual-2010:predicado:seg-1",
+        "segment_title": "Predicado y estructura oracional",
+        "segment_text": (
+            "Resumen editorial minimo: el predicado articula la informacion atribuida "
+            "al sujeto o expresada por el nucleo verbal de la oracion."
+        ),
+        "extraction_id": "ext-rae-ngle-2010-predicado-1",
+        "node_id": "rae-ngle-predicado",
+        "canonical_name": "Predicado",
+        "node_type": "concepto",
+        "primary_branch": "sintaxis",
+        "secondary_branch": "funciones sintacticas",
+        "node_summary": "Funcion y estructura que organiza la informacion verbal de la oracion.",
+        "short_definition": "Estructura sintactica organizada en torno al nucleo verbal.",
+        "aliases": ["grupo verbal predicativo"],
+        "relation_target": "rae-ngle-sujeto",
+        "relation_type": "relacionado_con",
+        "card_id": "card-predicado",
+        "card_type": "grammar_concept",
+        "card_name": "Predicado",
+        "card_definition": "Estructura que organiza la informacion verbal atribuida en la oracion.",
+        "signals": ["nucleo verbal", "estructura oracional", "predicacion"],
+        "risks": ["reducir el predicado solo al verbo sin revisar complementos"],
+        "contexts": ["gramatica", "sintaxis", "analisis oracional"],
+        "evidence_id": "ev-rae-ngle-predicado",
+        "evidence_section": "predicado",
+        "confidence": 0.63,
+        "claim_id": "claim-rae-ngle-predicado",
+        "statement": (
+            "El predicado organiza la informacion verbal de la oracion y debe "
+            "analizarse junto con sus complementos."
+        ),
+        "related_node_ids": ["rae-ngle-sujeto", "rae-ngle-complemento-directo"],
+    },
+    {
+        "key": "complemento-indirecto",
+        "source_id": "rae-ngle",
+        "source_edition_id": "rae-ngle:manual-2010",
+        "index_id": "rae-ngle:manual-2010:complemento-indirecto",
+        "index_title": "Complemento indirecto",
+        "index_locator": "Manual academico 2010 > sintaxis > funciones sintacticas > complemento indirecto",
+        "segment_id": "rae-ngle:manual-2010:complemento-indirecto:seg-1",
+        "segment_title": "Complemento indirecto como participante",
+        "segment_text": (
+            "Resumen editorial minimo: el complemento indirecto expresa un participante "
+            "asociado al destinatario, beneficiario o afectado por la predicacion."
+        ),
+        "extraction_id": "ext-rae-ngle-2010-complemento-indirecto-1",
+        "node_id": "rae-ngle-complemento-indirecto",
+        "canonical_name": "Complemento indirecto",
+        "node_type": "concepto",
+        "primary_branch": "sintaxis",
+        "secondary_branch": "funciones sintacticas",
+        "node_summary": "Funcion sintactica asociada a destinatario, beneficiario o afectado.",
+        "short_definition": "Complemento que introduce un participante indirecto de la predicacion.",
+        "aliases": ["objeto indirecto"],
+        "relation_target": "rae-ngle-complemento-directo",
+        "relation_type": "compara_con",
+        "card_id": "card-complemento-indirecto",
+        "card_type": "grammar_concept",
+        "card_name": "Complemento indirecto",
+        "card_definition": "Funcion sintactica asociada a destinatario, beneficiario o afectado.",
+        "signals": ["destinatario", "beneficiario", "participante indirecto"],
+        "risks": ["confundirlo con complemento directo por proximidad al verbo"],
+        "contexts": ["gramatica", "sintaxis", "revision linguistica"],
+        "evidence_id": "ev-rae-ngle-complemento-indirecto",
+        "evidence_section": "complemento indirecto",
+        "confidence": 0.63,
+        "claim_id": "claim-rae-ngle-complemento-indirecto",
+        "statement": (
+            "El complemento indirecto identifica un participante indirecto de la "
+            "predicacion, como destinatario, beneficiario o afectado."
+        ),
+        "related_node_ids": ["rae-ngle-complemento-directo", "rae-ngle-predicado"],
+    },
+    {
+        "key": "atributo",
+        "source_id": "rae-ngle",
+        "source_edition_id": "rae-ngle:manual-2010",
+        "index_id": "rae-ngle:manual-2010:atributo",
+        "index_title": "Atributo",
+        "index_locator": "Manual academico 2010 > sintaxis > funciones sintacticas > atributo",
+        "segment_id": "rae-ngle:manual-2010:atributo:seg-1",
+        "segment_title": "Atributo en construcciones copulativas",
+        "segment_text": (
+            "Resumen editorial minimo: el atributo caracteriza al sujeto en "
+            "construcciones copulativas o semicopulativas."
+        ),
+        "extraction_id": "ext-rae-ngle-2010-atributo-1",
+        "node_id": "rae-ngle-atributo",
+        "canonical_name": "Atributo",
+        "node_type": "concepto",
+        "primary_branch": "sintaxis",
+        "secondary_branch": "funciones sintacticas",
+        "node_summary": "Funcion que caracteriza al sujeto en construcciones copulativas.",
+        "short_definition": "Complemento que atribuye una propiedad al sujeto con verbos copulativos.",
+        "aliases": ["atributo copulativo"],
+        "relation_target": "rae-ngle-sujeto",
+        "relation_type": "relacionado_con",
+        "card_id": "card-atributo",
+        "card_type": "grammar_concept",
+        "card_name": "Atributo",
+        "card_definition": "Complemento que caracteriza al sujeto en construcciones copulativas.",
+        "signals": ["verbo copulativo", "caracterizacion", "propiedad atribuida"],
+        "risks": ["confundir atributo con complemento predicativo sin revisar el verbo"],
+        "contexts": ["gramatica", "sintaxis", "analisis oracional"],
+        "evidence_id": "ev-rae-ngle-atributo",
+        "evidence_section": "atributo",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-ngle-atributo",
+        "statement": (
+            "El atributo caracteriza al sujeto en construcciones copulativas o "
+            "semicopulativas."
+        ),
+        "related_node_ids": ["rae-ngle-sujeto", "rae-ngle-predicado"],
+    },
+    {
+        "key": "complemento-regimen",
+        "source_id": "rae-ngle",
+        "source_edition_id": "rae-ngle:manual-2010",
+        "index_id": "rae-ngle:manual-2010:complemento-regimen",
+        "index_title": "Complemento de regimen",
+        "index_locator": "Manual academico 2010 > sintaxis > funciones sintacticas > complemento de regimen",
+        "segment_id": "rae-ngle:manual-2010:complemento-regimen:seg-1",
+        "segment_title": "Complemento de regimen preposicional",
+        "segment_text": (
+            "Resumen editorial minimo: el complemento de regimen depende de una "
+            "preposicion exigida o seleccionada por el predicado."
+        ),
+        "extraction_id": "ext-rae-ngle-2010-complemento-regimen-1",
+        "node_id": "rae-ngle-complemento-regimen",
+        "canonical_name": "Complemento de regimen",
+        "node_type": "concepto",
+        "primary_branch": "sintaxis",
+        "secondary_branch": "funciones sintacticas",
+        "node_summary": "Funcion sintactica introducida por una preposicion regida.",
+        "short_definition": "Complemento preposicional seleccionado por el predicado.",
+        "aliases": ["complemento de regimen preposicional", "suplemento"],
+        "relation_target": "rae-dpd-dequeismo",
+        "relation_type": "relacionado_con",
+        "card_id": "card-complemento-regimen",
+        "card_type": "grammar_concept",
+        "card_name": "Complemento de regimen",
+        "card_definition": "Complemento preposicional exigido o seleccionado por el predicado.",
+        "signals": ["preposicion regida", "regimen verbal", "seleccion del predicado"],
+        "risks": ["eliminar una preposicion exigida por falsa correccion"],
+        "contexts": ["gramatica", "sintaxis", "dudas de uso"],
+        "evidence_id": "ev-rae-ngle-complemento-regimen",
+        "evidence_section": "complemento de regimen",
+        "confidence": 0.64,
+        "claim_id": "claim-rae-ngle-complemento-regimen",
+        "statement": (
+            "El complemento de regimen se reconoce por la preposicion seleccionada "
+            "por el predicado y conecta con dudas como dequeismo y queismo."
+        ),
+        "related_node_ids": ["rae-dpd-dequeismo", "rae-ngle-predicado"],
     },
 ]
 
@@ -1084,7 +1294,7 @@ def _v6_proposals() -> list[KnowledgeProposal]:
                         "short_definition": item["short_definition"],
                         "long_definition": _v6_long_definition(item),
                         "aliases": item["aliases"],
-                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                        "version": KNOWLEDGE_V6_VERSION,
                     },
                     rationale="El segmento identifica un concepto candidato verificable.",
                     **common,
@@ -1103,7 +1313,7 @@ def _v6_proposals() -> list[KnowledgeProposal]:
                             "risks": item["risks"],
                             "contexts": item["contexts"],
                         },
-                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                        "version": KNOWLEDGE_V6_VERSION,
                     },
                     rationale="La ficha agrupa el criterio validado por el lote.",
                     **common,
@@ -1127,7 +1337,7 @@ def _v6_proposals() -> list[KnowledgeProposal]:
                         "excerpt": segment.text,
                         "context": item["evidence_context"],
                         "confidence_level": 3,
-                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                        "version": KNOWLEDGE_V6_VERSION,
                     },
                     rationale="El segmento conserva un resumen editorial minimo verificable.",
                     **common,
@@ -1152,7 +1362,7 @@ def _v6_proposals() -> list[KnowledgeProposal]:
                             "period": "contemporary",
                             "text_type": "writing",
                         },
-                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                        "version": KNOWLEDGE_V6_VERSION,
                     },
                     rationale="El claim queda sustentado por la evidencia validada del segmento.",
                     **common,
@@ -1176,7 +1386,7 @@ def _v6_nodes() -> list[KnowledgeNode]:
             short_definition=item["short_definition"],
             long_definition=_v6_long_definition(item),
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V6_VERSION,
             created_at="2026-07-23",
             published_at=KNOWLEDGE_V6_PUBLISHED_AT,
             aliases=item["aliases"],
@@ -1198,7 +1408,7 @@ def _v6_node_relations() -> list[KnowledgeNodeRelation]:
             confidence=item["confidence"],
             context="seed_large_real_batch",
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V6_VERSION,
             created_at="2026-07-23",
             updated_at="2026-07-23",
         )
@@ -1226,7 +1436,7 @@ def _v6_evidence() -> list[KnowledgeEvidenceItem]:
             confidence=item["confidence"],
             confidence_level=3,
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V6_VERSION,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V6_PUBLISHED_AT,
             incorporated_by="minicerebro-seed",
@@ -1258,7 +1468,7 @@ def _v6_claims() -> list[KnowledgeClaim]:
             status="published",
             confidence=item["confidence"],
             origin="approved_knowledge_proposal",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V6_VERSION,
             revision=1,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V6_PUBLISHED_AT,
@@ -1276,7 +1486,7 @@ def _v6_cards() -> list[KnowledgeCard]:
             name=item["card_name"],
             definition=item["card_definition"],
             confidence=item["confidence"],
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V6_VERSION,
             payload={
                 "signals": item["signals"],
                 "risks": item["risks"],
@@ -1284,6 +1494,321 @@ def _v6_cards() -> list[KnowledgeCard]:
             },
         )
         for item in V6_SEED_ITEMS
+    ]
+
+
+def _v7_long_definition(item: dict) -> str:
+    return (
+        f"Concepto gramatical practico validado desde un resumen editorial de {item['source_edition_id']} "
+        "y publicado como parte del lote de gramatica practica en knowledge-v7."
+    )
+
+
+def _v7_index_entries() -> list[KnowledgeIndexEntry]:
+    return [
+        KnowledgeIndexEntry(
+            id=item["index_id"],
+            edition_id=item["source_edition_id"],
+            parent_id=None,
+            level=1,
+            order=index,
+            title=item["index_title"],
+            locator=item["index_locator"],
+            page_start=None,
+            page_end=None,
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for index, item in enumerate(V7_SEED_ITEMS, start=1)
+    ]
+
+
+def _v7_segments() -> list[KnowledgeSegment]:
+    return [
+        KnowledgeSegment(
+            id=item["segment_id"],
+            index_entry_id=item["index_id"],
+            parent_segment_id=None,
+            segment_type="editorial_summary",
+            title=item["segment_title"],
+            text=item["segment_text"],
+            order=1,
+            start_locator=f"{item['index_locator']} > resumen editorial 1",
+            end_locator=f"{item['index_locator']} > resumen editorial 1",
+            language="es",
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for item in V7_SEED_ITEMS
+    ]
+
+
+def _v7_extraction_runs() -> list[KnowledgeExtractionRun]:
+    segments_by_id = {segment.id: segment for segment in _v7_segments()}
+    return [
+        KnowledgeExtractionRun(
+            id=item["extraction_id"],
+            segment_id=item["segment_id"],
+            status="completed",
+            extractor_type="deterministic",
+            extractor_name="seed-editorial-extractor",
+            extractor_version="1.0",
+            configuration={
+                "mode": "seed_grammar_practice_batch",
+                "creates_stable_knowledge": False,
+                "source_text_policy": "editorial_summary_no_extended_quote",
+            },
+            input_segment_revision=1,
+            input_segment_hash=sha256(segments_by_id[item["segment_id"]].text.encode("utf-8")).hexdigest(),
+            knowledge_version=None,
+            started_at="2026-07-23",
+            completed_at="2026-07-23",
+            error_code=None,
+            error_message=None,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for item in V7_SEED_ITEMS
+    ]
+
+
+def _v7_proposals() -> list[KnowledgeProposal]:
+    proposals: list[KnowledgeProposal] = []
+    segments_by_id = {segment.id: segment for segment in _v7_segments()}
+    for item in V7_SEED_ITEMS:
+        segment = segments_by_id[item["segment_id"]]
+        common = {
+            "extraction_id": item["extraction_id"],
+            "segment_id": item["segment_id"],
+            "status": "approved",
+            "confidence": item["confidence"],
+            "source_locator": segment.start_locator,
+            "created_at": "2026-07-23",
+            "updated_at": "2026-07-23",
+            "reviewed_at": "2026-07-23",
+            "reviewer": "minicerebro-seed",
+            "decision_reason": "revision editorial del lote de gramatica practica",
+        }
+        proposals.extend(
+            [
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-node",
+                    proposal_type="node",
+                    title=item["canonical_name"],
+                    payload={
+                        "id": item["node_id"],
+                        "source_id": item["source_id"],
+                        "source_edition_id": item["source_edition_id"],
+                        "canonical_name": item["canonical_name"],
+                        "node_type": item["node_type"],
+                        "primary_branch": item["primary_branch"],
+                        "secondary_branch": item["secondary_branch"],
+                        "summary": item["node_summary"],
+                        "short_definition": item["short_definition"],
+                        "long_definition": _v7_long_definition(item),
+                        "aliases": item["aliases"],
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="El segmento identifica un concepto gramatical practico verificable.",
+                    **common,
+                ),
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-card",
+                    proposal_type="card",
+                    title=f"Ficha candidata sobre {item['card_name']}",
+                    payload={
+                        "id": item["card_id"],
+                        "card_type": item["card_type"],
+                        "name": item["card_name"],
+                        "definition": item["card_definition"],
+                        "payload": {
+                            "signals": item["signals"],
+                            "risks": item["risks"],
+                            "contexts": item["contexts"],
+                        },
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="La ficha agrupa el criterio gramatical validado por el lote.",
+                    **common,
+                ),
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-evidence",
+                    proposal_type="evidence",
+                    title=f"Evidencia candidata sobre {item['card_name']}",
+                    payload={
+                        "id": item["evidence_id"],
+                        "node_id": item["node_id"],
+                        "source_id": item["source_id"],
+                        "source_edition_id": item["source_edition_id"],
+                        "evidence_type": "editorial_summary",
+                        "locator": {
+                            "edition": "Manual academico, 2010",
+                            "section": item["evidence_section"],
+                            "segment_id": item["segment_id"],
+                        },
+                        "reference": segment.start_locator,
+                        "excerpt": segment.text,
+                        "context": "seed_grammar_practice_batch",
+                        "confidence_level": 3,
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="El segmento conserva un resumen editorial minimo verificable.",
+                    **common,
+                ),
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-claim",
+                    proposal_type="claim",
+                    title=f"Claim candidato sobre {item['card_name']}",
+                    payload={
+                        "id": item["claim_id"],
+                        "evidence_id": item["evidence_id"],
+                        "card_id": item["card_id"],
+                        "statement": item["statement"],
+                        "claim_type": "grammatical",
+                        "node_id": item["node_id"],
+                        "related_node_ids": item["related_node_ids"],
+                        "domain": "grammar.syntax",
+                        "scope": {
+                            "language": "es",
+                            "register": "general",
+                            "geography": "panhispanic",
+                            "period": "contemporary",
+                            "text_type": "grammar",
+                        },
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="El claim queda sustentado por la evidencia validada del segmento.",
+                    **common,
+                ),
+            ]
+        )
+    return proposals
+
+
+def _v7_nodes() -> list[KnowledgeNode]:
+    return [
+        KnowledgeNode(
+            id=item["node_id"],
+            source_id=item["source_id"],
+            node_type=item["node_type"],
+            title=item["canonical_name"],
+            summary=item["node_summary"],
+            canonical_name=item["canonical_name"],
+            primary_branch=item["primary_branch"],
+            secondary_branch=item["secondary_branch"],
+            short_definition=item["short_definition"],
+            long_definition=_v7_long_definition(item),
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            published_at=KNOWLEDGE_V7_PUBLISHED_AT,
+            aliases=item["aliases"],
+        )
+        for item in V7_SEED_ITEMS
+    ]
+
+
+def _v7_node_relations() -> list[KnowledgeNodeRelation]:
+    return [
+        KnowledgeNodeRelation(
+            id=f"rel-{item['key']}-{item['relation_type']}-{item['relation_target']}",
+            source_node_id=item["node_id"],
+            target_node_id=item["relation_target"],
+            relation_type=item["relation_type"],
+            direction="outgoing",
+            cardinality="N:N",
+            weight=0.68,
+            confidence=item["confidence"],
+            context="seed_grammar_practice_batch",
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for item in V7_SEED_ITEMS
+    ]
+
+
+def _v7_evidence() -> list[KnowledgeEvidenceItem]:
+    segments_by_id = {segment.id: segment for segment in _v7_segments()}
+    return [
+        KnowledgeEvidenceItem(
+            id=item["evidence_id"],
+            node_id=item["node_id"],
+            source_id=item["source_id"],
+            source_edition_id=item["source_edition_id"],
+            evidence_type="editorial_summary",
+            locator={
+                "edition": "Manual academico, 2010",
+                "section": item["evidence_section"],
+                "segment_id": item["segment_id"],
+            },
+            reference=segments_by_id[item["segment_id"]].start_locator,
+            excerpt=segments_by_id[item["segment_id"]].text,
+            context="seed_grammar_practice_batch",
+            confidence=item["confidence"],
+            confidence_level=3,
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V7_PUBLISHED_AT,
+            incorporated_by="minicerebro-seed",
+            reviewed_by="minicerebro-seed",
+            revision=1,
+        )
+        for item in V7_SEED_ITEMS
+    ]
+
+
+def _v7_claims() -> list[KnowledgeClaim]:
+    return [
+        KnowledgeClaim(
+            id=item["claim_id"],
+            evidence_id=item["evidence_id"],
+            card_id=item["card_id"],
+            statement=item["statement"],
+            claim_type="grammatical",
+            node_id=item["node_id"],
+            related_node_ids=item["related_node_ids"],
+            domain="grammar.syntax",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "grammar",
+            },
+            status="published",
+            confidence=item["confidence"],
+            origin="approved_knowledge_proposal",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            revision=1,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V7_PUBLISHED_AT,
+            published_at=KNOWLEDGE_V7_PUBLISHED_AT,
+        )
+        for item in V7_SEED_ITEMS
+    ]
+
+
+def _v7_cards() -> list[KnowledgeCard]:
+    return [
+        KnowledgeCard(
+            id=item["card_id"],
+            card_type=item["card_type"],
+            name=item["card_name"],
+            definition=item["card_definition"],
+            confidence=item["confidence"],
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            payload={
+                "signals": item["signals"],
+                "risks": item["risks"],
+                "contexts": item["contexts"],
+            },
+        )
+        for item in V7_SEED_ITEMS
     ]
 
 
@@ -1799,6 +2324,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
             updated_at="2026-07-23",
         ),
         *_v6_index_entries(),
+        *_v7_index_entries(),
     ]
 
 
@@ -1900,6 +2426,7 @@ def seed_segments() -> list[KnowledgeSegment]:
             updated_at="2026-07-23",
         ),
         *_v6_segments(),
+        *_v7_segments(),
     ]
 
 
@@ -2021,6 +2548,7 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
             updated_at="2026-07-23",
         ),
         *_v6_extraction_runs(),
+        *_v7_extraction_runs(),
     ]
 
 
@@ -2671,6 +3199,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
             decision_reason="revision editorial del quinto lote real de ingestion",
         ),
         *_v6_proposals(),
+        *_v7_proposals(),
     ]
 
 
@@ -2820,6 +3349,7 @@ def seed_nodes() -> list[KnowledgeNode]:
             aliases=["exactitud lexica", "propiedad lexica"],
         ),
         *_v6_nodes(),
+        *_v7_nodes(),
     ]
 
 
@@ -2931,6 +3461,7 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             updated_at="2026-07-23",
         ),
         *_v6_node_relations(),
+        *_v7_node_relations(),
     ]
 
 
@@ -3271,6 +3802,7 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             revision=1,
         ),
         *_v6_evidence(),
+        *_v7_evidence(),
     ]
 
 
@@ -3511,6 +4043,7 @@ def seed_claims() -> list[KnowledgeClaim]:
             published_at=KNOWLEDGE_V5_PUBLISHED_AT,
         ),
         *_v6_claims(),
+        *_v7_claims(),
     ]
 
 
@@ -3672,6 +4205,7 @@ def seed_cards() -> list[KnowledgeCard]:
             },
         ),
         *_v6_cards(),
+        *_v7_cards(),
     ]
 
 
@@ -3891,11 +4425,19 @@ def seed_versions() -> list[KnowledgeVersion]:
         KNOWLEDGE_V3_VERSION,
         KNOWLEDGE_V4_VERSION,
         KNOWLEDGE_V5_VERSION,
-        LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+        KNOWLEDGE_V6_VERSION,
     }
     v6_evidence = [evidence for evidence in seed_evidence() if evidence.version in published_chain]
     v6_claims = [claim for claim in seed_claims() if claim.version in published_chain]
     v6_cards = [card for card in seed_cards() if card.version in published_chain]
+    v7_source_ids = v6_source_ids
+    v7_sources = [source for source in seed_sources() if source.id in v7_source_ids]
+    v7_node_ids = {*v6_node_ids, *{item["node_id"] for item in V7_SEED_ITEMS}}
+    v7_nodes = [node for node in seed_nodes() if node.id in v7_node_ids]
+    latest_chain = {*published_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    v7_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
+    v7_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
+    v7_cards = [card for card in seed_cards() if card.version in latest_chain]
     return [
         KnowledgeVersion(
             id=KNOWLEDGE_VERSION,
@@ -3958,7 +4500,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v5_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V6_VERSION,
             status="published",
             published_at=KNOWLEDGE_V6_PUBLISHED_AT,
             source_count=len(v6_sources),
@@ -3966,6 +4508,16 @@ def seed_versions() -> list[KnowledgeVersion]:
             evidence_count=len(v6_evidence),
             claim_count=len(v6_claims),
             card_count=len(v6_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V7_PUBLISHED_AT,
+            source_count=len(v7_sources),
+            node_count=len(v7_nodes),
+            evidence_count=len(v7_evidence),
+            claim_count=len(v7_claims),
+            card_count=len(v7_cards),
         ),
     ]
 
@@ -4237,6 +4789,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V3_VERSION,
             KNOWLEDGE_V4_VERSION,
             KNOWLEDGE_V5_VERSION,
+            KNOWLEDGE_V6_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

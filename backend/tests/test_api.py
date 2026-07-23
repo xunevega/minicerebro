@@ -620,7 +620,7 @@ def test_knowledge_cards_and_statistics_are_exposed():
 
     status = client.get("/knowledge/status")
     assert status.status_code == 200
-    assert status.json()["version"] == "knowledge-v6"
+    assert status.json()["version"] == "knowledge-v7"
     assert status.json()["state"] == "published"
     assert all(item.startswith("fuera de alcance V1:") for item in status.json()["gaps"])
 
@@ -722,8 +722,8 @@ def test_seed_real_ingestion_batch_publishes_reviewed_knowledge_in_v1():
 
     index = client.get("/knowledge/editions/rae-ngle:manual-2010/index")
     assert index.status_code == 200
-    assert [entry["id"] for entry in index.json()] == [
-        "rae-ngle:manual-2010:funciones-sintacticas"
+    assert "rae-ngle:manual-2010:funciones-sintacticas" in [
+        entry["id"] for entry in index.json()
     ]
     assert index.json()[0]["title"] == "Funciones sintacticas"
 
@@ -1108,6 +1108,71 @@ def test_seed_large_batch_publishes_multiple_reviewed_units_in_v6():
     assert claim.version == "knowledge-v6"
     assert card is not None
     assert card.version == "knowledge-v6"
+
+
+def test_seed_grammar_practice_batch_publishes_reviewed_units_in_v7():
+    expected_cards = {
+        "card-sujeto",
+        "card-predicado",
+        "card-complemento-indirecto",
+        "card-atributo",
+        "card-complemento-regimen",
+    }
+
+    index = client.get("/knowledge/editions/rae-ngle:manual-2010/index")
+    assert index.status_code == 200
+    assert expected_cards == {
+        f"card-{entry['id'].removeprefix('rae-ngle:manual-2010:')}"
+        for entry in index.json()
+        if entry["id"]
+        in {
+            "rae-ngle:manual-2010:sujeto",
+            "rae-ngle:manual-2010:predicado",
+            "rae-ngle:manual-2010:complemento-indirecto",
+            "rae-ngle:manual-2010:atributo",
+            "rae-ngle:manual-2010:complemento-regimen",
+        }
+    }
+
+    segments = client.get("/knowledge/index/rae-ngle:manual-2010:sujeto/segments")
+    assert segments.status_code == 200
+    assert "sujeto" in segments.json()[0]["text"].lower()
+
+    extractions = client.get("/knowledge/segments/rae-ngle:manual-2010:sujeto:seg-1/extractions")
+    assert extractions.status_code == 200
+    assert extractions.json()[0]["configuration"]["mode"] == "seed_grammar_practice_batch"
+
+    proposals = client.get("/knowledge/extractions/ext-rae-ngle-2010-sujeto-1/proposals")
+    assert proposals.status_code == 200
+    assert {proposal["proposal_type"] for proposal in proposals.json()} == {
+        "node",
+        "card",
+        "evidence",
+        "claim",
+    }
+    assert {proposal["status"] for proposal in proposals.json()} == {"approved"}
+
+    v6_cards = client.get("/knowledge/cards?version=knowledge-v6")
+    assert v6_cards.status_code == 200
+    assert expected_cards.isdisjoint({card["id"] for card in v6_cards.json()})
+
+    v7_cards = client.get("/knowledge/cards?version=knowledge-v7")
+    assert v7_cards.status_code == 200
+    assert expected_cards <= {card["id"] for card in v7_cards.json()}
+
+    with SessionLocal() as session:
+        node = session.get(KnowledgeNodeRecord, "rae-ngle-sujeto")
+        evidence = session.get(KnowledgeEvidenceItemRecord, "ev-rae-ngle-sujeto")
+        claim = session.get(KnowledgeClaimRecord, "claim-rae-ngle-sujeto")
+        card = session.get(KnowledgeCardRecord, "card-sujeto")
+    assert node is not None
+    assert node.version == "knowledge-v7"
+    assert evidence is not None
+    assert evidence.version == "knowledge-v7"
+    assert claim is not None
+    assert claim.version == "knowledge-v7"
+    assert card is not None
+    assert card.version == "knowledge-v7"
 
 
 def test_register_knowledge_source_persists_without_registering_edition_or_publication():
@@ -2672,6 +2737,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
                 "seed_lexicon_incremental",
                 "seed_usage_large_batch",
                 "seed_editing_large_batch",
+                "seed_grammar_practice_batch",
             }
             for item in evidence_payload
         )
@@ -2715,10 +2781,11 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
         "2026-07-23",
             "2026-07-23T01:00:00+00:00",
                 "2026-07-23T02:00:00+00:00",
-                "2026-07-23T03:00:00+00:00",
-                "2026-07-23T04:00:00+00:00",
-                "2026-07-23T05:00:00+00:00",
-            }
+                    "2026-07-23T03:00:00+00:00",
+                    "2026-07-23T04:00:00+00:00",
+                    "2026-07-23T05:00:00+00:00",
+                    "2026-07-23T06:00:00+00:00",
+                }
     assert all(len(claim["evidence_links"]) >= 1 for claim in claim_payload)
     assert {
         link["role"]
@@ -2788,6 +2855,7 @@ def test_knowledge_versions_include_chain_counts():
         "knowledge-v4",
         "knowledge-v5",
         "knowledge-v6",
+        "knowledge-v7",
     }
     assert versions_by_id["knowledge-v0"]["status"] == "seed"
     assert versions_by_id["knowledge-v0"]["source_count"] == len(version_sources)
@@ -2828,9 +2896,17 @@ def test_knowledge_versions_include_chain_counts():
     assert versions_by_id["knowledge-v6"]["status"] == "published"
     assert versions_by_id["knowledge-v6"]["published_at"] == "2026-07-23T05:00:00+00:00"
     assert versions_by_id["knowledge-v6"]["source_count"] == 8
+    assert versions_by_id["knowledge-v6"]["node_count"] == 10
     assert versions_by_id["knowledge-v6"]["evidence_count"] == 8
     assert versions_by_id["knowledge-v6"]["claim_count"] == 8
     assert versions_by_id["knowledge-v6"]["card_count"] == 8
+    assert versions_by_id["knowledge-v7"]["status"] == "published"
+    assert versions_by_id["knowledge-v7"]["published_at"] == "2026-07-23T06:00:00+00:00"
+    assert versions_by_id["knowledge-v7"]["source_count"] == 8
+    assert versions_by_id["knowledge-v7"]["node_count"] == 15
+    assert versions_by_id["knowledge-v7"]["evidence_count"] == 13
+    assert versions_by_id["knowledge-v7"]["claim_count"] == 13
+    assert versions_by_id["knowledge-v7"]["card_count"] == 13
 
 
 def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_state():
@@ -3022,7 +3098,12 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
             "rae-dpd-dequeismo",
             "rae-gtg-terminologia-gramatical",
             "rae-lese-dinamismo-frase",
+            "rae-ngle-atributo",
             "rae-ngle-complemento-directo",
+            "rae-ngle-complemento-indirecto",
+            "rae-ngle-complemento-regimen",
+            "rae-ngle-predicado",
+            "rae-ngle-sujeto",
             "rae-norma-estilo",
             "rae-ole-acentuacion-grafica",
         ]
@@ -3033,7 +3114,12 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
             "ev-rae-dpd-dequeismo",
             "ev-rae-gtg-terminologia-gramatical",
             "ev-rae-lese-dinamismo-frase",
+            "ev-rae-ngle-atributo",
             "ev-rae-ngle-complemento-directo-candidata",
+            "ev-rae-ngle-complemento-indirecto",
+            "ev-rae-ngle-complemento-regimen",
+            "ev-rae-ngle-predicado",
+            "ev-rae-ngle-sujeto",
             "ev-rae-ole-acentuacion-grafica",
         ]
         assert snapshot.claim_ids == [
@@ -3043,16 +3129,26 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
             "claim-rae-dpd-dequeismo",
             "claim-rae-gtg-terminologia-gramatical",
             "claim-rae-lese-dinamismo-frase",
+            "claim-rae-ngle-atributo",
             "claim-rae-ngle-complemento-directo",
+            "claim-rae-ngle-complemento-indirecto",
+            "claim-rae-ngle-complemento-regimen",
+            "claim-rae-ngle-predicado",
+            "claim-rae-ngle-sujeto",
             "claim-rae-ole-acentuacion-grafica",
         ]
         assert snapshot.card_ids == [
             "card-acentuacion-grafica",
+            "card-atributo",
             "card-complemento-directo",
+            "card-complemento-indirecto",
+            "card-complemento-regimen",
             "card-dequeismo-queismo",
             "card-dinamismo-frase",
             "card-extranjerismos",
             "card-precision-lexica",
+            "card-predicado",
+            "card-sujeto",
             "card-terminologia-gramatical",
             "card-unidad-criterio-editorial",
         ]
@@ -3806,6 +3902,7 @@ def test_knowledge_query_contract_separates_query_from_retrieval_and_generation(
         "knowledge-v4",
         "knowledge-v5",
         "knowledge-v6",
+        "knowledge-v7",
         "latest",
     ]
     assert "presentacion" in payload["profile_boundary"]
@@ -3825,7 +3922,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["query"] == query
     assert payload["normalized_query"] == "precision lexica verificable"
     assert payload["requested_version"] == "latest"
-    assert payload["resolved_version"] == "knowledge-v6"
+    assert payload["resolved_version"] == "knowledge-v7"
     assert payload["query_type"] == ["writing_recommendation"]
     assert "LENGUA" in payload["domain"]
     assert payload["restrictions"]["max_cards"] == 3
@@ -3835,7 +3932,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["context"]["profile_influence"] == "presentation_only"
     assert payload["context"]["retrieval_unit"] == "knowledge_card"
     assert payload["retrieval_request"]["required"] is True
-    assert payload["retrieval_request"]["version"] == "knowledge-v6"
+    assert payload["retrieval_request"]["version"] == "knowledge-v7"
     assert payload["retrieval_request"]["query_terms"] == [
         "lexica",
         "precision",
@@ -3860,8 +3957,8 @@ def test_knowledge_query_resolves_latest_to_published_v6():
     assert latest_response.status_code == 200
     latest_payload = latest_response.json()
     assert latest_payload["requested_version"] == "latest"
-    assert latest_payload["resolved_version"] == "knowledge-v6"
-    assert latest_payload["version"] == "knowledge-v6"
+    assert latest_payload["resolved_version"] == "knowledge-v7"
+    assert latest_payload["version"] == "knowledge-v7"
     assert latest_payload["status"] == "ok"
     assert latest_payload["card_count"] >= 1
     assert "card-complemento-directo" in {card["id"] for card in latest_payload["cards"]}
@@ -3872,7 +3969,7 @@ def test_knowledge_query_resolves_latest_to_published_v6():
     )
     assert orthography_response.status_code == 200
     orthography_payload = orthography_response.json()
-    assert orthography_payload["resolved_version"] == "knowledge-v6"
+    assert orthography_payload["resolved_version"] == "knowledge-v7"
     assert orthography_payload["status"] == "ok"
     assert orthography_payload["card_count"] >= 1
     assert "card-acentuacion-grafica" in {card["id"] for card in orthography_payload["cards"]}
@@ -3883,7 +3980,7 @@ def test_knowledge_query_resolves_latest_to_published_v6():
     )
     assert terminology_response.status_code == 200
     terminology_payload = terminology_response.json()
-    assert terminology_payload["resolved_version"] == "knowledge-v6"
+    assert terminology_payload["resolved_version"] == "knowledge-v7"
     assert terminology_payload["status"] == "ok"
     assert terminology_payload["card_count"] >= 1
     assert "card-terminologia-gramatical" in {card["id"] for card in terminology_payload["cards"]}
@@ -3894,7 +3991,7 @@ def test_knowledge_query_resolves_latest_to_published_v6():
     )
     assert lexicon_response.status_code == 200
     lexicon_payload = lexicon_response.json()
-    assert lexicon_payload["resolved_version"] == "knowledge-v6"
+    assert lexicon_payload["resolved_version"] == "knowledge-v7"
     assert lexicon_payload["status"] == "ok"
     assert lexicon_payload["card_count"] >= 1
     assert "card-precision-lexica" in {card["id"] for card in lexicon_payload["cards"]}
@@ -3905,9 +4002,29 @@ def test_knowledge_query_resolves_latest_to_published_v6():
     )
     assert usage_response.status_code == 200
     usage_payload = usage_response.json()
-    assert usage_payload["resolved_version"] == "knowledge-v6"
+    assert usage_payload["resolved_version"] == "knowledge-v7"
     assert usage_payload["status"] == "ok"
     assert "card-dequeismo-queismo" in {card["id"] for card in usage_payload["cards"]}
+
+    grammar_response = client.post(
+        "/knowledge/query",
+        json={
+            "query": "sujeto predicado complemento indirecto atributo regimen",
+            "version": "latest",
+            "limit": 5,
+        },
+    )
+    assert grammar_response.status_code == 200
+    grammar_payload = grammar_response.json()
+    assert grammar_payload["resolved_version"] == "knowledge-v7"
+    assert grammar_payload["status"] == "ok"
+    assert {
+        "card-sujeto",
+        "card-predicado",
+        "card-complemento-indirecto",
+        "card-atributo",
+        "card-complemento-regimen",
+    } & {card["id"] for card in grammar_payload["cards"]}
 
     empty_response = client.post(
         "/knowledge/query",
@@ -4173,6 +4290,26 @@ def test_knowledge_pipeline_is_persisted():
                     "ev-martinez-sousa-criterio-editorial",
                     "claim-martinez-sousa-criterio-editorial",
                     "card-unidad-criterio-editorial",
+                    "rae-ngle-sujeto",
+                    "ev-rae-ngle-sujeto",
+                    "claim-rae-ngle-sujeto",
+                    "card-sujeto",
+                    "rae-ngle-predicado",
+                    "ev-rae-ngle-predicado",
+                    "claim-rae-ngle-predicado",
+                    "card-predicado",
+                    "rae-ngle-complemento-indirecto",
+                    "ev-rae-ngle-complemento-indirecto",
+                    "claim-rae-ngle-complemento-indirecto",
+                    "card-complemento-indirecto",
+                    "rae-ngle-atributo",
+                    "ev-rae-ngle-atributo",
+                    "claim-rae-ngle-atributo",
+                    "card-atributo",
+                    "rae-ngle-complemento-regimen",
+                    "ev-rae-ngle-complemento-regimen",
+                    "claim-rae-ngle-complemento-regimen",
+                    "card-complemento-regimen",
                 }
     published_source_edition_ids = {
         edition.id for edition in source_editions if edition.id not in candidate_object_ids
@@ -4226,6 +4363,7 @@ def test_knowledge_pipeline_is_persisted():
         "knowledge-v4",
         "knowledge-v5",
         "knowledge-v6",
+        "knowledge-v7",
     }
     assert len(object_revisions) >= len(sources) + len(source_editions) + len(nodes)
     assert {

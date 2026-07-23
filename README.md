@@ -107,7 +107,7 @@ curl https://<backend>.up.railway.app/health
 curl https://<backend>.up.railway.app/knowledge/status
 curl -X POST https://<backend>.up.railway.app/knowledge/query \
   -H 'Content-Type: application/json' \
-  -d '{"query":"dequeismo queismo regimen","version":"latest","limit":3}'
+  -d '{"query":"sujeto predicado complemento indirecto atributo regimen","version":"latest","limit":3}'
 ```
 
 Con los dominios actuales de Railway tambien puede ejecutarse:
@@ -138,6 +138,7 @@ make smoke-production
 - Auditoria de Cerebro declarativa: no se importa ningun modulo completo sin evidencia pieza por pieza.
 - Cierre V1 documentado en `docs/CIERRE_PLAN_V1.md`.
 - Knowledge-v6 publica el primer lote amplio de conocimiento estable sobre dequeismo/queismo, extranjerismos y unidad de criterio editorial, conservando knowledge-v5 como snapshot congelado.
+- Knowledge-v7 publica el lote de gramatica practica sobre sujeto, predicado, complemento indirecto, atributo y complemento de regimen, conservando knowledge-v6 como snapshot congelado.
 - Tests unitarios/API del scoring, comparador, persistencia, feedback, aceptacion, observabilidad, conocimiento y cierre.
 
 `pgvector`, validacion editorial avanzada e ingestion bibliografica completa no forman parte del cierre V1. No hay V2 planificada; cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.
