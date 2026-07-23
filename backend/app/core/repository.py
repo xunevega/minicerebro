@@ -20,6 +20,8 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
+    KnowledgeIndexEntry,
+    KnowledgeIndexEntryCreate,
     KnowledgeIngestionBatch,
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
@@ -61,6 +63,7 @@ from app.db.models import (
     KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
+    KnowledgeIndexEntryRecord,
     KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
@@ -312,6 +315,27 @@ def knowledge_source_from_record(
         structure=record.structure,
         locator_system=record.locator_system,
         editions=editions or [],
+    )
+
+
+def knowledge_index_entry_from_record(
+    record: KnowledgeIndexEntryRecord,
+    children: list[KnowledgeIndexEntry] | None = None,
+) -> KnowledgeIndexEntry:
+    return KnowledgeIndexEntry(
+        id=record.id,
+        edition_id=record.edition_id,
+        parent_id=record.parent_id,
+        level=record.level,
+        order=record.entry_order,
+        title=record.title,
+        locator=record.locator,
+        page_start=record.page_start,
+        page_end=record.page_end,
+        status=record.status,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        children=children or [],
     )
 
 
@@ -765,6 +789,110 @@ class Repository:
         )
         self.session.commit()
         return knowledge_source_edition_from_record(record)
+
+    def register_knowledge_index_entries(
+        self,
+        edition_id: str,
+        payload: list[KnowledgeIndexEntryCreate],
+    ) -> list[KnowledgeIndexEntry]:
+        if self.session.get(KnowledgeSourceEditionRecord, edition_id) is None:
+            raise KeyError(edition_id)
+        if not payload:
+            raise ValueError("Knowledge index entries cannot be empty")
+        payload_ids = {entry.id for entry in payload}
+        if len(payload_ids) != len(payload):
+            raise ValueError("Knowledge index entry ids must be unique")
+        for entry in payload:
+            if entry.edition_id != edition_id:
+                raise ValueError("Knowledge index entry edition_id does not match path")
+            if self.session.get(KnowledgeIndexEntryRecord, entry.id) is not None:
+                raise ValueError("Knowledge index entry already exists")
+        existing_records = self.session.scalars(
+            select(KnowledgeIndexEntryRecord).where(
+                KnowledgeIndexEntryRecord.edition_id == edition_id
+            )
+        ).all()
+        existing_ids = {record.id for record in existing_records}
+        existing_parent_orders = {
+            (record.parent_id, record.entry_order) for record in existing_records
+        }
+        payload_parent_orders: set[tuple[str | None, int]] = set()
+        valid_parent_ids = existing_ids | payload_ids
+        for entry in payload:
+            if entry.parent_id is not None and entry.parent_id not in valid_parent_ids:
+                raise ValueError("Knowledge index entry parent not found")
+            parent_order = (entry.parent_id, entry.order)
+            if parent_order in existing_parent_orders or parent_order in payload_parent_orders:
+                raise ValueError("Knowledge index entry order already exists for parent")
+            payload_parent_orders.add(parent_order)
+        now = datetime.now(UTC).isoformat()
+        records = [
+            KnowledgeIndexEntryRecord(
+                id=entry.id,
+                edition_id=edition_id,
+                parent_id=entry.parent_id,
+                level=entry.level,
+                entry_order=entry.order,
+                title=entry.title,
+                locator=entry.locator,
+                page_start=entry.page_start,
+                page_end=entry.page_end,
+                status=entry.status,
+                created_at=now,
+                updated_at=now,
+            )
+            for entry in payload
+        ]
+        self.session.add_all(records)
+        self.add_audit_event(
+            "knowledge.index.registered",
+            "knowledge_source_edition",
+            edition_id,
+            {
+                "entry_count": len(records),
+                "root_count": sum(1 for record in records if record.parent_id is None),
+                "creates_knowledge": False,
+                "nodes_created": False,
+                "segmentation_started": False,
+                "ingestion_batch_created": False,
+                "publishes_directly": False,
+            },
+        )
+        self.session.commit()
+        return [knowledge_index_entry_from_record(record) for record in records]
+
+    def list_knowledge_index_tree(self, edition_id: str) -> list[KnowledgeIndexEntry]:
+        if self.session.get(KnowledgeSourceEditionRecord, edition_id) is None:
+            raise KeyError(edition_id)
+        records = self.session.scalars(
+            select(KnowledgeIndexEntryRecord)
+            .where(KnowledgeIndexEntryRecord.edition_id == edition_id)
+            .order_by(
+                KnowledgeIndexEntryRecord.level,
+                KnowledgeIndexEntryRecord.parent_id,
+                KnowledgeIndexEntryRecord.entry_order,
+                KnowledgeIndexEntryRecord.id,
+            )
+        ).all()
+        entries_by_id = {
+            record.id: knowledge_index_entry_from_record(record) for record in records
+        }
+        roots: list[KnowledgeIndexEntry] = []
+        for record in records:
+            entry = entries_by_id[record.id]
+            if record.parent_id is None:
+                roots.append(entry)
+                continue
+            parent = entries_by_id.get(record.parent_id)
+            if parent is not None:
+                parent.children.append(entry)
+        return sorted(roots, key=lambda entry: entry.order)
+
+    def get_knowledge_index_entry(self, entry_id: str) -> KnowledgeIndexEntry:
+        record = self.session.get(KnowledgeIndexEntryRecord, entry_id)
+        if record is None:
+            raise KeyError(entry_id)
+        return knowledge_index_entry_from_record(record)
 
     def list_knowledge_nodes(
         self,

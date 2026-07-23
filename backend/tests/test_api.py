@@ -11,6 +11,7 @@ from app.db.models import (
     KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
+    KnowledgeIndexEntryRecord,
     KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
@@ -652,6 +653,189 @@ def test_register_knowledge_source_edition_persists_and_does_not_start_ingestion
             session.query(AuditEventRecord).filter(
                 AuditEventRecord.entity_id.in_([source_id, edition_id])
             ).delete(synchronize_session=False)
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
+def test_register_knowledge_index_entries_builds_document_tree_without_knowledge():
+    source_id = "test-fuente-indice"
+    edition_id = "test-fuente-indice:primera"
+    root_entry_id = "test-fuente-indice:primera:vol-1"
+    chapter_entry_id = "test-fuente-indice:primera:cap-1"
+    section_entry_id = "test-fuente-indice:primera:sec-1-1"
+    source_payload = {
+        "id": source_id,
+        "catalog_id": "TEST-F003",
+        "name": "Fuente de prueba con indice",
+        "responsible": "Equipo editorial",
+        "source_type": "manual de prueba",
+        "domains": ["sintaxis"],
+        "authority_level": 3,
+        "priority": 101,
+    }
+    edition_payload = {
+        "id": edition_id,
+        "source_id": source_id,
+        "title": "Fuente de prueba con indice",
+        "edition_label": "Primera edicion estructurada",
+        "publication_year": "2026",
+        "publisher": "Editorial de prueba",
+        "isbn": "978-0-000000-00-3",
+        "language": "es",
+        "format": "pdf",
+        "access_location": "/tmp/fuente-indice.pdf",
+        "rights_status": "uso local autorizado; contenido no ingerido",
+        "status": "available",
+        "notes": "Registro bibliografico para prueba de indice.",
+    }
+    index_payload = [
+        {
+            "id": root_entry_id,
+            "edition_id": edition_id,
+            "parent_id": None,
+            "level": 1,
+            "order": 1,
+            "title": "Volumen I",
+            "locator": "volumen I",
+            "page_start": "1",
+            "page_end": "200",
+            "status": "registered",
+        },
+        {
+            "id": chapter_entry_id,
+            "edition_id": edition_id,
+            "parent_id": root_entry_id,
+            "level": 2,
+            "order": 1,
+            "title": "Capitulo 1",
+            "locator": "volumen I > capitulo 1",
+            "page_start": "1",
+            "page_end": "40",
+            "status": "registered",
+        },
+        {
+            "id": section_entry_id,
+            "edition_id": edition_id,
+            "parent_id": chapter_entry_id,
+            "level": 3,
+            "order": 1,
+            "title": "Complemento directo",
+            "locator": "volumen I > capitulo 1 > 1.1",
+            "page_start": "10",
+            "page_end": "14",
+            "status": "registered",
+        },
+    ]
+    try:
+        assert client.post("/knowledge/sources", json=source_payload).status_code == 200
+        assert (
+            client.post(f"/knowledge/sources/{source_id}/editions", json=edition_payload).status_code
+            == 200
+        )
+
+        response = client.post(f"/knowledge/editions/{edition_id}/index", json=index_payload)
+        assert response.status_code == 200
+        created = response.json()
+        assert [entry["id"] for entry in created] == [
+            root_entry_id,
+            chapter_entry_id,
+            section_entry_id,
+        ]
+        assert created[2]["title"] == "Complemento directo"
+        assert created[2]["children"] == []
+
+        tree_response = client.get(f"/knowledge/editions/{edition_id}/index")
+        assert tree_response.status_code == 200
+        tree = tree_response.json()
+        assert len(tree) == 1
+        assert tree[0]["id"] == root_entry_id
+        assert tree[0]["children"][0]["id"] == chapter_entry_id
+        assert tree[0]["children"][0]["children"][0]["id"] == section_entry_id
+        assert tree[0]["children"][0]["children"][0]["title"] == "Complemento directo"
+
+        detail = client.get(f"/knowledge/index/{section_entry_id}")
+        assert detail.status_code == 200
+        assert detail.json()["locator"] == "volumen I > capitulo 1 > 1.1"
+
+        duplicate = client.post(
+            f"/knowledge/editions/{edition_id}/index",
+            json=[
+                {
+                    **index_payload[0],
+                    "id": "test-fuente-indice:primera:vol-1-duplicado",
+                }
+            ],
+        )
+        assert duplicate.status_code == 409
+        assert duplicate.json()["detail"] == "Knowledge index entry order already exists for parent"
+
+        missing_parent = client.post(
+            f"/knowledge/editions/{edition_id}/index",
+            json=[
+                {
+                    **index_payload[0],
+                    "id": "test-fuente-indice:primera:huerfano",
+                    "parent_id": "missing-parent",
+                    "order": 2,
+                }
+            ],
+        )
+        assert missing_parent.status_code == 409
+        assert missing_parent.json()["detail"] == "Knowledge index entry parent not found"
+
+        missing_edition = client.post(
+            "/knowledge/editions/edicion-inexistente/index",
+            json=[{**index_payload[0], "edition_id": "edicion-inexistente"}],
+        )
+        assert missing_edition.status_code == 404
+        assert missing_edition.json()["detail"] == "Knowledge edition not found"
+
+        missing_entry = client.get("/knowledge/index/entrada-inexistente")
+        assert missing_entry.status_code == 404
+        assert missing_entry.json()["detail"] == "Knowledge index entry not found"
+
+        nodes_after = client.get(f"/knowledge/nodes?source_id={source_id}")
+        assert nodes_after.status_code == 200
+        assert nodes_after.json() == []
+
+        with SessionLocal() as session:
+            records = session.scalars(
+                select(KnowledgeIndexEntryRecord).where(
+                    KnowledgeIndexEntryRecord.edition_id == edition_id
+                )
+            ).all()
+            assert len(records) == 3
+            batches = session.scalars(
+                select(KnowledgeIngestionBatchRecord).where(
+                    KnowledgeIngestionBatchRecord.source_edition_id == edition_id
+                )
+            ).all()
+            assert batches == []
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.index.registered",
+                    AuditEventRecord.entity_id == edition_id,
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["entry_count"] == 3
+            assert event.payload["creates_knowledge"] is False
+            assert event.payload["nodes_created"] is False
+            assert event.payload["segmentation_started"] is False
+            assert event.payload["ingestion_batch_created"] is False
+    finally:
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_([source_id, edition_id])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.edition_id == edition_id
+            ).delete()
             session.query(KnowledgeSourceEditionRecord).filter(
                 KnowledgeSourceEditionRecord.id == edition_id
             ).delete()

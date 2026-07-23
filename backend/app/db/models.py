@@ -221,6 +221,27 @@ class KnowledgeIngestionBatchRecord(Base):
     updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
+class KnowledgeIndexEntryRecord(Base):
+    __tablename__ = "knowledge_index_entries"
+
+    id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    edition_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_source_editions.id"), nullable=False, index=True
+    )
+    parent_id: Mapped[str | None] = mapped_column(
+        ForeignKey("knowledge_index_entries.id"), nullable=True, index=True
+    )
+    level: Mapped[int] = mapped_column(Integer, nullable=False)
+    entry_order: Mapped[int] = mapped_column(Integer, nullable=False)
+    title: Mapped[str] = mapped_column(String(320), nullable=False)
+    locator: Mapped[str] = mapped_column(String(240), nullable=False)
+    page_start: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    page_end: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class KnowledgeNodeRecord(Base):
     __tablename__ = "knowledge_nodes"
 

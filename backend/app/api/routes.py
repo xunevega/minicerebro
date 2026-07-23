@@ -30,6 +30,8 @@ from app.core.models import (
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
     KnowledgeIngestionReadiness,
+    KnowledgeIndexEntry,
+    KnowledgeIndexEntryCreate,
     KnowledgeNode,
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
@@ -258,6 +260,42 @@ def knowledge_source_edition(
         return repository.get_knowledge_source_edition(edition_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge edition not found") from exc
+
+
+@router.post("/knowledge/editions/{edition_id}/index")
+def register_knowledge_index_entries(
+    edition_id: str,
+    payload: list[KnowledgeIndexEntryCreate],
+    repository: RepositoryDep,
+) -> list[KnowledgeIndexEntry]:
+    try:
+        return repository.register_knowledge_index_entries(edition_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge edition not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/knowledge/editions/{edition_id}/index")
+def knowledge_index_tree(
+    edition_id: str,
+    repository: RepositoryDep,
+) -> list[KnowledgeIndexEntry]:
+    try:
+        return repository.list_knowledge_index_tree(edition_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge edition not found") from exc
+
+
+@router.get("/knowledge/index/{entry_id}")
+def knowledge_index_entry(
+    entry_id: str,
+    repository: RepositoryDep,
+) -> KnowledgeIndexEntry:
+    try:
+        return repository.get_knowledge_index_entry(entry_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge index entry not found") from exc
 
 
 @router.get("/knowledge/nodes")

@@ -22,6 +22,8 @@ import type {
   KnowledgeIngestionBatchExport,
   KnowledgeIngestionPolicy,
   KnowledgeIngestionReadiness,
+  KnowledgeIndexEntry,
+  KnowledgeIndexEntryCreate,
   KnowledgeNode,
   KnowledgeObjectRevision,
   KnowledgePublicationPolicy,
@@ -128,6 +130,29 @@ export function getKnowledgeEdition(editionId: string) {
   return request<KnowledgeSourceEdition>(
     `/knowledge/editions/${encodeURIComponent(editionId)}`,
   );
+}
+
+export function registerKnowledgeIndexEntries(
+  editionId: string,
+  payload: KnowledgeIndexEntryCreate[],
+) {
+  return request<KnowledgeIndexEntry[]>(
+    `/knowledge/editions/${encodeURIComponent(editionId)}/index`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getKnowledgeIndexTree(editionId: string) {
+  return request<KnowledgeIndexEntry[]>(
+    `/knowledge/editions/${encodeURIComponent(editionId)}/index`,
+  );
+}
+
+export function getKnowledgeIndexEntry(entryId: string) {
+  return request<KnowledgeIndexEntry>(`/knowledge/index/${encodeURIComponent(entryId)}`);
 }
 
 export function getKnowledgeVersioning() {

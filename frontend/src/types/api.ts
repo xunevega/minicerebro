@@ -285,6 +285,35 @@ export type KnowledgeSourceEditionCreate = {
   locator_system?: string[];
 };
 
+export type KnowledgeIndexEntry = {
+  id: string;
+  edition_id: string;
+  parent_id: string | null;
+  level: number;
+  order: number;
+  title: string;
+  locator: string;
+  page_start: string | null;
+  page_end: string | null;
+  status: string;
+  created_at: string;
+  updated_at: string;
+  children: KnowledgeIndexEntry[];
+};
+
+export type KnowledgeIndexEntryCreate = {
+  id: string;
+  edition_id: string;
+  parent_id?: string | null;
+  level: number;
+  order: number;
+  title: string;
+  locator: string;
+  page_start?: string | null;
+  page_end?: string | null;
+  status?: "registered" | "available" | "blocked" | "archived";
+};
+
 export type KnowledgeNode = {
   id: string;
   source_id: string;

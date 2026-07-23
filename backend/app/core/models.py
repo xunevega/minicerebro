@@ -378,6 +378,35 @@ class KnowledgeSourceEditionCreate(BaseModel):
     )
 
 
+class KnowledgeIndexEntry(BaseModel):
+    id: str
+    edition_id: str
+    parent_id: str | None
+    level: int
+    order: int
+    title: str
+    locator: str
+    page_start: str | None = None
+    page_end: str | None = None
+    status: str
+    created_at: str
+    updated_at: str
+    children: list["KnowledgeIndexEntry"] = Field(default_factory=list)
+
+
+class KnowledgeIndexEntryCreate(BaseModel):
+    id: str = Field(min_length=3, max_length=160, pattern=r"^[a-z0-9][a-z0-9:.-]*$")
+    edition_id: str = Field(min_length=3, max_length=120, pattern=r"^[a-z0-9][a-z0-9:-]*$")
+    parent_id: str | None = Field(default=None, max_length=160)
+    level: int = Field(ge=1, le=12)
+    order: int = Field(ge=1)
+    title: str = Field(min_length=1, max_length=320)
+    locator: str = Field(min_length=1, max_length=240)
+    page_start: str | None = Field(default=None, max_length=40)
+    page_end: str | None = Field(default=None, max_length=40)
+    status: Literal["registered", "available", "blocked", "archived"] = "registered"
+
+
 class KnowledgeNode(BaseModel):
     id: str
     source_id: str
