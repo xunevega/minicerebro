@@ -34,10 +34,12 @@ from app.core.models import (
 
 KNOWLEDGE_VERSION = "knowledge-v0"
 PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v1"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v2"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
+KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
-LATEST_KNOWLEDGE_VERSION = PUBLISHED_KNOWLEDGE_VERSION
+LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
     "draft",
     "review",
@@ -825,6 +827,8 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["redaccion", "escritura digital", "ortotipografia", "comunicacion"],
             authority_level=4,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
         ),
         _source(
             catalog_id="F007",
@@ -1058,6 +1062,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["capitulo", "seccion", "segmento"],
             locator_system=["edicion", "capitulo", "seccion", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="rae-lese:edicion-2018",
+            source_id="rae-lese",
+            title="Libro de estilo de la lengua espanola segun la norma panhispanica",
+            edition_label="Primera edicion, 2018",
+            publication_year="2018",
+            publisher="Espasa",
+            isbn="9788467053760",
+            language="es",
+            format="libro impreso",
+            access_location="Madrid: Espasa, 2018",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Segundo lote documental minimo para probar publicacion incremental "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            label="Primera edicion, 2018",
+            publication_date="2018",
+            location="Madrid",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["capitulo", "criterio", "segmento"],
+            locator_system=["edicion", "capitulo", "criterio", "pagina"],
+        ),
     ]
 
 
@@ -1076,7 +1108,21 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
             status="available",
             created_at="2026-07-23",
             updated_at="2026-07-23",
-        )
+        ),
+        KnowledgeIndexEntry(
+            id="rae-lese:edicion-2018:claridad-estilo",
+            edition_id="rae-lese:edicion-2018",
+            parent_id=None,
+            level=1,
+            order=1,
+            title="Claridad y eficacia expresiva",
+            locator="Edicion 2018 > estilo > claridad y eficacia expresiva",
+            page_start=None,
+            page_end=None,
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
@@ -1100,16 +1146,36 @@ def seed_segments() -> list[KnowledgeSegment]:
             status="available",
             created_at="2026-07-23",
             updated_at="2026-07-23",
-        )
+        ),
+        KnowledgeSegment(
+            id="rae-lese:edicion-2018:claridad-estilo:seg-1",
+            index_entry_id="rae-lese:edicion-2018:claridad-estilo",
+            parent_segment_id=None,
+            segment_type="editorial_summary",
+            title="Dinamismo como eficacia de estilo",
+            text=(
+                "Resumen editorial minimo: en la revision de estilo, el dinamismo se "
+                "entiende como avance claro de la frase mediante verbos activos, "
+                "estructura legible y reduccion de acumulaciones que frenan la lectura."
+            ),
+            order=1,
+            start_locator="Edicion 2018 > estilo > claridad y eficacia expresiva > resumen editorial 1",
+            end_locator="Edicion 2018 > estilo > claridad y eficacia expresiva > resumen editorial 1",
+            language="es",
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
 def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
-    segment = seed_segments()[0]
+    ngle_segment = seed_segments()[0]
+    lese_segment = seed_segments()[1]
     return [
         KnowledgeExtractionRun(
             id="ext-rae-ngle-manual-2010-funciones-sintacticas-1",
-            segment_id=segment.id,
+            segment_id=ngle_segment.id,
             status="completed",
             extractor_type="deterministic",
             extractor_name="seed-editorial-extractor",
@@ -1120,7 +1186,7 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
                 "source_text_policy": "editorial_summary_no_extended_quote",
             },
             input_segment_revision=1,
-            input_segment_hash=sha256(segment.text.encode("utf-8")).hexdigest(),
+            input_segment_hash=sha256(ngle_segment.text.encode("utf-8")).hexdigest(),
             knowledge_version=None,
             started_at="2026-07-23",
             completed_at="2026-07-23",
@@ -1128,13 +1194,37 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
             error_message=None,
             created_at="2026-07-23",
             updated_at="2026-07-23",
-        )
+        ),
+        KnowledgeExtractionRun(
+            id="ext-rae-lese-2018-claridad-estilo-1",
+            segment_id=lese_segment.id,
+            status="completed",
+            extractor_type="deterministic",
+            extractor_name="seed-editorial-extractor",
+            extractor_version="1.0",
+            configuration={
+                "mode": "seed_incremental_real_batch",
+                "creates_stable_knowledge": False,
+                "source_text_policy": "editorial_summary_no_extended_quote",
+            },
+            input_segment_revision=1,
+            input_segment_hash=sha256(lese_segment.text.encode("utf-8")).hexdigest(),
+            knowledge_version=None,
+            started_at="2026-07-23",
+            completed_at="2026-07-23",
+            error_code=None,
+            error_message=None,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
 def seed_proposals() -> list[KnowledgeProposal]:
     extraction = seed_extraction_runs()[0]
     segment = seed_segments()[0]
+    lese_extraction = seed_extraction_runs()[1]
+    lese_segment = seed_segments()[1]
     return [
         KnowledgeProposal(
             id="prop-rae-ngle-complemento-directo-node",
@@ -1245,6 +1335,137 @@ def seed_proposals() -> list[KnowledgeProposal]:
             reviewer="minicerebro-seed",
             decision_reason="revision editorial inicial del primer lote real de ingestion",
         ),
+        KnowledgeProposal(
+            id="prop-rae-lese-dinamismo-frase-node",
+            extraction_id=lese_extraction.id,
+            segment_id=lese_segment.id,
+            proposal_type="node",
+            status="approved",
+            title="Dinamismo de frase",
+            payload={
+                "id": "rae-lese-dinamismo-frase",
+                "source_id": "rae-lese",
+                "source_edition_id": "rae-lese:edicion-2018",
+                "canonical_name": "Dinamismo de frase",
+                "node_type": "concepto",
+                "primary_branch": "escritura",
+                "secondary_branch": "estilo",
+                "summary": "Criterio de estilo asociado al avance claro de la frase.",
+                "short_definition": "Rasgo de escritura basado en avance, claridad y baja friccion.",
+                "long_definition": (
+                    "Concepto validado desde un segmento editorial minimo del Libro de estilo "
+                    "2018 y publicado como segundo lote estable de conocimiento."
+                ),
+                "aliases": ["ritmo de frase", "avance sintactico"],
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento identifica dinamismo como criterio de eficacia expresiva.",
+            confidence=0.66,
+            source_locator=lese_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del segundo lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-lese-dinamismo-frase-card",
+            extraction_id=lese_extraction.id,
+            segment_id=lese_segment.id,
+            proposal_type="card",
+            status="approved",
+            title="Ficha candidata sobre dinamismo de frase",
+            payload={
+                "id": "card-dinamismo-frase",
+                "card_type": "style_trait",
+                "name": "Dinamismo de frase",
+                "definition": "Rasgo asociado a avance claro, verbos activos y lectura fluida.",
+                "payload": {
+                    "signals": ["verbos activos", "frase con avance", "menos acumulacion"],
+                    "risks": ["perdida de matiz", "ritmo demasiado abrupto"],
+                    "contexts": ["articulo", "publicitario", "narrativa"],
+                },
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="La ficha agrupa el criterio de estilo validado por el lote.",
+            confidence=0.62,
+            source_locator=lese_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del segundo lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-lese-dinamismo-frase-evidence",
+            extraction_id=lese_extraction.id,
+            segment_id=lese_segment.id,
+            proposal_type="evidence",
+            status="approved",
+            title="Evidencia candidata sobre dinamismo de frase",
+            payload={
+                "id": "ev-rae-lese-dinamismo-frase",
+                "node_id": "rae-lese-dinamismo-frase",
+                "source_id": "rae-lese",
+                "source_edition_id": "rae-lese:edicion-2018",
+                "evidence_type": "editorial_summary",
+                "locator": {
+                    "edition": "Primera edicion, 2018",
+                    "section": "claridad y eficacia expresiva",
+                    "segment_id": lese_segment.id,
+                },
+                "reference": lese_segment.start_locator,
+                "excerpt": lese_segment.text,
+                "context": "seed_ingestion_incremental",
+                "confidence_level": 3,
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento conserva un resumen editorial minimo verificable.",
+            confidence=0.62,
+            source_locator=lese_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del segundo lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-lese-dinamismo-frase-claim",
+            extraction_id=lese_extraction.id,
+            segment_id=lese_segment.id,
+            proposal_type="claim",
+            status="approved",
+            title="Claim candidato sobre dinamismo de frase",
+            payload={
+                "id": "claim-rae-lese-dinamismo-frase",
+                "evidence_id": "ev-rae-lese-dinamismo-frase",
+                "card_id": "card-dinamismo-frase",
+                "statement": (
+                    "El dinamismo de frase se apoya en avance claro, verbos activos "
+                    "y reduccion de acumulaciones que frenan la lectura."
+                ),
+                "claim_type": "stylistic",
+                "node_id": "rae-lese-dinamismo-frase",
+                "related_node_ids": ["manual-rasgos-escritura"],
+                "domain": "writing.style",
+                "scope": {
+                    "language": "es",
+                    "register": "general",
+                    "geography": "panhispanic",
+                    "period": "contemporary",
+                    "text_type": "writing",
+                },
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El claim queda sustentado por la evidencia validada del segmento.",
+            confidence=0.62,
+            source_locator=lese_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del segundo lote real de ingestion",
+        ),
     ]
 
 
@@ -1310,6 +1531,27 @@ def seed_nodes() -> list[KnowledgeNode]:
             published_at=KNOWLEDGE_V1_PUBLISHED_AT,
             aliases=["objeto directo"],
         ),
+        KnowledgeNode(
+            id="rae-lese-dinamismo-frase",
+            source_id="rae-lese",
+            node_type="concepto",
+            title="Dinamismo de frase",
+            summary="Criterio de estilo asociado al avance claro de la frase.",
+            canonical_name="Dinamismo de frase",
+            primary_branch="escritura",
+            secondary_branch="estilo",
+            short_definition="Rasgo de escritura basado en avance, claridad y baja friccion.",
+            long_definition=(
+                "Concepto validado desde el segundo lote real de ingestion del Libro de "
+                "estilo 2018. Queda materializado como conocimiento estable publicado "
+                "en knowledge-v2."
+            ),
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            published_at=KNOWLEDGE_V2_PUBLISHED_AT,
+            aliases=["ritmo de frase", "avance sintactico"],
+        ),
     ]
 
 
@@ -1357,6 +1599,21 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             context="seed_ingestion_candidate",
             status="published",
             version=PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
+        KnowledgeNodeRelation(
+            id="rel-dinamismo-frase-depende-rasgos-escritura",
+            source_node_id="rae-lese-dinamismo-frase",
+            target_node_id="manual-rasgos-escritura",
+            relation_type="depende_de",
+            direction="outgoing",
+            cardinality="N:1",
+            weight=0.7,
+            confidence=0.62,
+            context="seed_ingestion_incremental",
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
@@ -1603,6 +1860,30 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             reviewed_by="minicerebro-seed",
             revision=1,
         ),
+        KnowledgeEvidenceItem(
+            id="ev-rae-lese-dinamismo-frase",
+            node_id="rae-lese-dinamismo-frase",
+            source_id="rae-lese",
+            source_edition_id="rae-lese:edicion-2018",
+            evidence_type="editorial_summary",
+            locator={
+                "edition": "Primera edicion, 2018",
+                "section": "claridad y eficacia expresiva",
+                "segment_id": "rae-lese:edicion-2018:claridad-estilo:seg-1",
+            },
+            reference="Edicion 2018 > estilo > claridad y eficacia expresiva > resumen editorial 1",
+            excerpt=seed_segments()[1].text,
+            context="seed_ingestion_incremental",
+            confidence=0.62,
+            confidence_level=3,
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V2_PUBLISHED_AT,
+            incorporated_by="minicerebro-seed",
+            reviewed_by="minicerebro-seed",
+            revision=1,
+        ),
     ]
 
 
@@ -1730,6 +2011,34 @@ def seed_claims() -> list[KnowledgeClaim]:
             updated_at=KNOWLEDGE_V1_PUBLISHED_AT,
             published_at=KNOWLEDGE_V1_PUBLISHED_AT,
         ),
+        KnowledgeClaim(
+            id="claim-rae-lese-dinamismo-frase",
+            evidence_id="ev-rae-lese-dinamismo-frase",
+            card_id="card-dinamismo-frase",
+            statement=(
+                "El dinamismo de frase se apoya en avance claro, verbos activos "
+                "y reduccion de acumulaciones que frenan la lectura."
+            ),
+            claim_type="stylistic",
+            node_id="rae-lese-dinamismo-frase",
+            related_node_ids=["manual-rasgos-escritura"],
+            domain="writing.style",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "writing",
+            },
+            status="published",
+            confidence=0.62,
+            origin="approved_knowledge_proposal",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            revision=1,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V2_PUBLISHED_AT,
+            published_at=KNOWLEDGE_V2_PUBLISHED_AT,
+        ),
     ]
 
 
@@ -1838,30 +2147,72 @@ def seed_cards() -> list[KnowledgeCard]:
                 "contexts": ["gramatica", "sintaxis", "revision linguistica"],
             },
         ),
+        KnowledgeCard(
+            id="card-dinamismo-frase",
+            card_type="style_trait",
+            name="Dinamismo de frase",
+            definition="Rasgo asociado a avance claro, verbos activos y lectura fluida.",
+            confidence=0.62,
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            payload={
+                "signals": ["verbos activos", "frase con avance", "menos acumulacion"],
+                "risks": ["perdida de matiz", "ritmo demasiado abrupto"],
+                "contexts": ["articulo", "publicitario", "narrativa"],
+            },
+        ),
     ]
 
 
 def seed_versions() -> list[KnowledgeVersion]:
-    published_sources = [source for source in seed_sources() if source.id == "rae-ngle"]
-    published_nodes = [
+    v1_sources = [source for source in seed_sources() if source.id == "rae-ngle"]
+    v1_nodes = [
         node
         for node in seed_nodes()
         if node.id in {"rae-ngle-complemento-directo", "rae-norma-estilo"}
     ]
-    published_evidence = [
+    v1_evidence = [
         evidence
         for evidence in seed_evidence()
         if evidence.version == PUBLISHED_KNOWLEDGE_VERSION
     ]
-    published_claims = [
+    v1_claims = [
         claim
         for claim in seed_claims()
         if claim.version == PUBLISHED_KNOWLEDGE_VERSION
     ]
-    published_cards = [
+    v1_cards = [
         card
         for card in seed_cards()
         if card.version == PUBLISHED_KNOWLEDGE_VERSION
+    ]
+    v2_sources = [
+        source for source in seed_sources() if source.id in {"rae-ngle", "rae-lese"}
+    ]
+    v2_nodes = [
+        node
+        for node in seed_nodes()
+        if node.id
+        in {
+            "rae-norma-estilo",
+            "manual-rasgos-escritura",
+            "rae-ngle-complemento-directo",
+            "rae-lese-dinamismo-frase",
+        }
+    ]
+    v2_evidence = [
+        evidence
+        for evidence in seed_evidence()
+        if evidence.version in {PUBLISHED_KNOWLEDGE_VERSION, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    ]
+    v2_claims = [
+        claim
+        for claim in seed_claims()
+        if claim.version in {PUBLISHED_KNOWLEDGE_VERSION, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    ]
+    v2_cards = [
+        card
+        for card in seed_cards()
+        if card.version in {PUBLISHED_KNOWLEDGE_VERSION, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
     ]
     return [
         KnowledgeVersion(
@@ -1878,11 +2229,21 @@ def seed_versions() -> list[KnowledgeVersion]:
             id=PUBLISHED_KNOWLEDGE_VERSION,
             status="published",
             published_at=KNOWLEDGE_V1_PUBLISHED_AT,
-            source_count=len(published_sources),
-            node_count=len(published_nodes),
-            evidence_count=len(published_evidence),
-            claim_count=len(published_claims),
-            card_count=len(published_cards),
+            source_count=len(v1_sources),
+            node_count=len(v1_nodes),
+            evidence_count=len(v1_evidence),
+            claim_count=len(v1_claims),
+            card_count=len(v1_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V2_PUBLISHED_AT,
+            source_count=len(v2_sources),
+            node_count=len(v2_nodes),
+            evidence_count=len(v2_evidence),
+            claim_count=len(v2_claims),
+            card_count=len(v2_cards),
         ),
     ]
 
@@ -2147,7 +2508,12 @@ def query_contract() -> KnowledgeQueryContract:
             "ranking_policy",
         ],
         out_of_scope=QUERY_OUT_OF_SCOPE,
-        allowed_version_values=[KNOWLEDGE_VERSION, PUBLISHED_KNOWLEDGE_VERSION, "latest"],
+        allowed_version_values=[
+            KNOWLEDGE_VERSION,
+            PUBLISHED_KNOWLEDGE_VERSION,
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            "latest",
+        ],
         profile_boundary=(
             "El perfil puede influir solo en presentacion u ordenacion futura; "
             "no altera la interpretacion contractual ni el conocimiento estable."

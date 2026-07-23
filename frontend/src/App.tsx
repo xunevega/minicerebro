@@ -224,7 +224,7 @@ export function App() {
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
   const [knowledgeVersions, setKnowledgeVersions] = useState<KnowledgeVersion[]>([]);
   const [selectedKnowledgeVersion, setSelectedKnowledgeVersion] = useState("latest");
-  const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v1");
+  const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v2");
   const [manualIngestionSourceId, setManualIngestionSourceId] = useState("");
   const [manualIngestionEdition, setManualIngestionEdition] =
     useState<KnowledgeSourceEdition | null>(null);
@@ -236,7 +236,7 @@ export function App() {
   const [manualIngestionProposals, setManualIngestionProposals] = useState<KnowledgeProposal[]>([]);
   const [manualIngestionBusy, setManualIngestionBusy] = useState(false);
   const [candidateVersionId, setCandidateVersionId] = useState(`knowledge-candidate-${Date.now().toString(36)}`);
-  const [candidateBaseVersion, setCandidateBaseVersion] = useState("knowledge-v1");
+  const [candidateBaseVersion, setCandidateBaseVersion] = useState("knowledge-v2");
   const [candidateAuthor, setCandidateAuthor] = useState("minicerebro-ui");
   const [candidateReason, setCandidateReason] = useState(
     "Candidato creado desde la interfaz para revision de publicacion.",

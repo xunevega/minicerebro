@@ -593,7 +593,7 @@ def test_knowledge_cards_and_statistics_are_exposed():
 
     status = client.get("/knowledge/status")
     assert status.status_code == 200
-    assert status.json()["version"] == "knowledge-v1"
+    assert status.json()["version"] == "knowledge-v2"
     assert status.json()["state"] == "published"
     assert all(item.startswith("fuera de alcance V1:") for item in status.json()["gaps"])
 
@@ -2340,7 +2340,8 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     assert all(item["locator"] for item in evidence_payload)
     assert all(item["locator"].get("locator") or item["locator"].get("segment_id") for item in evidence_payload)
     assert all(
-        item["context"] in {"general_rule", "commentary", "seed_ingestion_candidate"}
+        item["context"]
+        in {"general_rule", "commentary", "seed_ingestion_candidate", "seed_ingestion_incremental"}
         for item in evidence_payload
     )
     assert {item["confidence_level"] for item in evidence_payload} == {2, 3}
@@ -2370,7 +2371,11 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
         "approved_knowledge_proposal",
     }
     assert {claim["revision"] for claim in claim_payload} == {1}
-    assert {claim["published_at"] for claim in claim_payload} == {None, "2026-07-23"}
+    assert {claim["published_at"] for claim in claim_payload} == {
+        None,
+        "2026-07-23",
+        "2026-07-23T01:00:00+00:00",
+    }
     assert all(len(claim["evidence_links"]) >= 1 for claim in claim_payload)
     assert {
         link["role"]
@@ -2432,7 +2437,7 @@ def test_knowledge_versions_include_chain_counts():
     versions = response.json()
     version_sources = client.get("/knowledge/sources?version=knowledge-v0").json()
     versions_by_id = {version["id"]: version for version in versions}
-    assert set(versions_by_id) >= {"knowledge-v0", "knowledge-v1"}
+    assert set(versions_by_id) >= {"knowledge-v0", "knowledge-v1", "knowledge-v2"}
     assert versions_by_id["knowledge-v0"]["status"] == "seed"
     assert versions_by_id["knowledge-v0"]["source_count"] == len(version_sources)
     assert versions_by_id["knowledge-v0"]["node_count"] >= 1
@@ -2445,6 +2450,12 @@ def test_knowledge_versions_include_chain_counts():
     assert versions_by_id["knowledge-v1"]["evidence_count"] == 1
     assert versions_by_id["knowledge-v1"]["claim_count"] == 1
     assert versions_by_id["knowledge-v1"]["card_count"] == 1
+    assert versions_by_id["knowledge-v2"]["status"] == "published"
+    assert versions_by_id["knowledge-v2"]["published_at"] == "2026-07-23T01:00:00+00:00"
+    assert versions_by_id["knowledge-v2"]["source_count"] == 2
+    assert versions_by_id["knowledge-v2"]["evidence_count"] == 2
+    assert versions_by_id["knowledge-v2"]["claim_count"] == 2
+    assert versions_by_id["knowledge-v2"]["card_count"] == 2
 
 
 def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_state():
@@ -2608,21 +2619,32 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
         assert candidate["id"] == candidate_id
         assert candidate["status"] == "candidate"
         assert candidate["published_at"] == "not-published"
-        assert candidate["source_count"] == 1
-        assert candidate["node_count"] == 2
-        assert candidate["evidence_count"] == 1
-        assert candidate["claim_count"] == 1
-        assert candidate["card_count"] == 1
+        assert candidate["source_count"] >= 2
+        assert candidate["node_count"] >= 4
+        assert candidate["evidence_count"] >= 2
+        assert candidate["claim_count"] >= 2
+        assert candidate["card_count"] >= 2
 
         with SessionLocal() as session:
             snapshot = session.get(KnowledgeVersionSnapshotRecord, candidate_id)
             assert snapshot is not None
             assert snapshot.status == "candidate"
-            assert snapshot.source_ids == ["rae-ngle"]
-            assert snapshot.node_ids == ["rae-ngle-complemento-directo", "rae-norma-estilo"]
-            assert snapshot.evidence_ids == ["ev-rae-ngle-complemento-directo-candidata"]
-            assert snapshot.claim_ids == ["claim-rae-ngle-complemento-directo"]
-            assert snapshot.card_ids == ["card-complemento-directo"]
+            assert snapshot.source_ids == ["rae-lese", "rae-ngle"]
+            assert snapshot.node_ids == [
+                "manual-rasgos-escritura",
+                "rae-lese-dinamismo-frase",
+                "rae-ngle-complemento-directo",
+                "rae-norma-estilo",
+            ]
+            assert snapshot.evidence_ids == [
+                "ev-rae-lese-dinamismo-frase",
+                "ev-rae-ngle-complemento-directo-candidata",
+            ]
+            assert snapshot.claim_ids == [
+                "claim-rae-lese-dinamismo-frase",
+                "claim-rae-ngle-complemento-directo",
+            ]
+            assert snapshot.card_ids == ["card-complemento-directo", "card-dinamismo-frase"]
             assert len(snapshot.source_ids) == candidate["source_count"]
             assert len(snapshot.evidence_ids) == candidate["evidence_count"]
             assert len(snapshot.claim_ids) == candidate["claim_count"]
@@ -3216,7 +3238,7 @@ def test_knowledge_ingestion_batches_are_persisted_and_exportable():
     response = client.get("/knowledge/ingestion/batches")
     assert response.status_code == 200
     batches = response.json()
-    assert len(batches) == 24
+    assert len(batches) == 25
     first = batches[0]
     assert first["source_id"]
     assert first["source_edition_id"].endswith(":pending-edition")
@@ -3361,7 +3383,12 @@ def test_knowledge_query_contract_separates_query_from_retrieval_and_generation(
     assert "resolved_version" in payload["interpretation_fields"]
     assert "profile_mutation_allowed" in payload["restriction_fields"]
     assert "generaciones" in payload["out_of_scope"]
-    assert payload["allowed_version_values"] == ["knowledge-v0", "knowledge-v1", "latest"]
+    assert payload["allowed_version_values"] == [
+        "knowledge-v0",
+        "knowledge-v1",
+        "knowledge-v2",
+        "latest",
+    ]
     assert "presentacion" in payload["profile_boundary"]
     assert "solicitud de recuperacion" in payload["retrieval_boundary"]
     assert "no forma parte" in payload["generation_boundary"]
@@ -3379,7 +3406,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["query"] == query
     assert payload["normalized_query"] == "precision lexica verificable"
     assert payload["requested_version"] == "latest"
-    assert payload["resolved_version"] == "knowledge-v1"
+    assert payload["resolved_version"] == "knowledge-v2"
     assert payload["query_type"] == ["writing_recommendation"]
     assert "LENGUA" in payload["domain"]
     assert payload["restrictions"]["max_cards"] == 3
@@ -3389,7 +3416,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["context"]["profile_influence"] == "presentation_only"
     assert payload["context"]["retrieval_unit"] == "knowledge_card"
     assert payload["retrieval_request"]["required"] is True
-    assert payload["retrieval_request"]["version"] == "knowledge-v1"
+    assert payload["retrieval_request"]["version"] == "knowledge-v2"
     assert payload["retrieval_request"]["query_terms"] == [
         "lexica",
         "precision",
@@ -3406,7 +3433,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert missing.json()["detail"] == "Knowledge version not found"
 
 
-def test_knowledge_query_resolves_latest_to_published_v1():
+def test_knowledge_query_resolves_latest_to_published_v2():
     latest_response = client.post(
         "/knowledge/query",
         json={"query": "complemento directo", "version": "latest", "limit": 3},
@@ -3414,8 +3441,8 @@ def test_knowledge_query_resolves_latest_to_published_v1():
     assert latest_response.status_code == 200
     latest_payload = latest_response.json()
     assert latest_payload["requested_version"] == "latest"
-    assert latest_payload["resolved_version"] == "knowledge-v1"
-    assert latest_payload["version"] == "knowledge-v1"
+    assert latest_payload["resolved_version"] == "knowledge-v2"
+    assert latest_payload["version"] == "knowledge-v2"
     assert latest_payload["status"] == "ok"
     assert latest_payload["card_count"] == 1
     assert latest_payload["cards"][0]["id"] == "card-complemento-directo"
@@ -3649,6 +3676,11 @@ def test_knowledge_pipeline_is_persisted():
         "ev-rae-ngle-complemento-directo-candidata",
         "claim-rae-ngle-complemento-directo",
         "card-complemento-directo",
+        "rae-lese:edicion-2018",
+        "rae-lese-dinamismo-frase",
+        "ev-rae-lese-dinamismo-frase",
+        "claim-rae-lese-dinamismo-frase",
+        "card-dinamismo-frase",
     }
     published_source_edition_ids = {
         edition.id for edition in source_editions if edition.id not in candidate_object_ids
@@ -3681,7 +3713,7 @@ def test_knowledge_pipeline_is_persisted():
     assert version["evidence_count"] == len(published_evidence_ids)
     assert version["claim_count"] == len(published_claim_ids)
     assert version["card_count"] == len(published_card_ids)
-    assert len(source_editions) == 24
+    assert len(source_editions) == 25
     assert {edition.source_id for edition in source_editions} == {source.id for source in sources}
     assert len(node_relations) >= len(nodes)
     assert {node.source_id for node in nodes} <= {source.id for source in sources}
@@ -3694,7 +3726,11 @@ def test_knowledge_pipeline_is_persisted():
     assert all(relation.target_entity_id for relation in relations)
     assert all(relation.relation_type for relation in relations)
     assert {relation.direction for relation in relations} == {"outgoing"}
-    assert {relation.version for relation in relations} == {"knowledge-v0", "knowledge-v1"}
+    assert {relation.version for relation in relations} == {
+        "knowledge-v0",
+        "knowledge-v1",
+        "knowledge-v2",
+    }
     assert len(object_revisions) >= len(sources) + len(source_editions) + len(nodes)
     assert {
         "source",

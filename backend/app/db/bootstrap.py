@@ -121,6 +121,14 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 published_at="2026-07-23",
             )
         )
+    if session.get(KnowledgeVersionRecord, "knowledge-v2") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v2",
+                status="published",
+                published_at="2026-07-23T01:00:00+00:00",
+            )
+        )
     for source in seed_sources():
         source_record = session.get(KnowledgeSourceRecord, source.id)
         values = {
@@ -648,6 +656,11 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "ev-rae-ngle-complemento-directo-candidata",
             "claim-rae-ngle-complemento-directo",
             "card-complemento-directo",
+            "rae-lese:edicion-2018",
+            "rae-lese-dinamismo-frase",
+            "ev-rae-lese-dinamismo-frase",
+            "claim-rae-lese-dinamismo-frase",
+            "card-dinamismo-frase",
         }
         published_source_editions = [
             edition for edition in seed_source_editions() if edition.id not in candidate_object_ids
@@ -753,5 +766,73 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 revision_ids=revision_ids,
                 created_at="2026-07-23",
                 updated_at="2026-07-23",
+            )
+        )
+    if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v2") is None:
+        source_ids = ["rae-ngle", "rae-lese"]
+        source_edition_ids = ["rae-ngle:manual-2010", "rae-lese:edicion-2018"]
+        node_ids = [
+            "rae-norma-estilo",
+            "manual-rasgos-escritura",
+            "rae-ngle-complemento-directo",
+            "rae-lese-dinamismo-frase",
+        ]
+        evidence_ids = [
+            "ev-rae-ngle-complemento-directo-candidata",
+            "ev-rae-lese-dinamismo-frase",
+        ]
+        claim_ids = [
+            "claim-rae-ngle-complemento-directo",
+            "claim-rae-lese-dinamismo-frase",
+        ]
+        card_ids = ["card-complemento-directo", "card-dinamismo-frase"]
+        snapshot_object_ids = {
+            *source_ids,
+            *source_edition_ids,
+            *node_ids,
+            *evidence_ids,
+            *claim_ids,
+            *card_ids,
+        }
+        node_relation_ids = [
+            relation.id
+            for relation in seed_node_relations()
+            if relation.version in {"knowledge-v1", "knowledge-v2"}
+            and relation.source_node_id in snapshot_object_ids
+            and relation.target_node_id in snapshot_object_ids
+        ]
+        relation_ids = [
+            relation.id
+            for relation in seed_relations()
+            if relation.version in {"knowledge-v1", "knowledge-v2"}
+            and relation.source_entity_id in snapshot_object_ids
+            and relation.target_entity_id in snapshot_object_ids
+        ]
+        revision_ids = [
+            revision.id
+            for revision in seed_object_revisions()
+            if revision.object_id in snapshot_object_ids or revision.object_id in relation_ids
+        ]
+        claim_evidence_link_ids = [
+            link.id
+            for link in seed_claim_evidence_links()
+            if link.claim_id in claim_ids and link.evidence_id in evidence_ids
+        ]
+        session.add(
+            KnowledgeVersionSnapshotRecord(
+                version_id="knowledge-v2",
+                status="published",
+                source_ids=source_ids,
+                source_edition_ids=source_edition_ids,
+                node_ids=node_ids,
+                node_relation_ids=node_relation_ids,
+                relation_ids=relation_ids,
+                evidence_ids=evidence_ids,
+                claim_ids=claim_ids,
+                claim_evidence_link_ids=claim_evidence_link_ids,
+                card_ids=card_ids,
+                revision_ids=revision_ids,
+                created_at="2026-07-23T01:00:00+00:00",
+                updated_at="2026-07-23T01:00:00+00:00",
             )
         )
