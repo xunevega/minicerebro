@@ -225,7 +225,7 @@ export function App() {
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
   const [knowledgeVersions, setKnowledgeVersions] = useState<KnowledgeVersion[]>([]);
   const [selectedKnowledgeVersion, setSelectedKnowledgeVersion] = useState("latest");
-  const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v3");
+  const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v4");
   const [manualIngestionSourceId, setManualIngestionSourceId] = useState("");
   const [manualIngestionEdition, setManualIngestionEdition] =
     useState<KnowledgeSourceEdition | null>(null);
@@ -237,7 +237,7 @@ export function App() {
   const [manualIngestionProposals, setManualIngestionProposals] = useState<KnowledgeProposal[]>([]);
   const [manualIngestionBusy, setManualIngestionBusy] = useState(false);
   const [candidateVersionId, setCandidateVersionId] = useState(`knowledge-candidate-${Date.now().toString(36)}`);
-  const [candidateBaseVersion, setCandidateBaseVersion] = useState("knowledge-v3");
+  const [candidateBaseVersion, setCandidateBaseVersion] = useState("knowledge-v4");
   const [candidateAuthor, setCandidateAuthor] = useState("minicerebro-ui");
   const [candidateReason, setCandidateReason] = useState(
     "Candidato creado desde la interfaz para revision de publicacion.",
@@ -1438,6 +1438,47 @@ export function App() {
               </div>
             </div>
             <div className="proposalBox">
+              <h3>Explorador de pipeline</h3>
+              <div className="pipelineExplorer">
+                {orderedIngestionStatuses.map((status) => (
+                  <article className="pipelineCard" key={status.source_id}>
+                    <div className="ingestionHeader">
+                      <div>
+                        <strong>{status.source_name}</strong>
+                        <span>{status.source_id}</span>
+                      </div>
+                      <span className={status.is_published ? "statusPill done" : "statusPill"}>
+                        {ingestionPhaseLabel(status.current_phase)}
+                      </span>
+                    </div>
+                    <div className="pipelineTrace" aria-label={`Recorrido ${status.source_name}`}>
+                      {pipelineSteps(status).map((step) => (
+                        <span className={step.done ? "pipelineStep done" : "pipelineStep"} key={step.label}>
+                          {step.label}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="ingestionMetrics">
+                      <Metric label="Ed." value={status.counts.editions ?? 0} />
+                      <Metric label="Idx." value={status.counts.index_entries ?? 0} />
+                      <Metric label="Seg." value={status.counts.segments ?? 0} />
+                      <Metric label="Ext." value={status.counts.completed_extractions ?? 0} />
+                      <Metric label="Prop." value={status.counts.proposals ?? 0} />
+                      <Metric
+                        label="Obj."
+                        value={
+                          (status.counts.nodes ?? 0) +
+                          (status.counts.evidence ?? 0) +
+                          (status.counts.claims ?? 0) +
+                          (status.counts.cards ?? 0)
+                        }
+                      />
+                    </div>
+                  </article>
+                ))}
+              </div>
+            </div>
+            <div className="proposalBox">
               <h3>Registro frente a ingestion</h3>
               <div className="metricGrid">
                 <Metric label="Publicadas" value={publishedSourceCount} />
@@ -2014,6 +2055,28 @@ export function App() {
                         ).length
                       } pendientes`}
                     />
+                  </div>
+                  <div className="queryTraceBox">
+                    <h3>Trazabilidad de consulta</h3>
+                    <div className="metricGrid">
+                      <Metric label="Version recuperada" value={knowledgeResult.resolved_version} />
+                      <Metric label="Fuentes" value={knowledgeResult.sources.length} />
+                      <Metric label="Caminos" value={queryRelationPaths(knowledgeResult).length} />
+                    </div>
+                    <div className="phaseSummary">
+                      {knowledgeResult.sources.map((source) => (
+                        <span className="phaseBadge" key={source.id}>
+                          {source.name}
+                        </span>
+                      ))}
+                    </div>
+                    <List
+                      title="Evidencias usadas"
+                      items={knowledgeResult.evidence.map(
+                        (item) => `${item.id} · ${item.source_edition_id} · ${item.reference}`,
+                      )}
+                    />
+                    <List title="Relaciones seguidas" items={queryRelationPaths(knowledgeResult)} />
                   </div>
                   {knowledgeResult.cards.length > 0 ? (
                     <div className="knowledgeGrid">
@@ -3049,6 +3112,14 @@ function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
     { label: "Conocimiento", done: status?.has_materialized_knowledge ?? false },
     { label: "Publicacion", done: status?.is_published ?? false },
   ];
+}
+
+function queryRelationPaths(result: KnowledgeQueryResult) {
+  return result.retrieved_cards.flatMap((card) =>
+    card.relation_paths.length
+      ? card.relation_paths.map((path) => `${card.name}: ${path}`)
+      : [`${card.name}: sin relaciones adicionales`],
+  );
 }
 
 function canApproveProposal(proposal: KnowledgeProposal, versions: KnowledgeVersion[]) {

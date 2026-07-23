@@ -521,17 +521,25 @@ textarea + .primaryButton {
 }
 
 .versionList,
-.sourceExplorer {
+.sourceExplorer,
+.pipelineExplorer {
   display: grid;
   gap: 10px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .versionItem,
-.sourceGroup {
+.sourceGroup,
+.pipelineCard,
+.queryTraceBox {
   border: 1px solid #e0e6df;
   border-radius: 8px;
   padding: 12px;
+}
+
+.queryTraceBox {
+  background: #fbfcf9;
+  margin: 14px 0;
 }
 
 .versionItem.active {
@@ -839,6 +847,7 @@ textarea + .primaryButton {
   .ingestionMetrics,
   .versionList,
   .sourceExplorer,
+  .pipelineExplorer,
   .versionHeader,
   .versionCounts {
     grid-template-columns: 1fr;

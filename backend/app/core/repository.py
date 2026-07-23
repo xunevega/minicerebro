@@ -1172,13 +1172,22 @@ class Repository:
         version: str,
         published_at: str,
     ) -> dict[str, int]:
+        already_published_versions = set(
+            self.session.scalars(
+                select(KnowledgeVersionRecord.id).where(
+                    KnowledgeVersionRecord.status == "published",
+                    KnowledgeVersionRecord.id != version,
+                )
+            ).all()
+        )
         node_count = 0
         for node in self.session.scalars(
             select(KnowledgeNodeRecord).where(KnowledgeNodeRecord.id.in_(snapshot.node_ids))
         ).all():
-            node.status = "published"
-            node.version = version
-            node.published_at = published_at
+            if node.status != "published":
+                node.status = "published"
+                node.version = version
+                node.published_at = published_at
             node_count += 1
 
         node_relation_count = 0
@@ -1187,9 +1196,10 @@ class Repository:
                 KnowledgeNodeRelationRecord.id.in_(snapshot.node_relation_ids)
             )
         ).all():
-            relation.status = "published"
-            relation.version = version
-            relation.updated_at = published_at
+            if relation.status != "published":
+                relation.status = "published"
+                relation.version = version
+                relation.updated_at = published_at
             node_relation_count += 1
 
         relation_count = 0
@@ -1198,9 +1208,10 @@ class Repository:
                 KnowledgeRelationRecord.id.in_(snapshot.relation_ids)
             )
         ).all():
-            relation.status = "published"
-            relation.version = version
-            relation.updated_at = published_at
+            if relation.status != "published":
+                relation.status = "published"
+                relation.version = version
+                relation.updated_at = published_at
             relation_count += 1
 
         evidence_count = 0
@@ -1209,26 +1220,29 @@ class Repository:
                 KnowledgeEvidenceItemRecord.id.in_(snapshot.evidence_ids)
             )
         ).all():
-            evidence.status = "published"
-            evidence.version = version
-            evidence.updated_at = published_at
+            if evidence.status != "published":
+                evidence.status = "published"
+                evidence.version = version
+                evidence.updated_at = published_at
             evidence_count += 1
 
         claim_count = 0
         for claim in self.session.scalars(
             select(KnowledgeClaimRecord).where(KnowledgeClaimRecord.id.in_(snapshot.claim_ids))
         ).all():
-            claim.status = "published"
-            claim.version = version
-            claim.published_at = published_at
-            claim.updated_at = published_at
+            if claim.status != "published":
+                claim.status = "published"
+                claim.version = version
+                claim.published_at = published_at
+                claim.updated_at = published_at
             claim_count += 1
 
         card_count = 0
         for card in self.session.scalars(
             select(KnowledgeCardRecord).where(KnowledgeCardRecord.id.in_(snapshot.card_ids))
         ).all():
-            card.version = version
+            if card.version not in already_published_versions:
+                card.version = version
             card_count += 1
 
         revision_count = 0
@@ -1237,9 +1251,10 @@ class Repository:
                 KnowledgeObjectRevisionRecord.id.in_(snapshot.revision_ids)
             )
         ).all():
-            revision.status = "published"
-            revision.knowledge_version = version
-            revision.updated_at = published_at
+            if revision.status != "published":
+                revision.status = "published"
+                revision.knowledge_version = version
+                revision.updated_at = published_at
             revision_count += 1
 
         claim_revision_count = 0
@@ -1248,7 +1263,8 @@ class Repository:
                 KnowledgeClaimRevisionRecord.claim_id.in_(snapshot.claim_ids)
             )
         ).all():
-            revision.knowledge_version = version
+            if revision.knowledge_version not in already_published_versions:
+                revision.knowledge_version = version
             claim_revision_count += 1
 
         return {

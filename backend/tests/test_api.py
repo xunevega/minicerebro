@@ -593,7 +593,7 @@ def test_knowledge_cards_and_statistics_are_exposed():
 
     status = client.get("/knowledge/status")
     assert status.status_code == 200
-    assert status.json()["version"] == "knowledge-v3"
+    assert status.json()["version"] == "knowledge-v4"
     assert status.json()["state"] == "published"
     assert all(item.startswith("fuera de alcance V1:") for item in status.json()["gaps"])
 
@@ -860,6 +860,86 @@ def test_seed_orthography_batch_publishes_reviewed_knowledge_in_v3():
     assert "card-acentuacion-grafica" in {card["id"] for card in v3_cards.json()}
 
     status = client.get("/knowledge/ingestion/sources?source_id=rae-ole").json()[0]
+    assert status["current_phase"] == "published"
+    assert status["is_ingested"] is True
+    assert status["is_published"] is True
+    assert status["blockers"] == []
+
+
+def test_seed_terminology_batch_publishes_reviewed_knowledge_in_v4():
+    edition = client.get("/knowledge/editions/rae-gtg:edicion-2019")
+    assert edition.status_code == 200
+    assert edition.json()["source_id"] == "rae-gtg"
+    assert edition.json()["edition_label"] == "Edicion academica, 2019"
+    assert edition.json()["status"] == "available"
+
+    index = client.get("/knowledge/editions/rae-gtg:edicion-2019/index")
+    assert index.status_code == 200
+    assert [entry["id"] for entry in index.json()] == [
+        "rae-gtg:edicion-2019:terminologia-sintactica"
+    ]
+    assert index.json()[0]["title"] == "Terminologia sintactica"
+
+    segments = client.get("/knowledge/index/rae-gtg:edicion-2019:terminologia-sintactica/segments")
+    assert segments.status_code == 200
+    assert [segment["id"] for segment in segments.json()] == [
+        "rae-gtg:edicion-2019:terminologia-sintactica:seg-1"
+    ]
+    assert "denominaciones gramaticales" in segments.json()[0]["text"].lower()
+
+    extractions = client.get(
+        "/knowledge/segments/rae-gtg:edicion-2019:terminologia-sintactica:seg-1/extractions"
+    )
+    assert extractions.status_code == 200
+    assert [run["id"] for run in extractions.json()] == [
+        "ext-rae-gtg-2019-terminologia-sintactica-1"
+    ]
+    extraction = extractions.json()[0]
+    assert extraction["status"] == "completed"
+    assert extraction["configuration"]["mode"] == "seed_terminology_incremental_batch"
+    assert extraction["knowledge_version"] is None
+
+    proposals = client.get("/knowledge/extractions/ext-rae-gtg-2019-terminologia-sintactica-1/proposals")
+    assert proposals.status_code == 200
+    assert {proposal["proposal_type"] for proposal in proposals.json()} == {
+        "node",
+        "card",
+        "evidence",
+        "claim",
+    }
+    assert {proposal["status"] for proposal in proposals.json()} == {"approved"}
+
+    with SessionLocal() as session:
+        node = session.get(KnowledgeNodeRecord, "rae-gtg-terminologia-gramatical")
+        evidence = session.get(KnowledgeEvidenceItemRecord, "ev-rae-gtg-terminologia-gramatical")
+        claim = session.get(KnowledgeClaimRecord, "claim-rae-gtg-terminologia-gramatical")
+        card = session.get(KnowledgeCardRecord, "card-terminologia-gramatical")
+        link = session.get(
+            KnowledgeClaimEvidenceLinkRecord,
+            "claim-rae-gtg-terminologia-gramatical:ev-rae-gtg-terminologia-gramatical:primary",
+        )
+    assert node is not None
+    assert node.status == "published"
+    assert node.version == "knowledge-v4"
+    assert evidence is not None
+    assert evidence.status == "published"
+    assert evidence.version == "knowledge-v4"
+    assert claim is not None
+    assert claim.status == "published"
+    assert claim.version == "knowledge-v4"
+    assert card is not None
+    assert card.version == "knowledge-v4"
+    assert card.id == claim.card_id
+    assert link is not None
+
+    v3_cards = client.get("/knowledge/cards?version=knowledge-v3")
+    assert v3_cards.status_code == 200
+    assert "card-terminologia-gramatical" not in {card["id"] for card in v3_cards.json()}
+    v4_cards = client.get("/knowledge/cards?version=knowledge-v4")
+    assert v4_cards.status_code == 200
+    assert "card-terminologia-gramatical" in {card["id"] for card in v4_cards.json()}
+
+    status = client.get("/knowledge/ingestion/sources?source_id=rae-gtg").json()[0]
     assert status["current_phase"] == "published"
     assert status["is_ingested"] is True
     assert status["is_published"] is True
@@ -2424,6 +2504,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
             "seed_ingestion_candidate",
             "seed_ingestion_incremental",
             "seed_orthography_incremental",
+            "seed_terminology_incremental",
         }
         for item in evidence_payload
     )
@@ -2448,6 +2529,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
         "stylistic",
         "grammatical",
         "orthographic",
+        "terminological",
     }
     assert all(claim["domain"] for claim in claim_payload)
     assert all(claim["scope"]["language"] == "es" for claim in claim_payload)
@@ -2463,6 +2545,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
         "2026-07-23",
         "2026-07-23T01:00:00+00:00",
         "2026-07-23T02:00:00+00:00",
+        "2026-07-23T03:00:00+00:00",
     }
     assert all(len(claim["evidence_links"]) >= 1 for claim in claim_payload)
     assert {
@@ -2525,7 +2608,13 @@ def test_knowledge_versions_include_chain_counts():
     versions = response.json()
     version_sources = client.get("/knowledge/sources?version=knowledge-v0").json()
     versions_by_id = {version["id"]: version for version in versions}
-    assert set(versions_by_id) >= {"knowledge-v0", "knowledge-v1", "knowledge-v2", "knowledge-v3"}
+    assert set(versions_by_id) >= {
+        "knowledge-v0",
+        "knowledge-v1",
+        "knowledge-v2",
+        "knowledge-v3",
+        "knowledge-v4",
+    }
     assert versions_by_id["knowledge-v0"]["status"] == "seed"
     assert versions_by_id["knowledge-v0"]["source_count"] == len(version_sources)
     assert versions_by_id["knowledge-v0"]["node_count"] >= 1
@@ -2550,6 +2639,12 @@ def test_knowledge_versions_include_chain_counts():
     assert versions_by_id["knowledge-v3"]["evidence_count"] == 3
     assert versions_by_id["knowledge-v3"]["claim_count"] == 3
     assert versions_by_id["knowledge-v3"]["card_count"] == 3
+    assert versions_by_id["knowledge-v4"]["status"] == "published"
+    assert versions_by_id["knowledge-v4"]["published_at"] == "2026-07-23T03:00:00+00:00"
+    assert versions_by_id["knowledge-v4"]["source_count"] == 4
+    assert versions_by_id["knowledge-v4"]["evidence_count"] == 4
+    assert versions_by_id["knowledge-v4"]["claim_count"] == 4
+    assert versions_by_id["knowledge-v4"]["card_count"] == 4
 
 
 def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_state():
@@ -2723,20 +2818,23 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
             snapshot = session.get(KnowledgeVersionSnapshotRecord, candidate_id)
             assert snapshot is not None
             assert snapshot.status == "candidate"
-            assert snapshot.source_ids == ["rae-lese", "rae-ngle", "rae-ole"]
+            assert snapshot.source_ids == ["rae-gtg", "rae-lese", "rae-ngle", "rae-ole"]
             assert snapshot.node_ids == [
                 "manual-rasgos-escritura",
+                "rae-gtg-terminologia-gramatical",
                 "rae-lese-dinamismo-frase",
                 "rae-ngle-complemento-directo",
                 "rae-norma-estilo",
                 "rae-ole-acentuacion-grafica",
             ]
             assert snapshot.evidence_ids == [
+                "ev-rae-gtg-terminologia-gramatical",
                 "ev-rae-lese-dinamismo-frase",
                 "ev-rae-ngle-complemento-directo-candidata",
                 "ev-rae-ole-acentuacion-grafica",
             ]
             assert snapshot.claim_ids == [
+                "claim-rae-gtg-terminologia-gramatical",
                 "claim-rae-lese-dinamismo-frase",
                 "claim-rae-ngle-complemento-directo",
                 "claim-rae-ole-acentuacion-grafica",
@@ -2745,6 +2843,7 @@ def test_candidate_version_creates_snapshot_and_publication_requires_gates():
                 "card-acentuacion-grafica",
                 "card-complemento-directo",
                 "card-dinamismo-frase",
+                "card-terminologia-gramatical",
             ]
             assert len(snapshot.source_ids) == candidate["source_count"]
             assert len(snapshot.evidence_ids) == candidate["evidence_count"]
@@ -3125,6 +3224,8 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
             evidence = session.get(KnowledgeEvidenceItemRecord, evidence_id)
             claim = session.get(KnowledgeClaimRecord, claim_id)
             relation = session.get(KnowledgeRelationRecord, relation_id)
+            stable_card = session.get(KnowledgeCardRecord, "card-complemento-directo")
+            stable_claim = session.get(KnowledgeClaimRecord, "claim-rae-ngle-complemento-directo")
             assert node is not None and node.status == "published"
             assert card is not None and card.version == candidate_id
             assert evidence is not None and evidence.status == "published"
@@ -3134,6 +3235,8 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
             assert {node.version, evidence.version, claim.version, relation.version} == {
                 candidate_id
             }
+            assert stable_card is not None and stable_card.version == "knowledge-v1"
+            assert stable_claim is not None and stable_claim.version == "knowledge-v1"
             event = session.scalars(
                 select(AuditEventRecord).where(
                     AuditEventRecord.event_type == "knowledge.published",
@@ -3339,7 +3442,7 @@ def test_knowledge_ingestion_batches_are_persisted_and_exportable():
     response = client.get("/knowledge/ingestion/batches")
     assert response.status_code == 200
     batches = response.json()
-    assert len(batches) == 26
+    assert len(batches) == 27
     first = batches[0]
     assert first["source_id"]
     assert first["source_edition_id"].endswith(":pending-edition")
@@ -3489,6 +3592,7 @@ def test_knowledge_query_contract_separates_query_from_retrieval_and_generation(
         "knowledge-v1",
         "knowledge-v2",
         "knowledge-v3",
+        "knowledge-v4",
         "latest",
     ]
     assert "presentacion" in payload["profile_boundary"]
@@ -3508,7 +3612,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["query"] == query
     assert payload["normalized_query"] == "precision lexica verificable"
     assert payload["requested_version"] == "latest"
-    assert payload["resolved_version"] == "knowledge-v3"
+    assert payload["resolved_version"] == "knowledge-v4"
     assert payload["query_type"] == ["writing_recommendation"]
     assert "LENGUA" in payload["domain"]
     assert payload["restrictions"]["max_cards"] == 3
@@ -3518,7 +3622,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["context"]["profile_influence"] == "presentation_only"
     assert payload["context"]["retrieval_unit"] == "knowledge_card"
     assert payload["retrieval_request"]["required"] is True
-    assert payload["retrieval_request"]["version"] == "knowledge-v3"
+    assert payload["retrieval_request"]["version"] == "knowledge-v4"
     assert payload["retrieval_request"]["query_terms"] == [
         "lexica",
         "precision",
@@ -3535,7 +3639,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert missing.json()["detail"] == "Knowledge version not found"
 
 
-def test_knowledge_query_resolves_latest_to_published_v3():
+def test_knowledge_query_resolves_latest_to_published_v4():
     latest_response = client.post(
         "/knowledge/query",
         json={"query": "complemento directo", "version": "latest", "limit": 3},
@@ -3543,11 +3647,11 @@ def test_knowledge_query_resolves_latest_to_published_v3():
     assert latest_response.status_code == 200
     latest_payload = latest_response.json()
     assert latest_payload["requested_version"] == "latest"
-    assert latest_payload["resolved_version"] == "knowledge-v3"
-    assert latest_payload["version"] == "knowledge-v3"
+    assert latest_payload["resolved_version"] == "knowledge-v4"
+    assert latest_payload["version"] == "knowledge-v4"
     assert latest_payload["status"] == "ok"
-    assert latest_payload["card_count"] == 1
-    assert latest_payload["cards"][0]["id"] == "card-complemento-directo"
+    assert latest_payload["card_count"] >= 1
+    assert "card-complemento-directo" in {card["id"] for card in latest_payload["cards"]}
 
     orthography_response = client.post(
         "/knowledge/query",
@@ -3555,10 +3659,21 @@ def test_knowledge_query_resolves_latest_to_published_v3():
     )
     assert orthography_response.status_code == 200
     orthography_payload = orthography_response.json()
-    assert orthography_payload["resolved_version"] == "knowledge-v3"
+    assert orthography_payload["resolved_version"] == "knowledge-v4"
     assert orthography_payload["status"] == "ok"
     assert orthography_payload["card_count"] == 1
     assert orthography_payload["cards"][0]["id"] == "card-acentuacion-grafica"
+
+    terminology_response = client.post(
+        "/knowledge/query",
+        json={"query": "terminologia gramatical categorias funciones", "version": "latest", "limit": 3},
+    )
+    assert terminology_response.status_code == 200
+    terminology_payload = terminology_response.json()
+    assert terminology_payload["resolved_version"] == "knowledge-v4"
+    assert terminology_payload["status"] == "ok"
+    assert terminology_payload["card_count"] >= 1
+    assert "card-terminologia-gramatical" in {card["id"] for card in terminology_payload["cards"]}
 
     empty_response = client.post(
         "/knowledge/query",
@@ -3795,11 +3910,16 @@ def test_knowledge_pipeline_is_persisted():
         "claim-rae-lese-dinamismo-frase",
         "card-dinamismo-frase",
         "rae-ole:edicion-2010",
-        "rae-ole-acentuacion-grafica",
-        "ev-rae-ole-acentuacion-grafica",
-        "claim-rae-ole-acentuacion-grafica",
-        "card-acentuacion-grafica",
-    }
+            "rae-ole-acentuacion-grafica",
+            "ev-rae-ole-acentuacion-grafica",
+            "claim-rae-ole-acentuacion-grafica",
+            "card-acentuacion-grafica",
+            "rae-gtg:edicion-2019",
+            "rae-gtg-terminologia-gramatical",
+            "ev-rae-gtg-terminologia-gramatical",
+            "claim-rae-gtg-terminologia-gramatical",
+            "card-terminologia-gramatical",
+        }
     published_source_edition_ids = {
         edition.id for edition in source_editions if edition.id not in candidate_object_ids
     }
@@ -3831,7 +3951,7 @@ def test_knowledge_pipeline_is_persisted():
     assert version["evidence_count"] == len(published_evidence_ids)
     assert version["claim_count"] == len(published_claim_ids)
     assert version["card_count"] == len(published_card_ids)
-    assert len(source_editions) == 26
+    assert len(source_editions) == 27
     assert {edition.source_id for edition in source_editions} == {source.id for source in sources}
     assert len(node_relations) >= len(nodes)
     assert {node.source_id for node in nodes} <= {source.id for source in sources}
@@ -3849,6 +3969,7 @@ def test_knowledge_pipeline_is_persisted():
         "knowledge-v1",
         "knowledge-v2",
         "knowledge-v3",
+        "knowledge-v4",
     }
     assert len(object_revisions) >= len(sources) + len(source_editions) + len(nodes)
     assert {
@@ -3883,7 +4004,12 @@ def test_knowledge_pipeline_is_persisted():
     assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
     assert {claim.node_id for claim in claims} <= {node.id for node in nodes}
     assert {claim.status for claim in claims} == {"draft", "published"}
-    assert {claim.claim_type for claim in claims} == {"stylistic", "grammatical", "orthographic"}
+    assert {claim.claim_type for claim in claims} == {
+        "stylistic",
+        "grammatical",
+        "orthographic",
+        "terminological",
+    }
     candidate_claim = next(claim for claim in claims if claim.id == "claim-rae-ngle-complemento-directo")
     assert candidate_claim.status == "published"
     assert candidate_claim.claim_type == "grammatical"

@@ -35,11 +35,13 @@ from app.core.models import (
 KNOWLEDGE_VERSION = "knowledge-v0"
 PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v1"
 KNOWLEDGE_V2_VERSION = "knowledge-v2"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v3"
+KNOWLEDGE_V3_VERSION = "knowledge-v3"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v4"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
 KNOWLEDGE_V3_PUBLISHED_AT = "2026-07-23T02:00:00+00:00"
+KNOWLEDGE_V4_PUBLISHED_AT = "2026-07-23T03:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -262,7 +264,7 @@ def versioning_policy() -> KnowledgeVersioningPolicy:
             "que lo sustituyo despues",
             "como era exactamente en cualquier version publicada",
         ],
-        release_chain=["knowledge-v0", "knowledge-v1", "knowledge-v2", "knowledge-v3"],
+        release_chain=["knowledge-v0", "knowledge-v1", "knowledge-v2", "knowledge-v3", "knowledge-v4"],
     )
 
 
@@ -789,6 +791,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["terminologia gramatical", "relaciones conceptuales"],
             authority_level=5,
             priority=1,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F003",
@@ -1123,6 +1128,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["capitulo", "norma", "segmento"],
             locator_system=["edicion", "capitulo", "norma", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="rae-gtg:edicion-2019",
+            source_id="rae-gtg",
+            title="Glosario de terminos gramaticales",
+            edition_label="Edicion academica, 2019",
+            publication_year="2019",
+            publisher="Real Academia Espanola y Asociacion de Academias de la Lengua Espanola",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="obra de consulta",
+            access_location="Madrid: Real Academia Espanola, 2019",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Cuarto lote documental minimo para probar publicacion incremental "
+                "de terminologia gramatical sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            label="Edicion academica, 2019",
+            publication_date="2019",
+            location="Madrid",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["entrada", "relacion terminologica", "segmento"],
+            locator_system=["edicion", "entrada", "relacion", "pagina"],
+        ),
     ]
 
 
@@ -1164,6 +1197,20 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
             order=1,
             title="Acentuacion grafica",
             locator="Edicion 2010 > acentuacion grafica",
+            page_start=None,
+            page_end=None,
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
+        KnowledgeIndexEntry(
+            id="rae-gtg:edicion-2019:terminologia-sintactica",
+            edition_id="rae-gtg:edicion-2019",
+            parent_id=None,
+            level=1,
+            order=1,
+            title="Terminologia sintactica",
+            locator="Edicion 2019 > terminologia sintactica",
             page_start=None,
             page_end=None,
             status="available",
@@ -1232,6 +1279,25 @@ def seed_segments() -> list[KnowledgeSegment]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        KnowledgeSegment(
+            id="rae-gtg:edicion-2019:terminologia-sintactica:seg-1",
+            index_entry_id="rae-gtg:edicion-2019:terminologia-sintactica",
+            parent_segment_id=None,
+            segment_type="editorial_summary",
+            title="Termino gramatical como nodo terminologico",
+            text=(
+                "Resumen editorial minimo: el glosario fija denominaciones gramaticales "
+                "y relaciona terminos equivalentes o cercanos para estabilizar el analisis "
+                "de categorias y funciones."
+            ),
+            order=1,
+            start_locator="Edicion 2019 > terminologia sintactica > resumen editorial 1",
+            end_locator="Edicion 2019 > terminologia sintactica > resumen editorial 1",
+            language="es",
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
@@ -1239,6 +1305,7 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
     ngle_segment = seed_segments()[0]
     lese_segment = seed_segments()[1]
     ole_segment = seed_segments()[2]
+    gtg_segment = seed_segments()[3]
     return [
         KnowledgeExtractionRun(
             id="ext-rae-ngle-manual-2010-funciones-sintacticas-1",
@@ -1306,6 +1373,28 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        KnowledgeExtractionRun(
+            id="ext-rae-gtg-2019-terminologia-sintactica-1",
+            segment_id=gtg_segment.id,
+            status="completed",
+            extractor_type="deterministic",
+            extractor_name="seed-editorial-extractor",
+            extractor_version="1.0",
+            configuration={
+                "mode": "seed_terminology_incremental_batch",
+                "creates_stable_knowledge": False,
+                "source_text_policy": "editorial_summary_no_extended_quote",
+            },
+            input_segment_revision=1,
+            input_segment_hash=sha256(gtg_segment.text.encode("utf-8")).hexdigest(),
+            knowledge_version=None,
+            started_at="2026-07-23",
+            completed_at="2026-07-23",
+            error_code=None,
+            error_message=None,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
@@ -1316,6 +1405,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
     lese_segment = seed_segments()[1]
     ole_extraction = seed_extraction_runs()[2]
     ole_segment = seed_segments()[2]
+    gtg_extraction = seed_extraction_runs()[3]
+    gtg_segment = seed_segments()[3]
     return [
         KnowledgeProposal(
             id="prop-rae-ngle-complemento-directo-node",
@@ -1579,7 +1670,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "2010 y publicado como tercer lote estable de conocimiento."
                 ),
                 "aliases": ["uso de la tilde", "tilde"],
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V3_VERSION,
             },
             rationale="El segmento identifica la acentuacion grafica como norma ortografica estable.",
             confidence=0.65,
@@ -1607,7 +1698,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "risks": ["requiere reglas especificas por tipo de palabra"],
                     "contexts": ["ortografia", "revision linguistica", "edicion"],
                 },
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V3_VERSION,
             },
             rationale="La ficha agrupa la norma ortografica validada por el lote.",
             confidence=0.63,
@@ -1640,7 +1731,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                 "excerpt": ole_segment.text,
                 "context": "seed_orthography_incremental",
                 "confidence_level": 3,
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V3_VERSION,
             },
             rationale="El segmento conserva un resumen editorial minimo verificable.",
             confidence=0.63,
@@ -1677,7 +1768,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "period": "contemporary",
                     "text_type": "orthography",
                 },
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V3_VERSION,
             },
             rationale="El claim queda sustentado por la evidencia validada del segmento.",
             confidence=0.63,
@@ -1687,6 +1778,138 @@ def seed_proposals() -> list[KnowledgeProposal]:
             reviewed_at="2026-07-23",
             reviewer="minicerebro-seed",
             decision_reason="revision editorial del tercer lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-gtg-terminologia-gramatical-node",
+            extraction_id=gtg_extraction.id,
+            segment_id=gtg_segment.id,
+            proposal_type="node",
+            status="approved",
+            title="Terminologia gramatical",
+            payload={
+                "id": "rae-gtg-terminologia-gramatical",
+                "source_id": "rae-gtg",
+                "source_edition_id": "rae-gtg:edicion-2019",
+                "canonical_name": "Terminologia gramatical",
+                "node_type": "metodo",
+                "primary_branch": "gramatica",
+                "secondary_branch": "terminologia",
+                "summary": "Sistema de denominaciones para estabilizar el analisis gramatical.",
+                "short_definition": "Conjunto controlado de terminos usados para nombrar categorias y funciones.",
+                "long_definition": (
+                    "Concepto validado desde un segmento editorial minimo del Glosario "
+                    "de terminos gramaticales 2019 y publicado como cuarto lote estable "
+                    "de conocimiento."
+                ),
+                "aliases": ["nomenclatura gramatical", "terminos gramaticales"],
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento identifica la terminologia como soporte del analisis gramatical.",
+            confidence=0.64,
+            source_locator=gtg_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del cuarto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-gtg-terminologia-gramatical-card",
+            extraction_id=gtg_extraction.id,
+            segment_id=gtg_segment.id,
+            proposal_type="card",
+            status="approved",
+            title="Ficha candidata sobre terminologia gramatical",
+            payload={
+                "id": "card-terminologia-gramatical",
+                "card_type": "grammar_method",
+                "name": "Terminologia gramatical",
+                "definition": "Marco de nombres estables para categorias, funciones y relaciones gramaticales.",
+                "payload": {
+                    "signals": ["denominacion estable", "alias controlados", "relaciones conceptuales"],
+                    "risks": ["confundir sinonimos con conceptos distintos"],
+                    "contexts": ["gramatica", "glosario", "revision linguistica"],
+                },
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="La ficha agrupa la utilidad del glosario para consulta y trazabilidad.",
+            confidence=0.62,
+            source_locator=gtg_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del cuarto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-gtg-terminologia-gramatical-evidence",
+            extraction_id=gtg_extraction.id,
+            segment_id=gtg_segment.id,
+            proposal_type="evidence",
+            status="approved",
+            title="Evidencia candidata sobre terminologia gramatical",
+            payload={
+                "id": "ev-rae-gtg-terminologia-gramatical",
+                "node_id": "rae-gtg-terminologia-gramatical",
+                "source_id": "rae-gtg",
+                "source_edition_id": "rae-gtg:edicion-2019",
+                "evidence_type": "editorial_summary",
+                "locator": {
+                    "edition": "Edicion academica, 2019",
+                    "section": "terminologia sintactica",
+                    "segment_id": gtg_segment.id,
+                },
+                "reference": gtg_segment.start_locator,
+                "excerpt": gtg_segment.text,
+                "context": "seed_terminology_incremental",
+                "confidence_level": 3,
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento conserva un resumen editorial minimo verificable.",
+            confidence=0.62,
+            source_locator=gtg_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del cuarto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-gtg-terminologia-gramatical-claim",
+            extraction_id=gtg_extraction.id,
+            segment_id=gtg_segment.id,
+            proposal_type="claim",
+            status="approved",
+            title="Claim candidato sobre terminologia gramatical",
+            payload={
+                "id": "claim-rae-gtg-terminologia-gramatical",
+                "evidence_id": "ev-rae-gtg-terminologia-gramatical",
+                "card_id": "card-terminologia-gramatical",
+                "statement": (
+                    "La terminologia gramatical estabiliza la consulta al fijar "
+                    "denominaciones y relaciones entre categorias y funciones."
+                ),
+                "claim_type": "terminological",
+                "node_id": "rae-gtg-terminologia-gramatical",
+                "related_node_ids": ["rae-ngle-complemento-directo"],
+                "domain": "grammar.terminology",
+                "scope": {
+                    "language": "es",
+                    "register": "general",
+                    "geography": "panhispanic",
+                    "period": "contemporary",
+                    "text_type": "grammar",
+                },
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El claim queda sustentado por la evidencia validada del segmento.",
+            confidence=0.62,
+            source_locator=gtg_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del cuarto lote real de ingestion",
         ),
     ]
 
@@ -1789,10 +2012,31 @@ def seed_nodes() -> list[KnowledgeNode]:
                 "2010. Queda materializado como conocimiento estable publicado en knowledge-v3."
             ),
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V3_VERSION,
             created_at="2026-07-23",
             published_at=KNOWLEDGE_V3_PUBLISHED_AT,
             aliases=["uso de la tilde", "tilde"],
+        ),
+        KnowledgeNode(
+            id="rae-gtg-terminologia-gramatical",
+            source_id="rae-gtg",
+            node_type="metodo",
+            title="Terminologia gramatical",
+            summary="Sistema de denominaciones para estabilizar el analisis gramatical.",
+            canonical_name="Terminologia gramatical",
+            primary_branch="gramatica",
+            secondary_branch="terminologia",
+            short_definition="Conjunto controlado de terminos usados para nombrar categorias y funciones.",
+            long_definition=(
+                "Concepto validado desde el cuarto lote real de ingestion del Glosario "
+                "de terminos gramaticales 2019. Queda materializado como conocimiento "
+                "estable publicado en knowledge-v4."
+            ),
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            published_at=KNOWLEDGE_V4_PUBLISHED_AT,
+            aliases=["nomenclatura gramatical", "terminos gramaticales"],
         ),
     ]
 
@@ -1869,6 +2113,21 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             weight=0.7,
             confidence=0.63,
             context="seed_orthography_incremental",
+            status="published",
+            version=KNOWLEDGE_V3_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
+        KnowledgeNodeRelation(
+            id="rel-terminologia-gramatical-relaciona-complemento-directo",
+            source_node_id="rae-gtg-terminologia-gramatical",
+            target_node_id="rae-ngle-complemento-directo",
+            relation_type="relacionado_con",
+            direction="outgoing",
+            cardinality="N:N",
+            weight=0.68,
+            confidence=0.62,
+            context="seed_terminology_incremental",
             status="published",
             version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             created_at="2026-07-23",
@@ -2158,9 +2417,33 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             confidence=0.63,
             confidence_level=3,
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V3_VERSION,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V3_PUBLISHED_AT,
+            incorporated_by="minicerebro-seed",
+            reviewed_by="minicerebro-seed",
+            revision=1,
+        ),
+        KnowledgeEvidenceItem(
+            id="ev-rae-gtg-terminologia-gramatical",
+            node_id="rae-gtg-terminologia-gramatical",
+            source_id="rae-gtg",
+            source_edition_id="rae-gtg:edicion-2019",
+            evidence_type="editorial_summary",
+            locator={
+                "edition": "Edicion academica, 2019",
+                "section": "terminologia sintactica",
+                "segment_id": "rae-gtg:edicion-2019:terminologia-sintactica:seg-1",
+            },
+            reference="Edicion 2019 > terminologia sintactica > resumen editorial 1",
+            excerpt=seed_segments()[3].text,
+            context="seed_terminology_incremental",
+            confidence=0.62,
+            confidence_level=3,
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V4_PUBLISHED_AT,
             incorporated_by="minicerebro-seed",
             reviewed_by="minicerebro-seed",
             revision=1,
@@ -2342,11 +2625,39 @@ def seed_claims() -> list[KnowledgeClaim]:
             status="published",
             confidence=0.63,
             origin="approved_knowledge_proposal",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V3_VERSION,
             revision=1,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V3_PUBLISHED_AT,
             published_at=KNOWLEDGE_V3_PUBLISHED_AT,
+        ),
+        KnowledgeClaim(
+            id="claim-rae-gtg-terminologia-gramatical",
+            evidence_id="ev-rae-gtg-terminologia-gramatical",
+            card_id="card-terminologia-gramatical",
+            statement=(
+                "La terminologia gramatical estabiliza la consulta al fijar "
+                "denominaciones y relaciones entre categorias y funciones."
+            ),
+            claim_type="terminological",
+            node_id="rae-gtg-terminologia-gramatical",
+            related_node_ids=["rae-ngle-complemento-directo"],
+            domain="grammar.terminology",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "grammar",
+            },
+            status="published",
+            confidence=0.62,
+            origin="approved_knowledge_proposal",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            revision=1,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V4_PUBLISHED_AT,
+            published_at=KNOWLEDGE_V4_PUBLISHED_AT,
         ),
     ]
 
@@ -2475,11 +2786,24 @@ def seed_cards() -> list[KnowledgeCard]:
             name="Acentuacion grafica",
             definition="Norma para orientar el uso de la tilde segun pronunciacion y silaba tonica.",
             confidence=0.63,
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V3_VERSION,
             payload={
                 "signals": ["silaba tonica", "tilde", "pronunciacion"],
                 "risks": ["requiere reglas especificas por tipo de palabra"],
                 "contexts": ["ortografia", "revision linguistica", "edicion"],
+            },
+        ),
+        KnowledgeCard(
+            id="card-terminologia-gramatical",
+            card_type="grammar_method",
+            name="Terminologia gramatical",
+            definition="Marco de nombres estables para categorias, funciones y relaciones gramaticales.",
+            confidence=0.62,
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            payload={
+                "signals": ["denominacion estable", "alias controlados", "relaciones conceptuales"],
+                "risks": ["confundir sinonimos con conceptos distintos"],
+                "contexts": ["gramatica", "glosario", "revision linguistica"],
             },
         ),
     ]
@@ -2555,19 +2879,70 @@ def seed_versions() -> list[KnowledgeVersion]:
         evidence
         for evidence in seed_evidence()
         if evidence.version
-        in {PUBLISHED_KNOWLEDGE_VERSION, KNOWLEDGE_V2_VERSION, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+        in {PUBLISHED_KNOWLEDGE_VERSION, KNOWLEDGE_V2_VERSION, KNOWLEDGE_V3_VERSION}
     ]
     v3_claims = [
         claim
         for claim in seed_claims()
         if claim.version
-        in {PUBLISHED_KNOWLEDGE_VERSION, KNOWLEDGE_V2_VERSION, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+        in {PUBLISHED_KNOWLEDGE_VERSION, KNOWLEDGE_V2_VERSION, KNOWLEDGE_V3_VERSION}
     ]
     v3_cards = [
         card
         for card in seed_cards()
         if card.version
-        in {PUBLISHED_KNOWLEDGE_VERSION, KNOWLEDGE_V2_VERSION, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+        in {PUBLISHED_KNOWLEDGE_VERSION, KNOWLEDGE_V2_VERSION, KNOWLEDGE_V3_VERSION}
+    ]
+    v4_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {"rae-ngle", "rae-lese", "rae-ole", "rae-gtg"}
+    ]
+    v4_nodes = [
+        node
+        for node in seed_nodes()
+        if node.id
+        in {
+            "rae-norma-estilo",
+            "manual-rasgos-escritura",
+            "rae-ngle-complemento-directo",
+            "rae-lese-dinamismo-frase",
+            "rae-ole-acentuacion-grafica",
+            "rae-gtg-terminologia-gramatical",
+        }
+    ]
+    v4_evidence = [
+        evidence
+        for evidence in seed_evidence()
+        if evidence.version
+        in {
+            PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+        }
+    ]
+    v4_claims = [
+        claim
+        for claim in seed_claims()
+        if claim.version
+        in {
+            PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+        }
+    ]
+    v4_cards = [
+        card
+        for card in seed_cards()
+        if card.version
+        in {
+            PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+        }
     ]
     return [
         KnowledgeVersion(
@@ -2601,7 +2976,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v2_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V3_VERSION,
             status="published",
             published_at=KNOWLEDGE_V3_PUBLISHED_AT,
             source_count=len(v3_sources),
@@ -2609,6 +2984,16 @@ def seed_versions() -> list[KnowledgeVersion]:
             evidence_count=len(v3_evidence),
             claim_count=len(v3_claims),
             card_count=len(v3_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V4_PUBLISHED_AT,
+            source_count=len(v4_sources),
+            node_count=len(v4_nodes),
+            evidence_count=len(v4_evidence),
+            claim_count=len(v4_claims),
+            card_count=len(v4_cards),
         ),
     ]
 
@@ -2877,6 +3262,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_VERSION,
             PUBLISHED_KNOWLEDGE_VERSION,
             KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
