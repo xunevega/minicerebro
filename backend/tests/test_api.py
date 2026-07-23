@@ -11,6 +11,7 @@ from app.db.models import (
     KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
+    KnowledgeExtractionRunRecord,
     KnowledgeIndexEntryRecord,
     KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
@@ -1016,6 +1017,233 @@ def test_register_knowledge_segments_preserves_text_without_creating_knowledge()
             session.query(AuditEventRecord).filter(
                 AuditEventRecord.entity_id.in_([source_id, edition_id, entry_id])
             ).delete(synchronize_session=False)
+            session.query(KnowledgeSegmentRecord).filter(
+                KnowledgeSegmentRecord.index_entry_id == entry_id
+            ).delete()
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.edition_id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
+def test_register_knowledge_extraction_run_is_auditable_without_creating_knowledge():
+    source_id = "test-fuente-extraccion"
+    edition_id = "test-fuente-extraccion:primera"
+    entry_id = "test-fuente-extraccion:primera:sec-1-1"
+    segment_id = "test-fuente-extraccion:primera:sec-1-1:seg-1"
+    source_payload = {
+        "id": source_id,
+        "catalog_id": "TEST-F005",
+        "name": "Fuente de prueba con extraccion",
+        "responsible": "Equipo editorial",
+        "source_type": "manual de prueba",
+        "domains": ["sintaxis"],
+        "authority_level": 3,
+        "priority": 103,
+    }
+    edition_payload = {
+        "id": edition_id,
+        "source_id": source_id,
+        "title": "Fuente de prueba con extraccion",
+        "edition_label": "Primera edicion extraible",
+        "publication_year": "2026",
+        "publisher": "Editorial de prueba",
+        "isbn": "978-0-000000-00-5",
+        "language": "es",
+        "format": "pdf",
+        "access_location": "/tmp/fuente-extraccion.pdf",
+        "rights_status": "uso local autorizado; contenido no ingerido",
+        "status": "available",
+        "notes": "Registro bibliografico para prueba de extraccion.",
+    }
+    index_payload = [
+        {
+            "id": entry_id,
+            "edition_id": edition_id,
+            "parent_id": None,
+            "level": 1,
+            "order": 1,
+            "title": "Complemento directo",
+            "locator": "capitulo 1 > 1.1",
+            "page_start": "10",
+            "page_end": "14",
+            "status": "registered",
+        }
+    ]
+    segment_payload = [
+        {
+            "id": segment_id,
+            "index_entry_id": entry_id,
+            "parent_segment_id": None,
+            "segment_type": "paragraph",
+            "title": "Parrafo inicial",
+            "text": "El complemento directo aparece descrito en este apartado documental.",
+            "order": 1,
+            "start_locator": "capitulo 1 > 1.1 > p1",
+            "end_locator": "capitulo 1 > 1.1 > p1",
+            "language": "es",
+            "status": "registered",
+        }
+    ]
+    extraction_payload = {
+        "extractor_type": "deterministic",
+        "extractor_name": "manual-placeholder",
+        "extractor_version": "1.0",
+        "configuration": {"mode": "smoke"},
+    }
+    try:
+        assert client.post("/knowledge/sources", json=source_payload).status_code == 200
+        assert (
+            client.post(f"/knowledge/sources/{source_id}/editions", json=edition_payload).status_code
+            == 200
+        )
+        assert client.post(f"/knowledge/editions/{edition_id}/index", json=index_payload).status_code == 200
+        assert client.post(f"/knowledge/index/{entry_id}/segments", json=segment_payload).status_code == 200
+
+        response = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json=extraction_payload,
+        )
+        assert response.status_code == 200
+        completed = response.json()
+        assert completed["id"].startswith("ext-")
+        assert completed["segment_id"] == segment_id
+        assert completed["status"] == "completed"
+        assert completed["extractor_type"] == "deterministic"
+        assert completed["extractor_name"] == "manual-placeholder"
+        assert completed["extractor_version"] == "1.0"
+        assert completed["configuration"] == {"mode": "smoke"}
+        assert completed["input_segment_revision"] == 1
+        assert len(completed["input_segment_hash"]) == 64
+        assert completed["knowledge_version"] is None
+        assert completed["started_at"]
+        assert completed["completed_at"]
+        assert completed["error_code"] is None
+        assert completed["error_message"] is None
+
+        retry = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json=extraction_payload,
+        )
+        assert retry.status_code == 200
+        retry_payload = retry.json()
+        assert retry_payload["id"] != completed["id"]
+        assert retry_payload["segment_id"] == segment_id
+
+        failed = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json={
+                **extraction_payload,
+                "status": "failed",
+                "error_code": "parser_error",
+                "error_message": "No se pudo leer el segmento.",
+            },
+        )
+        assert failed.status_code == 200
+        failed_payload = failed.json()
+        assert failed_payload["status"] == "failed"
+        assert failed_payload["error_code"] == "parser_error"
+        assert failed_payload["error_message"] == "No se pudo leer el segmento."
+
+        by_segment = client.get(f"/knowledge/segments/{segment_id}/extractions")
+        assert by_segment.status_code == 200
+        extraction_ids = [item["id"] for item in by_segment.json()]
+        assert completed["id"] in extraction_ids
+        assert retry_payload["id"] in extraction_ids
+        assert failed_payload["id"] in extraction_ids
+
+        detail = client.get(f"/knowledge/extractions/{completed['id']}")
+        assert detail.status_code == 200
+        assert detail.json()["id"] == completed["id"]
+
+        missing_segment = client.post(
+            "/knowledge/segments/segmento-inexistente/extractions",
+            json=extraction_payload,
+        )
+        assert missing_segment.status_code == 404
+        assert missing_segment.json()["detail"] == "Knowledge segment or version not found"
+
+        missing_extraction = client.get("/knowledge/extractions/ext-inexistente")
+        assert missing_extraction.status_code == 404
+        assert missing_extraction.json()["detail"] == "Knowledge extraction not found"
+
+        nodes_after = client.get(f"/knowledge/nodes?source_id={source_id}")
+        assert nodes_after.status_code == 200
+        assert nodes_after.json() == []
+        with SessionLocal() as session:
+            runs = session.scalars(
+                select(KnowledgeExtractionRunRecord).where(
+                    KnowledgeExtractionRunRecord.segment_id == segment_id
+                )
+            ).all()
+            assert len(runs) == 3
+            evidence = session.scalars(
+                select(KnowledgeEvidenceItemRecord).where(
+                    KnowledgeEvidenceItemRecord.source_id == source_id
+                )
+            ).all()
+            assert evidence == []
+            claims = session.scalars(
+                select(KnowledgeClaimRecord).where(KnowledgeClaimRecord.node_id == source_id)
+            ).all()
+            assert claims == []
+            cards = session.scalars(
+                select(KnowledgeCardRecord).where(KnowledgeCardRecord.id.contains(source_id))
+            ).all()
+            assert cards == []
+            registered = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.extraction.registered",
+                    AuditEventRecord.entity_id == completed["id"],
+                )
+            ).first()
+            assert registered is not None
+            assert registered.payload["proposals_created"] is False
+            assert registered.payload["knowledge_created"] is False
+            terminal = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.extraction.completed",
+                    AuditEventRecord.entity_id == completed["id"],
+                )
+            ).first()
+            assert terminal is not None
+            assert terminal.payload["proposals_created"] is False
+            assert terminal.payload["nodes_created"] is False
+            assert terminal.payload["evidence_created"] is False
+            assert terminal.payload["claims_created"] is False
+            assert terminal.payload["cards_created"] is False
+            assert terminal.payload["published"] is False
+            assert terminal.payload["embeddings_created"] is False
+            failed_event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.extraction.failed",
+                    AuditEventRecord.entity_id == failed_payload["id"],
+                )
+            ).first()
+            assert failed_event is not None
+            assert failed_event.payload["error_code"] == "parser_error"
+    finally:
+        with SessionLocal() as session:
+            extraction_ids = [
+                record.id
+                for record in session.scalars(
+                    select(KnowledgeExtractionRunRecord).where(
+                        KnowledgeExtractionRunRecord.segment_id == segment_id
+                    )
+                ).all()
+            ]
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_([source_id, edition_id, entry_id, *extraction_ids])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeExtractionRunRecord).filter(
+                KnowledgeExtractionRunRecord.segment_id == segment_id
+            ).delete()
             session.query(KnowledgeSegmentRecord).filter(
                 KnowledgeSegmentRecord.index_entry_id == entry_id
             ).delete()

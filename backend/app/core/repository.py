@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+from hashlib import sha256
 from datetime import UTC, datetime
-from uuid import UUID
+from uuid import UUID, uuid4
 
 from sqlalchemy import select
 from sqlalchemy.orm import Session, selectinload
@@ -20,6 +21,8 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
+    KnowledgeExtractionRun,
+    KnowledgeExtractionRunCreate,
     KnowledgeIndexEntry,
     KnowledgeIndexEntryCreate,
     KnowledgeIngestionBatch,
@@ -65,6 +68,7 @@ from app.db.models import (
     KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
+    KnowledgeExtractionRunRecord,
     KnowledgeIndexEntryRecord,
     KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
@@ -355,6 +359,29 @@ def knowledge_segment_from_record(record: KnowledgeSegmentRecord) -> KnowledgeSe
         end_locator=record.end_locator,
         language=record.language,
         status=record.status,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+    )
+
+
+def knowledge_extraction_run_from_record(
+    record: KnowledgeExtractionRunRecord,
+) -> KnowledgeExtractionRun:
+    return KnowledgeExtractionRun(
+        id=record.id,
+        segment_id=record.segment_id,
+        status=record.status,
+        extractor_type=record.extractor_type,
+        extractor_name=record.extractor_name,
+        extractor_version=record.extractor_version,
+        configuration=record.configuration,
+        input_segment_revision=record.input_segment_revision,
+        input_segment_hash=record.input_segment_hash,
+        knowledge_version=record.knowledge_version,
+        started_at=record.started_at,
+        completed_at=record.completed_at,
+        error_code=record.error_code,
+        error_message=record.error_message,
         created_at=record.created_at,
         updated_at=record.updated_at,
     )
@@ -1006,6 +1033,109 @@ class Repository:
         if record is None:
             raise KeyError(segment_id)
         return knowledge_segment_from_record(record)
+
+    def register_knowledge_extraction_run(
+        self,
+        segment_id: str,
+        payload: KnowledgeExtractionRunCreate,
+    ) -> KnowledgeExtractionRun:
+        segment = self.session.get(KnowledgeSegmentRecord, segment_id)
+        if segment is None:
+            raise KeyError(segment_id)
+        if payload.knowledge_version is not None and self.session.get(
+            KnowledgeVersionRecord, payload.knowledge_version
+        ) is None:
+            raise KeyError(payload.knowledge_version)
+        started_at = datetime.now(UTC).isoformat()
+        completed_at = datetime.now(UTC).isoformat()
+        now = completed_at
+        error_code = payload.error_code
+        error_message = payload.error_message
+        if payload.status == "failed":
+            error_code = error_code or "extraction_failed"
+            error_message = error_message or "Extraction failed before producing proposals."
+        elif payload.status in {"completed", "cancelled"}:
+            error_code = None
+            error_message = None
+        record = KnowledgeExtractionRunRecord(
+            id=f"ext-{uuid4()}",
+            segment_id=segment_id,
+            status=payload.status,
+            extractor_type=payload.extractor_type,
+            extractor_name=payload.extractor_name,
+            extractor_version=payload.extractor_version,
+            configuration=payload.configuration,
+            input_segment_revision=1,
+            input_segment_hash=sha256(segment.text.encode("utf-8")).hexdigest(),
+            knowledge_version=payload.knowledge_version,
+            started_at=started_at,
+            completed_at=completed_at,
+            error_code=error_code,
+            error_message=error_message,
+            created_at=now,
+            updated_at=now,
+        )
+        self.session.add(record)
+        self.add_audit_event(
+            "knowledge.extraction.registered",
+            "knowledge_extraction_run",
+            record.id,
+            {
+                "segment_id": segment_id,
+                "status": "pending",
+                "extractor_type": payload.extractor_type,
+                "extractor_name": payload.extractor_name,
+                "extractor_version": payload.extractor_version,
+                "proposals_created": False,
+                "knowledge_created": False,
+            },
+        )
+        self.add_audit_event(
+            "knowledge.extraction.started",
+            "knowledge_extraction_run",
+            record.id,
+            {"segment_id": segment_id, "status": "running"},
+        )
+        terminal_event = {
+            "completed": "knowledge.extraction.completed",
+            "failed": "knowledge.extraction.failed",
+            "cancelled": "knowledge.extraction.cancelled",
+        }[payload.status]
+        self.add_audit_event(
+            terminal_event,
+            "knowledge_extraction_run",
+            record.id,
+            {
+                "segment_id": segment_id,
+                "status": payload.status,
+                "error_code": error_code,
+                "proposals_created": False,
+                "nodes_created": False,
+                "evidence_created": False,
+                "claims_created": False,
+                "cards_created": False,
+                "published": False,
+                "embeddings_created": False,
+            },
+        )
+        self.session.commit()
+        return knowledge_extraction_run_from_record(record)
+
+    def list_knowledge_extraction_runs(self, segment_id: str) -> list[KnowledgeExtractionRun]:
+        if self.session.get(KnowledgeSegmentRecord, segment_id) is None:
+            raise KeyError(segment_id)
+        records = self.session.scalars(
+            select(KnowledgeExtractionRunRecord)
+            .where(KnowledgeExtractionRunRecord.segment_id == segment_id)
+            .order_by(KnowledgeExtractionRunRecord.created_at, KnowledgeExtractionRunRecord.id)
+        ).all()
+        return [knowledge_extraction_run_from_record(record) for record in records]
+
+    def get_knowledge_extraction_run(self, extraction_id: str) -> KnowledgeExtractionRun:
+        record = self.session.get(KnowledgeExtractionRunRecord, extraction_id)
+        if record is None:
+            raise KeyError(extraction_id)
+        return knowledge_extraction_run_from_record(record)
 
     def list_knowledge_nodes(
         self,

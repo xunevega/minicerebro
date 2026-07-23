@@ -26,6 +26,8 @@ from app.core.models import (
     KnowledgeCard,
     KnowledgeClaim,
     KnowledgeEvidenceItem,
+    KnowledgeExtractionRun,
+    KnowledgeExtractionRunCreate,
     KnowledgeIngestionBatch,
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
@@ -334,6 +336,40 @@ def knowledge_segment(
         return repository.get_knowledge_segment(segment_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge segment not found") from exc
+
+
+@router.post("/knowledge/segments/{segment_id}/extractions")
+def register_knowledge_extraction_run(
+    segment_id: str,
+    payload: KnowledgeExtractionRunCreate,
+    repository: RepositoryDep,
+) -> KnowledgeExtractionRun:
+    try:
+        return repository.register_knowledge_extraction_run(segment_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge segment or version not found") from exc
+
+
+@router.get("/knowledge/segments/{segment_id}/extractions")
+def knowledge_extraction_runs(
+    segment_id: str,
+    repository: RepositoryDep,
+) -> list[KnowledgeExtractionRun]:
+    try:
+        return repository.list_knowledge_extraction_runs(segment_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge segment not found") from exc
+
+
+@router.get("/knowledge/extractions/{extraction_id}")
+def knowledge_extraction_run(
+    extraction_id: str,
+    repository: RepositoryDep,
+) -> KnowledgeExtractionRun:
+    try:
+        return repository.get_knowledge_extraction_run(extraction_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge extraction not found") from exc
 
 
 @router.get("/knowledge/nodes")

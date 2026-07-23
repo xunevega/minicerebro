@@ -18,6 +18,8 @@ import type {
   KnowledgeCard,
   KnowledgeClaim,
   KnowledgeEvidenceItem,
+  KnowledgeExtractionRun,
+  KnowledgeExtractionRunCreate,
   KnowledgeIngestionBatch,
   KnowledgeIngestionBatchExport,
   KnowledgeIngestionPolicy,
@@ -176,6 +178,31 @@ export function getKnowledgeSegments(entryId: string) {
 export function getKnowledgeSegment(segmentId: string) {
   return request<KnowledgeSegment>(
     `/knowledge/segments/${encodeURIComponent(segmentId)}`,
+  );
+}
+
+export function registerKnowledgeExtractionRun(
+  segmentId: string,
+  payload: KnowledgeExtractionRunCreate,
+) {
+  return request<KnowledgeExtractionRun>(
+    `/knowledge/segments/${encodeURIComponent(segmentId)}/extractions`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getKnowledgeExtractionRuns(segmentId: string) {
+  return request<KnowledgeExtractionRun[]>(
+    `/knowledge/segments/${encodeURIComponent(segmentId)}/extractions`,
+  );
+}
+
+export function getKnowledgeExtractionRun(extractionId: string) {
+  return request<KnowledgeExtractionRun>(
+    `/knowledge/extractions/${encodeURIComponent(extractionId)}`,
   );
 }
 

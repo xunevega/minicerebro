@@ -264,6 +264,29 @@ class KnowledgeSegmentRecord(Base):
     updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
+class KnowledgeExtractionRunRecord(Base):
+    __tablename__ = "knowledge_extraction_runs"
+
+    id: Mapped[str] = mapped_column(String(180), primary_key=True)
+    segment_id: Mapped[str] = mapped_column(ForeignKey("knowledge_segments.id"), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    extractor_type: Mapped[str] = mapped_column(String(80), nullable=False)
+    extractor_name: Mapped[str] = mapped_column(String(160), nullable=False)
+    extractor_version: Mapped[str] = mapped_column(String(80), nullable=False)
+    configuration: Mapped[dict] = mapped_column(JSON, nullable=False)
+    input_segment_revision: Mapped[int] = mapped_column(Integer, nullable=False)
+    input_segment_hash: Mapped[str] = mapped_column(String(64), nullable=False)
+    knowledge_version: Mapped[str | None] = mapped_column(
+        ForeignKey("knowledge_versions.id"), nullable=True
+    )
+    started_at: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    completed_at: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    error_code: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    error_message: Mapped[str | None] = mapped_column(Text, nullable=True)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class KnowledgeNodeRecord(Base):
     __tablename__ = "knowledge_nodes"
 

@@ -344,6 +344,36 @@ export type KnowledgeSegmentCreate = {
   status?: "registered" | "available" | "blocked" | "archived";
 };
 
+export type KnowledgeExtractionRun = {
+  id: string;
+  segment_id: string;
+  status: string;
+  extractor_type: string;
+  extractor_name: string;
+  extractor_version: string;
+  configuration: Record<string, unknown>;
+  input_segment_revision: number;
+  input_segment_hash: string;
+  knowledge_version: string | null;
+  started_at: string | null;
+  completed_at: string | null;
+  error_code: string | null;
+  error_message: string | null;
+  created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeExtractionRunCreate = {
+  extractor_type: string;
+  extractor_name: string;
+  extractor_version: string;
+  configuration?: Record<string, unknown>;
+  status?: "completed" | "failed" | "cancelled";
+  error_code?: string | null;
+  error_message?: string | null;
+  knowledge_version?: string | null;
+};
+
 export type KnowledgeNode = {
   id: string;
   source_id: string;

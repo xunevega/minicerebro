@@ -437,6 +437,36 @@ class KnowledgeSegmentCreate(BaseModel):
     status: Literal["registered", "available", "blocked", "archived"] = "registered"
 
 
+class KnowledgeExtractionRun(BaseModel):
+    id: str
+    segment_id: str
+    status: str
+    extractor_type: str
+    extractor_name: str
+    extractor_version: str
+    configuration: dict
+    input_segment_revision: int
+    input_segment_hash: str
+    knowledge_version: str | None = None
+    started_at: str | None = None
+    completed_at: str | None = None
+    error_code: str | None = None
+    error_message: str | None = None
+    created_at: str
+    updated_at: str
+
+
+class KnowledgeExtractionRunCreate(BaseModel):
+    extractor_type: str = Field(min_length=2, max_length=80)
+    extractor_name: str = Field(min_length=2, max_length=160)
+    extractor_version: str = Field(min_length=1, max_length=80)
+    configuration: dict = Field(default_factory=dict)
+    status: Literal["completed", "failed", "cancelled"] = "completed"
+    error_code: str | None = Field(default=None, max_length=120)
+    error_message: str | None = None
+    knowledge_version: str | None = Field(default=None, max_length=80)
+
+
 class KnowledgeNode(BaseModel):
     id: str
     source_id: str
