@@ -22,6 +22,7 @@ python -m venv .venv
 source .venv/bin/activate
 pip install -e "backend[dev]"
 cd backend
+../.venv/bin/alembic upgrade head
 uvicorn app.main:app --reload
 ```
 
@@ -80,7 +81,7 @@ https://<tu-dominio>.up.railway.app/health
 ## Estado de esta base
 
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
-- Arranque local con migraciones Alembic; `Base.metadata.create_all()` no se usa como mecanismo de esquema.
+- Migraciones Alembic explicitas antes del arranque; `Base.metadata.create_all()` no se usa como mecanismo de esquema y la app no ejecuta migraciones durante el startup.
 - React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
 - SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.
 - Pipeline de conocimiento persistente e inspeccionable: fuentes, ediciones de fuente, nodos, evidencias, claims, fichas, version, consulta, historial y validacion auditada.

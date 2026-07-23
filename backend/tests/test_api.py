@@ -317,6 +317,17 @@ def test_bootstrap_uses_alembic_without_create_all_or_manual_schema_patch():
     assert "ALTER TABLE" not in source
 
 
+def test_application_startup_does_not_run_alembic_migrations():
+    import inspect
+
+    from app import main
+
+    source = inspect.getsource(main)
+    assert "upgrade_database" not in source
+    assert "command.upgrade" not in source
+    assert "lifespan" not in source
+
+
 def test_preference_interpretation_is_proposed():
     response = client.post(
         "/preferences/interpret",

@@ -1,24 +1,13 @@
-from collections.abc import AsyncIterator
-from contextlib import asynccontextmanager
-
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from app.api.routes import router
-from app.db.bootstrap import upgrade_database
-
-
-@asynccontextmanager
-async def lifespan(_: FastAPI) -> AsyncIterator[None]:
-    upgrade_database()
-    yield
 
 
 app = FastAPI(
     title="Minicerebro API",
     version="1.0.0",
     description="API inicial para Minicerebro V1.",
-    lifespan=lifespan,
 )
 
 app.add_middleware(
