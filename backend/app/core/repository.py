@@ -1883,6 +1883,8 @@ class Repository:
             return "claim", self._create_claim_from_proposal(proposal, decision)
         if proposal.proposal_type == "relation":
             return "relation", self._create_relation_from_proposal(proposal)
+        if proposal.proposal_type == "card":
+            return "card", self._create_card_from_proposal(proposal, decision)
         raise ValueError(
             "Knowledge proposal type requires a versioned mutation rule before approval"
         )
@@ -1958,6 +1960,57 @@ class Repository:
             )
         )
         return node_id
+
+    def _create_card_from_proposal(
+        self,
+        proposal: KnowledgeProposalRecord,
+        decision: KnowledgeProposalDecision,
+    ) -> str:
+        card_id = self._required_payload_value(proposal, "id")
+        version = proposal.payload.get("version", "knowledge-v0")
+        card_payload = proposal.payload.get("payload", {})
+        if not isinstance(version, str):
+            raise ValueError("Knowledge proposal payload missing version")
+        if not isinstance(card_payload, dict):
+            raise ValueError("Knowledge proposal payload card payload must be an object")
+        if self.session.get(KnowledgeCardRecord, card_id) is not None:
+            raise ValueError("Knowledge card already exists")
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        now = datetime.now(UTC).isoformat()
+        self.session.add(
+            KnowledgeCardRecord(
+                id=card_id,
+                card_type=proposal.payload.get("card_type", "concept"),
+                name=self._required_payload_value(proposal, "name"),
+                definition=self._required_payload_value(proposal, "definition"),
+                confidence=proposal.confidence,
+                version=version,
+                payload=card_payload,
+            )
+        )
+        self.session.add(
+            KnowledgeObjectRevisionRecord(
+                id=f"{card_id}:r1",
+                object_type="card",
+                object_id=card_id,
+                revision_number=1,
+                object_version=f"{card_id}@r1",
+                knowledge_version=version,
+                status="validated",
+                change_type="created_from_proposal",
+                author=decision.reviewer,
+                reason=decision.reason,
+                previous_revision=None,
+                replaces_object_id=None,
+                replaced_by_object_id=None,
+                before={},
+                after=proposal.payload,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        return card_id
 
     def _create_evidence_from_proposal(
         self,

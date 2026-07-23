@@ -9,7 +9,7 @@ try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
 
   const panel = page.locator(".proposalBox", { hasText: "Ingestion manual minima" });
-  await panel.getByText("No crea candidate ni publica conocimiento.").waitFor();
+  await panel.getByText("Solo una candidate real permite aprobar propuestas").waitFor();
 
   const sourceSelect = page.getByLabel("Fuente para ingestion manual");
   const optionValue = await sourceSelect.evaluate((select) => {
@@ -36,9 +36,14 @@ try {
     await panel.locator(".pipelineStep.done", { hasText: new RegExp(`^${label}$`) }).waitFor();
   }
   await panel.locator(".metric", { hasText: "Extraccion" }).filter({ hasText: "completed" }).waitFor();
-  await panel.locator(".metric", { hasText: "Proposals" }).filter({ hasText: "1" }).waitFor();
+  await panel.locator(".metric", { hasText: "Proposals" }).filter({ hasText: "5" }).waitFor();
+  await panel.locator(".metric", { hasText: "Destino" }).filter({ hasText: "candidate-pending" }).waitFor();
   await panel.locator("article.knowledgeItem > strong", { hasText: /^Nodo candidato manual$/ }).waitFor();
   await panel.getByText("node · proposed").waitFor();
+  await panel.getByText("card · proposed").waitFor();
+  await panel.getByText("evidence · proposed").waitFor();
+  await panel.getByText("claim · proposed").waitFor();
+  await panel.getByText("relation · proposed").waitFor();
 
   const rejectResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
@@ -48,7 +53,7 @@ try {
       response.request().method() === "POST"
     );
   });
-  await panel.getByRole("button", { name: "Rechazar" }).click();
+  await panel.getByRole("button", { name: "Rechazar" }).first().click();
   await rejectResponse;
   await panel.getByText("node · rejected").waitFor();
 } finally {

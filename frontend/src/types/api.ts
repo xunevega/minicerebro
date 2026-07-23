@@ -480,7 +480,7 @@ export type KnowledgeProposal = {
 };
 
 export type KnowledgeProposalCreate = {
-  proposal_type: "node" | "evidence" | "claim" | "relation" | "alias" | "definition";
+  proposal_type: "node" | "evidence" | "claim" | "relation" | "card" | "alias" | "definition";
   title: string;
   payload: Record<string, unknown>;
   rationale: string;

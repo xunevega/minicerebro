@@ -109,10 +109,17 @@ def ensure_knowledge_version(repository: Repository, version: str | None) -> Non
 
 
 @router.get("/knowledge/status")
-def knowledge_status() -> KnowledgeStatus:
+def knowledge_status(repository: RepositoryDep) -> KnowledgeStatus:
+    versions = repository.list_knowledge_versions()
+    published_versions = [version for version in versions if version.status == "published"]
+    current_version = (
+        max(published_versions, key=lambda version: (version.published_at, version.id))
+        if published_versions
+        else versions[0]
+    )
     return KnowledgeStatus(
-        version="knowledge-v0",
-        state="seed",
+        version=current_version.id,
+        state=current_version.status,
         coverage=["lengua espanola", "escritura", "estilo", "comparacion textual"],
         gaps=[
             "fuera de alcance V1: ingestion bibliografica completa",

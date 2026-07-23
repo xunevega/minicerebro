@@ -2259,9 +2259,7 @@ def query_knowledge(
     relations_by_source = {
         (relation.source_entity_type, relation.source_entity_id): relation
         for relation in relations
-        if relation.version == resolved_version
-        and relation.status in allowed_statuses
-        and relation.confidence >= 0.5
+        if relation.status in allowed_statuses and relation.confidence >= 0.5
     }
     candidate_nodes: set[str] = set()
     discarded_claims: list[str] = []
@@ -2346,8 +2344,8 @@ def query_knowledge(
                 continue
             relation_score = max(relation_score, relation.confidence * relation.weight)
             relation_paths.append(relation.id)
-        status_score = 1.0 if card.version == resolved_version else 0.0
-        version_score = 1.0 if card.version == resolved_version else 0.0
+        status_score = 1.0
+        version_score = 1.0
         factors = {
             "concept_match": round(concept_match, 3),
             "domain_match": round(domain_match, 3),
@@ -2387,8 +2385,6 @@ def query_knowledge(
 
     evaluated_cards = []
     for card in cards:
-        if card.version != resolved_version:
-            continue
         score, factors, reasons, relation_paths = evaluate_card(card)
         if score <= 0 or factors["concept_match"] <= 0:
             continue
@@ -2411,19 +2407,17 @@ def query_knowledge(
         claim
         for claim in claims
         if claim.card_id in card_ids
-        and claim.version == resolved_version
         and claim.status in allowed_statuses
         and claim.confidence >= 0.4
     ]
     for claim in claims:
-        if claim.version == resolved_version and claim.card_id in card_ids and claim not in matched_claims:
+        if claim.card_id in card_ids and claim not in matched_claims:
             discarded_claims.append(claim.id)
     evidence_ids = {claim.evidence_id for claim in matched_claims}
     matched_evidence = [
         item
         for item in evidence
         if item.id in evidence_ids
-        and item.version == resolved_version
         and item.status in allowed_statuses
         and item.confidence >= 0.4
     ]

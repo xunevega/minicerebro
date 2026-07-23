@@ -593,6 +593,8 @@ def test_knowledge_cards_and_statistics_are_exposed():
 
     status = client.get("/knowledge/status")
     assert status.status_code == 200
+    assert status.json()["version"] == "knowledge-v1"
+    assert status.json()["state"] == "published"
     assert all(item.startswith("fuera de alcance V1:") for item in status.json()["gaps"])
 
     stats = client.get("/profiles/default/statistics?context=general")
@@ -2702,6 +2704,7 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
     entry_id = "test-publication-source:edition:index"
     segment_id = "test-publication-source:edition:index:seg"
     node_id = "test-publication-node"
+    card_id = "test-publication-card"
     evidence_id = "test-publication-evidence"
     claim_id = "test-publication-claim"
     relation_id = "test-publication-relation"
@@ -2850,12 +2853,32 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
                     "source_locator": "capitulo 1 > p1",
                 },
                 {
+                    "proposal_type": "card",
+                    "title": "Ficha publicable de prueba",
+                    "payload": {
+                        "id": card_id,
+                        "card_type": "concept",
+                        "name": "Ficha publicable de prueba",
+                        "definition": (
+                            "Ficha creada desde una propuesta aprobada antes de "
+                            "publicar la version candidata."
+                        ),
+                        "payload": {
+                            "scope": "publication_readiness",
+                            "source_node_id": node_id,
+                        },
+                    },
+                    "rationale": "La ficha agrupa el claim validado para publicacion.",
+                    "confidence": 0.88,
+                    "source_locator": "capitulo 1 > p1",
+                },
+                {
                     "proposal_type": "claim",
                     "title": "Claim publicable de prueba",
                     "payload": {
                         "id": claim_id,
                         "evidence_id": evidence_id,
-                        "card_id": "lexico-precision",
+                        "card_id": card_id,
                         "statement": (
                             "La publicacion oficializa conocimiento trazable "
                             "solo desde objetos validados."
@@ -2894,7 +2917,7 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
         assert response.status_code == 200
         proposals = response.json()
         proposal_by_type = {proposal["proposal_type"]: proposal for proposal in proposals}
-        for proposal_type in ("node", "evidence", "claim", "relation"):
+        for proposal_type in ("node", "evidence", "card", "claim", "relation"):
             approved = client.post(
                 f"/knowledge/proposals/{proposal_by_type[proposal_type]['id']}/approve",
                 json=decision,
@@ -2950,7 +2973,7 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
         assert query.status_code == 200
         query_payload = query.json()
         assert query_payload["card_count"] >= 1
-        assert "lexico-precision" in {card["id"] for card in query_payload["cards"]}
+        assert card_id in {card["id"] for card in query_payload["cards"]}
         assert query_payload["claims"][0]["status"] == "published"
         assert query_payload["evidence"][0]["status"] == "published"
 
@@ -2972,14 +2995,18 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
             assert node_id in snapshot.node_ids
             assert evidence_id in snapshot.evidence_ids
             assert claim_id in snapshot.claim_ids
+            assert card_id in snapshot.card_ids
             assert relation_id in snapshot.relation_ids
             node = session.get(KnowledgeNodeRecord, node_id)
+            card = session.get(KnowledgeCardRecord, card_id)
             evidence = session.get(KnowledgeEvidenceItemRecord, evidence_id)
             claim = session.get(KnowledgeClaimRecord, claim_id)
             relation = session.get(KnowledgeRelationRecord, relation_id)
             assert node is not None and node.status == "published"
+            assert card is not None and card.version == candidate_id
             assert evidence is not None and evidence.status == "published"
             assert claim is not None and claim.status == "published"
+            assert claim.card_id == card_id
             assert relation is not None and relation.status == "published"
             assert {node.version, evidence.version, claim.version, relation.version} == {
                 candidate_id
@@ -2995,6 +3022,7 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
             assert event.payload["promoted"]["nodes"] >= 1
             assert event.payload["promoted"]["evidence"] >= 1
             assert event.payload["promoted"]["claims"] >= 1
+            assert event.payload["promoted"]["cards"] >= 1
             assert event.payload["promoted"]["relations"] >= 1
     finally:
         proposal_ids = [proposal["id"] for proposal in proposals]
@@ -3034,7 +3062,10 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
                 KnowledgeEvidenceItemRecord.id == evidence_id
             ).delete(synchronize_session=False)
             session.query(KnowledgeObjectRevisionRecord).filter(
-                KnowledgeObjectRevisionRecord.object_id == node_id
+                KnowledgeObjectRevisionRecord.object_id.in_([node_id, card_id])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeCardRecord).filter(
+                KnowledgeCardRecord.id == card_id
             ).delete(synchronize_session=False)
             session.query(KnowledgeRelationRecord).filter(
                 KnowledgeRelationRecord.id == relation_id

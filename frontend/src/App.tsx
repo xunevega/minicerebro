@@ -527,6 +527,11 @@ export function App() {
   const candidateVersions = knowledgeVersions.filter((version) =>
     ["candidate", "validated"].includes(version.status),
   );
+  const manualProposalTargetVersion = candidateVersions.some(
+    (version) => version.id === publicationTargetVersion,
+  )
+    ? publicationTargetVersion
+    : "candidate-pending";
   const publishableReadiness =
     publicationReadiness?.version === publicationTargetVersion && publicationReadiness.publishable;
 
@@ -634,6 +639,10 @@ export function App() {
       const entryId = `${editionId}:index-1`;
       const segmentId = `${entryId}:segment-1`;
       const nodeId = `${sourceId}-ui-node-${suffix}`;
+      const cardId = `${sourceId}-ui-card-${suffix}`;
+      const evidenceId = `${sourceId}-ui-evidence-${suffix}`;
+      const claimId = `${sourceId}-ui-claim-${suffix}`;
+      const relationId = `${sourceId}-ui-relation-${suffix}`;
       const edition = await registerKnowledgeSourceEdition(sourceId, {
         id: editionId,
         source_id: sourceId,
@@ -703,9 +712,92 @@ export function App() {
             long_definition:
               "Concepto candidato generado por el flujo manual de ingestion de Minicerebro.",
             aliases: [],
-            version: "candidate-pending",
+            version: manualProposalTargetVersion,
           },
           rationale: "Propuesta registrada para probar revision sin publicar conocimiento.",
+          confidence: 0.5,
+          source_locator: "ui:1",
+        },
+        {
+          proposal_type: "card",
+          title: "Ficha candidata manual",
+          payload: {
+            id: cardId,
+            card_type: "concept",
+            name: "Ficha candidata manual",
+            definition: "Ficha candidata creada desde ingestion manual revisable.",
+            payload: {
+              source_node_id: nodeId,
+              source_id: sourceId,
+              extraction_id: extraction.id,
+            },
+            version: manualProposalTargetVersion,
+          },
+          rationale: "Ficha propuesta para agrupar un claim revisable.",
+          confidence: 0.5,
+          source_locator: "ui:1",
+        },
+        {
+          proposal_type: "evidence",
+          title: "Evidencia candidata manual",
+          payload: {
+            id: evidenceId,
+            node_id: nodeId,
+            source_id: sourceId,
+            source_edition_id: edition.id,
+            evidence_type: "manual_excerpt",
+            locator: {
+              edition: edition.id,
+              unit: indexEntry.id,
+              locator: "ui:1",
+              url: null,
+            },
+            reference: "ui:1",
+            excerpt: `Segmento de prueba para iniciar ingestion controlada de ${sourceName}.`,
+            context: "manual_ui_ingestion",
+            confidence_level: 3,
+            version: manualProposalTargetVersion,
+          },
+          rationale: "Evidencia propuesta desde el segmento documental registrado.",
+          confidence: 0.5,
+          source_locator: "ui:1",
+        },
+        {
+          proposal_type: "claim",
+          title: "Claim candidato manual",
+          payload: {
+            id: claimId,
+            evidence_id: evidenceId,
+            card_id: cardId,
+            statement: "La ingestion manual crea conocimiento solo tras revision explicita.",
+            claim_type: "process",
+            node_id: nodeId,
+            related_node_ids: [],
+            domain: "knowledge.ingestion",
+            scope: { language: "es", context: "manual_ui" },
+            version: manualProposalTargetVersion,
+          },
+          rationale: "Claim propuesto para cerrar el recorrido nodo-evidencia-ficha.",
+          confidence: 0.5,
+          source_locator: "ui:1",
+        },
+        {
+          proposal_type: "relation",
+          title: "Relacion candidata manual",
+          payload: {
+            id: relationId,
+            source_entity_type: "claim",
+            source_entity_id: claimId,
+            target_entity_type: "evidence",
+            target_entity_id: evidenceId,
+            relation_type: "depende_de",
+            direction: "outgoing",
+            cardinality: "N:1",
+            weight: 1,
+            context: "manual_ui_ingestion",
+            version: manualProposalTargetVersion,
+          },
+          rationale: "Relacion propuesta para conservar trazabilidad del claim.",
           confidence: 0.5,
           source_locator: "ui:1",
         },
@@ -1220,8 +1312,8 @@ export function App() {
             <div className="proposalBox">
               <h3>Ingestion manual minima</h3>
               <p className="note">
-                Crea fuente-edicion-indice-segmento-extraction run-proposals. No crea candidate ni
-                publica conocimiento.
+                Crea fuente-edicion-indice-segmento-extraction run-proposals. Solo una candidate
+                real permite aprobar propuestas; publicar sigue separado.
               </p>
               <div className="rowActions">
                 <select
@@ -1232,6 +1324,18 @@ export function App() {
                   {knowledgeSourceIngestionStatuses.map((status) => (
                     <option key={status.source_id} value={status.source_id}>
                       {status.source_name} · {status.current_phase}
+                    </option>
+                  ))}
+                </select>
+                <select
+                  aria-label="Candidate destino para propuestas"
+                  onChange={(event) => setPublicationTargetVersion(event.target.value)}
+                  value={publicationTargetVersion}
+                >
+                  <option value="">Sin candidate aprobable</option>
+                  {candidateVersions.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {version.id} · {version.status}
                     </option>
                   ))}
                 </select>
@@ -1275,6 +1379,7 @@ export function App() {
                   <Metric label="Segmento" value={manualIngestionSegment?.id ?? "..."} />
                   <Metric label="Extraccion" value={manualIngestionExtraction.status} />
                   <Metric label="Proposals" value={manualIngestionProposals.length} />
+                  <Metric label="Destino" value={manualProposalTargetVersion} />
                 </div>
               ) : null}
               {manualIngestionProposals.length ? (

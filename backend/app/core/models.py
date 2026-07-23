@@ -562,7 +562,7 @@ class KnowledgeProposal(BaseModel):
 
 
 class KnowledgeProposalCreate(BaseModel):
-    proposal_type: Literal["node", "evidence", "claim", "relation", "alias", "definition"]
+    proposal_type: Literal["node", "evidence", "claim", "relation", "card", "alias", "definition"]
     title: str = Field(min_length=1, max_length=320)
     payload: dict
     rationale: str = Field(min_length=1)
