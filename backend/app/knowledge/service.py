@@ -6,6 +6,10 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
+    KnowledgeIngestionBatch,
+    KnowledgeIngestionBatchExport,
+    KnowledgeIngestionPolicy,
+    KnowledgeIngestionReadiness,
     KnowledgeNode,
     KnowledgeNodeRelation,
     KnowledgeObjectRevision,
@@ -51,6 +55,33 @@ PUBLICATION_VALIDATIONS = [
     "contradicciones",
     "tests",
     "integridad",
+]
+INGESTION_LIFECYCLE = [
+    "registered",
+    "acquisition_pending",
+    "available",
+    "structured",
+    "segmented",
+    "extracting",
+    "normalizing",
+    "review",
+    "validated",
+    "candidate",
+    "published",
+]
+INGESTION_ALTERNATIVE_STATES = ["blocked", "failed", "cancelled"]
+INGESTION_FLOW = [
+    "registered_source",
+    "edition",
+    "document_structure",
+    "segmentation",
+    "extraction",
+    "nodes",
+    "evidence",
+    "claims",
+    "cards",
+    "validation",
+    "candidate_version",
 ]
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
@@ -244,6 +275,305 @@ def publication_policy() -> KnowledgePublicationPolicy:
             "todas las validaciones obligatorias estan superadas",
             "la version forma parte de la cadena oficial recuperable",
         ],
+    )
+
+
+def ingestion_policy() -> KnowledgeIngestionPolicy:
+    return KnowledgeIngestionPolicy(
+        meaning="Convertir una fuente registrada en conocimiento verificable, trazable y publicable.",
+        ingestion_unit="one_source_one_edition_one_batch",
+        scope=[
+            "adquisicion documental",
+            "analisis estructural",
+            "segmentacion",
+            "extraccion",
+            "normalizacion",
+            "deduplicacion",
+            "validacion",
+            "preparacion para publicacion",
+        ],
+        out_of_scope=[
+            "recuperacion",
+            "generacion",
+            "modificacion del perfil",
+            "scoring del usuario",
+            "preferencias",
+        ],
+        lifecycle=INGESTION_LIFECYCLE,
+        alternative_states=INGESTION_ALTERNATIVE_STATES,
+        required_flow=INGESTION_FLOW,
+        acquisition_fields=[
+            "obra",
+            "edicion",
+            "isbn",
+            "year",
+            "language",
+            "format",
+            "location",
+            "responsible",
+            "legal_status",
+        ],
+        segment_types=["entrada", "apartado", "definicion", "regla", "ejemplo", "nota", "comentario"],
+        produced_object_types=[
+            "node",
+            "evidence",
+            "claim",
+            "example",
+            "relation",
+            "alias",
+            "definition",
+            "knowledge_card",
+        ],
+        proposed_initial_status="proposed",
+        ai_allowed_actions=[
+            "detectar conceptos",
+            "proponer nodos",
+            "resumir",
+            "identificar relaciones",
+            "sugerir claims",
+        ],
+        ai_forbidden_actions=[
+            "publicar",
+            "validar",
+            "sustituir una evidencia",
+            "inventar localizadores",
+        ],
+        review_actions=["aceptar", "rechazar", "modificar", "dividir", "fusionar", "aplazar"],
+        validation_checks=[
+            "todos los IDs",
+            "todas las referencias",
+            "todos los localizadores",
+            "relaciones validas",
+            "ausencia de objetos huerfanos",
+        ],
+        required_events=[
+            "ingestion.started",
+            "ingestion.segmented",
+            "ingestion.extracted",
+            "ingestion.normalized",
+            "ingestion.review_started",
+            "ingestion.validated",
+            "ingestion.failed",
+            "ingestion.cancelled",
+            "ingestion.completed",
+        ],
+        metric_fields=[
+            "nodes_created",
+            "evidence",
+            "claims",
+            "relations",
+            "cards",
+            "duplicates",
+            "contradictions",
+            "elapsed_seconds",
+            "coverage",
+        ],
+        stop_conditions=[
+            "missing_edition",
+            "missing_locator",
+            "corrupt_references",
+            "integrity_failed",
+            "unreconstructable_provenance",
+        ],
+        export_fields=["proposals", "conflicts", "metrics", "traceability"],
+        final_state="candidate",
+        acceptance_criteria=[
+            "parte de una fuente registrada",
+            "identifica la edicion",
+            "conserva la trazabilidad",
+            "segmenta correctamente",
+            "genera propuestas coherentes",
+            "detecta duplicados",
+            "detecta contradicciones",
+            "mantiene los localizadores",
+            "supera la validacion",
+            "prepara una version candidata",
+        ],
+        closure_flow=[
+            "source",
+            "edition",
+            "index",
+            "segmentation",
+            "extraction",
+            "nodes",
+            "evidence",
+            "claims",
+            "cards",
+            "validation",
+            "candidate_version",
+            "publication",
+        ],
+    )
+
+
+def _empty_ingestion_metrics() -> dict:
+    return {
+        "nodes_created": 0,
+        "evidence": 0,
+        "claims": 0,
+        "relations": 0,
+        "cards": 0,
+        "duplicates": 0,
+        "contradictions": 0,
+        "elapsed_seconds": 0,
+        "coverage": 0,
+    }
+
+
+def _ingestion_blockers(source: KnowledgeSource, edition: KnowledgeSourceEdition) -> list[str]:
+    blockers = []
+    if edition.label == DEFAULT_SOURCE_EDITION:
+        blockers.append("missing_edition")
+    if edition.location == DEFAULT_SOURCE_LOCATION:
+        blockers.append("missing_location")
+    if edition.acquisition_status != "available":
+        blockers.append("acquisition_not_available")
+    if edition.validation_status != "validated":
+        blockers.append("edition_not_validated")
+    if not edition.locator_system or edition.locator_system == DEFAULT_SOURCE_LOCATORS:
+        blockers.append("document_structure_pending")
+    if "contenido no ingerido" in source.rights:
+        blockers.append("rights_review_required")
+    return blockers
+
+
+def seed_ingestion_batches() -> list[KnowledgeIngestionBatch]:
+    sources_by_id = {source.id: source for source in seed_sources()}
+    batches = []
+    for edition in seed_source_editions():
+        source = sources_by_id[edition.source_id]
+        blockers = _ingestion_blockers(source, edition)
+        batches.append(
+            KnowledgeIngestionBatch(
+                id=f"ingest-{edition.id}",
+                source_id=source.id,
+                source_edition_id=edition.id,
+                batch_label="lote inicial pendiente de adquisicion",
+                scope="edicion completa pendiente de identificacion documental",
+                status="blocked" if blockers else "registered",
+                author="minicerebro-seed",
+                tools=["manual_review"],
+                model_used=None,
+                configuration={
+                    "unit": "one_source_one_edition_one_batch",
+                    "ai_origin_required": "automated",
+                    "publishes_directly": False,
+                },
+                progress={
+                    "registered_source": True,
+                    "edition": not blockers,
+                    "document_structure": False,
+                    "segmentation": False,
+                    "extraction": False,
+                    "normalization": False,
+                    "review": False,
+                    "validation": False,
+                    "candidate_version": False,
+                },
+                metrics=_empty_ingestion_metrics(),
+                decisions=[],
+                blockers=blockers,
+                result="not_started",
+                created_at=RELATION_UPDATED_AT,
+                updated_at=RELATION_UPDATED_AT,
+            )
+        )
+    return batches
+
+
+def evaluate_ingestion_readiness(
+    source: KnowledgeSource | None,
+    edition: KnowledgeSourceEdition | None,
+) -> KnowledgeIngestionReadiness:
+    if source is None:
+        return KnowledgeIngestionReadiness(
+            source_id="",
+            source_edition_id=None,
+            can_start=False,
+            status="blocked",
+            checks=[],
+            blockers=["source_not_registered"],
+        )
+    if edition is None:
+        return KnowledgeIngestionReadiness(
+            source_id=source.id,
+            source_edition_id=None,
+            can_start=False,
+            status="blocked",
+            checks=[
+                {
+                    "id": "registered_source",
+                    "label": "fuente registrada",
+                    "passed": True,
+                    "detail": source.name,
+                }
+            ],
+            blockers=["missing_edition"],
+        )
+    blockers = _ingestion_blockers(source, edition)
+    checks = [
+        {
+            "id": "registered_source",
+            "label": "fuente registrada",
+            "passed": True,
+            "detail": source.name,
+        },
+        {
+            "id": "edition_identified",
+            "label": "edicion identificada",
+            "passed": edition.label != DEFAULT_SOURCE_EDITION,
+            "detail": edition.label,
+        },
+        {
+            "id": "acquisition_available",
+            "label": "adquisicion disponible",
+            "passed": edition.acquisition_status == "available",
+            "detail": edition.acquisition_status,
+        },
+        {
+            "id": "document_structure_ready",
+            "label": "estructura documental lista",
+            "passed": edition.locator_system != DEFAULT_SOURCE_LOCATORS,
+            "detail": ", ".join(edition.locator_system),
+        },
+        {
+            "id": "rights_reviewed",
+            "label": "derechos revisados",
+            "passed": "contenido no ingerido" not in source.rights,
+            "detail": source.rights,
+        },
+    ]
+    return KnowledgeIngestionReadiness(
+        source_id=source.id,
+        source_edition_id=edition.id,
+        can_start=not blockers,
+        status="registered" if not blockers else "blocked",
+        checks=checks,
+        blockers=blockers,
+    )
+
+
+def export_ingestion_batch(batch: KnowledgeIngestionBatch) -> KnowledgeIngestionBatchExport:
+    return KnowledgeIngestionBatchExport(
+        batch=batch,
+        proposals={
+            "nodes": [],
+            "evidence": [],
+            "claims": [],
+            "relations": [],
+            "cards": [],
+        },
+        conflicts=[],
+        metrics=batch.metrics,
+        traceability={
+            "source_id": batch.source_id,
+            "source_edition_id": batch.source_edition_id,
+            "batch_id": batch.id,
+            "progress": batch.progress,
+            "decisions": batch.decisions,
+            "blockers": batch.blockers,
+        },
+        publication_note="La exportacion de lote no constituye publicacion.",
     )
 
 

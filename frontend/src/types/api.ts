@@ -152,6 +152,74 @@ export type KnowledgePublicationReadiness = {
   audit_preview: Record<string, unknown>;
 };
 
+export type KnowledgeIngestionPolicy = {
+  meaning: string;
+  ingestion_unit: string;
+  scope: string[];
+  out_of_scope: string[];
+  lifecycle: string[];
+  alternative_states: string[];
+  required_flow: string[];
+  acquisition_fields: string[];
+  segment_types: string[];
+  produced_object_types: string[];
+  proposed_initial_status: string;
+  ai_allowed_actions: string[];
+  ai_forbidden_actions: string[];
+  review_actions: string[];
+  validation_checks: string[];
+  required_events: string[];
+  metric_fields: string[];
+  stop_conditions: string[];
+  export_fields: string[];
+  final_state: string;
+  acceptance_criteria: string[];
+  closure_flow: string[];
+};
+
+export type KnowledgeIngestionBatch = {
+  id: string;
+  source_id: string;
+  source_edition_id: string;
+  batch_label: string;
+  scope: string;
+  status: string;
+  author: string;
+  tools: string[];
+  model_used: string | null;
+  configuration: Record<string, unknown>;
+  progress: Record<string, unknown>;
+  metrics: Record<string, number>;
+  decisions: Array<Record<string, unknown>>;
+  blockers: string[];
+  result: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type KnowledgeIngestionReadiness = {
+  source_id: string;
+  source_edition_id: string | null;
+  can_start: boolean;
+  status: string;
+  checks: Array<{
+    id: string;
+    label: string;
+    passed: boolean;
+    detail: string;
+  }>;
+  blockers: string[];
+};
+
+export type KnowledgeIngestionBatchExport = {
+  batch: KnowledgeIngestionBatch;
+  proposals: Record<string, unknown[]>;
+  conflicts: Array<Record<string, unknown>>;
+  metrics: Record<string, number>;
+  traceability: Record<string, unknown>;
+  publication_note: string;
+};
+
 export type KnowledgeSourceEdition = {
   id: string;
   source_id: string;

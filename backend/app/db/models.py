@@ -184,6 +184,30 @@ class KnowledgeSourceEditionRecord(Base):
     locator_system: Mapped[list[str]] = mapped_column(JSON, nullable=False)
 
 
+class KnowledgeIngestionBatchRecord(Base):
+    __tablename__ = "knowledge_ingestion_batches"
+
+    id: Mapped[str] = mapped_column(String(160), primary_key=True)
+    source_id: Mapped[str] = mapped_column(ForeignKey("knowledge_sources.id"), nullable=False, index=True)
+    source_edition_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_source_editions.id"), nullable=False, index=True
+    )
+    batch_label: Mapped[str] = mapped_column(String(160), nullable=False)
+    scope: Mapped[str] = mapped_column(Text, nullable=False)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    author: Mapped[str] = mapped_column(String(120), nullable=False)
+    tools: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    model_used: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    configuration: Mapped[dict] = mapped_column(JSON, nullable=False)
+    progress: Mapped[dict] = mapped_column(JSON, nullable=False)
+    metrics: Mapped[dict] = mapped_column(JSON, nullable=False)
+    decisions: Mapped[list[dict]] = mapped_column(JSON, nullable=False)
+    blockers: Mapped[list[str]] = mapped_column(JSON, nullable=False)
+    result: Mapped[str] = mapped_column(String(80), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+
+
 class KnowledgeNodeRecord(Base):
     __tablename__ = "knowledge_nodes"
 

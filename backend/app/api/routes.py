@@ -26,6 +26,10 @@ from app.core.models import (
     KnowledgeCard,
     KnowledgeClaim,
     KnowledgeEvidenceItem,
+    KnowledgeIngestionBatch,
+    KnowledgeIngestionBatchExport,
+    KnowledgeIngestionPolicy,
+    KnowledgeIngestionReadiness,
     KnowledgeNode,
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
@@ -141,6 +145,43 @@ def knowledge_publication_readiness(
         return repository.knowledge_publication_readiness(version)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
+
+
+@router.get("/knowledge/ingestion")
+def knowledge_ingestion(repository: RepositoryDep) -> KnowledgeIngestionPolicy:
+    return repository.knowledge_ingestion_policy()
+
+
+@router.get("/knowledge/ingestion/batches")
+def knowledge_ingestion_batches(
+    repository: RepositoryDep,
+    source_id: str | None = None,
+    status: str | None = None,
+) -> list[KnowledgeIngestionBatch]:
+    return repository.list_knowledge_ingestion_batches(source_id=source_id, status=status)
+
+
+@router.get("/knowledge/ingestion/readiness")
+def knowledge_ingestion_readiness(
+    repository: RepositoryDep,
+    source_id: str,
+    source_edition_id: str | None = None,
+) -> KnowledgeIngestionReadiness:
+    try:
+        return repository.knowledge_ingestion_readiness(source_id, source_edition_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge source or edition not found") from exc
+
+
+@router.get("/knowledge/ingestion/batches/{batch_id}/export")
+def knowledge_ingestion_batch_export(
+    batch_id: str,
+    repository: RepositoryDep,
+) -> KnowledgeIngestionBatchExport:
+    try:
+        return repository.export_knowledge_ingestion_batch(batch_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Ingestion batch not found") from exc
 
 
 @router.get("/knowledge/revisions")

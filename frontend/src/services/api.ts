@@ -18,6 +18,10 @@ import type {
   KnowledgeCard,
   KnowledgeClaim,
   KnowledgeEvidenceItem,
+  KnowledgeIngestionBatch,
+  KnowledgeIngestionBatchExport,
+  KnowledgeIngestionPolicy,
+  KnowledgeIngestionReadiness,
   KnowledgeNode,
   KnowledgeObjectRevision,
   KnowledgePublicationPolicy,
@@ -100,6 +104,31 @@ export function getKnowledgePublication() {
 export function getKnowledgePublicationReadiness(version?: string) {
   return request<KnowledgePublicationReadiness>(
     withParams("/knowledge/publication/readiness", { version }),
+  );
+}
+
+export function getKnowledgeIngestion() {
+  return request<KnowledgeIngestionPolicy>("/knowledge/ingestion");
+}
+
+export function getKnowledgeIngestionBatches(sourceId?: string, status?: string) {
+  return request<KnowledgeIngestionBatch[]>(
+    withParams("/knowledge/ingestion/batches", { source_id: sourceId, status }),
+  );
+}
+
+export function getKnowledgeIngestionReadiness(sourceId: string, sourceEditionId?: string) {
+  return request<KnowledgeIngestionReadiness>(
+    withParams("/knowledge/ingestion/readiness", {
+      source_id: sourceId,
+      source_edition_id: sourceEditionId,
+    }),
+  );
+}
+
+export function getKnowledgeIngestionBatchExport(batchId: string) {
+  return request<KnowledgeIngestionBatchExport>(
+    `/knowledge/ingestion/batches/${encodeURIComponent(batchId)}/export`,
   );
 }
 

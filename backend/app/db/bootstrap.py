@@ -14,6 +14,7 @@ from app.db.models import (
     KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
+    KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
@@ -32,6 +33,7 @@ from app.knowledge.service import (
     seed_claims,
     seed_evidence,
     seed_evidence_revisions,
+    seed_ingestion_batches,
     seed_node_relations,
     seed_nodes,
     seed_object_revisions,
@@ -409,6 +411,39 @@ def ensure_knowledge_seed_data(session: Session) -> None:
     for stale_edition in stale_editions:
         if stale_edition.id not in seed_edition_ids:
             session.delete(stale_edition)
+    session.flush()
+
+    for batch in seed_ingestion_batches():
+        batch_record = session.get(KnowledgeIngestionBatchRecord, batch.id)
+        values = {
+            "source_id": batch.source_id,
+            "source_edition_id": batch.source_edition_id,
+            "batch_label": batch.batch_label,
+            "scope": batch.scope,
+            "status": batch.status,
+            "author": batch.author,
+            "tools": batch.tools,
+            "model_used": batch.model_used,
+            "configuration": batch.configuration,
+            "progress": batch.progress,
+            "metrics": batch.metrics,
+            "decisions": batch.decisions,
+            "blockers": batch.blockers,
+            "result": batch.result,
+            "created_at": batch.created_at,
+            "updated_at": batch.updated_at,
+        }
+        if batch_record is not None:
+            for field, value in values.items():
+                setattr(batch_record, field, value)
+            continue
+        session.add(KnowledgeIngestionBatchRecord(id=batch.id, **values))
+
+    seed_batch_ids = {batch.id for batch in seed_ingestion_batches()}
+    stale_batches = session.scalars(select(KnowledgeIngestionBatchRecord)).all()
+    for stale_batch in stale_batches:
+        if stale_batch.id not in seed_batch_ids:
+            session.delete(stale_batch)
 
     seed_source_ids = {source.id for source in seed_sources()}
     stale_sources = session.scalars(select(KnowledgeSourceRecord)).all()

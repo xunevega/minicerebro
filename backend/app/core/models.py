@@ -224,6 +224,69 @@ class KnowledgePublicationReadiness(BaseModel):
     audit_preview: dict
 
 
+class KnowledgeIngestionPolicy(BaseModel):
+    meaning: str
+    ingestion_unit: str
+    scope: list[str]
+    out_of_scope: list[str]
+    lifecycle: list[str]
+    alternative_states: list[str]
+    required_flow: list[str]
+    acquisition_fields: list[str]
+    segment_types: list[str]
+    produced_object_types: list[str]
+    proposed_initial_status: str
+    ai_allowed_actions: list[str]
+    ai_forbidden_actions: list[str]
+    review_actions: list[str]
+    validation_checks: list[str]
+    required_events: list[str]
+    metric_fields: list[str]
+    stop_conditions: list[str]
+    export_fields: list[str]
+    final_state: str
+    acceptance_criteria: list[str]
+    closure_flow: list[str]
+
+
+class KnowledgeIngestionBatch(BaseModel):
+    id: str
+    source_id: str
+    source_edition_id: str
+    batch_label: str
+    scope: str
+    status: str
+    author: str
+    tools: list[str]
+    model_used: str | None = None
+    configuration: dict
+    progress: dict
+    metrics: dict
+    decisions: list[dict]
+    blockers: list[str]
+    result: str
+    created_at: str
+    updated_at: str
+
+
+class KnowledgeIngestionReadiness(BaseModel):
+    source_id: str
+    source_edition_id: str | None
+    can_start: bool
+    status: str
+    checks: list[dict]
+    blockers: list[str]
+
+
+class KnowledgeIngestionBatchExport(BaseModel):
+    batch: KnowledgeIngestionBatch
+    proposals: dict
+    conflicts: list[dict]
+    metrics: dict
+    traceability: dict
+    publication_note: str
+
+
 class KnowledgeSource(BaseModel):
     id: str
     catalog_id: str

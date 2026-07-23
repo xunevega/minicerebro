@@ -11,6 +11,7 @@ from app.db.models import (
     KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
+    KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
@@ -814,6 +815,95 @@ def test_knowledge_publication_readiness_reports_real_blockers():
     assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
+def test_knowledge_ingestion_policy_closes_documental_pipeline_contract():
+    response = client.get("/knowledge/ingestion")
+    assert response.status_code == 200
+    policy = response.json()
+
+    assert "conocimiento verificable" in policy["meaning"]
+    assert policy["ingestion_unit"] == "one_source_one_edition_one_batch"
+    assert {"adquisicion documental", "segmentacion"} <= set(policy["scope"])
+    assert {"recuperacion", "generacion", "preferencias"} <= set(policy["out_of_scope"])
+    assert policy["lifecycle"] == [
+        "registered",
+        "acquisition_pending",
+        "available",
+        "structured",
+        "segmented",
+        "extracting",
+        "normalizing",
+        "review",
+        "validated",
+        "candidate",
+        "published",
+    ]
+    assert {"blocked", "failed", "cancelled"} <= set(policy["alternative_states"])
+    assert policy["required_flow"][0] == "registered_source"
+    assert policy["required_flow"][-1] == "candidate_version"
+    assert policy["proposed_initial_status"] == "proposed"
+    assert "inventar localizadores" in policy["ai_forbidden_actions"]
+    assert "aplazar" in policy["review_actions"]
+    assert "ingestion.completed" in policy["required_events"]
+    assert "missing_edition" in policy["stop_conditions"]
+    assert policy["final_state"] == "candidate"
+    assert policy["closure_flow"][-1] == "publication"
+
+
+def test_knowledge_ingestion_batches_are_persisted_and_exportable():
+    response = client.get("/knowledge/ingestion/batches")
+    assert response.status_code == 200
+    batches = response.json()
+    assert len(batches) == 23
+    first = batches[0]
+    assert first["source_id"]
+    assert first["source_edition_id"].endswith(":pending-edition")
+    assert first["status"] == "blocked"
+    assert "missing_edition" in first["blockers"]
+    assert first["configuration"]["publishes_directly"] is False
+    assert first["metrics"]["nodes_created"] == 0
+
+    filtered = client.get("/knowledge/ingestion/batches?source_id=rae-dle&status=blocked")
+    assert filtered.status_code == 200
+    assert [batch["source_id"] for batch in filtered.json()] == ["rae-dle"]
+
+    export = client.get(f"/knowledge/ingestion/batches/{first['id']}/export")
+    assert export.status_code == 200
+    exported = export.json()
+    assert exported["batch"]["id"] == first["id"]
+    assert exported["proposals"] == {
+        "nodes": [],
+        "evidence": [],
+        "claims": [],
+        "relations": [],
+        "cards": [],
+    }
+    assert exported["traceability"]["batch_id"] == first["id"]
+    assert exported["publication_note"] == "La exportacion de lote no constituye publicacion."
+
+    missing = client.get("/knowledge/ingestion/batches/missing/export")
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "Ingestion batch not found"
+
+
+def test_knowledge_ingestion_readiness_requires_identified_edition():
+    response = client.get("/knowledge/ingestion/readiness?source_id=rae-dle")
+    assert response.status_code == 200
+    readiness = response.json()
+    assert readiness["source_id"] == "rae-dle"
+    assert readiness["source_edition_id"] == "rae-dle:pending-edition"
+    assert readiness["can_start"] is False
+    assert readiness["status"] == "blocked"
+    assert "missing_edition" in readiness["blockers"]
+    checks = {check["id"]: check for check in readiness["checks"]}
+    assert checks["registered_source"]["passed"] is True
+    assert checks["edition_identified"]["passed"] is False
+    assert checks["rights_reviewed"]["passed"] is False
+
+    missing = client.get("/knowledge/ingestion/readiness?source_id=missing-source")
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "Knowledge source or edition not found"
+
+
 def test_knowledge_revisions_allow_historical_recovery():
     response = client.get("/knowledge/revisions?version=knowledge-v0")
     assert response.status_code == 200
@@ -1114,6 +1204,7 @@ def test_knowledge_pipeline_is_persisted():
         nodes = session.scalars(select(KnowledgeNodeRecord)).all()
         node_relations = session.scalars(select(KnowledgeNodeRelationRecord)).all()
         object_revisions = session.scalars(select(KnowledgeObjectRevisionRecord)).all()
+        ingestion_batches = session.scalars(select(KnowledgeIngestionBatchRecord)).all()
         relations = session.scalars(select(KnowledgeRelationRecord)).all()
         evidence = session.scalars(select(KnowledgeEvidenceItemRecord)).all()
         evidence_revisions = session.scalars(select(KnowledgeEvidenceRevisionRecord)).all()
@@ -1156,6 +1247,10 @@ def test_knowledge_pipeline_is_persisted():
         "schema",
         "knowledge_version",
     } <= {revision.object_type for revision in object_revisions}
+    assert len(ingestion_batches) == len(source_editions)
+    assert {batch.status for batch in ingestion_batches} == {"blocked"}
+    assert all(batch.source_id for batch in ingestion_batches)
+    assert all(batch.source_edition_id for batch in ingestion_batches)
     assert {item.node_id for item in evidence} <= {node.id for node in nodes}
     assert {item.source_edition_id for item in evidence} <= {
         edition.id for edition in source_editions

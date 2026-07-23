@@ -20,6 +20,10 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
+    KnowledgeIngestionBatch,
+    KnowledgeIngestionBatchExport,
+    KnowledgeIngestionPolicy,
+    KnowledgeIngestionReadiness,
     KnowledgeNode,
     KnowledgeNodeRelation,
     KnowledgeObjectRevision,
@@ -53,6 +57,7 @@ from app.db.models import (
     KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
     KnowledgeEvidenceItemRecord,
+    KnowledgeIngestionBatchRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
@@ -65,7 +70,10 @@ from app.db.models import (
     ScoreVariableRecord,
 )
 from app.knowledge.service import (
+    evaluate_ingestion_readiness,
     evaluate_publication_readiness,
+    export_ingestion_batch,
+    ingestion_policy,
     publication_policy,
     query_knowledge,
     resolve_knowledge_version,
@@ -288,6 +296,30 @@ def knowledge_source_from_record(
     )
 
 
+def knowledge_ingestion_batch_from_record(
+    record: KnowledgeIngestionBatchRecord,
+) -> KnowledgeIngestionBatch:
+    return KnowledgeIngestionBatch(
+        id=record.id,
+        source_id=record.source_id,
+        source_edition_id=record.source_edition_id,
+        batch_label=record.batch_label,
+        scope=record.scope,
+        status=record.status,
+        author=record.author,
+        tools=record.tools,
+        model_used=record.model_used,
+        configuration=record.configuration,
+        progress=record.progress,
+        metrics=record.metrics,
+        decisions=record.decisions,
+        blockers=record.blockers,
+        result=record.result,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+    )
+
+
 def knowledge_node_relation_from_record(record: KnowledgeNodeRelationRecord) -> KnowledgeNodeRelation:
     return KnowledgeNodeRelation(
         id=record.id,
@@ -479,6 +511,61 @@ class Repository:
 
     def knowledge_publication_policy(self) -> KnowledgePublicationPolicy:
         return publication_policy()
+
+    def knowledge_ingestion_policy(self) -> KnowledgeIngestionPolicy:
+        return ingestion_policy()
+
+    def list_knowledge_ingestion_batches(
+        self,
+        source_id: str | None = None,
+        status: str | None = None,
+    ) -> list[KnowledgeIngestionBatch]:
+        query = select(KnowledgeIngestionBatchRecord)
+        if source_id:
+            query = query.where(KnowledgeIngestionBatchRecord.source_id == source_id)
+        if status:
+            query = query.where(KnowledgeIngestionBatchRecord.status == status)
+        records = self.session.scalars(
+            query.order_by(KnowledgeIngestionBatchRecord.source_id, KnowledgeIngestionBatchRecord.id)
+        ).all()
+        return [knowledge_ingestion_batch_from_record(record) for record in records]
+
+    def knowledge_ingestion_readiness(
+        self,
+        source_id: str,
+        source_edition_id: str | None = None,
+    ) -> KnowledgeIngestionReadiness:
+        source_record = self.session.get(KnowledgeSourceRecord, source_id)
+        if source_record is None:
+            raise KeyError(source_id)
+        editions = self.session.scalars(
+            select(KnowledgeSourceEditionRecord).where(
+                KnowledgeSourceEditionRecord.source_id == source_id
+            )
+        ).all()
+        source = knowledge_source_from_record(
+            source_record,
+            [knowledge_source_edition_from_record(edition) for edition in editions],
+        )
+        edition_record = None
+        if source_edition_id:
+            edition_record = self.session.get(KnowledgeSourceEditionRecord, source_edition_id)
+            if edition_record is None or edition_record.source_id != source_id:
+                raise KeyError(source_edition_id)
+        elif editions:
+            edition_record = editions[0]
+        edition = (
+            knowledge_source_edition_from_record(edition_record)
+            if edition_record is not None
+            else None
+        )
+        return evaluate_ingestion_readiness(source, edition)
+
+    def export_knowledge_ingestion_batch(self, batch_id: str) -> KnowledgeIngestionBatchExport:
+        record = self.session.get(KnowledgeIngestionBatchRecord, batch_id)
+        if record is None:
+            raise KeyError(batch_id)
+        return export_ingestion_batch(knowledge_ingestion_batch_from_record(record))
 
     def knowledge_publication_readiness(self, version: str) -> KnowledgePublicationReadiness:
         record = self.session.get(KnowledgeVersionRecord, version)
