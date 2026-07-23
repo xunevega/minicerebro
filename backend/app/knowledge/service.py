@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from hashlib import sha256
 from unicodedata import category, normalize
 
 from app.core.models import (
@@ -6,13 +7,16 @@ from app.core.models import (
     KnowledgeClaim,
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
+    KnowledgeExtractionRun,
     KnowledgeIngestionBatch,
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
     KnowledgeIngestionReadiness,
+    KnowledgeIndexEntry,
     KnowledgeNode,
     KnowledgeNodeRelation,
     KnowledgeObjectRevision,
+    KnowledgeProposal,
     KnowledgePublicationPolicy,
     KnowledgePublicationReadiness,
     KnowledgeQueryContract,
@@ -20,6 +24,7 @@ from app.core.models import (
     KnowledgeQueryInterpretation,
     KnowledgeQueryResult,
     KnowledgeRelation,
+    KnowledgeSegment,
     RetrievedKnowledgeCard,
     KnowledgeSource,
     KnowledgeSourceEdition,
@@ -986,7 +991,7 @@ def seed_sources() -> list[KnowledgeSource]:
 
 
 def seed_source_editions() -> list[KnowledgeSourceEdition]:
-    return [
+    pending_editions = [
         KnowledgeSourceEdition(
             id=f"{source.id}:pending-edition",
             source_id=source.id,
@@ -1013,6 +1018,184 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             locator_system=source.locator_system,
         )
         for source in seed_sources()
+    ]
+    return [
+        *pending_editions,
+        KnowledgeSourceEdition(
+            id="rae-ngle:manual-2010",
+            source_id="rae-ngle",
+            title="Nueva gramatica de la lengua espanola. Manual",
+            edition_label="Manual academico, 2010",
+            publication_year="2010",
+            publisher="Espasa",
+            isbn="9788467032819",
+            language="es",
+            format="libro impreso",
+            access_location="Madrid: Espasa, 2010",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Primer lote documental minimo para probar ingestion real sin incorporar "
+                "texto literal extenso de la obra."
+            ),
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            label="Manual academico, 2010",
+            publication_date="2010",
+            location="Madrid",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["capitulo", "seccion", "segmento"],
+            locator_system=["edicion", "capitulo", "seccion", "pagina"],
+        ),
+    ]
+
+
+def seed_index_entries() -> list[KnowledgeIndexEntry]:
+    return [
+        KnowledgeIndexEntry(
+            id="rae-ngle:manual-2010:funciones-sintacticas",
+            edition_id="rae-ngle:manual-2010",
+            parent_id=None,
+            level=1,
+            order=1,
+            title="Funciones sintacticas",
+            locator="Manual 2010 > sintaxis > funciones sintacticas",
+            page_start=None,
+            page_end=None,
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+    ]
+
+
+def seed_segments() -> list[KnowledgeSegment]:
+    return [
+        KnowledgeSegment(
+            id="rae-ngle:manual-2010:funciones-sintacticas:seg-1",
+            index_entry_id="rae-ngle:manual-2010:funciones-sintacticas",
+            parent_segment_id=None,
+            segment_type="editorial_summary",
+            title="Complemento directo como funcion sintactica",
+            text=(
+                "Resumen editorial minimo: en el analisis sintactico del espanol, "
+                "el complemento directo se trata como una funcion vinculada al predicado "
+                "verbal y al participante afectado o seleccionado por el verbo."
+            ),
+            order=1,
+            start_locator="Manual 2010 > sintaxis > funciones sintacticas > resumen editorial 1",
+            end_locator="Manual 2010 > sintaxis > funciones sintacticas > resumen editorial 1",
+            language="es",
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+    ]
+
+
+def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
+    segment = seed_segments()[0]
+    return [
+        KnowledgeExtractionRun(
+            id="ext-rae-ngle-manual-2010-funciones-sintacticas-1",
+            segment_id=segment.id,
+            status="completed",
+            extractor_type="deterministic",
+            extractor_name="seed-editorial-extractor",
+            extractor_version="1.0",
+            configuration={
+                "mode": "seed_minimal_real_batch",
+                "creates_stable_knowledge": False,
+                "source_text_policy": "editorial_summary_no_extended_quote",
+            },
+            input_segment_revision=1,
+            input_segment_hash=sha256(segment.text.encode("utf-8")).hexdigest(),
+            knowledge_version=None,
+            started_at="2026-07-23",
+            completed_at="2026-07-23",
+            error_code=None,
+            error_message=None,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+    ]
+
+
+def seed_proposals() -> list[KnowledgeProposal]:
+    extraction = seed_extraction_runs()[0]
+    segment = seed_segments()[0]
+    return [
+        KnowledgeProposal(
+            id="prop-rae-ngle-complemento-directo-node",
+            extraction_id=extraction.id,
+            segment_id=segment.id,
+            proposal_type="node",
+            status="proposed",
+            title="Complemento directo",
+            payload={
+                "id": "rae-ngle-complemento-directo",
+                "source_id": "rae-ngle",
+                "source_edition_id": "rae-ngle:manual-2010",
+                "canonical_name": "Complemento directo",
+                "node_type": "concepto",
+                "primary_branch": "sintaxis",
+                "secondary_branch": "funciones sintacticas",
+                "summary": "Funcion sintactica vinculada al predicado verbal.",
+                "short_definition": "Funcion sintactica asociada al participante seleccionado por el verbo.",
+                "long_definition": (
+                    "Propuesta candidata derivada de un segmento editorial minimo de la NGLE "
+                    "Manual 2010; requiere revision antes de crear el nodo estable."
+                ),
+                "aliases": ["objeto directo"],
+                "version": KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento identifica el complemento directo como concepto sintactico candidato.",
+            confidence=0.7,
+            source_locator=segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at=None,
+            reviewer=None,
+            decision_reason=None,
+        ),
+        KnowledgeProposal(
+            id="prop-rae-ngle-complemento-directo-evidence",
+            extraction_id=extraction.id,
+            segment_id=segment.id,
+            proposal_type="evidence",
+            status="proposed",
+            title="Evidencia candidata sobre complemento directo",
+            payload={
+                "id": "ev-rae-ngle-complemento-directo-candidata",
+                "node_id": "rae-ngle-complemento-directo",
+                "source_id": "rae-ngle",
+                "source_edition_id": "rae-ngle:manual-2010",
+                "evidence_type": "editorial_summary",
+                "locator": {
+                    "edition": "Manual academico, 2010",
+                    "section": "funciones sintacticas",
+                    "segment_id": segment.id,
+                },
+                "reference": segment.start_locator,
+                "excerpt": segment.text,
+                "context": "seed_ingestion_candidate",
+                "confidence_level": 3,
+                "version": KNOWLEDGE_VERSION,
+            },
+            rationale=(
+                "El segmento conserva una formulacion editorial minima que puede sostener "
+                "evidencia candidata tras revision."
+            ),
+            confidence=0.66,
+            source_locator=segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at=None,
+            reviewer=None,
+            decision_reason=None,
+        ),
     ]
 
 

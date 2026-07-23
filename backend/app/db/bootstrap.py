@@ -9,17 +9,22 @@ from sqlalchemy.orm import Session
 
 from app.core.seeds import DEFAULT_PROFILE_ID, seed_variables
 from app.db.models import (
+    AuditEventRecord,
     KnowledgeCardRecord,
     KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
     KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
     KnowledgeEvidenceRevisionRecord,
+    KnowledgeExtractionRunRecord,
     KnowledgeIngestionBatchRecord,
+    KnowledgeIndexEntryRecord,
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
+    KnowledgeProposalRecord,
     KnowledgeRelationRecord,
+    KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
@@ -35,11 +40,15 @@ from app.knowledge.service import (
     seed_claims,
     seed_evidence,
     seed_evidence_revisions,
+    seed_extraction_runs,
     seed_ingestion_batches,
+    seed_index_entries,
     seed_node_relations,
     seed_nodes,
     seed_object_revisions,
+    seed_proposals,
     seed_relations,
+    seed_segments,
     seed_source_editions,
     seed_sources,
 )
@@ -437,22 +446,211 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 setattr(batch_record, field, value)
             continue
         session.add(KnowledgeIngestionBatchRecord(id=batch.id, **values))
+    session.flush()
+
+    for entry in seed_index_entries():
+        entry_record = session.get(KnowledgeIndexEntryRecord, entry.id)
+        values = {
+            "edition_id": entry.edition_id,
+            "parent_id": entry.parent_id,
+            "level": entry.level,
+            "entry_order": entry.order,
+            "title": entry.title,
+            "locator": entry.locator,
+            "page_start": entry.page_start,
+            "page_end": entry.page_end,
+            "status": entry.status,
+            "created_at": entry.created_at,
+            "updated_at": entry.updated_at,
+        }
+        if entry_record is not None:
+            for field, value in values.items():
+                setattr(entry_record, field, value)
+            continue
+        session.add(KnowledgeIndexEntryRecord(id=entry.id, **values))
+    session.flush()
+
+    for segment in seed_segments():
+        segment_record = session.get(KnowledgeSegmentRecord, segment.id)
+        values = {
+            "index_entry_id": segment.index_entry_id,
+            "parent_segment_id": segment.parent_segment_id,
+            "segment_type": segment.segment_type,
+            "title": segment.title,
+            "text": segment.text,
+            "segment_order": segment.order,
+            "start_locator": segment.start_locator,
+            "end_locator": segment.end_locator,
+            "language": segment.language,
+            "status": segment.status,
+            "created_at": segment.created_at,
+            "updated_at": segment.updated_at,
+        }
+        if segment_record is not None:
+            for field, value in values.items():
+                setattr(segment_record, field, value)
+            continue
+        session.add(KnowledgeSegmentRecord(id=segment.id, **values))
+    session.flush()
+
+    for extraction in seed_extraction_runs():
+        extraction_record = session.get(KnowledgeExtractionRunRecord, extraction.id)
+        values = {
+            "segment_id": extraction.segment_id,
+            "status": extraction.status,
+            "extractor_type": extraction.extractor_type,
+            "extractor_name": extraction.extractor_name,
+            "extractor_version": extraction.extractor_version,
+            "configuration": extraction.configuration,
+            "input_segment_revision": extraction.input_segment_revision,
+            "input_segment_hash": extraction.input_segment_hash,
+            "knowledge_version": extraction.knowledge_version,
+            "started_at": extraction.started_at,
+            "completed_at": extraction.completed_at,
+            "error_code": extraction.error_code,
+            "error_message": extraction.error_message,
+            "created_at": extraction.created_at,
+            "updated_at": extraction.updated_at,
+        }
+        if extraction_record is not None:
+            for field, value in values.items():
+                setattr(extraction_record, field, value)
+            continue
+        session.add(KnowledgeExtractionRunRecord(id=extraction.id, **values))
+    session.flush()
+
+    for proposal in seed_proposals():
+        proposal_record = session.get(KnowledgeProposalRecord, proposal.id)
+        values = {
+            "extraction_id": proposal.extraction_id,
+            "segment_id": proposal.segment_id,
+            "proposal_type": proposal.proposal_type,
+            "status": proposal.status,
+            "title": proposal.title,
+            "payload": proposal.payload,
+            "rationale": proposal.rationale,
+            "confidence": proposal.confidence,
+            "source_locator": proposal.source_locator,
+            "created_at": proposal.created_at,
+            "updated_at": proposal.updated_at,
+            "reviewed_at": proposal.reviewed_at,
+            "reviewer": proposal.reviewer,
+            "decision_reason": proposal.decision_reason,
+        }
+        if proposal_record is not None:
+            for field, value in values.items():
+                setattr(proposal_record, field, value)
+            continue
+        session.add(KnowledgeProposalRecord(id=proposal.id, **values))
+
+    seed_audit_events = [
+        (
+            "knowledge.index.registered",
+            "knowledge_source_edition",
+            "rae-ngle:manual-2010",
+            {
+                "entry_count": len(seed_index_entries()),
+                "seed_batch": True,
+                "stable_knowledge_created": False,
+            },
+        ),
+        (
+            "knowledge.segment.registered",
+            "knowledge_index_entry",
+            "rae-ngle:manual-2010:funciones-sintacticas",
+            {
+                "segment_count": len(seed_segments()),
+                "seed_batch": True,
+                "stable_knowledge_created": False,
+            },
+        ),
+        (
+            "knowledge.extraction.completed",
+            "knowledge_extraction_run",
+            "ext-rae-ngle-manual-2010-funciones-sintacticas-1",
+            {
+                "segment_id": "rae-ngle:manual-2010:funciones-sintacticas:seg-1",
+                "status": "completed",
+                "proposals_created": True,
+                "nodes_created": False,
+                "evidence_created": False,
+                "claims_created": False,
+                "cards_created": False,
+                "published": False,
+                "embeddings_created": False,
+                "seed_batch": True,
+            },
+        ),
+        (
+            "knowledge.proposal.registered",
+            "knowledge_extraction_run",
+            "ext-rae-ngle-manual-2010-funciones-sintacticas-1",
+            {
+                "proposal_count": len(seed_proposals()),
+                "segment_id": "rae-ngle:manual-2010:funciones-sintacticas:seg-1",
+                "proposal_types": [proposal.proposal_type for proposal in seed_proposals()],
+                "status": "proposed",
+                "published": False,
+                "stable_knowledge_created": False,
+                "seed_batch": True,
+            },
+        ),
+    ]
+    for event_type, entity_type, entity_id, payload in seed_audit_events:
+        existing_event = session.scalars(
+            select(AuditEventRecord).where(
+                AuditEventRecord.event_type == event_type,
+                AuditEventRecord.entity_type == entity_type,
+                AuditEventRecord.entity_id == entity_id,
+            )
+        ).first()
+        if existing_event is None:
+            session.add(
+                AuditEventRecord(
+                    event_type=event_type,
+                    entity_type=entity_type,
+                    entity_id=entity_id,
+                    payload=payload,
+                    created_at=datetime.now(UTC),
+                )
+            )
+        else:
+            existing_event.payload = payload
 
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v0") is None:
+        published_source_editions = [
+            edition for edition in seed_source_editions() if edition.id.endswith(":pending-edition")
+        ]
+        published_source_edition_ids = {edition.id for edition in published_source_editions}
+        published_relations = [
+            relation
+            for relation in seed_relations()
+            if relation.source_entity_id in published_source_edition_ids
+            or relation.target_entity_id in published_source_edition_ids
+            or (
+                relation.source_entity_id not in {"rae-ngle:manual-2010"}
+                and relation.target_entity_id not in {"rae-ngle:manual-2010"}
+            )
+        ]
+        published_revisions = [
+            revision
+            for revision in seed_object_revisions()
+            if revision.object_id != "rae-ngle:manual-2010"
+        ]
         session.add(
             KnowledgeVersionSnapshotRecord(
                 version_id="knowledge-v0",
                 status="seed_snapshot",
                 source_ids=[source.id for source in seed_sources()],
-                source_edition_ids=[edition.id for edition in seed_source_editions()],
+                source_edition_ids=[edition.id for edition in published_source_editions],
                 node_ids=[node.id for node in seed_nodes()],
                 node_relation_ids=[relation.id for relation in seed_node_relations()],
-                relation_ids=[relation.id for relation in seed_relations()],
+                relation_ids=[relation.id for relation in published_relations],
                 evidence_ids=[evidence.id for evidence in seed_evidence()],
                 claim_ids=[claim.id for claim in seed_claims()],
                 claim_evidence_link_ids=[link.id for link in seed_claim_evidence_links()],
                 card_ids=[card.id for card in seed_cards()],
-                revision_ids=[revision.id for revision in seed_object_revisions()],
+                revision_ids=[revision.id for revision in published_revisions],
                 created_at="2026-07-22",
                 updated_at="2026-07-22",
             )

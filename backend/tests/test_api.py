@@ -608,7 +608,8 @@ def test_knowledge_sources_are_exposed():
     assert len(sources) == 23
     assert {source["catalog_id"] for source in sources} == {f"F{index:03}" for index in range(1, 24)}
     assert "manual-estilo" not in {source["id"] for source in sources}
-    assert sources[0] == {
+    first_source = sources[0]
+    assert {key: value for key, value in first_source.items() if key != "editions"} == {
         "id": "rae-ngle",
         "catalog_id": "F001",
         "name": "Nueva gramatica de la lengua espanola",
@@ -632,52 +633,19 @@ def test_knowledge_sources_are_exposed():
         "rights": "registro autorizado; contenido no ingerido",
         "structure": ["pendiente de estructuracion"],
         "locator_system": ["edicion", "parte", "capitulo", "seccion", "pagina", "entrada", "url"],
-        "editions": [
-            {
-                "id": "rae-ngle:pending-edition",
-                "source_id": "rae-ngle",
-                "title": "Nueva gramatica de la lengua espanola",
-                "edition_label": "pendiente de identificacion",
-                "publication_year": "pendiente de identificacion",
-                "publisher": (
-                    "Real Academia Espanola y Asociacion de Academias de la Lengua Espanola"
-                ),
-                "isbn": "pendiente de identificacion",
-                "language": "es",
-                "format": "pendiente de identificacion",
-                "access_location": "pendiente de adquisicion",
-                "rights_status": "registro autorizado; contenido no ingerido",
-                "status": "registered",
-                "notes": "edicion pendiente de registro bibliografico",
-                "created_at": "2026-07-22",
-                "updated_at": "2026-07-22",
-                "label": "pendiente de identificacion",
-                "publication_date": "pendiente de identificacion",
-                "location": "pendiente de adquisicion",
-                "acquisition_status": "registered",
-                "validation_status": "not_validated",
-                "rights": "registro autorizado; contenido no ingerido",
-                "structure": ["pendiente de estructuracion"],
-                "locator_system": [
-                    "edicion",
-                    "parte",
-                    "capitulo",
-                    "seccion",
-                    "pagina",
-                    "entrada",
-                    "url",
-                ],
-            }
-        ],
     }
-    assert all(len(source["editions"]) == 1 for source in sources)
-    assert {source["editions"][0]["source_id"] for source in sources} == {
-        source["id"] for source in sources
-    }
+    first_editions = {edition["id"]: edition for edition in first_source["editions"]}
+    assert set(first_editions) == {"rae-ngle:manual-2010", "rae-ngle:pending-edition"}
+    assert first_editions["rae-ngle:manual-2010"]["edition_label"] == "Manual academico, 2010"
+    assert first_editions["rae-ngle:manual-2010"]["isbn"] == "9788467032819"
+    assert all(len(source["editions"]) >= 1 for source in sources)
+    assert all(edition["source_id"] == source["id"] for source in sources for edition in source["editions"])
 
     versioned = client.get("/knowledge/sources?version=knowledge-v0")
     assert versioned.status_code == 200
     assert {source["id"] for source in versioned.json()} == {source["id"] for source in sources}
+    versioned_first = next(source for source in versioned.json() if source["id"] == "rae-ngle")
+    assert {edition["id"] for edition in versioned_first["editions"]} == {"rae-ngle:pending-edition"}
 
     missing_version = client.get("/knowledge/sources?version=missing-version")
     assert missing_version.status_code == 404
@@ -690,19 +658,83 @@ def test_source_ingestion_status_distinguishes_registered_from_ingested():
 
     status = response.json()[0]
     assert status["source_id"] == "rae-ngle"
-    assert status["current_phase"] == "edition_registered"
+    assert status["current_phase"] == "proposed"
     assert status["is_registered"] is True
     assert status["has_edition"] is True
-    assert status["has_index"] is False
-    assert status["has_segments"] is False
+    assert status["has_index"] is True
+    assert status["has_segments"] is True
+    assert status["has_extractions"] is True
+    assert status["has_proposals"] is True
+    assert status["has_reviewed_proposals"] is False
     assert status["is_ingested"] is False
     assert status["counts"]["nodes"] >= 1
-    assert "missing_segments" in status["blockers"]
+    assert status["counts"]["index_entries"] >= 1
+    assert status["counts"]["segments"] >= 1
+    assert status["counts"]["completed_extractions"] >= 1
+    assert status["counts"]["proposals"] >= 2
+    assert "missing_materialized_knowledge" in status["blockers"]
     assert "missing_publication" in status["blockers"]
 
     missing = client.get("/knowledge/ingestion/sources?source_id=fuente-inexistente")
     assert missing.status_code == 404
     assert missing.json()["detail"] == "Knowledge source not found"
+
+
+def test_seed_real_ingestion_batch_reaches_proposals_without_publication():
+    edition = client.get("/knowledge/editions/rae-ngle:manual-2010")
+    assert edition.status_code == 200
+    assert edition.json()["source_id"] == "rae-ngle"
+    assert edition.json()["edition_label"] == "Manual academico, 2010"
+    assert edition.json()["status"] == "available"
+
+    index = client.get("/knowledge/editions/rae-ngle:manual-2010/index")
+    assert index.status_code == 200
+    assert [entry["id"] for entry in index.json()] == [
+        "rae-ngle:manual-2010:funciones-sintacticas"
+    ]
+    assert index.json()[0]["title"] == "Funciones sintacticas"
+
+    segments = client.get(
+        "/knowledge/index/rae-ngle:manual-2010:funciones-sintacticas/segments"
+    )
+    assert segments.status_code == 200
+    assert [segment["id"] for segment in segments.json()] == [
+        "rae-ngle:manual-2010:funciones-sintacticas:seg-1"
+    ]
+    assert "complemento directo" in segments.json()[0]["text"].lower()
+
+    extractions = client.get(
+        "/knowledge/segments/rae-ngle:manual-2010:funciones-sintacticas:seg-1/extractions"
+    )
+    assert extractions.status_code == 200
+    assert [run["id"] for run in extractions.json()] == [
+        "ext-rae-ngle-manual-2010-funciones-sintacticas-1"
+    ]
+    extraction = extractions.json()[0]
+    assert extraction["status"] == "completed"
+    assert extraction["extractor_name"] == "seed-editorial-extractor"
+    assert extraction["knowledge_version"] is None
+
+    proposals = client.get(
+        "/knowledge/extractions/ext-rae-ngle-manual-2010-funciones-sintacticas-1/proposals"
+    )
+    assert proposals.status_code == 200
+    assert {proposal["proposal_type"] for proposal in proposals.json()} == {"node", "evidence"}
+    assert {proposal["status"] for proposal in proposals.json()} == {"proposed"}
+    assert {proposal["reviewed_at"] for proposal in proposals.json()} == {None}
+    assert all(proposal["segment_id"] == segments.json()[0]["id"] for proposal in proposals.json())
+
+    with SessionLocal() as session:
+        assert session.get(KnowledgeNodeRecord, "rae-ngle-complemento-directo") is None
+        assert session.get(
+            KnowledgeEvidenceItemRecord, "ev-rae-ngle-complemento-directo-candidata"
+        ) is None
+    status = client.get("/knowledge/ingestion/sources?source_id=rae-ngle").json()[0]
+    assert status["current_phase"] == "proposed"
+    assert status["is_ingested"] is False
+    assert status["is_published"] is False
+    assert "missing_materialized_knowledge" in status["blockers"]
+    assert "missing_publication" in status["blockers"]
 
 
 def test_register_knowledge_source_persists_without_registering_edition_or_publication():
@@ -3016,7 +3048,7 @@ def test_knowledge_ingestion_batches_are_persisted_and_exportable():
     response = client.get("/knowledge/ingestion/batches")
     assert response.status_code == 200
     batches = response.json()
-    assert len(batches) == 23
+    assert len(batches) == 24
     first = batches[0]
     assert first["source_id"]
     assert first["source_edition_id"].endswith(":pending-edition")
@@ -3024,6 +3056,7 @@ def test_knowledge_ingestion_batches_are_persisted_and_exportable():
     assert "missing_edition" in first["blockers"]
     assert first["configuration"]["publishes_directly"] is False
     assert first["metrics"]["nodes_created"] == 0
+    assert "ingest-rae-ngle:manual-2010" in {batch["id"] for batch in batches}
 
     filtered = client.get("/knowledge/ingestion/batches?source_id=rae-dle&status=blocked")
     assert filtered.status_code == 200
@@ -3441,7 +3474,11 @@ def test_knowledge_pipeline_is_persisted():
     version = response.json()[0]
     assert snapshot is not None
     assert set(snapshot.source_ids) == {source.id for source in sources}
-    assert set(snapshot.source_edition_ids) == {edition.id for edition in source_editions}
+    published_source_edition_ids = {
+        edition.id for edition in source_editions if edition.id.endswith(":pending-edition")
+    }
+    assert set(snapshot.source_edition_ids) == published_source_edition_ids
+    assert "rae-ngle:manual-2010" not in snapshot.source_edition_ids
     assert set(snapshot.node_ids) == {node.id for node in nodes}
     assert set(snapshot.evidence_ids) == {item.id for item in evidence}
     assert set(snapshot.claim_ids) == {claim.id for claim in claims}
@@ -3451,7 +3488,7 @@ def test_knowledge_pipeline_is_persisted():
     assert version["evidence_count"] == len(evidence)
     assert version["claim_count"] == len(claims)
     assert version["card_count"] == len(cards)
-    assert len(source_editions) == 23
+    assert len(source_editions) == 24
     assert {edition.source_id for edition in source_editions} == {source.id for source in sources}
     assert len(node_relations) >= len(nodes)
     assert {node.source_id for node in nodes} <= {source.id for source in sources}
