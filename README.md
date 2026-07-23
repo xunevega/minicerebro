@@ -107,7 +107,13 @@ curl https://<backend>.up.railway.app/health
 curl https://<backend>.up.railway.app/knowledge/status
 curl -X POST https://<backend>.up.railway.app/knowledge/query \
   -H 'Content-Type: application/json' \
-  -d '{"query":"terminologia gramatical categorias funciones","version":"latest","limit":3}'
+  -d '{"query":"dequeismo queismo regimen","version":"latest","limit":3}'
+```
+
+Con los dominios actuales de Railway tambien puede ejecutarse:
+
+```bash
+make smoke-production
 ```
 
 ## Estado de esta base
@@ -131,6 +137,7 @@ curl -X POST https://<backend>.up.railway.app/knowledge/query \
 - Observabilidad V1 disponible desde auditoria: tiempos de interpretacion/generacion, calidad de recuperacion por validacion pendiente, scoring, comparaciones y feedback.
 - Auditoria de Cerebro declarativa: no se importa ningun modulo completo sin evidencia pieza por pieza.
 - Cierre V1 documentado en `docs/CIERRE_PLAN_V1.md`.
+- Knowledge-v6 publica el primer lote amplio de conocimiento estable sobre dequeismo/queismo, extranjerismos y unidad de criterio editorial, conservando knowledge-v5 como snapshot congelado.
 - Tests unitarios/API del scoring, comparador, persistencia, feedback, aceptacion, observabilidad, conocimiento y cierre.
 
 `pgvector`, validacion editorial avanzada e ingestion bibliografica completa no forman parte del cierre V1. No hay V2 planificada; cualquier cambio posterior queda limitado a mantenimiento o refinamiento dentro del contrato V1.
@@ -143,6 +150,7 @@ El campo `gaps` de `GET /knowledge/status` se mantiene por compatibilidad, pero 
 make validate
 make migrate-sqlite
 make migrate-postgres
+make smoke-production
 ```
 
 Limpieza de artefactos generados locales:
