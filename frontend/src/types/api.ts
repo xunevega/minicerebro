@@ -377,6 +377,35 @@ export type KnowledgeQueryResult = {
   generated_at: string;
 };
 
+export type KnowledgeQueryContract = {
+  meaning: string;
+  query_unit: string;
+  lifecycle: string[];
+  interpretation_fields: string[];
+  restriction_fields: string[];
+  context_fields: string[];
+  out_of_scope: string[];
+  allowed_version_values: string[];
+  profile_boundary: string;
+  retrieval_boundary: string;
+  generation_boundary: string;
+  audit_fields: string[];
+  acceptance_criteria: string[];
+};
+
+export type KnowledgeQueryInterpretation = {
+  query: string;
+  normalized_query: string;
+  requested_version: string;
+  resolved_version: string;
+  query_type: string[];
+  domain: string[];
+  restrictions: Record<string, unknown>;
+  context: Record<string, unknown>;
+  retrieval_request: Record<string, unknown>;
+  audit_payload: Record<string, unknown>;
+};
+
 export type KnowledgeQueryHistoryItem = {
   event_id: number;
   version: string;

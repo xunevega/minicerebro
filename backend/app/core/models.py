@@ -430,6 +430,35 @@ class KnowledgeQueryInput(BaseModel):
     limit: int = Field(default=5, ge=1, le=20)
 
 
+class KnowledgeQueryContract(BaseModel):
+    meaning: str
+    query_unit: str
+    lifecycle: list[str]
+    interpretation_fields: list[str]
+    restriction_fields: list[str]
+    context_fields: list[str]
+    out_of_scope: list[str]
+    allowed_version_values: list[str]
+    profile_boundary: str
+    retrieval_boundary: str
+    generation_boundary: str
+    audit_fields: list[str]
+    acceptance_criteria: list[str]
+
+
+class KnowledgeQueryInterpretation(BaseModel):
+    query: str
+    normalized_query: str
+    requested_version: str
+    resolved_version: str
+    query_type: list[str]
+    domain: list[str]
+    restrictions: dict
+    context: dict
+    retrieval_request: dict
+    audit_payload: dict
+
+
 class KnowledgeCard(BaseModel):
     id: str
     card_type: str

@@ -34,8 +34,10 @@ from app.core.models import (
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
     KnowledgePublicationReadiness,
+    KnowledgeQueryContract,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
+    KnowledgeQueryInterpretation,
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
     KnowledgeRelation,
@@ -262,6 +264,22 @@ def knowledge_cards(
 ) -> list[KnowledgeCard]:
     ensure_knowledge_version(repository, version)
     return repository.list_knowledge_cards(version=version)
+
+
+@router.get("/knowledge/query/contract")
+def knowledge_query_contract(repository: RepositoryDep) -> KnowledgeQueryContract:
+    return repository.knowledge_query_contract()
+
+
+@router.post("/knowledge/query/interpretation")
+def knowledge_query_interpretation(
+    payload: KnowledgeQueryInput,
+    repository: RepositoryDep,
+) -> KnowledgeQueryInterpretation:
+    try:
+        return repository.interpret_knowledge_query(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 
 
 @router.post("/knowledge/query")

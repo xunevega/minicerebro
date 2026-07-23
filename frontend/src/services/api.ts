@@ -26,7 +26,9 @@ import type {
   KnowledgeObjectRevision,
   KnowledgePublicationPolicy,
   KnowledgePublicationReadiness,
+  KnowledgeQueryContract,
   KnowledgeQueryHistoryItem,
+  KnowledgeQueryInterpretation,
   KnowledgeQueryResult,
   KnowledgeQuerySummary,
   KnowledgeRelation,
@@ -160,6 +162,17 @@ export function getKnowledgeClaims(cardId?: string, version?: string) {
 
 export function queryKnowledge(query: string, version = "knowledge-v0", limit = 5) {
   return request<KnowledgeQueryResult>("/knowledge/query", {
+    method: "POST",
+    body: JSON.stringify({ query, version, limit }),
+  });
+}
+
+export function getKnowledgeQueryContract() {
+  return request<KnowledgeQueryContract>("/knowledge/query/contract");
+}
+
+export function interpretKnowledgeQuery(query: string, version = "knowledge-v0", limit = 5) {
+  return request<KnowledgeQueryInterpretation>("/knowledge/query/interpretation", {
     method: "POST",
     body: JSON.stringify({ query, version, limit }),
   });

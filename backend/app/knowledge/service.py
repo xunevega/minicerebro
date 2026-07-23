@@ -15,7 +15,9 @@ from app.core.models import (
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
     KnowledgePublicationReadiness,
+    KnowledgeQueryContract,
     KnowledgeQueryInput,
+    KnowledgeQueryInterpretation,
     KnowledgeQueryResult,
     KnowledgeRelation,
     RetrievedKnowledgeCard,
@@ -82,6 +84,17 @@ INGESTION_FLOW = [
     "cards",
     "validation",
     "candidate_version",
+]
+QUERY_LIFECYCLE = ["query", "interpretation", "restrictions", "context", "retrieval"]
+QUERY_OUT_OF_SCOPE = [
+    "perfil",
+    "preferencias",
+    "scoring",
+    "feedback",
+    "laboratorio",
+    "prompts",
+    "generaciones",
+    "historial de usuario",
 ]
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
@@ -1692,6 +1705,116 @@ def _text_match_score(terms: set[str], haystack: str) -> float:
     return sum(1 for term in terms if term in normalized_haystack) / len(terms)
 
 
+def query_contract() -> KnowledgeQueryContract:
+    return KnowledgeQueryContract(
+        meaning=(
+            "Una consulta es una peticion de lectura contra conocimiento estable; "
+            "no modifica perfil, preferencias ni conocimiento publicado."
+        ),
+        query_unit="texto breve del usuario + version solicitada + limite de recuperacion",
+        lifecycle=QUERY_LIFECYCLE,
+        interpretation_fields=[
+            "query",
+            "normalized_query",
+            "requested_version",
+            "resolved_version",
+            "query_type",
+            "domain",
+        ],
+        restriction_fields=[
+            "resolved_version",
+            "limit",
+            "max_cards",
+            "profile_mutation_allowed",
+            "stable_knowledge_mutation_allowed",
+            "generation_allowed",
+        ],
+        context_fields=[
+            "profile_influence",
+            "stable_knowledge_mutation",
+            "retrieval_unit",
+            "ranking_policy",
+        ],
+        out_of_scope=QUERY_OUT_OF_SCOPE,
+        allowed_version_values=[KNOWLEDGE_VERSION, "latest"],
+        profile_boundary=(
+            "El perfil puede influir solo en presentacion u ordenacion futura; "
+            "no altera la interpretacion contractual ni el conocimiento estable."
+        ),
+        retrieval_boundary=(
+            "La consulta prepara una solicitud de recuperacion; la recuperacion decide "
+            "fichas, claims, evidencias, fuentes y relaciones devueltas."
+        ),
+        generation_boundary="La generacion no forma parte de la consulta ni se ejecuta en este contrato.",
+        audit_fields=[
+            "query_length",
+            "limit",
+            "requested_version",
+            "resolved_version",
+            "query_type",
+            "domain",
+        ],
+        acceptance_criteria=[
+            "normaliza la consulta sin perder el texto original",
+            "resuelve latest a una version existente",
+            "declara tipo y dominio antes de recuperar",
+            "rechaza versiones inexistentes",
+            "no registra ni expone la consulta cruda en auditoria",
+            "no muta perfil ni conocimiento estable",
+        ],
+    )
+
+
+def interpret_knowledge_query(payload: KnowledgeQueryInput) -> KnowledgeQueryInterpretation:
+    requested_version = payload.version
+    resolved_version = resolve_knowledge_version(payload.version)
+    normalized_query = _normalize_query(payload.query)
+    query_types = _detect_query_types(normalized_query)
+    domains = _detect_domains(normalized_query, [])
+    restrictions = {
+        "requested_version": requested_version,
+        "resolved_version": resolved_version,
+        "limit": payload.limit,
+        "max_cards": payload.limit,
+        "profile_mutation_allowed": False,
+        "stable_knowledge_mutation_allowed": False,
+        "generation_allowed": False,
+        "retrieval_required": True,
+    }
+    context = {
+        "profile_influence": "presentation_only",
+        "stable_knowledge_mutation": False,
+        "retrieval_unit": "knowledge_card",
+        "ranking_policy": "deterministic_traceable",
+    }
+    return KnowledgeQueryInterpretation(
+        query=payload.query,
+        normalized_query=normalized_query,
+        requested_version=requested_version,
+        resolved_version=resolved_version,
+        query_type=query_types,
+        domain=domains,
+        restrictions=restrictions,
+        context=context,
+        retrieval_request={
+            "required": True,
+            "version": resolved_version,
+            "limit": payload.limit,
+            "query_terms": sorted(_query_terms(normalized_query)),
+            "query_type": query_types,
+            "domain": domains,
+        },
+        audit_payload={
+            "query_length": len(payload.query),
+            "limit": payload.limit,
+            "requested_version": requested_version,
+            "resolved_version": resolved_version,
+            "query_type": query_types,
+            "domain": domains,
+        },
+    )
+
+
 def query_knowledge(
     payload: KnowledgeQueryInput,
     sources: list[KnowledgeSource] | None = None,
@@ -1700,11 +1823,12 @@ def query_knowledge(
     claims: list[KnowledgeClaim] | None = None,
     evidence: list[KnowledgeEvidenceItem] | None = None,
 ) -> KnowledgeQueryResult:
-    requested_version = payload.version
-    resolved_version = resolve_knowledge_version(payload.version)
-    normalized_query = _normalize_query(payload.query)
+    interpretation = interpret_knowledge_query(payload)
+    requested_version = interpretation.requested_version
+    resolved_version = interpretation.resolved_version
+    normalized_query = interpretation.normalized_query
     terms = _query_terms(normalized_query)
-    query_types = _detect_query_types(normalized_query)
+    query_types = interpretation.query_type
     sources = sources if sources is not None else seed_sources()
     nodes = nodes if nodes is not None else seed_nodes()
     cards = cards if cards is not None else seed_cards()
@@ -1939,9 +2063,9 @@ def query_knowledge(
         query_type=query_types,
         domain=domains,
         context={
+            **interpretation.context,
             "normalized_query": normalized_query,
             "primary_domain": domains[0] if domains else None,
-            "profile_influence": "presentation_only",
         },
         status=status,
         card_count=len(ranked_cards),

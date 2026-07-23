@@ -29,8 +29,10 @@ from app.core.models import (
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
     KnowledgePublicationReadiness,
+    KnowledgeQueryContract,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
+    KnowledgeQueryInterpretation,
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
     KnowledgeRelation,
@@ -74,7 +76,9 @@ from app.knowledge.service import (
     evaluate_publication_readiness,
     export_ingestion_batch,
     ingestion_policy,
+    interpret_knowledge_query as build_knowledge_query_interpretation,
     publication_policy,
+    query_contract,
     query_knowledge,
     resolve_knowledge_version,
     versioning_policy,
@@ -713,6 +717,18 @@ class Repository:
             query = query.where(KnowledgeCardRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeCardRecord.id)).all()
         return [knowledge_card_from_record(record) for record in records]
+
+    def knowledge_query_contract(self) -> KnowledgeQueryContract:
+        return query_contract()
+
+    def interpret_knowledge_query(
+        self,
+        payload: KnowledgeQueryInput,
+    ) -> KnowledgeQueryInterpretation:
+        resolved_version = resolve_knowledge_version(payload.version)
+        if self.session.get(KnowledgeVersionRecord, resolved_version) is None:
+            raise KeyError(resolved_version)
+        return build_knowledge_query_interpretation(payload)
 
     def query_knowledge(self, payload: KnowledgeQueryInput) -> KnowledgeQueryResult:
         resolved_version = resolve_knowledge_version(payload.version)

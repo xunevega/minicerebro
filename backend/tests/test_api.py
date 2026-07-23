@@ -982,6 +982,69 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
     }
 
 
+def test_knowledge_query_contract_separates_query_from_retrieval_and_generation():
+    response = client.get("/knowledge/query/contract")
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["lifecycle"] == [
+        "query",
+        "interpretation",
+        "restrictions",
+        "context",
+        "retrieval",
+    ]
+    assert payload["query_unit"] == (
+        "texto breve del usuario + version solicitada + limite de recuperacion"
+    )
+    assert "resolved_version" in payload["interpretation_fields"]
+    assert "profile_mutation_allowed" in payload["restriction_fields"]
+    assert "generaciones" in payload["out_of_scope"]
+    assert payload["allowed_version_values"] == ["knowledge-v0", "latest"]
+    assert "presentacion" in payload["profile_boundary"]
+    assert "solicitud de recuperacion" in payload["retrieval_boundary"]
+    assert "no forma parte" in payload["generation_boundary"]
+
+
+def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
+    query = "precision lexica verificable"
+    response = client.post(
+        "/knowledge/query/interpretation",
+        json={"query": query, "version": "latest", "limit": 3},
+    )
+    assert response.status_code == 200
+
+    payload = response.json()
+    assert payload["query"] == query
+    assert payload["normalized_query"] == "precision lexica verificable"
+    assert payload["requested_version"] == "latest"
+    assert payload["resolved_version"] == "knowledge-v0"
+    assert payload["query_type"] == ["writing_recommendation"]
+    assert "LENGUA" in payload["domain"]
+    assert payload["restrictions"]["max_cards"] == 3
+    assert payload["restrictions"]["profile_mutation_allowed"] is False
+    assert payload["restrictions"]["stable_knowledge_mutation_allowed"] is False
+    assert payload["restrictions"]["generation_allowed"] is False
+    assert payload["context"]["profile_influence"] == "presentation_only"
+    assert payload["context"]["retrieval_unit"] == "knowledge_card"
+    assert payload["retrieval_request"]["required"] is True
+    assert payload["retrieval_request"]["version"] == "knowledge-v0"
+    assert payload["retrieval_request"]["query_terms"] == [
+        "lexica",
+        "precision",
+        "verificable",
+    ]
+    assert payload["audit_payload"]["query_length"] == len(query)
+    assert query not in str(payload["audit_payload"])
+
+    missing = client.post(
+        "/knowledge/query/interpretation",
+        json={"query": query, "version": "missing-version", "limit": 3},
+    )
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "Knowledge version not found"
+
+
 def test_knowledge_query_resolves_latest_and_declares_no_match():
     latest_response = client.post(
         "/knowledge/query",
