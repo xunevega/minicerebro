@@ -34,6 +34,7 @@ import type {
   KnowledgeRelation,
   KnowledgeStatus,
   KnowledgeSource,
+  KnowledgeSourceCreate,
   KnowledgeVersioningPolicy,
   LabOverride,
   LabSimulationResult,
@@ -93,6 +94,13 @@ export function getKnowledgeCards(version?: string) {
 
 export function getKnowledgeSources(version?: string) {
   return request<KnowledgeSource[]>(withParams("/knowledge/sources", { version }));
+}
+
+export function registerKnowledgeSource(payload: KnowledgeSourceCreate) {
+  return request<KnowledgeSource>("/knowledge/sources", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
 }
 
 export function getKnowledgeVersioning() {

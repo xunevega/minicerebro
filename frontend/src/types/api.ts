@@ -78,6 +78,26 @@ export type KnowledgeSource = {
   editions: KnowledgeSourceEdition[];
 };
 
+export type KnowledgeSourceCreate = {
+  id: string;
+  catalog_id: string;
+  name: string;
+  responsible: string;
+  source_type: string;
+  domains: string[];
+  authority_level: number;
+  priority: number;
+  status?: string;
+  edition?: string;
+  publication_date?: string;
+  location?: string;
+  acquisition_status?: string;
+  validation_status?: string;
+  rights?: string;
+  structure?: string[];
+  locator_system?: string[];
+};
+
 export type KnowledgeObjectRevision = {
   id: string;
   object_type: string;

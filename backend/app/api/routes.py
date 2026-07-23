@@ -42,6 +42,7 @@ from app.core.models import (
     KnowledgeQuerySummary,
     KnowledgeRelation,
     KnowledgeSource,
+    KnowledgeSourceCreate,
     KnowledgeStatus,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
@@ -208,6 +209,17 @@ def knowledge_sources(
 ) -> list[KnowledgeSource]:
     ensure_knowledge_version(repository, version)
     return repository.list_knowledge_sources(version=version)
+
+
+@router.post("/knowledge/sources")
+def register_knowledge_source(
+    payload: KnowledgeSourceCreate,
+    repository: RepositoryDep,
+) -> KnowledgeSource:
+    try:
+        return repository.register_knowledge_source(payload)
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.get("/knowledge/nodes")

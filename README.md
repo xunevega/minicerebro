@@ -55,7 +55,7 @@ Por defecto el frontend espera la API en `http://localhost:8000`.
 - React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
 - SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.
 - Pipeline de conocimiento persistente e inspeccionable: fuentes, ediciones de fuente, nodos, evidencias, claims, fichas, version, consulta, historial y validacion auditada.
-- Catalogo cerrado de 23 fuentes V1 registrado en `/knowledge/sources`; cada fuente expone su edicion pendiente, estados de adquisicion/validacion y sistema de localizadores.
+- Catalogo cerrado de 23 fuentes V1 registrado en `/knowledge/sources`; `POST /knowledge/sources` permite registrar una fuente persistente sin crear edicion ni publicar directamente; cada fuente expone su edicion pendiente, estados de adquisicion/validacion y sistema de localizadores.
 - Evidencias V1 como objetos documentales trazables en `/knowledge/evidence`: fuente, edicion, nodo, tipo, localizador, contexto, confianza, estado e historial de revision.
 - Claims V1 como afirmaciones documentales en `/knowledge/claims`: tipo, nodo, dominio, alcance, estado, origen, enlaces de evidencia y revision.
 - Relaciones V1 como grafo tipado en `/knowledge/relations`: origen, destino, tipo, direccion, cardinalidad, peso, confianza, contexto, estado y version.

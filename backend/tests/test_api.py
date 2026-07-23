@@ -443,6 +443,81 @@ def test_knowledge_sources_are_exposed():
     assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
+def test_register_knowledge_source_persists_without_registering_edition_or_publication():
+    source_id = "test-fuente-registro"
+    payload = {
+        "id": source_id,
+        "catalog_id": "TEST-F001",
+        "name": "Fuente de prueba para registro",
+        "responsible": "Equipo editorial",
+        "source_type": "manual de prueba",
+        "domains": ["escritura"],
+        "authority_level": 3,
+        "priority": 99,
+    }
+    try:
+        response = client.post("/knowledge/sources", json=payload)
+        assert response.status_code == 200
+
+        created = response.json()
+        assert created["id"] == source_id
+        assert created["catalog_id"] == "TEST-F001"
+        assert created["status"] == "registered"
+        assert created["edition"] == "pendiente de identificacion"
+        assert created["publication_date"] == "pendiente de identificacion"
+        assert created["location"] == "pendiente de adquisicion"
+        assert created["acquisition_status"] == "registered"
+        assert created["validation_status"] == "not_validated"
+        assert created["rights"] == "registro autorizado; contenido no ingerido"
+        assert created["structure"] == ["pendiente de estructuracion"]
+        assert created["locator_system"] == [
+            "edicion",
+            "parte",
+            "capitulo",
+            "seccion",
+            "pagina",
+            "entrada",
+            "url",
+        ]
+        assert created["editions"] == []
+
+        listed = client.get("/knowledge/sources").json()
+        persisted = next(source for source in listed if source["id"] == source_id)
+        assert persisted["editions"] == []
+
+        duplicate = client.post("/knowledge/sources", json=payload)
+        assert duplicate.status_code == 409
+        assert duplicate.json()["detail"] == "Knowledge source already exists"
+
+        with SessionLocal() as session:
+            record = session.get(KnowledgeSourceRecord, source_id)
+            assert record is not None
+            editions = session.scalars(
+                select(KnowledgeSourceEditionRecord).where(
+                    KnowledgeSourceEditionRecord.source_id == source_id
+                )
+            ).all()
+            assert editions == []
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.source.registered",
+                    AuditEventRecord.entity_id == source_id,
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["edition_created"] is False
+            assert event.payload["publishes_directly"] is False
+    finally:
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id == source_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
 def test_knowledge_nodes_link_to_sources():
     response = client.get("/knowledge/nodes")
     assert response.status_code == 200

@@ -37,6 +37,7 @@ from app.core.models import (
     KnowledgeQuerySummary,
     KnowledgeRelation,
     KnowledgeSource,
+    KnowledgeSourceCreate,
     KnowledgeSourceEdition,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
@@ -627,6 +628,35 @@ class Repository:
             knowledge_source_from_record(record, editions_by_source.get(record.id, []))
             for record in records
         ]
+
+    def register_knowledge_source(self, payload: KnowledgeSourceCreate) -> KnowledgeSource:
+        if self.session.get(KnowledgeSourceRecord, payload.id) is not None:
+            raise ValueError("Knowledge source already exists")
+        catalog_match = self.session.scalars(
+            select(KnowledgeSourceRecord).where(
+                KnowledgeSourceRecord.catalog_id == payload.catalog_id
+            )
+        ).first()
+        if catalog_match is not None:
+            raise ValueError("Knowledge source catalog id already exists")
+        record = KnowledgeSourceRecord(**payload.model_dump())
+        self.session.add(record)
+        self.add_audit_event(
+            "knowledge.source.registered",
+            "knowledge_source",
+            payload.id,
+            {
+                "catalog_id": payload.catalog_id,
+                "name": payload.name,
+                "source_type": payload.source_type,
+                "domains": payload.domains,
+                "status": payload.status,
+                "edition_created": False,
+                "publishes_directly": False,
+            },
+        )
+        self.session.commit()
+        return knowledge_source_from_record(record, [])
 
     def list_knowledge_nodes(
         self,

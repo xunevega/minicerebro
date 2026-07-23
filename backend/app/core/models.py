@@ -309,6 +309,28 @@ class KnowledgeSource(BaseModel):
     editions: list["KnowledgeSourceEdition"] = Field(default_factory=list)
 
 
+class KnowledgeSourceCreate(BaseModel):
+    id: str = Field(min_length=3, max_length=80, pattern=r"^[a-z0-9][a-z0-9-]*$")
+    catalog_id: str = Field(min_length=2, max_length=40)
+    name: str = Field(min_length=3, max_length=240)
+    responsible: str = Field(min_length=3, max_length=320)
+    source_type: str = Field(min_length=3, max_length=80)
+    domains: list[str] = Field(min_length=1)
+    authority_level: int = Field(ge=1, le=5)
+    priority: int = Field(ge=1)
+    status: str = "registered"
+    edition: str = "pendiente de identificacion"
+    publication_date: str = "pendiente de identificacion"
+    location: str = "pendiente de adquisicion"
+    acquisition_status: str = "registered"
+    validation_status: str = "not_validated"
+    rights: str = "registro autorizado; contenido no ingerido"
+    structure: list[str] = Field(default_factory=lambda: ["pendiente de estructuracion"])
+    locator_system: list[str] = Field(
+        default_factory=lambda: ["edicion", "parte", "capitulo", "seccion", "pagina", "entrada", "url"]
+    )
+
+
 class KnowledgeSourceEdition(BaseModel):
     id: str
     source_id: str

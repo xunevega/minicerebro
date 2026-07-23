@@ -444,9 +444,3 @@ def ensure_knowledge_seed_data(session: Session) -> None:
     for stale_batch in stale_batches:
         if stale_batch.id not in seed_batch_ids:
             session.delete(stale_batch)
-
-    seed_source_ids = {source.id for source in seed_sources()}
-    stale_sources = session.scalars(select(KnowledgeSourceRecord)).all()
-    for stale_source in stale_sources:
-        if stale_source.id not in seed_source_ids:
-            session.delete(stale_source)
