@@ -35,6 +35,8 @@ import type {
   KnowledgeStatus,
   KnowledgeSource,
   KnowledgeSourceCreate,
+  KnowledgeSourceEdition,
+  KnowledgeSourceEditionCreate,
   KnowledgeVersioningPolicy,
   LabOverride,
   LabSimulationResult,
@@ -101,6 +103,31 @@ export function registerKnowledgeSource(payload: KnowledgeSourceCreate) {
     method: "POST",
     body: JSON.stringify(payload),
   });
+}
+
+export function getKnowledgeSourceEditions(sourceId: string) {
+  return request<KnowledgeSourceEdition[]>(
+    `/knowledge/sources/${encodeURIComponent(sourceId)}/editions`,
+  );
+}
+
+export function registerKnowledgeSourceEdition(
+  sourceId: string,
+  payload: KnowledgeSourceEditionCreate,
+) {
+  return request<KnowledgeSourceEdition>(
+    `/knowledge/sources/${encodeURIComponent(sourceId)}/editions`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getKnowledgeEdition(editionId: string) {
+  return request<KnowledgeSourceEdition>(
+    `/knowledge/editions/${encodeURIComponent(editionId)}`,
+  );
 }
 
 export function getKnowledgeVersioning() {

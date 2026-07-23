@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from datetime import UTC, datetime
 from enum import StrEnum
+from typing import Literal
 from uuid import UUID, uuid4
 
 from pydantic import BaseModel, Field
@@ -334,6 +335,19 @@ class KnowledgeSourceCreate(BaseModel):
 class KnowledgeSourceEdition(BaseModel):
     id: str
     source_id: str
+    title: str
+    edition_label: str
+    publication_year: str
+    publisher: str
+    isbn: str
+    language: str
+    format: str
+    access_location: str
+    rights_status: str
+    status: str
+    notes: str
+    created_at: str
+    updated_at: str
     label: str
     publication_date: str
     location: str
@@ -342,6 +356,26 @@ class KnowledgeSourceEdition(BaseModel):
     rights: str
     structure: list[str]
     locator_system: list[str]
+
+
+class KnowledgeSourceEditionCreate(BaseModel):
+    id: str = Field(min_length=3, max_length=120, pattern=r"^[a-z0-9][a-z0-9:-]*$")
+    source_id: str = Field(min_length=3, max_length=80, pattern=r"^[a-z0-9][a-z0-9-]*$")
+    title: str = Field(min_length=3, max_length=240)
+    edition_label: str = Field(min_length=1, max_length=160)
+    publication_year: str = Field(min_length=4, max_length=40)
+    publisher: str = Field(min_length=2, max_length=240)
+    isbn: str = Field(min_length=1, max_length=80)
+    language: str = Field(min_length=2, max_length=40)
+    format: str = Field(min_length=2, max_length=80)
+    access_location: str = Field(min_length=3, max_length=320)
+    rights_status: str = Field(min_length=3)
+    status: Literal["registered", "available", "blocked", "archived"] = "registered"
+    notes: str = ""
+    structure: list[str] = Field(default_factory=lambda: ["pendiente de estructuracion"])
+    locator_system: list[str] = Field(
+        default_factory=lambda: ["edicion", "parte", "capitulo", "seccion", "pagina", "entrada", "url"]
+    )
 
 
 class KnowledgeNode(BaseModel):

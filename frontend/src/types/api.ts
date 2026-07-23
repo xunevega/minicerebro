@@ -244,6 +244,19 @@ export type KnowledgeIngestionBatchExport = {
 export type KnowledgeSourceEdition = {
   id: string;
   source_id: string;
+  title: string;
+  edition_label: string;
+  publication_year: string;
+  publisher: string;
+  isbn: string;
+  language: string;
+  format: string;
+  access_location: string;
+  rights_status: string;
+  status: string;
+  notes: string;
+  created_at: string;
+  updated_at: string;
   label: string;
   publication_date: string;
   location: string;
@@ -252,6 +265,24 @@ export type KnowledgeSourceEdition = {
   rights: string;
   structure: string[];
   locator_system: string[];
+};
+
+export type KnowledgeSourceEditionCreate = {
+  id: string;
+  source_id: string;
+  title: string;
+  edition_label: string;
+  publication_year: string;
+  publisher: string;
+  isbn: string;
+  language: string;
+  format: string;
+  access_location: string;
+  rights_status: string;
+  status?: "registered" | "available" | "blocked" | "archived";
+  notes?: string;
+  structure?: string[];
+  locator_system?: string[];
 };
 
 export type KnowledgeNode = {

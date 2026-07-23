@@ -410,6 +410,21 @@ def test_knowledge_sources_are_exposed():
             {
                 "id": "rae-ngle:pending-edition",
                 "source_id": "rae-ngle",
+                "title": "Nueva gramatica de la lengua espanola",
+                "edition_label": "pendiente de identificacion",
+                "publication_year": "pendiente de identificacion",
+                "publisher": (
+                    "Real Academia Espanola y Asociacion de Academias de la Lengua Espanola"
+                ),
+                "isbn": "pendiente de identificacion",
+                "language": "es",
+                "format": "pendiente de identificacion",
+                "access_location": "pendiente de adquisicion",
+                "rights_status": "registro autorizado; contenido no ingerido",
+                "status": "registered",
+                "notes": "edicion pendiente de registro bibliografico",
+                "created_at": "2026-07-22",
+                "updated_at": "2026-07-22",
                 "label": "pendiente de identificacion",
                 "publication_date": "pendiente de identificacion",
                 "location": "pendiente de adquisicion",
@@ -511,6 +526,134 @@ def test_register_knowledge_source_persists_without_registering_edition_or_publi
         with SessionLocal() as session:
             session.query(AuditEventRecord).filter(
                 AuditEventRecord.entity_id == source_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
+def test_register_knowledge_source_edition_persists_and_does_not_start_ingestion():
+    source_id = "test-fuente-edicion"
+    edition_id = "test-fuente-edicion:primera"
+    source_payload = {
+        "id": source_id,
+        "catalog_id": "TEST-F002",
+        "name": "Fuente de prueba con edicion",
+        "responsible": "Equipo editorial",
+        "source_type": "manual de prueba",
+        "domains": ["escritura"],
+        "authority_level": 3,
+        "priority": 100,
+    }
+    edition_payload = {
+        "id": edition_id,
+        "source_id": source_id,
+        "title": "Fuente de prueba con edicion",
+        "edition_label": "Primera edicion revisada",
+        "publication_year": "2026",
+        "publisher": "Editorial de prueba",
+        "isbn": "978-0-000000-00-1",
+        "language": "es",
+        "format": "pdf",
+        "access_location": "/tmp/fuente-prueba.pdf",
+        "rights_status": "uso local autorizado; contenido no ingerido",
+        "status": "available",
+        "notes": "Registro bibliografico para prueba.",
+    }
+    try:
+        source_response = client.post("/knowledge/sources", json=source_payload)
+        assert source_response.status_code == 200
+
+        response = client.post(
+            f"/knowledge/sources/{source_id}/editions",
+            json=edition_payload,
+        )
+        assert response.status_code == 200
+
+        created = response.json()
+        assert created["id"] == edition_id
+        assert created["source_id"] == source_id
+        assert created["title"] == "Fuente de prueba con edicion"
+        assert created["edition_label"] == "Primera edicion revisada"
+        assert created["publication_year"] == "2026"
+        assert created["publisher"] == "Editorial de prueba"
+        assert created["isbn"] == "978-0-000000-00-1"
+        assert created["language"] == "es"
+        assert created["format"] == "pdf"
+        assert created["access_location"] == "/tmp/fuente-prueba.pdf"
+        assert created["rights_status"] == "uso local autorizado; contenido no ingerido"
+        assert created["status"] == "available"
+        assert created["notes"] == "Registro bibliografico para prueba."
+        assert created["label"] == "Primera edicion revisada"
+        assert created["publication_date"] == "2026"
+        assert created["location"] == "/tmp/fuente-prueba.pdf"
+        assert created["acquisition_status"] == "available"
+        assert created["validation_status"] == "not_validated"
+        assert created["rights"] == "uso local autorizado; contenido no ingerido"
+        assert created["created_at"]
+        assert created["updated_at"]
+
+        by_source = client.get(f"/knowledge/sources/{source_id}/editions")
+        assert by_source.status_code == 200
+        assert [edition["id"] for edition in by_source.json()] == [edition_id]
+
+        individual = client.get(f"/knowledge/editions/{edition_id}")
+        assert individual.status_code == 200
+        assert individual.json()["id"] == edition_id
+
+        duplicate = client.post(
+            f"/knowledge/sources/{source_id}/editions",
+            json={**edition_payload, "id": "test-fuente-edicion:duplicada"},
+        )
+        assert duplicate.status_code == 409
+        assert duplicate.json()["detail"] == "Knowledge source edition already exists"
+
+        mismatch = client.post(
+            "/knowledge/sources/rae-ngle/editions",
+            json=edition_payload,
+        )
+        assert mismatch.status_code == 409
+        assert mismatch.json()["detail"] == "Knowledge edition source_id does not match path"
+
+        missing_source = client.post(
+            "/knowledge/sources/fuente-inexistente/editions",
+            json={**edition_payload, "source_id": "fuente-inexistente"},
+        )
+        assert missing_source.status_code == 404
+        assert missing_source.json()["detail"] == "Knowledge source not found"
+
+        missing_edition = client.get("/knowledge/editions/edicion-inexistente")
+        assert missing_edition.status_code == 404
+        assert missing_edition.json()["detail"] == "Knowledge edition not found"
+
+        with SessionLocal() as session:
+            record = session.get(KnowledgeSourceEditionRecord, edition_id)
+            assert record is not None
+            batches = session.scalars(
+                select(KnowledgeIngestionBatchRecord).where(
+                    KnowledgeIngestionBatchRecord.source_edition_id == edition_id
+                )
+            ).all()
+            assert batches == []
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.edition.registered",
+                    AuditEventRecord.entity_id == edition_id,
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["source_id"] == source_id
+            assert event.payload["ingestion_batch_created"] is False
+            assert event.payload["index_created"] is False
+            assert event.payload["publishes_directly"] is False
+    finally:
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_([source_id, edition_id])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
             ).delete()
             session.query(KnowledgeSourceRecord).filter(
                 KnowledgeSourceRecord.id == source_id

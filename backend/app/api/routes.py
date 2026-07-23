@@ -43,6 +43,8 @@ from app.core.models import (
     KnowledgeRelation,
     KnowledgeSource,
     KnowledgeSourceCreate,
+    KnowledgeSourceEdition,
+    KnowledgeSourceEditionCreate,
     KnowledgeStatus,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
@@ -220,6 +222,42 @@ def register_knowledge_source(
         return repository.register_knowledge_source(payload)
     except ValueError as exc:
         raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/knowledge/sources/{source_id}/editions")
+def knowledge_source_editions(
+    source_id: str,
+    repository: RepositoryDep,
+) -> list[KnowledgeSourceEdition]:
+    try:
+        return repository.list_knowledge_source_editions(source_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge source not found") from exc
+
+
+@router.post("/knowledge/sources/{source_id}/editions")
+def register_knowledge_source_edition(
+    source_id: str,
+    payload: KnowledgeSourceEditionCreate,
+    repository: RepositoryDep,
+) -> KnowledgeSourceEdition:
+    try:
+        return repository.register_knowledge_source_edition(source_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge source not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/knowledge/editions/{edition_id}")
+def knowledge_source_edition(
+    edition_id: str,
+    repository: RepositoryDep,
+) -> KnowledgeSourceEdition:
+    try:
+        return repository.get_knowledge_source_edition(edition_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge edition not found") from exc
 
 
 @router.get("/knowledge/nodes")

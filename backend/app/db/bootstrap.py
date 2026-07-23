@@ -391,6 +391,19 @@ def ensure_knowledge_seed_data(session: Session) -> None:
         edition_record = session.get(KnowledgeSourceEditionRecord, edition.id)
         values = {
             "source_id": edition.source_id,
+            "title": edition.title,
+            "edition_label": edition.edition_label,
+            "publication_year": edition.publication_year,
+            "publisher": edition.publisher,
+            "isbn": edition.isbn,
+            "language": edition.language,
+            "format": edition.format,
+            "access_location": edition.access_location,
+            "rights_status": edition.rights_status,
+            "status": edition.status,
+            "notes": edition.notes,
+            "created_at": edition.created_at,
+            "updated_at": edition.updated_at,
             "label": edition.label,
             "publication_date": edition.publication_date,
             "location": edition.location,
@@ -405,12 +418,6 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 setattr(edition_record, field, value)
             continue
         session.add(KnowledgeSourceEditionRecord(id=edition.id, **values))
-
-    seed_edition_ids = {edition.id for edition in seed_source_editions()}
-    stale_editions = session.scalars(select(KnowledgeSourceEditionRecord)).all()
-    for stale_edition in stale_editions:
-        if stale_edition.id not in seed_edition_ids:
-            session.delete(stale_edition)
     session.flush()
 
     for batch in seed_ingestion_batches():

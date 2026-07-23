@@ -39,6 +39,7 @@ from app.core.models import (
     KnowledgeSource,
     KnowledgeSourceCreate,
     KnowledgeSourceEdition,
+    KnowledgeSourceEditionCreate,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
     Preference,
@@ -264,6 +265,19 @@ def knowledge_source_edition_from_record(record: KnowledgeSourceEditionRecord) -
     return KnowledgeSourceEdition(
         id=record.id,
         source_id=record.source_id,
+        title=record.title,
+        edition_label=record.edition_label,
+        publication_year=record.publication_year,
+        publisher=record.publisher,
+        isbn=record.isbn,
+        language=record.language,
+        format=record.format,
+        access_location=record.access_location,
+        rights_status=record.rights_status,
+        status=record.status,
+        notes=record.notes,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
         label=record.label,
         publication_date=record.publication_date,
         location=record.location,
@@ -657,6 +671,100 @@ class Repository:
         )
         self.session.commit()
         return knowledge_source_from_record(record, [])
+
+    def list_knowledge_source_editions(self, source_id: str) -> list[KnowledgeSourceEdition]:
+        if self.session.get(KnowledgeSourceRecord, source_id) is None:
+            raise KeyError(source_id)
+        records = self.session.scalars(
+            select(KnowledgeSourceEditionRecord)
+            .where(KnowledgeSourceEditionRecord.source_id == source_id)
+            .order_by(KnowledgeSourceEditionRecord.id)
+        ).all()
+        return [knowledge_source_edition_from_record(record) for record in records]
+
+    def get_knowledge_source_edition(self, edition_id: str) -> KnowledgeSourceEdition:
+        record = self.session.get(KnowledgeSourceEditionRecord, edition_id)
+        if record is None:
+            raise KeyError(edition_id)
+        return knowledge_source_edition_from_record(record)
+
+    def register_knowledge_source_edition(
+        self,
+        source_id: str,
+        payload: KnowledgeSourceEditionCreate,
+    ) -> KnowledgeSourceEdition:
+        if payload.source_id != source_id:
+            raise ValueError("Knowledge edition source_id does not match path")
+        if self.session.get(KnowledgeSourceRecord, source_id) is None:
+            raise KeyError(source_id)
+        if self.session.get(KnowledgeSourceEditionRecord, payload.id) is not None:
+            raise ValueError("Knowledge source edition already exists")
+        source_editions = self.session.scalars(
+            select(KnowledgeSourceEditionRecord).where(
+                KnowledgeSourceEditionRecord.source_id == source_id
+            )
+        ).all()
+        normalized_payload = {
+            "title": payload.title.strip().lower(),
+            "edition_label": payload.edition_label.strip().lower(),
+            "publication_year": payload.publication_year.strip().lower(),
+            "publisher": payload.publisher.strip().lower(),
+            "isbn": payload.isbn.strip().lower(),
+        }
+        for edition in source_editions:
+            normalized_edition = {
+                "title": edition.title.strip().lower(),
+                "edition_label": edition.edition_label.strip().lower(),
+                "publication_year": edition.publication_year.strip().lower(),
+                "publisher": edition.publisher.strip().lower(),
+                "isbn": edition.isbn.strip().lower(),
+            }
+            if normalized_edition == normalized_payload:
+                raise ValueError("Knowledge source edition already exists")
+        now = datetime.now(UTC).isoformat()
+        record = KnowledgeSourceEditionRecord(
+            id=payload.id,
+            source_id=source_id,
+            title=payload.title,
+            edition_label=payload.edition_label,
+            publication_year=payload.publication_year,
+            publisher=payload.publisher,
+            isbn=payload.isbn,
+            language=payload.language,
+            format=payload.format,
+            access_location=payload.access_location,
+            rights_status=payload.rights_status,
+            status=payload.status,
+            notes=payload.notes,
+            created_at=now,
+            updated_at=now,
+            label=payload.edition_label,
+            publication_date=payload.publication_year,
+            location=payload.access_location,
+            acquisition_status=payload.status,
+            validation_status="not_validated",
+            rights=payload.rights_status,
+            structure=payload.structure,
+            locator_system=payload.locator_system,
+        )
+        self.session.add(record)
+        self.add_audit_event(
+            "knowledge.edition.registered",
+            "knowledge_source_edition",
+            payload.id,
+            {
+                "source_id": source_id,
+                "title": payload.title,
+                "edition_label": payload.edition_label,
+                "publication_year": payload.publication_year,
+                "status": payload.status,
+                "ingestion_batch_created": False,
+                "index_created": False,
+                "publishes_directly": False,
+            },
+        )
+        self.session.commit()
+        return knowledge_source_edition_from_record(record)
 
     def list_knowledge_nodes(
         self,
