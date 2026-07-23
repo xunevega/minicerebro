@@ -1,0 +1,18 @@
+$schema = "https://schema.railpack.com"
+
+# The FastAPI project lives in /backend, not the repo root. Railway builds
+# from the repo root by default, so without this the pyproject.toml under
+# backend/ is never picked up and Python dependencies (uvicorn, fastapi,
+# sqlalchemy, etc.) never get installed.
+
+[packages]
+python = "3.12"
+
+[steps.install]
+commands = [
+  "cd backend && python -m pip install --upgrade pip && python -m pip install -e ."
+]
+
+[deploy]
+startCommand = "cd backend && alembic upgrade head && python -m uvicorn app.main:app --host 0.0.0.0 --port $PORT"
+inputs = [{ step = "install" }]
