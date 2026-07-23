@@ -518,6 +518,34 @@ export function App() {
     () => knowledgeSourceIngestionStatuses.filter((item) => !item.is_ingested).length,
     [knowledgeSourceIngestionStatuses],
   );
+  const ingestedSourceCount = useMemo(
+    () => knowledgeSourceIngestionStatuses.filter((item) => item.is_ingested).length,
+    [knowledgeSourceIngestionStatuses],
+  );
+  const publishedSourceCount = useMemo(
+    () => knowledgeSourceIngestionStatuses.filter((item) => item.is_published).length,
+    [knowledgeSourceIngestionStatuses],
+  );
+  const ingestionPhaseCounts = useMemo(
+    () =>
+      INGESTION_PHASE_ORDER.map((phase) => ({
+        phase,
+        label: ingestionPhaseLabel(phase),
+        count: knowledgeSourceIngestionStatuses.filter((item) => item.current_phase === phase).length,
+      })).filter((item) => item.count > 0),
+    [knowledgeSourceIngestionStatuses],
+  );
+  const orderedIngestionStatuses = useMemo(
+    () =>
+      [...knowledgeSourceIngestionStatuses].sort((left, right) => {
+        const leftRank = INGESTION_PHASE_ORDER.indexOf(left.current_phase);
+        const rightRank = INGESTION_PHASE_ORDER.indexOf(right.current_phase);
+        const normalizedLeftRank = leftRank === -1 ? INGESTION_PHASE_ORDER.length : leftRank;
+        const normalizedRightRank = rightRank === -1 ? INGESTION_PHASE_ORDER.length : rightRank;
+        return normalizedLeftRank - normalizedRightRank || left.source_name.localeCompare(right.source_name);
+      }),
+    [knowledgeSourceIngestionStatuses],
+  );
   const manualIngestionStatus =
     knowledgeSourceIngestionStatuses.find((item) => item.source_id === manualIngestionSourceId) ??
     knowledgeSourceIngestionStatuses.find((item) => !item.is_ingested) ??
@@ -1293,18 +1321,58 @@ export function App() {
             <p className="note">{knowledge?.sources_policy}</p>
             <div className="proposalBox">
               <h3>Registro frente a ingestion</h3>
-              <div className="knowledgeGrid">
-                {knowledgeSourceIngestionStatuses.slice(0, 6).map((status) => (
-                  <article className="knowledgeItem" key={status.source_id}>
-                    <strong>{status.source_name}</strong>
-                    <span>{status.current_phase}</span>
-                    <ValidationPill confidence={status.is_ingested ? 1 : 0.25} />
-                    <div className="metricGrid">
-                      <Metric label="Segmentos" value={status.counts.segments ?? 0} />
-                      <Metric label="Propuestas" value={status.counts.proposals ?? 0} />
-                      <Metric label="Evidencias" value={status.counts.evidence ?? 0} />
+              <div className="metricGrid">
+                <Metric label="Publicadas" value={publishedSourceCount} />
+                <Metric label="Ingeridas" value={ingestedSourceCount} />
+                <Metric label="No ingeridas" value={registeredOnlySourceCount} />
+              </div>
+              <div className="phaseSummary">
+                {ingestionPhaseCounts.map((item) => (
+                  <span className="phaseBadge" key={item.phase}>
+                    {item.label}: {item.count}
+                  </span>
+                ))}
+              </div>
+              <div className="ingestionList">
+                {orderedIngestionStatuses.map((status) => (
+                  <article className="ingestionItem" key={status.source_id}>
+                    <div className="ingestionHeader">
+                      <div>
+                        <strong>{status.source_name}</strong>
+                        <span>{status.source_id}</span>
+                      </div>
+                      <span className={status.is_published ? "statusPill done" : "statusPill"}>
+                        {ingestionPhaseLabel(status.current_phase)}
+                      </span>
                     </div>
-                    <List title="Bloqueos" items={status.blockers.slice(0, 3)} />
+                    <div className="pipelineTrace" aria-label={`Pipeline ${status.source_name}`}>
+                      {pipelineSteps(status).map((step) => (
+                        <span className={step.done ? "pipelineStep done" : "pipelineStep"} key={step.label}>
+                          {step.label}
+                        </span>
+                      ))}
+                    </div>
+                    <div className="ingestionMetrics">
+                      <Metric label="Ed." value={status.counts.editions ?? 0} />
+                      <Metric label="Idx." value={status.counts.index_entries ?? 0} />
+                      <Metric label="Seg." value={status.counts.segments ?? 0} />
+                      <Metric label="Ext." value={status.counts.completed_extractions ?? 0} />
+                      <Metric label="Prop." value={status.counts.proposals ?? 0} />
+                      <Metric
+                        label="Obj."
+                        value={
+                          (status.counts.nodes ?? 0) +
+                          (status.counts.evidence ?? 0) +
+                          (status.counts.claims ?? 0) +
+                          (status.counts.cards ?? 0)
+                        }
+                      />
+                    </div>
+                    <span className="blockerLine">
+                      {status.blockers.length
+                        ? status.blockers.slice(0, 3).map(ingestionBlockerLabel).join(" · ")
+                        : "sin bloqueos"}
+                    </span>
                   </article>
                 ))}
               </div>
@@ -2782,6 +2850,48 @@ function payloadList(value: unknown) {
 
 function validationLabel(confidence: number) {
   return confidence >= 0.7 ? "Validado" : "Validacion pendiente";
+}
+
+const INGESTION_PHASE_ORDER = [
+  "published",
+  "validated",
+  "reviewed",
+  "proposed",
+  "extracted",
+  "segmented",
+  "indexed",
+  "edition_registered",
+  "registered",
+];
+
+const INGESTION_PHASE_LABELS: Record<string, string> = {
+  published: "publicada",
+  validated: "validada",
+  reviewed: "revisada",
+  proposed: "propuesta",
+  extracted: "extraida",
+  segmented: "segmentada",
+  indexed: "indexada",
+  edition_registered: "con edicion",
+  registered: "registrada",
+};
+
+const INGESTION_BLOCKER_LABELS: Record<string, string> = {
+  missing_edition: "sin edicion",
+  missing_index: "sin indice",
+  missing_segments: "sin segmentos",
+  missing_completed_extraction: "sin extraccion",
+  missing_proposals: "sin propuestas",
+  missing_materialized_knowledge: "sin conocimiento",
+  missing_publication: "sin publicacion",
+};
+
+function ingestionPhaseLabel(phase: string) {
+  return INGESTION_PHASE_LABELS[phase] ?? phase;
+}
+
+function ingestionBlockerLabel(blocker: string) {
+  return INGESTION_BLOCKER_LABELS[blocker] ?? blocker;
 }
 
 function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {

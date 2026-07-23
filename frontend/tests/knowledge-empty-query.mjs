@@ -12,6 +12,14 @@ try {
   await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v3" }).first().waitFor();
   await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "9 pendientes" }).first().waitFor();
   await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
+  const ingestionPanel = page.locator(".proposalBox", { hasText: "Registro frente a ingestion" });
+  await ingestionPanel.locator(".metric", { hasText: "Publicadas" }).filter({ hasText: "3" }).waitFor();
+  await ingestionPanel.locator(".metric", { hasText: "Ingeridas" }).filter({ hasText: "3" }).waitFor();
+  await ingestionPanel.locator(".metric", { hasText: "No ingeridas" }).filter({ hasText: "20" }).waitFor();
+  await ingestionPanel.getByText("publicada: 3").waitFor();
+  await ingestionPanel.getByText("con edicion: 20").waitFor();
+  await ingestionPanel.locator(".ingestionItem", { hasText: "Ortografia de la lengua espanola" }).getByText("publicada").waitFor();
+  await ingestionPanel.locator(".ingestionItem", { hasText: "Glosario de terminos gramaticales" }).getByText("sin indice").waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
   await explorationPanel.getByText("Trazabilidad persistente").waitFor();
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "3" }).waitFor();
