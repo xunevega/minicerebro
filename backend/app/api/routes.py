@@ -9,6 +9,7 @@ from app.comparison.service import compare_texts
 from app.core.repository import Repository
 from app.core.models import (
     ApplyScoreProposalInput,
+    ApplyProfileKnowledgeCardScoreInput,
     AcceptanceCriterion,
     CerebroAuditCandidate,
     CerebroAuditGate,
@@ -62,6 +63,7 @@ from app.core.models import (
     ProfileExport,
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
+    ProfileKnowledgeCardScoreProposal,
     LabSimulationInput,
     LabSimulationResult,
     ObservabilityMetric,
@@ -794,6 +796,55 @@ def profile_knowledge_card_upsert(
         return repository.upsert_profile_knowledge_card(profile_id, card_id, payload)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Profile, knowledge card or version not found") from exc
+
+
+@router.get("/profiles/{profile_id}/knowledge-cards/{card_id}/score-proposal")
+def profile_knowledge_card_score_proposal(
+    profile_id: str,
+    card_id: str,
+    repository: RepositoryDep,
+    knowledge_version: str = "knowledge-v0",
+    context: str = "general",
+) -> ProfileKnowledgeCardScoreProposal:
+    try:
+        return repository.build_profile_knowledge_card_score_proposal(
+            profile_id,
+            card_id,
+            knowledge_version,
+            context,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile knowledge card not found") from exc
+
+
+@router.post("/profiles/{profile_id}/knowledge-cards/{card_id}/score-proposal/apply")
+def profile_knowledge_card_score_proposal_apply(
+    profile_id: str,
+    card_id: str,
+    payload: ApplyProfileKnowledgeCardScoreInput,
+    repository: RepositoryDep,
+    knowledge_version: str = "knowledge-v0",
+    context: str = "general",
+):
+    try:
+        proposal = repository.build_profile_knowledge_card_score_proposal(
+            profile_id,
+            card_id,
+            knowledge_version,
+            context,
+        )
+        updated = repository.apply_profile_knowledge_card_score_proposal(
+            profile_id,
+            card_id,
+            knowledge_version,
+            context,
+            payload.reason,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile knowledge card not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+    return {"proposal": proposal, "variables": [score_out(variable) for variable in updated]}
 
 
 @router.get("/profiles/{profile_id}/scores")

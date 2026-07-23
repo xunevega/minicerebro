@@ -14,6 +14,7 @@ class EvidenceType(StrEnum):
     correction = "correction"
     manual_override = "manual_override"
     comparison_feedback = "comparison_feedback"
+    knowledge_card_feedback = "knowledge_card_feedback"
 
 
 class PreferenceStatus(StrEnum):
@@ -150,6 +151,25 @@ class ProfileKnowledgeCardInput(BaseModel):
     maintained_elements: list[str] = Field(default_factory=list)
     change_requests: list[str] = Field(default_factory=list)
     notes: str = Field(default="", max_length=5000)
+
+
+class ProfileKnowledgeCardScoreProposalItem(BaseModel):
+    variable_key: str
+    context: str
+    current_value: int = Field(ge=0, le=1000)
+    proposed_value: int = Field(ge=0, le=1000)
+    delta: int = Field(ge=-300, le=300)
+    reason: str
+
+
+class ProfileKnowledgeCardScoreProposal(BaseModel):
+    profile_knowledge_card_id: UUID
+    status: str
+    items: list[ProfileKnowledgeCardScoreProposalItem]
+
+
+class ApplyProfileKnowledgeCardScoreInput(BaseModel):
+    reason: str = Field(min_length=3, max_length=500)
 
 
 class Profile(BaseModel):

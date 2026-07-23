@@ -25,6 +25,7 @@ from app.db.models import (
     KnowledgeVersionRecord,
     KnowledgeVersionSnapshotRecord,
     ProfileKnowledgeCardRecord,
+    ScoreVariableRecord,
 )
 from app.db.session import SessionLocal
 from app.main import app
@@ -106,10 +107,26 @@ def test_profile_export_rejects_missing_profile():
 
 def test_profile_knowledge_card_records_user_feedback_without_mutating_knowledge():
     try:
+        assert client.get("/profiles/default").status_code == 200
         with SessionLocal() as session:
             card = session.get(KnowledgeCardRecord, "lexico-precision")
             assert card is not None
             original_version = card.version
+            score_record = session.scalar(
+                select(ScoreVariableRecord).where(
+                    ScoreVariableRecord.profile_id == "default",
+                    ScoreVariableRecord.key == "precision_lexica",
+                    ScoreVariableRecord.context == "general",
+                )
+            )
+            assert score_record is not None
+            original_score = {
+                "calculated_value": score_record.calculated_value,
+                "manual_adjustment": score_record.manual_adjustment,
+                "confidence": score_record.confidence,
+                "evidence_count": score_record.evidence_count,
+                "updated_at": score_record.updated_at,
+            }
 
         response = client.post(
             "/profiles/default/knowledge-cards/lexico-precision",
@@ -162,6 +179,30 @@ def test_profile_knowledge_card_records_user_feedback_without_mutating_knowledge
         assert detail.status_code == 200
         assert detail.json()["id"] == created["id"]
 
+        score_proposal = client.get(
+            "/profiles/default/knowledge-cards/lexico-precision/score-proposal"
+            "?knowledge_version=knowledge-v0&context=general"
+        )
+        assert score_proposal.status_code == 200
+        proposal_payload = score_proposal.json()
+        assert proposal_payload["profile_knowledge_card_id"] == created["id"]
+        assert proposal_payload["status"] == "pending_review"
+        assert proposal_payload["items"][0]["variable_key"] == "precision_lexica"
+        assert proposal_payload["items"][0]["delta"] < 0
+
+        applied = client.post(
+            "/profiles/default/knowledge-cards/lexico-precision/score-proposal/apply"
+            "?knowledge_version=knowledge-v0&context=general",
+            json={"reason": "Aplicar scoring desde ficha de usuario revisada."},
+        )
+        assert applied.status_code == 200
+        applied_payload = applied.json()
+        assert applied_payload["proposal"]["profile_knowledge_card_id"] == created["id"]
+        assert applied_payload["variables"][0]["key"] == "precision_lexica"
+        assert applied_payload["variables"][0]["calculated_value"] == (
+            proposal_payload["items"][0]["proposed_value"]
+        )
+
         export = client.get("/profiles/default/export")
         assert export.status_code == 200
         assert export.json()["knowledge_cards"][0]["id"] == created["id"]
@@ -208,6 +249,14 @@ def test_profile_knowledge_card_records_user_feedback_without_mutating_knowledge
             ).first()
             assert event is not None
             assert event.payload["stable_knowledge_mutated"] is False
+            score_event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "profile.knowledge_card.score_applied",
+                    AuditEventRecord.entity_id == created["id"],
+                )
+            ).first()
+            assert score_event is not None
+            assert score_event.payload["stable_knowledge_mutated"] is False
     finally:
         with SessionLocal() as session:
             record_ids = [
@@ -226,6 +275,20 @@ def test_profile_knowledge_card_records_user_feedback_without_mutating_knowledge
             session.query(ProfileKnowledgeCardRecord).filter(
                 ProfileKnowledgeCardRecord.id.in_(record_ids)
             ).delete(synchronize_session=False)
+            if "original_score" in locals():
+                score_record = session.scalar(
+                    select(ScoreVariableRecord).where(
+                        ScoreVariableRecord.profile_id == "default",
+                        ScoreVariableRecord.key == "precision_lexica",
+                        ScoreVariableRecord.context == "general",
+                    )
+                )
+                if score_record is not None:
+                    score_record.calculated_value = original_score["calculated_value"]
+                    score_record.manual_adjustment = original_score["manual_adjustment"]
+                    score_record.confidence = original_score["confidence"]
+                    score_record.evidence_count = original_score["evidence_count"]
+                    score_record.updated_at = original_score["updated_at"]
             session.commit()
 
 

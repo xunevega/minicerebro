@@ -59,12 +59,15 @@ from app.core.models import (
     Profile,
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
+    ProfileKnowledgeCardScoreProposal,
+    ProfileKnowledgeCardScoreProposalItem,
     ProfileStatistics,
     ScoreProposal,
     ScoreVariable,
     Contradiction,
 )
 from app.core.seeds import seed_variables
+from app.core.text import canonical_text, clamp_score
 from app.db.models import (
     AuditEventRecord,
     ComparisonRecord,
@@ -2140,16 +2143,9 @@ class Repository:
         card_id: str,
         knowledge_version: str,
     ) -> ProfileKnowledgeCard:
-        record = self.session.scalar(
-            select(ProfileKnowledgeCardRecord).where(
-                ProfileKnowledgeCardRecord.profile_id == profile_id,
-                ProfileKnowledgeCardRecord.card_id == card_id,
-                ProfileKnowledgeCardRecord.knowledge_version == knowledge_version,
-            )
+        return profile_knowledge_card_from_record(
+            self._profile_knowledge_card_record(profile_id, card_id, knowledge_version)
         )
-        if record is None:
-            raise KeyError(card_id)
-        return profile_knowledge_card_from_record(record)
 
     def upsert_profile_knowledge_card(
         self,
@@ -2216,6 +2212,145 @@ class Repository:
         self.session.commit()
         self.session.refresh(record)
         return profile_knowledge_card_from_record(record)
+
+    def build_profile_knowledge_card_score_proposal(
+        self,
+        profile_id: str,
+        card_id: str,
+        knowledge_version: str,
+        context: str,
+    ) -> ProfileKnowledgeCardScoreProposal:
+        profile_card = self._profile_knowledge_card_record(profile_id, card_id, knowledge_version)
+        variables = self.get_context_variables(profile_id, context)
+        variables_by_key = {variable.key: variable for variable in variables}
+        variable_keys = self._variables_from_profile_knowledge_card(profile_card)
+        delta = self._profile_knowledge_card_delta(profile_card)
+        items = [
+            ProfileKnowledgeCardScoreProposalItem(
+                variable_key=variable_key,
+                context=context,
+                current_value=variables_by_key[variable_key].calculated_value,
+                proposed_value=clamp_score(variables_by_key[variable_key].calculated_value + delta),
+                delta=delta,
+                reason=(
+                    "Ficha de usuario "
+                    f"{profile_card.stance} para {profile_card.card_id}: {profile_card.feedback}"
+                ),
+            )
+            for variable_key in variable_keys
+            if variable_key in variables_by_key
+        ]
+        return ProfileKnowledgeCardScoreProposal(
+            profile_knowledge_card_id=UUID(profile_card.id),
+            status="pending_review" if items else "not_applicable",
+            items=items,
+        )
+
+    def apply_profile_knowledge_card_score_proposal(
+        self,
+        profile_id: str,
+        card_id: str,
+        knowledge_version: str,
+        context: str,
+        reason: str,
+    ) -> list[ScoreVariable]:
+        proposal = self.build_profile_knowledge_card_score_proposal(
+            profile_id,
+            card_id,
+            knowledge_version,
+            context,
+        )
+        if proposal.status != "pending_review":
+            raise ValueError("Profile knowledge card score proposal is not pending review")
+        updated_variables: list[ScoreVariable] = []
+        now = datetime.now(UTC)
+        for item in proposal.items:
+            record = self.session.scalar(
+                select(ScoreVariableRecord).where(
+                    ScoreVariableRecord.profile_id == profile_id,
+                    ScoreVariableRecord.key == item.variable_key,
+                    ScoreVariableRecord.context == item.context,
+                )
+            )
+            if record is None:
+                continue
+            record.calculated_value = item.proposed_value
+            record.evidence_count += 1
+            record.confidence = min(1, record.confidence + 0.02)
+            record.updated_at = now
+            updated_variables.append(score_from_record(record))
+        profile = self.session.get(ProfileRecord, profile_id)
+        if profile is not None:
+            profile.updated_at = now
+        self.add_audit_event(
+            "profile.knowledge_card.score_applied",
+            "profile_knowledge_card",
+            str(proposal.profile_knowledge_card_id),
+            {
+                "profile_id": profile_id,
+                "card_id": card_id,
+                "knowledge_version": knowledge_version,
+                "context": context,
+                "reason": reason,
+                "items": [item.model_dump() for item in proposal.items],
+                "stable_knowledge_mutated": False,
+            },
+        )
+        self.session.commit()
+        return updated_variables
+
+    def _profile_knowledge_card_record(
+        self,
+        profile_id: str,
+        card_id: str,
+        knowledge_version: str,
+    ) -> ProfileKnowledgeCardRecord:
+        record = self.session.scalar(
+            select(ProfileKnowledgeCardRecord).where(
+                ProfileKnowledgeCardRecord.profile_id == profile_id,
+                ProfileKnowledgeCardRecord.card_id == card_id,
+                ProfileKnowledgeCardRecord.knowledge_version == knowledge_version,
+            )
+        )
+        if record is None:
+            raise KeyError(card_id)
+        return record
+
+    def _variables_from_profile_knowledge_card(
+        self,
+        profile_card: ProfileKnowledgeCardRecord,
+    ) -> list[str]:
+        text = canonical_text(
+            " ".join(
+                [
+                    profile_card.card_id,
+                    profile_card.feedback,
+                    " ".join(profile_card.maintained_elements),
+                    " ".join(profile_card.change_requests),
+                    profile_card.notes,
+                ]
+            )
+        )
+        hints = {
+            "precision_lexica": ("precision", "lexic", "exact"),
+            "sobriedad": ("sobri", "tono", "formal", "contenido"),
+            "dinamismo": ("dinam", "direct", "breve", "frase", "ritmo"),
+            "densidad_argumental": ("argument", "tesis", "densidad"),
+        }
+        matches = [
+            variable_key
+            for variable_key, terms in hints.items()
+            if any(term in text for term in terms)
+        ]
+        return matches or ["precision_lexica"]
+
+    def _profile_knowledge_card_delta(self, profile_card: ProfileKnowledgeCardRecord) -> int:
+        base_delta = max(10, min(80, round(abs(profile_card.user_score - 500) / 10)))
+        if profile_card.stance in {"liked", "kept"}:
+            return base_delta
+        if profile_card.stance == "changed":
+            return -max(10, min(base_delta, 40))
+        return -base_delta
 
     def get_context_variables(self, profile_id: str, context: str) -> list[ScoreVariable]:
         self.ensure_context_variables(profile_id, context)
