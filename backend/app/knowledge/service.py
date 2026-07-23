@@ -43,7 +43,8 @@ KNOWLEDGE_V7_VERSION = "knowledge-v7"
 KNOWLEDGE_V8_VERSION = "knowledge-v8"
 KNOWLEDGE_V9_VERSION = "knowledge-v9"
 KNOWLEDGE_V10_VERSION = "knowledge-v10"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v11"
+KNOWLEDGE_V11_VERSION = "knowledge-v11"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v12"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -56,6 +57,7 @@ KNOWLEDGE_V8_PUBLISHED_AT = "2026-07-23T07:00:00+00:00"
 KNOWLEDGE_V9_PUBLISHED_AT = "2026-07-23T08:00:00+00:00"
 KNOWLEDGE_V10_PUBLISHED_AT = "2026-07-23T09:00:00+00:00"
 KNOWLEDGE_V11_PUBLISHED_AT = "2026-07-23T10:00:00+00:00"
+KNOWLEDGE_V12_PUBLISHED_AT = "2026-07-23T11:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -1582,6 +1584,194 @@ V11_SEED_ITEMS = [
     },
 ]
 
+V12_SEED_ITEMS = [
+    {
+        "key": "versalitas",
+        "source_id": "martinez-sousa-ortotipografia",
+        "source_edition_id": "martinez-sousa-ortotipografia:edicion-2014",
+        "index_id": "martinez-sousa-ortotipografia:edicion-2014:versalitas",
+        "index_title": "Versalitas",
+        "index_locator": "Edicion 2014 > composicion > versalitas",
+        "segment_id": "martinez-sousa-ortotipografia:edicion-2014:versalitas:seg-1",
+        "segment_title": "Uso editorial de versalitas",
+        "segment_text": "Resumen editorial minimo: las versalitas son un recurso tipografico especializado y deben reservarse para convenciones editoriales estables, no para destacar por capricho.",
+        "extraction_id": "ext-martinez-sousa-ortotipografia-2014-versalitas-1",
+        "node_id": "martinez-sousa-versalitas",
+        "canonical_name": "Versalitas",
+        "node_type": "recurso",
+        "primary_branch": "edicion",
+        "secondary_branch": "ortotipografia",
+        "node_summary": "Recurso tipografico de composicion editorial especializada.",
+        "short_definition": "Letra con forma de mayuscula y altura aproximada de minuscula usada por convencion editorial.",
+        "aliases": ["versalita"],
+        "relation_target": "martinez-sousa-criterio-editorial",
+        "relation_type": "es_parte_de",
+        "card_id": "card-versalitas",
+        "card_type": "orthotypography_rule",
+        "card_name": "Versalitas",
+        "card_definition": "Criterio para reservar versalitas a convenciones editoriales estables.",
+        "signals": ["composicion", "convencion editorial", "destacado tipografico"],
+        "risks": ["usar versalitas como enfasis decorativo"],
+        "contexts": ["edicion", "ortotipografia", "maquetacion"],
+        "evidence_id": "ev-martinez-sousa-versalitas",
+        "evidence_section": "versalitas",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-versalitas",
+        "statement": "Las versalitas deben responder a una convencion editorial estable y no a un destacado decorativo.",
+        "claim_type": "orthographic",
+        "domain": "orthography.orthotypography",
+        "related_node_ids": ["martinez-sousa-criterio-editorial", "rae-ole-mayusculas"],
+    },
+    {
+        "key": "jerarquia-comillas",
+        "source_id": "martinez-sousa-ortotipografia",
+        "source_edition_id": "martinez-sousa-ortotipografia:edicion-2014",
+        "index_id": "martinez-sousa-ortotipografia:edicion-2014:jerarquia-comillas",
+        "index_title": "Jerarquia de comillas",
+        "index_locator": "Edicion 2014 > signos > jerarquia de comillas",
+        "segment_id": "martinez-sousa-ortotipografia:edicion-2014:jerarquia-comillas:seg-1",
+        "segment_title": "Comillas dentro de comillas",
+        "segment_text": "Resumen editorial minimo: la jerarquia de comillas ordena los tipos de comillas cuando una cita contiene otra cita, manteniendo criterio editorial consistente.",
+        "extraction_id": "ext-martinez-sousa-ortotipografia-2014-jerarquia-comillas-1",
+        "node_id": "martinez-sousa-jerarquia-comillas",
+        "canonical_name": "Jerarquia de comillas",
+        "node_type": "norma",
+        "primary_branch": "ortografia",
+        "secondary_branch": "ortotipografia",
+        "node_summary": "Orden de uso de comillas en citas anidadas.",
+        "short_definition": "Criterio para alternar tipos de comillas cuando hay citas dentro de citas.",
+        "aliases": ["comillas anidadas"],
+        "relation_target": "rae-ole-comillas",
+        "relation_type": "relacionado_con",
+        "card_id": "card-jerarquia-comillas",
+        "card_type": "orthotypography_rule",
+        "card_name": "Jerarquia de comillas",
+        "card_definition": "Criterio para mantener orden consistente en comillas anidadas.",
+        "signals": ["cita anidada", "comillas espanolas", "comillas inglesas"],
+        "risks": ["mezclar tipos de comillas sin jerarquia"],
+        "contexts": ["citas", "edicion", "ortotipografia"],
+        "evidence_id": "ev-martinez-sousa-jerarquia-comillas",
+        "evidence_section": "jerarquia de comillas",
+        "confidence": 0.62,
+        "claim_id": "claim-martinez-sousa-jerarquia-comillas",
+        "statement": "Las citas anidadas requieren una jerarquia estable de comillas para conservar claridad editorial.",
+        "claim_type": "orthographic",
+        "domain": "orthography.punctuation",
+        "related_node_ids": ["rae-ole-comillas", "martinez-sousa-criterio-editorial"],
+    },
+    {
+        "key": "espacios-signos",
+        "source_id": "martinez-sousa-ortotipografia",
+        "source_edition_id": "martinez-sousa-ortotipografia:edicion-2014",
+        "index_id": "martinez-sousa-ortotipografia:edicion-2014:espacios-signos",
+        "index_title": "Espacios ante signos",
+        "index_locator": "Edicion 2014 > composicion > espacios ante signos",
+        "segment_id": "martinez-sousa-ortotipografia:edicion-2014:espacios-signos:seg-1",
+        "segment_title": "Espaciado y puntuacion",
+        "segment_text": "Resumen editorial minimo: el espaciado alrededor de signos de puntuacion pertenece a la composicion ortotipografica y debe mantenerse uniforme.",
+        "extraction_id": "ext-martinez-sousa-ortotipografia-2014-espacios-signos-1",
+        "node_id": "martinez-sousa-espacios-signos",
+        "canonical_name": "Espacios ante signos",
+        "node_type": "norma",
+        "primary_branch": "edicion",
+        "secondary_branch": "ortotipografia",
+        "node_summary": "Criterio de espaciado uniforme alrededor de signos de puntuacion.",
+        "short_definition": "Regla de composicion que fija separaciones alrededor de signos.",
+        "aliases": ["espaciado ortotipografico"],
+        "relation_target": "rae-ole-coma",
+        "relation_type": "relacionado_con",
+        "card_id": "card-espacios-signos",
+        "card_type": "orthotypography_rule",
+        "card_name": "Espacios ante signos",
+        "card_definition": "Criterio para mantener espaciado uniforme alrededor de signos.",
+        "signals": ["espacio", "signo", "composicion"],
+        "risks": ["mezclar criterios de espaciado en un mismo texto"],
+        "contexts": ["edicion", "maquetacion", "revision"],
+        "evidence_id": "ev-martinez-sousa-espacios-signos",
+        "evidence_section": "espacios ante signos",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-espacios-signos",
+        "statement": "El espaciado alrededor de signos debe seguir un criterio ortotipografico uniforme dentro del texto.",
+        "claim_type": "orthographic",
+        "domain": "orthography.orthotypography",
+        "related_node_ids": ["rae-ole-coma", "martinez-sousa-coherencia-terminologica"],
+    },
+    {
+        "key": "citas-bibliograficas",
+        "source_id": "martinez-sousa-ortotipografia",
+        "source_edition_id": "martinez-sousa-ortotipografia:edicion-2014",
+        "index_id": "martinez-sousa-ortotipografia:edicion-2014:citas-bibliograficas",
+        "index_title": "Citas bibliograficas",
+        "index_locator": "Edicion 2014 > aparato critico > citas bibliograficas",
+        "segment_id": "martinez-sousa-ortotipografia:edicion-2014:citas-bibliograficas:seg-1",
+        "segment_title": "Consistencia en referencias",
+        "segment_text": "Resumen editorial minimo: las citas bibliograficas requieren un sistema constante para ordenar autor, titulo, datos editoriales y localizadores.",
+        "extraction_id": "ext-martinez-sousa-ortotipografia-2014-citas-bibliograficas-1",
+        "node_id": "martinez-sousa-citas-bibliograficas",
+        "canonical_name": "Citas bibliograficas",
+        "node_type": "metodo",
+        "primary_branch": "edicion",
+        "secondary_branch": "aparato critico",
+        "node_summary": "Metodo para mantener referencias bibliograficas consistentes.",
+        "short_definition": "Sistema constante de presentacion de datos bibliograficos y localizadores.",
+        "aliases": ["referencias bibliograficas"],
+        "relation_target": "martinez-sousa-coherencia-terminologica",
+        "relation_type": "usa",
+        "card_id": "card-citas-bibliograficas",
+        "card_type": "editing_method",
+        "card_name": "Citas bibliograficas",
+        "card_definition": "Criterio para mantener un sistema constante de referencias.",
+        "signals": ["autor", "titulo", "editorial", "localizador"],
+        "risks": ["alternar formatos de cita dentro del mismo trabajo"],
+        "contexts": ["edicion", "ensayo", "aparato critico"],
+        "evidence_id": "ev-martinez-sousa-citas-bibliograficas",
+        "evidence_section": "citas bibliograficas",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-citas-bibliograficas",
+        "statement": "Las citas bibliograficas deben seguir un sistema constante de ordenacion y presentacion de datos.",
+        "claim_type": "editing",
+        "domain": "editing.references",
+        "related_node_ids": ["martinez-sousa-coherencia-terminologica", "martinez-sousa-criterio-editorial"],
+    },
+    {
+        "key": "cursiva-titulos",
+        "source_id": "martinez-sousa-ortotipografia",
+        "source_edition_id": "martinez-sousa-ortotipografia:edicion-2014",
+        "index_id": "martinez-sousa-ortotipografia:edicion-2014:cursiva-titulos",
+        "index_title": "Cursiva en titulos",
+        "index_locator": "Edicion 2014 > estilos tipograficos > cursiva en titulos",
+        "segment_id": "martinez-sousa-ortotipografia:edicion-2014:cursiva-titulos:seg-1",
+        "segment_title": "Titulos y marca tipografica",
+        "segment_text": "Resumen editorial minimo: la cursiva en titulos depende del tipo de obra o unidad citada y debe aplicarse con criterio constante.",
+        "extraction_id": "ext-martinez-sousa-ortotipografia-2014-cursiva-titulos-1",
+        "node_id": "martinez-sousa-cursiva-titulos",
+        "canonical_name": "Cursiva en titulos",
+        "node_type": "norma",
+        "primary_branch": "edicion",
+        "secondary_branch": "ortotipografia",
+        "node_summary": "Criterio para marcar tipograficamente titulos de obras y unidades citadas.",
+        "short_definition": "Uso de cursiva segun el tipo de titulo o unidad bibliografica.",
+        "aliases": ["titulos en cursiva"],
+        "relation_target": "fundeu-cursiva-extranjerismos",
+        "relation_type": "relacionado_con",
+        "card_id": "card-cursiva-titulos",
+        "card_type": "orthotypography_rule",
+        "card_name": "Cursiva en titulos",
+        "card_definition": "Criterio para aplicar cursiva a titulos con consistencia editorial.",
+        "signals": ["titulo", "obra", "cursiva"],
+        "risks": ["marcar unos titulos y otros no sin criterio"],
+        "contexts": ["edicion", "bibliografia", "ortotipografia"],
+        "evidence_id": "ev-martinez-sousa-cursiva-titulos",
+        "evidence_section": "cursiva en titulos",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-cursiva-titulos",
+        "statement": "La cursiva en titulos debe aplicarse segun el tipo de obra o unidad citada y con criterio constante.",
+        "claim_type": "orthographic",
+        "domain": "orthography.orthotypography",
+        "related_node_ids": ["fundeu-cursiva-extranjerismos", "martinez-sousa-criterio-editorial"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -2909,13 +3099,15 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: "seed_grammar_practice_part_2_batch",
     KNOWLEDGE_V9_VERSION: "seed_orthography_punctuation_batch",
     KNOWLEDGE_V10_VERSION: "seed_editorial_style_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_writing_practice_batch",
+    KNOWLEDGE_V11_VERSION: "seed_writing_practice_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_orthotypography_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
     KNOWLEDGE_V9_VERSION: KNOWLEDGE_V9_PUBLISHED_AT,
     KNOWLEDGE_V10_VERSION: KNOWLEDGE_V10_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V11_PUBLISHED_AT,
+    KNOWLEDGE_V11_VERSION: KNOWLEDGE_V11_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V12_PUBLISHED_AT,
 }
 
 
@@ -3500,6 +3692,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["edicion", "tipografia", "signos", "composicion", "convenciones graficas"],
             authority_level=4,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
     ]
 
@@ -3703,6 +3898,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["capitulo", "criterio de redaccion", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="martinez-sousa-ortotipografia:edicion-2014",
+            source_id="martinez-sousa-ortotipografia",
+            title="Ortografia y ortotipografia del espanol actual",
+            edition_label="Edicion de referencia, 2014",
+            publication_year="2014",
+            publisher="Trea",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso",
+            access_location="Gijon: Trea, 2014",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de ortotipografia aplicada para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia, 2014",
+            publication_date="2014",
+            location="Gijon",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["capitulo", "criterio ortotipografico", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -3785,6 +4008,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V9_SEED_ITEMS),
         *_published_batch_index_entries(V10_SEED_ITEMS),
         *_published_batch_index_entries(V11_SEED_ITEMS),
+        *_published_batch_index_entries(V12_SEED_ITEMS),
     ]
 
 
@@ -3891,6 +4115,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V9_SEED_ITEMS),
         *_published_batch_segments(V10_SEED_ITEMS),
         *_published_batch_segments(V11_SEED_ITEMS),
+        *_published_batch_segments(V12_SEED_ITEMS),
     ]
 
 
@@ -4016,7 +4241,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_extraction_runs(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_extraction_runs(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_extraction_runs(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_extraction_runs(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4671,7 +4897,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_proposals(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_proposals(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_proposals(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_proposals(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4825,7 +5052,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_nodes(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_nodes(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_nodes(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_nodes(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4941,7 +5169,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_node_relations(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_node_relations(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_node_relations(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_node_relations(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5286,7 +5515,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_evidence(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_evidence(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_evidence(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_evidence(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5531,7 +5761,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_claims(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_claims(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_claims(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_claims(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5697,7 +5928,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_cards(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_cards(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
-        *_published_batch_cards(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
+        *_published_batch_cards(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5951,13 +6183,24 @@ def seed_versions() -> list[KnowledgeVersion]:
     v10_evidence = [evidence for evidence in seed_evidence() if evidence.version in v10_chain]
     v10_claims = [claim for claim in seed_claims() if claim.version in v10_chain]
     v10_cards = [card for card in seed_cards() if card.version in v10_chain]
-    latest_chain = {*v10_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v11_chain = {*v10_chain, KNOWLEDGE_V11_VERSION}
+    v11_sources = [
         source
         for source in seed_sources()
         if source.id in {*v7_source_ids, *{item["source_id"] for item in V11_SEED_ITEMS}}
     ]
-    latest_node_ids = {*v10_node_ids, *{item["node_id"] for item in V11_SEED_ITEMS}}
+    v11_node_ids = {*v10_node_ids, *{item["node_id"] for item in V11_SEED_ITEMS}}
+    v11_nodes = [node for node in seed_nodes() if node.id in v11_node_ids]
+    v11_evidence = [evidence for evidence in seed_evidence() if evidence.version in v11_chain]
+    v11_claims = [claim for claim in seed_claims() if claim.version in v11_chain]
+    v11_cards = [card for card in seed_cards() if card.version in v11_chain]
+    latest_chain = {*v11_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {*v7_source_ids, *{item["source_id"] for item in V11_SEED_ITEMS}, *{item["source_id"] for item in V12_SEED_ITEMS}}
+    ]
+    latest_node_ids = {*v11_node_ids, *{item["node_id"] for item in V12_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -6074,9 +6317,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v10_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V11_VERSION,
             status="published",
             published_at=KNOWLEDGE_V11_PUBLISHED_AT,
+            source_count=len(v11_sources),
+            node_count=len(v11_nodes),
+            evidence_count=len(v11_evidence),
+            claim_count=len(v11_claims),
+            card_count=len(v11_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V12_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -6358,6 +6611,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V8_VERSION,
             KNOWLEDGE_V9_VERSION,
             KNOWLEDGE_V10_VERSION,
+            KNOWLEDGE_V11_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
