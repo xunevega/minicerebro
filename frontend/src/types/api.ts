@@ -123,6 +123,24 @@ export type KnowledgeSource = {
   editions: KnowledgeSourceEdition[];
 };
 
+export type KnowledgeSourceIngestionStatus = {
+  source_id: string;
+  source_name: string;
+  current_phase: string;
+  is_registered: boolean;
+  has_edition: boolean;
+  has_index: boolean;
+  has_segments: boolean;
+  has_extractions: boolean;
+  has_proposals: boolean;
+  has_reviewed_proposals: boolean;
+  has_materialized_knowledge: boolean;
+  is_published: boolean;
+  is_ingested: boolean;
+  counts: Record<string, number>;
+  blockers: string[];
+};
+
 export type KnowledgeSourceCreate = {
   id: string;
   catalog_id: string;

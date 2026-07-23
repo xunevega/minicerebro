@@ -45,6 +45,7 @@ import {
   getKnowledgeQueryHistory,
   getKnowledgeQuerySummary,
   getKnowledgeStatus,
+  getKnowledgeSourceIngestionStatuses,
   getKnowledgeSources,
   getPersistenceStatus,
   getPreferences,
@@ -90,6 +91,7 @@ import type {
   KnowledgeQuerySummary,
   KnowledgeStatus,
   KnowledgeSource,
+  KnowledgeSourceIngestionStatus,
   LabSimulationResult,
   ObservabilityMetric,
   Preference,
@@ -153,6 +155,9 @@ export function App() {
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
   const [knowledgeSources, setKnowledgeSources] = useState<KnowledgeSource[]>([]);
+  const [knowledgeSourceIngestionStatuses, setKnowledgeSourceIngestionStatuses] = useState<
+    KnowledgeSourceIngestionStatus[]
+  >([]);
   const [knowledgeNodes, setKnowledgeNodes] = useState<KnowledgeNode[]>([]);
   const [knowledgeEvidence, setKnowledgeEvidence] = useState<KnowledgeEvidenceItem[]>([]);
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
@@ -238,6 +243,7 @@ export function App() {
           Promise.resolve(knowledgeData),
           getKnowledgeCards(version),
           getKnowledgeSources(version),
+          getKnowledgeSourceIngestionStatuses(),
           getKnowledgeNodes(undefined, version),
           getKnowledgeEvidence(undefined, version),
           getKnowledgeClaims(undefined, version),
@@ -272,6 +278,7 @@ export function App() {
           knowledgeData,
           cardData,
           sourceData,
+          sourceIngestionStatusData,
           nodeData,
           evidenceData,
           claimData,
@@ -303,6 +310,7 @@ export function App() {
         setKnowledge(knowledgeData);
         setKnowledgeCards(cardData);
         setKnowledgeSources(sourceData);
+        setKnowledgeSourceIngestionStatuses(sourceIngestionStatusData);
         setKnowledgeNodes(nodeData);
         setKnowledgeEvidence(evidenceData);
         setKnowledgeClaims(claimData);
@@ -388,6 +396,10 @@ export function App() {
         (item) => validationLabel(item.confidence) === "Validacion pendiente",
       ).length,
     [knowledgeCards, knowledgeClaims, knowledgeEvidence],
+  );
+  const registeredOnlySourceCount = useMemo(
+    () => knowledgeSourceIngestionStatuses.filter((item) => !item.is_ingested).length,
+    [knowledgeSourceIngestionStatuses],
   );
 
   async function refreshAuditEvents(filterLabel = auditFilter) {
@@ -808,8 +820,27 @@ export function App() {
               <Metric label="Estado" value={knowledge?.state ?? "..."} />
               <Metric label="Cobertura" value={`${knowledge?.coverage.length ?? 0} areas`} />
               <Metric label="Validacion" value={`${pendingKnowledgeValidationCount} pendientes`} />
+              <Metric label="No ingeridas" value={registeredOnlySourceCount} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
+            <div className="proposalBox">
+              <h3>Registro frente a ingestion</h3>
+              <div className="knowledgeGrid">
+                {knowledgeSourceIngestionStatuses.slice(0, 6).map((status) => (
+                  <article className="knowledgeItem" key={status.source_id}>
+                    <strong>{status.source_name}</strong>
+                    <span>{status.current_phase}</span>
+                    <ValidationPill confidence={status.is_ingested ? 1 : 0.25} />
+                    <div className="metricGrid">
+                      <Metric label="Segmentos" value={status.counts.segments ?? 0} />
+                      <Metric label="Propuestas" value={status.counts.proposals ?? 0} />
+                      <Metric label="Evidencias" value={status.counts.evidence ?? 0} />
+                    </div>
+                    <List title="Bloqueos" items={status.blockers.slice(0, 3)} />
+                  </article>
+                ))}
+              </div>
+            </div>
             <div className="knowledgeGrid">
               {knowledgeSources.map((source) => (
                 <article className="knowledgeItem" key={source.id}>

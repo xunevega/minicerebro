@@ -4,7 +4,7 @@ from datetime import UTC, datetime
 from hashlib import sha256
 from uuid import UUID, uuid4
 
-from sqlalchemy import select
+from sqlalchemy import func, select
 from sqlalchemy.orm import Session, selectinload
 
 from app.core.models import (
@@ -52,6 +52,7 @@ from app.core.models import (
     KnowledgeSourceCreate,
     KnowledgeSourceEdition,
     KnowledgeSourceEditionCreate,
+    KnowledgeSourceIngestionStatus,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
     Preference,
@@ -834,6 +835,229 @@ class Repository:
             else None
         )
         return evaluate_ingestion_readiness(source, edition)
+
+    def list_knowledge_source_ingestion_statuses(
+        self,
+        source_id: str | None = None,
+    ) -> list[KnowledgeSourceIngestionStatus]:
+        query = select(KnowledgeSourceRecord)
+        if source_id:
+            query = query.where(KnowledgeSourceRecord.id == source_id)
+        records = self.session.scalars(
+            query.order_by(KnowledgeSourceRecord.priority, KnowledgeSourceRecord.catalog_id)
+        ).all()
+        if source_id and not records:
+            raise KeyError(source_id)
+        return [self._knowledge_source_ingestion_status(record) for record in records]
+
+    def _knowledge_source_ingestion_status(
+        self,
+        source: KnowledgeSourceRecord,
+    ) -> KnowledgeSourceIngestionStatus:
+        edition_count = self.session.scalar(
+            select(func.count(KnowledgeSourceEditionRecord.id)).where(
+                KnowledgeSourceEditionRecord.source_id == source.id
+            )
+        ) or 0
+        index_entry_count = self.session.scalar(
+            select(func.count(KnowledgeIndexEntryRecord.id))
+            .select_from(KnowledgeIndexEntryRecord)
+            .join(
+                KnowledgeSourceEditionRecord,
+                KnowledgeIndexEntryRecord.edition_id == KnowledgeSourceEditionRecord.id,
+            )
+            .where(KnowledgeSourceEditionRecord.source_id == source.id)
+        ) or 0
+        segment_count = self.session.scalar(
+            select(func.count(KnowledgeSegmentRecord.id))
+            .select_from(KnowledgeSegmentRecord)
+            .join(
+                KnowledgeIndexEntryRecord,
+                KnowledgeSegmentRecord.index_entry_id == KnowledgeIndexEntryRecord.id,
+            )
+            .join(
+                KnowledgeSourceEditionRecord,
+                KnowledgeIndexEntryRecord.edition_id == KnowledgeSourceEditionRecord.id,
+            )
+            .where(KnowledgeSourceEditionRecord.source_id == source.id)
+        ) or 0
+        extraction_count = self.session.scalar(
+            select(func.count(KnowledgeExtractionRunRecord.id))
+            .select_from(KnowledgeExtractionRunRecord)
+            .join(
+                KnowledgeSegmentRecord,
+                KnowledgeExtractionRunRecord.segment_id == KnowledgeSegmentRecord.id,
+            )
+            .join(
+                KnowledgeIndexEntryRecord,
+                KnowledgeSegmentRecord.index_entry_id == KnowledgeIndexEntryRecord.id,
+            )
+            .join(
+                KnowledgeSourceEditionRecord,
+                KnowledgeIndexEntryRecord.edition_id == KnowledgeSourceEditionRecord.id,
+            )
+            .where(KnowledgeSourceEditionRecord.source_id == source.id)
+        ) or 0
+        completed_extraction_count = self.session.scalar(
+            select(func.count(KnowledgeExtractionRunRecord.id))
+            .select_from(KnowledgeExtractionRunRecord)
+            .join(
+                KnowledgeSegmentRecord,
+                KnowledgeExtractionRunRecord.segment_id == KnowledgeSegmentRecord.id,
+            )
+            .join(
+                KnowledgeIndexEntryRecord,
+                KnowledgeSegmentRecord.index_entry_id == KnowledgeIndexEntryRecord.id,
+            )
+            .join(
+                KnowledgeSourceEditionRecord,
+                KnowledgeIndexEntryRecord.edition_id == KnowledgeSourceEditionRecord.id,
+            )
+            .where(
+                KnowledgeSourceEditionRecord.source_id == source.id,
+                KnowledgeExtractionRunRecord.status == "completed",
+            )
+        ) or 0
+        proposal_count = self.session.scalar(
+            select(func.count(KnowledgeProposalRecord.id))
+            .select_from(KnowledgeProposalRecord)
+            .join(
+                KnowledgeSegmentRecord,
+                KnowledgeProposalRecord.segment_id == KnowledgeSegmentRecord.id,
+            )
+            .join(
+                KnowledgeIndexEntryRecord,
+                KnowledgeSegmentRecord.index_entry_id == KnowledgeIndexEntryRecord.id,
+            )
+            .join(
+                KnowledgeSourceEditionRecord,
+                KnowledgeIndexEntryRecord.edition_id == KnowledgeSourceEditionRecord.id,
+            )
+            .where(KnowledgeSourceEditionRecord.source_id == source.id)
+        ) or 0
+        reviewed_proposal_count = self.session.scalar(
+            select(func.count(KnowledgeProposalRecord.id))
+            .select_from(KnowledgeProposalRecord)
+            .join(
+                KnowledgeSegmentRecord,
+                KnowledgeProposalRecord.segment_id == KnowledgeSegmentRecord.id,
+            )
+            .join(
+                KnowledgeIndexEntryRecord,
+                KnowledgeSegmentRecord.index_entry_id == KnowledgeIndexEntryRecord.id,
+            )
+            .join(
+                KnowledgeSourceEditionRecord,
+                KnowledgeIndexEntryRecord.edition_id == KnowledgeSourceEditionRecord.id,
+            )
+            .where(
+                KnowledgeSourceEditionRecord.source_id == source.id,
+                KnowledgeProposalRecord.status.in_(["approved", "rejected"]),
+            )
+        ) or 0
+        node_count = self.session.scalar(
+            select(func.count(KnowledgeNodeRecord.id)).where(KnowledgeNodeRecord.source_id == source.id)
+        ) or 0
+        evidence_count = self.session.scalar(
+            select(func.count(KnowledgeEvidenceItemRecord.id)).where(
+                KnowledgeEvidenceItemRecord.source_id == source.id
+            )
+        ) or 0
+        claim_count = self.session.scalar(
+            select(func.count(KnowledgeClaimRecord.id))
+            .select_from(KnowledgeClaimRecord)
+            .join(
+                KnowledgeEvidenceItemRecord,
+                KnowledgeClaimRecord.evidence_id == KnowledgeEvidenceItemRecord.id,
+            )
+            .where(KnowledgeEvidenceItemRecord.source_id == source.id)
+        ) or 0
+        card_count = self.session.scalar(
+            select(func.count(func.distinct(KnowledgeClaimRecord.card_id)))
+            .select_from(KnowledgeClaimRecord)
+            .join(
+                KnowledgeEvidenceItemRecord,
+                KnowledgeClaimRecord.evidence_id == KnowledgeEvidenceItemRecord.id,
+            )
+            .where(KnowledgeEvidenceItemRecord.source_id == source.id)
+        ) or 0
+        published_object_count = self.session.scalar(
+            select(func.count(KnowledgeEvidenceItemRecord.id)).where(
+                KnowledgeEvidenceItemRecord.source_id == source.id,
+                KnowledgeEvidenceItemRecord.status == "published",
+            )
+        ) or 0
+        counts = {
+            "editions": edition_count,
+            "index_entries": index_entry_count,
+            "segments": segment_count,
+            "extractions": extraction_count,
+            "completed_extractions": completed_extraction_count,
+            "proposals": proposal_count,
+            "reviewed_proposals": reviewed_proposal_count,
+            "nodes": node_count,
+            "evidence": evidence_count,
+            "claims": claim_count,
+            "cards": card_count,
+            "published_evidence": published_object_count,
+        }
+        has_materialized_knowledge = node_count > 0 and evidence_count > 0 and claim_count > 0
+        is_published = published_object_count > 0
+        is_ingested = (
+            segment_count > 0
+            and completed_extraction_count > 0
+            and proposal_count > 0
+            and has_materialized_knowledge
+        )
+        current_phase = "registered"
+        if edition_count > 0:
+            current_phase = "edition_registered"
+        if index_entry_count > 0:
+            current_phase = "indexed"
+        if segment_count > 0:
+            current_phase = "segmented"
+        if completed_extraction_count > 0:
+            current_phase = "extracted"
+        if proposal_count > 0:
+            current_phase = "proposed"
+        if reviewed_proposal_count > 0:
+            current_phase = "reviewed"
+        if is_ingested:
+            current_phase = "validated"
+        if is_published and is_ingested:
+            current_phase = "published"
+        blockers = []
+        if edition_count == 0:
+            blockers.append("missing_edition")
+        if index_entry_count == 0:
+            blockers.append("missing_index")
+        if segment_count == 0:
+            blockers.append("missing_segments")
+        if completed_extraction_count == 0:
+            blockers.append("missing_completed_extraction")
+        if proposal_count == 0:
+            blockers.append("missing_proposals")
+        if not has_materialized_knowledge:
+            blockers.append("missing_materialized_knowledge")
+        if not is_published:
+            blockers.append("missing_publication")
+        return KnowledgeSourceIngestionStatus(
+            source_id=source.id,
+            source_name=source.name,
+            current_phase=current_phase,
+            is_registered=True,
+            has_edition=edition_count > 0,
+            has_index=index_entry_count > 0,
+            has_segments=segment_count > 0,
+            has_extractions=extraction_count > 0,
+            has_proposals=proposal_count > 0,
+            has_reviewed_proposals=reviewed_proposal_count > 0,
+            has_materialized_knowledge=has_materialized_knowledge,
+            is_published=is_published,
+            is_ingested=is_ingested,
+            counts=counts,
+            blockers=blockers,
+        )
 
     def export_knowledge_ingestion_batch(self, batch_id: str) -> KnowledgeIngestionBatchExport:
         record = self.session.get(KnowledgeIngestionBatchRecord, batch_id)

@@ -31,7 +31,7 @@ try {
   await page.getByRole("button", { name: "Persistencia" }).click();
 
   const persistencePanel = page.locator(".panel", { hasText: "Dominios persistidos" });
-  await persistencePanel.getByText("Textos").waitFor();
+  await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();
   await persistencePanel.getByText("rewrite · deterministic").first().waitFor();
   await persistencePanel.locator("pre", { hasText: output.slice(0, 40) }).first().waitFor();
 } finally {

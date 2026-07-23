@@ -57,6 +57,7 @@ from app.core.models import (
     KnowledgeSourceCreate,
     KnowledgeSourceEdition,
     KnowledgeSourceEditionCreate,
+    KnowledgeSourceIngestionStatus,
     KnowledgeStatus,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
@@ -217,6 +218,17 @@ def knowledge_ingestion_readiness(
         return repository.knowledge_ingestion_readiness(source_id, source_edition_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge source or edition not found") from exc
+
+
+@router.get("/knowledge/ingestion/sources")
+def knowledge_source_ingestion_statuses(
+    repository: RepositoryDep,
+    source_id: str | None = None,
+) -> list[KnowledgeSourceIngestionStatus]:
+    try:
+        return repository.list_knowledge_source_ingestion_statuses(source_id=source_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge source not found") from exc
 
 
 @router.get("/knowledge/ingestion/batches/{batch_id}/export")

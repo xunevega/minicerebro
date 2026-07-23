@@ -338,6 +338,24 @@ class KnowledgeIngestionReadiness(BaseModel):
     blockers: list[str]
 
 
+class KnowledgeSourceIngestionStatus(BaseModel):
+    source_id: str
+    source_name: str
+    current_phase: str
+    is_registered: bool
+    has_edition: bool
+    has_index: bool
+    has_segments: bool
+    has_extractions: bool
+    has_proposals: bool
+    has_reviewed_proposals: bool
+    has_materialized_knowledge: bool
+    is_published: bool
+    is_ingested: bool
+    counts: dict[str, int]
+    blockers: list[str]
+
+
 class KnowledgeIngestionBatchExport(BaseModel):
     batch: KnowledgeIngestionBatch
     proposals: dict

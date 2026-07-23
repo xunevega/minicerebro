@@ -331,6 +331,8 @@ def test_bootstrap_uses_alembic_without_create_all_or_manual_schema_patch():
     assert "command.upgrade" in source
     assert "create_all" not in source
     assert "ALTER TABLE" not in source
+    assert "_SEED_LOCK" in source
+    assert "with _SEED_LOCK" in source
 
 
 def test_application_startup_does_not_run_alembic_migrations():
@@ -682,6 +684,27 @@ def test_knowledge_sources_are_exposed():
     assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
+def test_source_ingestion_status_distinguishes_registered_from_ingested():
+    response = client.get("/knowledge/ingestion/sources?source_id=rae-ngle")
+    assert response.status_code == 200
+
+    status = response.json()[0]
+    assert status["source_id"] == "rae-ngle"
+    assert status["current_phase"] == "edition_registered"
+    assert status["is_registered"] is True
+    assert status["has_edition"] is True
+    assert status["has_index"] is False
+    assert status["has_segments"] is False
+    assert status["is_ingested"] is False
+    assert status["counts"]["nodes"] >= 1
+    assert "missing_segments" in status["blockers"]
+    assert "missing_publication" in status["blockers"]
+
+    missing = client.get("/knowledge/ingestion/sources?source_id=fuente-inexistente")
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "Knowledge source not found"
+
+
 def test_register_knowledge_source_persists_without_registering_edition_or_publication():
     source_id = "test-fuente-registro"
     payload = {
@@ -753,6 +776,125 @@ def test_register_knowledge_source_persists_without_registering_edition_or_publi
         with SessionLocal() as session:
             session.query(AuditEventRecord).filter(
                 AuditEventRecord.entity_id == source_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
+def test_source_ingestion_status_advances_through_document_pipeline():
+    source_id = "test-fuente-estado-ingestion"
+    edition_id = "test-fuente-estado-ingestion:primera"
+    entry_id = "test-fuente-estado-ingestion:capitulo-1"
+    segment_id = "test-fuente-estado-ingestion:segmento-1"
+    source_payload = {
+        "id": source_id,
+        "catalog_id": "TEST-FSTATUS",
+        "name": "Fuente para estado de ingestion",
+        "responsible": "Equipo editorial",
+        "source_type": "manual",
+        "domains": ["escritura"],
+        "authority_level": 3,
+        "priority": 991,
+    }
+    edition_payload = {
+        "id": edition_id,
+        "source_id": source_id,
+        "title": "Fuente para estado de ingestion",
+        "edition_label": "Primera",
+        "publication_year": "2026",
+        "publisher": "Minicerebro",
+        "isbn": "sin isbn",
+        "language": "es",
+        "format": "texto",
+        "access_location": "fixture local",
+        "rights_status": "uso interno",
+        "status": "available",
+        "notes": "fixture",
+    }
+    index_payload = [
+        {
+            "id": entry_id,
+            "edition_id": edition_id,
+            "parent_id": None,
+            "level": 1,
+            "order": 1,
+            "title": "Capitulo 1",
+            "locator": "capitulo 1",
+            "page_start": "1",
+            "page_end": "2",
+            "status": "registered",
+        }
+    ]
+    segment_payload = [
+        {
+            "id": segment_id,
+            "index_entry_id": entry_id,
+            "parent_segment_id": None,
+            "segment_type": "paragraph",
+            "title": "Segmento 1",
+            "text": "La precision requiere elegir palabras concretas.",
+            "order": 1,
+            "start_locator": "capitulo 1 > p1",
+            "end_locator": "capitulo 1 > p1",
+            "language": "es",
+            "status": "registered",
+        }
+    ]
+    extraction_payload = {
+        "extractor_type": "deterministic",
+        "extractor_name": "status-smoke",
+        "extractor_version": "1.0",
+        "configuration": {"mode": "status"},
+    }
+
+    try:
+        assert client.post("/knowledge/sources", json=source_payload).status_code == 200
+        status = client.get(f"/knowledge/ingestion/sources?source_id={source_id}").json()[0]
+        assert status["current_phase"] == "registered"
+        assert status["is_ingested"] is False
+
+        assert (
+            client.post(f"/knowledge/sources/{source_id}/editions", json=edition_payload).status_code
+            == 200
+        )
+        status = client.get(f"/knowledge/ingestion/sources?source_id={source_id}").json()[0]
+        assert status["current_phase"] == "edition_registered"
+
+        assert client.post(f"/knowledge/editions/{edition_id}/index", json=index_payload).status_code == 200
+        status = client.get(f"/knowledge/ingestion/sources?source_id={source_id}").json()[0]
+        assert status["current_phase"] == "indexed"
+
+        assert client.post(f"/knowledge/index/{entry_id}/segments", json=segment_payload).status_code == 200
+        status = client.get(f"/knowledge/ingestion/sources?source_id={source_id}").json()[0]
+        assert status["current_phase"] == "segmented"
+
+        assert (
+            client.post(f"/knowledge/segments/{segment_id}/extractions", json=extraction_payload).status_code
+            == 200
+        )
+        status = client.get(f"/knowledge/ingestion/sources?source_id={source_id}").json()[0]
+        assert status["current_phase"] == "extracted"
+        assert status["counts"]["completed_extractions"] == 1
+        assert status["is_ingested"] is False
+    finally:
+        with SessionLocal() as session:
+            event_entities = [source_id, edition_id, entry_id, segment_id]
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_(event_entities)
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeExtractionRunRecord).filter(
+                KnowledgeExtractionRunRecord.segment_id == segment_id
+            ).delete()
+            session.query(KnowledgeSegmentRecord).filter(
+                KnowledgeSegmentRecord.id == segment_id
+            ).delete()
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.id == entry_id
+            ).delete()
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
             ).delete()
             session.query(KnowledgeSourceRecord).filter(
                 KnowledgeSourceRecord.id == source_id
