@@ -42,6 +42,7 @@ import {
   getKnowledgeClaims,
   getKnowledgeEvidence,
   getKnowledgeNodes,
+  getKnowledgeProposals,
   getKnowledgeQueryHistory,
   getKnowledgeQuerySummary,
   getKnowledgeStatus,
@@ -61,7 +62,14 @@ import {
   getTechnicalClosure,
   getTechnicalRoadmap,
   getV1Screens,
+  approveKnowledgeProposal,
   queryKnowledge,
+  registerKnowledgeExtractionRun,
+  registerKnowledgeIndexEntries,
+  registerKnowledgeProposals,
+  registerKnowledgeSegments,
+  registerKnowledgeSourceEdition,
+  rejectKnowledgeProposal,
   saveProfileKnowledgeCard,
   simulateLab,
   updatePreferenceStatus,
@@ -86,11 +94,16 @@ import type {
   KnowledgeCard,
   KnowledgeClaim,
   KnowledgeEvidenceItem,
+  KnowledgeExtractionRun,
+  KnowledgeIndexEntry,
   KnowledgeNode,
+  KnowledgeProposal,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
   KnowledgeQuerySummary,
+  KnowledgeSegment,
   KnowledgeStatus,
+  KnowledgeSourceEdition,
   KnowledgeSource,
   KnowledgeSourceIngestionStatus,
   KnowledgeVersion,
@@ -208,6 +221,16 @@ export function App() {
   const [knowledgeVersions, setKnowledgeVersions] = useState<KnowledgeVersion[]>([]);
   const [selectedKnowledgeVersion, setSelectedKnowledgeVersion] = useState("latest");
   const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v1");
+  const [manualIngestionSourceId, setManualIngestionSourceId] = useState("");
+  const [manualIngestionEdition, setManualIngestionEdition] =
+    useState<KnowledgeSourceEdition | null>(null);
+  const [manualIngestionIndexEntry, setManualIngestionIndexEntry] =
+    useState<KnowledgeIndexEntry | null>(null);
+  const [manualIngestionSegment, setManualIngestionSegment] = useState<KnowledgeSegment | null>(null);
+  const [manualIngestionExtraction, setManualIngestionExtraction] =
+    useState<KnowledgeExtractionRun | null>(null);
+  const [manualIngestionProposals, setManualIngestionProposals] = useState<KnowledgeProposal[]>([]);
+  const [manualIngestionBusy, setManualIngestionBusy] = useState(false);
   const [knowledgeQuery, setKnowledgeQuery] = useState("complemento directo");
   const [knowledgeQueryLimit, setKnowledgeQueryLimit] = useState(5);
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
@@ -481,6 +504,12 @@ export function App() {
     () => knowledgeSourceIngestionStatuses.filter((item) => !item.is_ingested).length,
     [knowledgeSourceIngestionStatuses],
   );
+  const manualIngestionStatus =
+    knowledgeSourceIngestionStatuses.find((item) => item.source_id === manualIngestionSourceId) ??
+    knowledgeSourceIngestionStatuses.find((item) => !item.is_ingested) ??
+    knowledgeSourceIngestionStatuses[0] ??
+    null;
+  const manualIngestionSourceIdValue = manualIngestionStatus?.source_id ?? "";
 
   async function refreshAuditEvents(filterLabel = auditFilter) {
     setAuditEvents(await loadAuditEvents(filterLabel, loadedKnowledgeVersion));
@@ -569,6 +598,142 @@ export function App() {
     setActive("knowledge");
     setError(null);
     setSelectedKnowledgeVersion(version);
+  }
+
+  async function handleCreateManualIngestionFlow() {
+    if (!manualIngestionSourceIdValue) {
+      setError("No hay fuente disponible para ingestion manual.");
+      return;
+    }
+    setManualIngestionBusy(true);
+    setError(null);
+    try {
+      const suffix = Date.now().toString(36);
+      const sourceId = manualIngestionSourceIdValue;
+      const sourceName = manualIngestionStatus?.source_name ?? sourceId;
+      const editionId = `${sourceId}:ui-${suffix}`;
+      const entryId = `${editionId}:index-1`;
+      const segmentId = `${entryId}:segment-1`;
+      const nodeId = `${sourceId}-ui-node-${suffix}`;
+      const edition = await registerKnowledgeSourceEdition(sourceId, {
+        id: editionId,
+        source_id: sourceId,
+        title: `${sourceName} - edicion manual UI`,
+        edition_label: "registro manual UI",
+        publication_year: "2026",
+        publisher: "pendiente",
+        isbn: `sin-isbn-${suffix}`,
+        language: "es",
+        format: "digital",
+        access_location: "registro manual desde interfaz",
+        rights_status: "pendiente",
+        status: "registered",
+        notes: "Edicion creada desde el flujo manual de ingestion; no inicia publicacion.",
+        structure: ["entrada manual"],
+        locator_system: ["ui"],
+      });
+      const [indexEntry] = await registerKnowledgeIndexEntries(edition.id, [
+        {
+          id: entryId,
+          edition_id: edition.id,
+          level: 1,
+          order: 1,
+          title: "Entrada documental manual",
+          locator: "ui:1",
+          page_start: null,
+          page_end: null,
+          status: "available",
+        },
+      ]);
+      const [segment] = await registerKnowledgeSegments(indexEntry.id, [
+        {
+          id: segmentId,
+          index_entry_id: indexEntry.id,
+          segment_type: "manual_excerpt",
+          title: "Segmento manual inicial",
+          text: `Segmento de prueba para iniciar ingestion controlada de ${sourceName}.`,
+          order: 1,
+          start_locator: "ui:1",
+          end_locator: "ui:1",
+          language: "es",
+          status: "available",
+        },
+      ]);
+      const extraction = await registerKnowledgeExtractionRun(segment.id, {
+        extractor_type: "deterministic",
+        extractor_name: "manual-ui",
+        extractor_version: "1.0",
+        configuration: { mode: "manual_ui_minimum" },
+        status: "completed",
+        knowledge_version: null,
+      });
+      const proposals = await registerKnowledgeProposals(extraction.id, [
+        {
+          proposal_type: "node",
+          title: "Nodo candidato manual",
+          payload: {
+            id: nodeId,
+            source_id: sourceId,
+            node_type: "concepto",
+            title: "Nodo candidato manual",
+            summary: "Concepto candidato creado desde una ingestion manual controlada.",
+            canonical_name: "Nodo candidato manual",
+            primary_branch: "lengua espanola",
+            secondary_branch: "ingestion manual",
+            short_definition: "Concepto candidato pendiente de revision editorial.",
+            long_definition:
+              "Concepto candidato generado por el flujo manual de ingestion de Minicerebro.",
+            aliases: [],
+            version: "candidate-pending",
+          },
+          rationale: "Propuesta registrada para probar revision sin publicar conocimiento.",
+          confidence: 0.5,
+          source_locator: "ui:1",
+        },
+      ]);
+      setManualIngestionEdition(edition);
+      setManualIngestionIndexEntry(indexEntry);
+      setManualIngestionSegment(segment);
+      setManualIngestionExtraction(extraction);
+      setManualIngestionProposals(proposals);
+      setKnowledgeSourceIngestionStatuses(await getKnowledgeSourceIngestionStatuses());
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setManualIngestionBusy(false);
+    }
+  }
+
+  async function handleLoadManualProposals() {
+    if (!manualIngestionExtraction) return;
+    setError(null);
+    try {
+      setManualIngestionProposals(await getKnowledgeProposals(manualIngestionExtraction.id));
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleManualProposalDecision(proposal: KnowledgeProposal, action: "approve" | "reject") {
+    setError(null);
+    try {
+      const decide = action === "approve" ? approveKnowledgeProposal : rejectKnowledgeProposal;
+      const updated = await decide(proposal.id, {
+        reviewer: "minicerebro-ui",
+        reason:
+          action === "approve"
+            ? "Revision manual desde la interfaz; no publica conocimiento."
+            : "Rechazo manual desde la interfaz; no modifica conocimiento estable.",
+      });
+      setManualIngestionProposals((current) =>
+        current.map((item) => (item.id === updated.id ? updated : item)),
+      );
+      setKnowledgeSourceIngestionStatuses(await getKnowledgeSourceIngestionStatuses());
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
   }
 
   async function handlePreferenceStatus(preferenceId: string, status: PreferenceStatus) {
@@ -958,6 +1123,107 @@ export function App() {
                   </article>
                 ))}
               </div>
+            </div>
+            <div className="proposalBox">
+              <h3>Ingestion manual minima</h3>
+              <p className="note">
+                Crea fuente-edicion-indice-segmento-extraction run-proposals. No crea candidate ni
+                publica conocimiento.
+              </p>
+              <div className="rowActions">
+                <select
+                  aria-label="Fuente para ingestion manual"
+                  onChange={(event) => setManualIngestionSourceId(event.target.value)}
+                  value={manualIngestionSourceId || manualIngestionSourceIdValue}
+                >
+                  {knowledgeSourceIngestionStatuses.map((status) => (
+                    <option key={status.source_id} value={status.source_id}>
+                      {status.source_name} · {status.current_phase}
+                    </option>
+                  ))}
+                </select>
+                <button
+                  className="primaryButton"
+                  disabled={!manualIngestionSourceIdValue || manualIngestionBusy}
+                  onClick={handleCreateManualIngestionFlow}
+                  type="button"
+                >
+                  {manualIngestionBusy ? "Creando..." : "Crear lote manual"}
+                </button>
+                <button
+                  className="ghostButton"
+                  disabled={!manualIngestionExtraction}
+                  onClick={handleLoadManualProposals}
+                  type="button"
+                >
+                  Recargar proposals
+                </button>
+              </div>
+              <div className="pipelineTrace">
+                <span className={manualIngestionEdition ? "pipelineStep done" : "pipelineStep"}>
+                  Edicion
+                </span>
+                <span className={manualIngestionIndexEntry ? "pipelineStep done" : "pipelineStep"}>
+                  Indice
+                </span>
+                <span className={manualIngestionSegment ? "pipelineStep done" : "pipelineStep"}>
+                  Segmento
+                </span>
+                <span className={manualIngestionExtraction ? "pipelineStep done" : "pipelineStep"}>
+                  ExtractionRun
+                </span>
+                <span className={manualIngestionProposals.length ? "pipelineStep done" : "pipelineStep"}>
+                  Proposals
+                </span>
+              </div>
+              {manualIngestionExtraction ? (
+                <div className="metricGrid">
+                  <Metric label="Edicion" value={manualIngestionEdition?.id ?? "..."} />
+                  <Metric label="Segmento" value={manualIngestionSegment?.id ?? "..."} />
+                  <Metric label="Extraccion" value={manualIngestionExtraction.status} />
+                  <Metric label="Proposals" value={manualIngestionProposals.length} />
+                </div>
+              ) : null}
+              {manualIngestionProposals.length ? (
+                <div className="knowledgeGrid">
+                  {manualIngestionProposals.map((proposal) => (
+                    <article className="knowledgeItem" key={proposal.id}>
+                      <strong>{proposal.title}</strong>
+                      <span>
+                        {proposal.proposal_type} · {proposal.status} · confianza{" "}
+                        {proposal.confidence}
+                      </span>
+                      <p className="note">{proposal.rationale}</p>
+                      <pre>{JSON.stringify(proposal.payload, null, 2)}</pre>
+                      <div className="rowActions">
+                        <button
+                          className="ghostButton"
+                          disabled={!canApproveProposal(proposal, knowledgeVersions)}
+                          onClick={() => handleManualProposalDecision(proposal, "approve")}
+                          type="button"
+                        >
+                          Aprobar
+                        </button>
+                        <button
+                          className="ghostButton"
+                          disabled={proposal.status !== "proposed"}
+                          onClick={() => handleManualProposalDecision(proposal, "reject")}
+                          type="button"
+                        >
+                          Rechazar
+                        </button>
+                      </div>
+                      {!canApproveProposal(proposal, knowledgeVersions) &&
+                      proposal.status === "proposed" ? (
+                        <p className="note">
+                          Aprobar requiere una version candidata real; rechazar no modifica
+                          conocimiento estable.
+                        </p>
+                      ) : null}
+                    </article>
+                  ))}
+                </div>
+              ) : null}
             </div>
             <div className="knowledgeGrid">
               {knowledgeSources.map((source) => (
@@ -2227,6 +2493,18 @@ function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
     { label: "Conocimiento", done: status?.has_materialized_knowledge ?? false },
     { label: "Publicacion", done: status?.is_published ?? false },
   ];
+}
+
+function canApproveProposal(proposal: KnowledgeProposal, versions: KnowledgeVersion[]) {
+  if (proposal.status !== "proposed") {
+    return false;
+  }
+  const version = proposal.payload.version;
+  if (typeof version !== "string") {
+    return false;
+  }
+  const targetVersion = versions.find((item) => item.id === version);
+  return Boolean(targetVersion && !["published", "seed"].includes(targetVersion.status));
 }
 
 function ValidationPill({ confidence }: { confidence: number }) {
