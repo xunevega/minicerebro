@@ -722,6 +722,7 @@ class Repository:
             *node_ids,
             *evidence_ids,
             *claim_ids,
+            *card_ids,
         }
         relations = self.session.scalars(
             select(KnowledgeRelationRecord)
@@ -732,7 +733,7 @@ class Repository:
             relation.id
             for relation in relations
             if relation.source_entity_id in snapshot_object_ids
-            or relation.target_entity_id in snapshot_object_ids
+            and relation.target_entity_id in snapshot_object_ids
         ]
         claim_evidence_link_ids = list(
             self.session.scalars(

@@ -572,10 +572,10 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 "segment_id": "rae-ngle:manual-2010:funciones-sintacticas:seg-1",
                 "status": "completed",
                 "proposals_created": True,
-                "nodes_created": False,
-                "evidence_created": False,
-                "claims_created": False,
-                "cards_created": False,
+                "nodes_created": True,
+                "evidence_created": True,
+                "claims_created": True,
+                "cards_created": True,
                 "published": False,
                 "embeddings_created": False,
                 "seed_batch": True,
@@ -589,9 +589,25 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 "proposal_count": len(seed_proposals()),
                 "segment_id": "rae-ngle:manual-2010:funciones-sintacticas:seg-1",
                 "proposal_types": [proposal.proposal_type for proposal in seed_proposals()],
-                "status": "proposed",
+                "status": "approved",
                 "published": False,
-                "stable_knowledge_created": False,
+                "stable_knowledge_created": True,
+                "seed_batch": True,
+            },
+        ),
+        (
+            "knowledge.proposal.approved",
+            "knowledge_extraction_run",
+            "ext-rae-ngle-manual-2010-funciones-sintacticas-1",
+            {
+                "proposal_count": len(seed_proposals()),
+                "segment_id": "rae-ngle:manual-2010:funciones-sintacticas:seg-1",
+                "proposal_types": [proposal.proposal_type for proposal in seed_proposals()],
+                "materialized_node_ids": ["rae-ngle-complemento-directo"],
+                "materialized_evidence_ids": ["ev-rae-ngle-complemento-directo-candidata"],
+                "materialized_claim_ids": ["claim-rae-ngle-complemento-directo"],
+                "materialized_card_ids": ["card-complemento-directo"],
+                "published": False,
                 "seed_batch": True,
             },
         ),
@@ -618,24 +634,43 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             existing_event.payload = payload
 
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v0") is None:
+        candidate_object_ids = {
+            "rae-ngle:manual-2010",
+            "rae-ngle-complemento-directo",
+            "ev-rae-ngle-complemento-directo-candidata",
+            "claim-rae-ngle-complemento-directo",
+            "card-complemento-directo",
+        }
         published_source_editions = [
-            edition for edition in seed_source_editions() if edition.id.endswith(":pending-edition")
+            edition for edition in seed_source_editions() if edition.id not in candidate_object_ids
         ]
-        published_source_edition_ids = {edition.id for edition in published_source_editions}
+        published_nodes = [node for node in seed_nodes() if node.id not in candidate_object_ids]
+        published_node_relations = [
+            relation
+            for relation in seed_node_relations()
+            if relation.source_node_id not in candidate_object_ids
+            and relation.target_node_id not in candidate_object_ids
+        ]
+        published_evidence = [
+            evidence for evidence in seed_evidence() if evidence.id not in candidate_object_ids
+        ]
+        published_claims = [claim for claim in seed_claims() if claim.id not in candidate_object_ids]
+        published_claim_evidence_links = [
+            link
+            for link in seed_claim_evidence_links()
+            if link.claim_id not in candidate_object_ids and link.evidence_id not in candidate_object_ids
+        ]
+        published_cards = [card for card in seed_cards() if card.id not in candidate_object_ids]
         published_relations = [
             relation
             for relation in seed_relations()
-            if relation.source_entity_id in published_source_edition_ids
-            or relation.target_entity_id in published_source_edition_ids
-            or (
-                relation.source_entity_id not in {"rae-ngle:manual-2010"}
-                and relation.target_entity_id not in {"rae-ngle:manual-2010"}
-            )
+            if relation.source_entity_id not in candidate_object_ids
+            and relation.target_entity_id not in candidate_object_ids
         ]
         published_revisions = [
             revision
             for revision in seed_object_revisions()
-            if revision.object_id != "rae-ngle:manual-2010"
+            if revision.object_id not in candidate_object_ids
         ]
         session.add(
             KnowledgeVersionSnapshotRecord(
@@ -643,13 +678,13 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 status="seed_snapshot",
                 source_ids=[source.id for source in seed_sources()],
                 source_edition_ids=[edition.id for edition in published_source_editions],
-                node_ids=[node.id for node in seed_nodes()],
-                node_relation_ids=[relation.id for relation in seed_node_relations()],
+                node_ids=[node.id for node in published_nodes],
+                node_relation_ids=[relation.id for relation in published_node_relations],
                 relation_ids=[relation.id for relation in published_relations],
-                evidence_ids=[evidence.id for evidence in seed_evidence()],
-                claim_ids=[claim.id for claim in seed_claims()],
-                claim_evidence_link_ids=[link.id for link in seed_claim_evidence_links()],
-                card_ids=[card.id for card in seed_cards()],
+                evidence_ids=[evidence.id for evidence in published_evidence],
+                claim_ids=[claim.id for claim in published_claims],
+                claim_evidence_link_ids=[link.id for link in published_claim_evidence_links],
+                card_ids=[card.id for card in published_cards],
                 revision_ids=[revision.id for revision in published_revisions],
                 created_at="2026-07-22",
                 updated_at="2026-07-22",

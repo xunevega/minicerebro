@@ -727,6 +727,10 @@ def _source(
     domains: list[str],
     authority_level: int,
     priority: int,
+    status: str = "registered",
+    acquisition_status: str = "registered",
+    validation_status: str = "not_validated",
+    rights: str = DEFAULT_SOURCE_RIGHTS,
 ) -> KnowledgeSource:
     return KnowledgeSource(
         id=source_id,
@@ -737,13 +741,13 @@ def _source(
         domains=domains,
         authority_level=authority_level,
         priority=priority,
-        status="registered",
+        status=status,
         edition=DEFAULT_SOURCE_EDITION,
         publication_date=DEFAULT_SOURCE_PUBLICATION_DATE,
         location=DEFAULT_SOURCE_LOCATION,
-        acquisition_status="registered",
-        validation_status="not_validated",
-        rights=DEFAULT_SOURCE_RIGHTS,
+        acquisition_status=acquisition_status,
+        validation_status=validation_status,
+        rights=rights,
         structure=DEFAULT_SOURCE_STRUCTURE,
         locator_system=DEFAULT_SOURCE_LOCATORS,
     )
@@ -766,6 +770,9 @@ def seed_sources() -> list[KnowledgeSource]:
             ],
             authority_level=5,
             priority=1,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F002",
@@ -1132,7 +1139,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
             extraction_id=extraction.id,
             segment_id=segment.id,
             proposal_type="node",
-            status="proposed",
+            status="approved",
             title="Complemento directo",
             payload={
                 "id": "rae-ngle-complemento-directo",
@@ -1145,8 +1152,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
                 "summary": "Funcion sintactica vinculada al predicado verbal.",
                 "short_definition": "Funcion sintactica asociada al participante seleccionado por el verbo.",
                 "long_definition": (
-                    "Propuesta candidata derivada de un segmento editorial minimo de la NGLE "
-                    "Manual 2010; requiere revision antes de crear el nodo estable."
+                    "Concepto validado desde un segmento editorial minimo de la NGLE "
+                    "Manual 2010; queda pendiente de publicacion oficial."
                 ),
                 "aliases": ["objeto directo"],
                 "version": KNOWLEDGE_VERSION,
@@ -1156,16 +1163,16 @@ def seed_proposals() -> list[KnowledgeProposal]:
             source_locator=segment.start_locator,
             created_at="2026-07-23",
             updated_at="2026-07-23",
-            reviewed_at=None,
-            reviewer=None,
-            decision_reason=None,
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial inicial del primer lote real de ingestion",
         ),
         KnowledgeProposal(
             id="prop-rae-ngle-complemento-directo-evidence",
             extraction_id=extraction.id,
             segment_id=segment.id,
             proposal_type="evidence",
-            status="proposed",
+            status="approved",
             title="Evidencia candidata sobre complemento directo",
             payload={
                 "id": "ev-rae-ngle-complemento-directo-candidata",
@@ -1192,9 +1199,49 @@ def seed_proposals() -> list[KnowledgeProposal]:
             source_locator=segment.start_locator,
             created_at="2026-07-23",
             updated_at="2026-07-23",
-            reviewed_at=None,
-            reviewer=None,
-            decision_reason=None,
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial inicial del primer lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-ngle-complemento-directo-claim",
+            extraction_id=extraction.id,
+            segment_id=segment.id,
+            proposal_type="claim",
+            status="approved",
+            title="Claim candidato sobre complemento directo",
+            payload={
+                "id": "claim-rae-ngle-complemento-directo",
+                "evidence_id": "ev-rae-ngle-complemento-directo-candidata",
+                "card_id": "card-complemento-directo",
+                "statement": (
+                    "El complemento directo funciona como participante seleccionado "
+                    "por el predicado verbal en el analisis sintactico."
+                ),
+                "claim_type": "grammatical",
+                "node_id": "rae-ngle-complemento-directo",
+                "related_node_ids": ["rae-norma-estilo"],
+                "domain": "grammar.syntax",
+                "scope": {
+                    "language": "es",
+                    "register": "general",
+                    "geography": "panhispanic",
+                    "period": "contemporary",
+                    "text_type": "grammar",
+                },
+                "version": KNOWLEDGE_VERSION,
+            },
+            rationale=(
+                "El claim queda sustentado por la evidencia validada del segmento "
+                "editorial minimo."
+            ),
+            confidence=0.64,
+            source_locator=segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial inicial del primer lote real de ingestion",
         ),
     ]
 
@@ -1241,6 +1288,26 @@ def seed_nodes() -> list[KnowledgeNode]:
             published_at=KNOWLEDGE_PUBLISHED_AT,
             aliases=["criterio de estilo", "redaccion aplicada"],
         ),
+        KnowledgeNode(
+            id="rae-ngle-complemento-directo",
+            source_id="rae-ngle",
+            node_type="concepto",
+            title="Complemento directo",
+            summary="Funcion sintactica vinculada al predicado verbal.",
+            canonical_name="Complemento directo",
+            primary_branch="sintaxis",
+            secondary_branch="funciones sintacticas",
+            short_definition="Funcion sintactica asociada al participante seleccionado por el verbo.",
+            long_definition=(
+                "Concepto validado desde el primer lote real de ingestion de la NGLE Manual "
+                "2010. Queda materializado como conocimiento estable pendiente de publicacion."
+            ),
+            status="validated",
+            version=KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            published_at="not-published",
+            aliases=["objeto directo"],
+        ),
     ]
 
 
@@ -1275,6 +1342,21 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             version=KNOWLEDGE_VERSION,
             created_at=KNOWLEDGE_PUBLISHED_AT,
             updated_at=RELATION_UPDATED_AT,
+        ),
+        KnowledgeNodeRelation(
+            id="rel-complemento-directo-depende-norma",
+            source_node_id="rae-ngle-complemento-directo",
+            target_node_id="rae-norma-estilo",
+            relation_type="depende_de",
+            direction="outgoing",
+            cardinality="N:1",
+            weight=0.7,
+            confidence=0.64,
+            context="seed_ingestion_candidate",
+            status="validated",
+            version=KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
         ),
     ]
 
@@ -1317,7 +1399,14 @@ def seed_relations() -> list[KnowledgeRelation]:
         for source in seed_sources()
     ]
     source_to_node = [
-        _relation("source", node.source_id, "documentado_en", "node", node.id)
+        _relation(
+            "source",
+            node.source_id,
+            "documentado_en",
+            "node",
+            node.id,
+            status=node.status,
+        )
         for node in seed_nodes()
     ]
     node_to_node = [
@@ -1481,6 +1570,30 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             reviewed_by=None,
             revision=1,
         ),
+        KnowledgeEvidenceItem(
+            id="ev-rae-ngle-complemento-directo-candidata",
+            node_id="rae-ngle-complemento-directo",
+            source_id="rae-ngle",
+            source_edition_id="rae-ngle:manual-2010",
+            evidence_type="editorial_summary",
+            locator={
+                "edition": "Manual academico, 2010",
+                "section": "funciones sintacticas",
+                "segment_id": "rae-ngle:manual-2010:funciones-sintacticas:seg-1",
+            },
+            reference="Manual 2010 > sintaxis > funciones sintacticas > resumen editorial 1",
+            excerpt=seed_segments()[0].text,
+            context="seed_ingestion_candidate",
+            confidence=0.66,
+            confidence_level=3,
+            status="validated",
+            version=KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            incorporated_by="minicerebro-seed",
+            reviewed_by="minicerebro-seed",
+            revision=1,
+        ),
     ]
 
 
@@ -1580,6 +1693,34 @@ def seed_claims() -> list[KnowledgeClaim]:
             updated_at=KNOWLEDGE_PUBLISHED_AT,
             published_at=None,
         ),
+        KnowledgeClaim(
+            id="claim-rae-ngle-complemento-directo",
+            evidence_id="ev-rae-ngle-complemento-directo-candidata",
+            card_id="card-complemento-directo",
+            statement=(
+                "El complemento directo funciona como participante seleccionado "
+                "por el predicado verbal en el analisis sintactico."
+            ),
+            claim_type="grammatical",
+            node_id="rae-ngle-complemento-directo",
+            related_node_ids=["rae-norma-estilo"],
+            domain="grammar.syntax",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "grammar",
+            },
+            status="validated",
+            confidence=0.64,
+            origin="approved_knowledge_proposal",
+            version=KNOWLEDGE_VERSION,
+            revision=1,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            published_at=None,
+        ),
     ]
 
 
@@ -1669,6 +1810,23 @@ def seed_cards() -> list[KnowledgeCard]:
                 "signals": ["adjetivacion medida", "tono estable", "poca hipérbole"],
                 "risks": ["sequedad", "falta de energia"],
                 "contexts": ["ensayo", "tecnico"],
+            },
+        ),
+        KnowledgeCard(
+            id="card-complemento-directo",
+            card_type="grammar_concept",
+            name="Complemento directo",
+            definition="Funcion sintactica asociada al participante seleccionado por el verbo.",
+            confidence=0.64,
+            version=KNOWLEDGE_VERSION,
+            payload={
+                "signals": [
+                    "vinculo con el predicado verbal",
+                    "participante seleccionado por el verbo",
+                    "analisis dentro de funciones sintacticas",
+                ],
+                "risks": ["requiere revision editorial antes de publicacion"],
+                "contexts": ["gramatica", "sintaxis", "revision linguistica"],
             },
         ),
     ]
