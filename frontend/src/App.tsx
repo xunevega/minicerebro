@@ -47,6 +47,7 @@ import {
   getKnowledgeStatus,
   getKnowledgeSourceIngestionStatuses,
   getKnowledgeSources,
+  getKnowledgeVersions,
   getPersistenceStatus,
   getPreferences,
   getProfileExport,
@@ -92,6 +93,7 @@ import type {
   KnowledgeStatus,
   KnowledgeSource,
   KnowledgeSourceIngestionStatus,
+  KnowledgeVersion,
   LabSimulationResult,
   ObservabilityMetric,
   Preference,
@@ -203,7 +205,10 @@ export function App() {
   const [knowledgeNodes, setKnowledgeNodes] = useState<KnowledgeNode[]>([]);
   const [knowledgeEvidence, setKnowledgeEvidence] = useState<KnowledgeEvidenceItem[]>([]);
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
-  const [knowledgeQuery, setKnowledgeQuery] = useState("precision lexica");
+  const [knowledgeVersions, setKnowledgeVersions] = useState<KnowledgeVersion[]>([]);
+  const [selectedKnowledgeVersion, setSelectedKnowledgeVersion] = useState("latest");
+  const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v1");
+  const [knowledgeQuery, setKnowledgeQuery] = useState("complemento directo");
   const [knowledgeQueryLimit, setKnowledgeQueryLimit] = useState(5);
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
@@ -280,21 +285,20 @@ export function App() {
   const activeSection =
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
   const activeSectionTabs = tabs.filter((tab) => activeSection.tabs.includes(tab.id));
+  const latestPublishedKnowledgeVersion =
+    [...knowledgeVersions].reverse().find((version) => version.status === "published")?.id ??
+    knowledge?.version ??
+    "knowledge-v0";
+  const effectiveKnowledgeVersion =
+    selectedKnowledgeVersion === "latest" ? latestPublishedKnowledgeVersion : selectedKnowledgeVersion;
 
   useEffect(() => {
     getKnowledgeStatus()
-      .then((knowledgeData) => {
-        const version = knowledgeData.version;
-        return Promise.all([
+      .then((knowledgeData) =>
+        Promise.all([
           Promise.resolve(knowledgeData),
-          getKnowledgeCards(version),
-          getKnowledgeSources(version),
+          getKnowledgeVersions(),
           getKnowledgeSourceIngestionStatuses(),
-          getKnowledgeNodes(undefined, version),
-          getKnowledgeEvidence(undefined, version),
-          getKnowledgeClaims(undefined, version),
-          getKnowledgeQueryHistory(version),
-          getKnowledgeQuerySummary(version),
           getProfileSummary(),
           getProfileStatistics(activeContext),
           getContradictions(activeContext),
@@ -317,19 +321,13 @@ export function App() {
           getContractBoundaries(),
           getObservabilityStatus(),
           getTechnicalRoadmap(),
-        ]);
-      })
+        ]),
+      )
       .then(
         ([
           knowledgeData,
-          cardData,
-          sourceData,
+          versionData,
           sourceIngestionStatusData,
-          nodeData,
-          evidenceData,
-          claimData,
-          queryHistoryData,
-          querySummaryData,
           summaryData,
           statisticsData,
           contradictionData,
@@ -354,14 +352,8 @@ export function App() {
           roadmapData,
         ]) => {
         setKnowledge(knowledgeData);
-        setKnowledgeCards(cardData);
-        setKnowledgeSources(sourceData);
+        setKnowledgeVersions(versionData);
         setKnowledgeSourceIngestionStatuses(sourceIngestionStatusData);
-        setKnowledgeNodes(nodeData);
-        setKnowledgeEvidence(evidenceData);
-        setKnowledgeClaims(claimData);
-        setKnowledgeQueryHistory(queryHistoryData);
-        setKnowledgeQuerySummary(querySummaryData);
         setSummary(summaryData);
         setStatistics(statisticsData);
         setContradictions(contradictionData);
@@ -389,6 +381,44 @@ export function App() {
       .catch((nextError: Error) => setError(nextError.message));
   }, [activeContext]);
 
+  useEffect(() => {
+    if (!knowledge) return;
+    setError(null);
+    Promise.all([
+      getKnowledgeCards(effectiveKnowledgeVersion),
+      getKnowledgeSources(effectiveKnowledgeVersion),
+      getKnowledgeNodes(undefined, effectiveKnowledgeVersion),
+      getKnowledgeEvidence(undefined, effectiveKnowledgeVersion),
+      getKnowledgeClaims(undefined, effectiveKnowledgeVersion),
+      getKnowledgeQueryHistory(effectiveKnowledgeVersion),
+      getKnowledgeQuerySummary(effectiveKnowledgeVersion),
+    ])
+      .then(
+        ([
+          cardData,
+          sourceData,
+          nodeData,
+          evidenceData,
+          claimData,
+          queryHistoryData,
+          querySummaryData,
+        ]) => {
+          setKnowledgeCards(cardData);
+          setKnowledgeSources(sourceData);
+          setKnowledgeNodes(nodeData);
+          setKnowledgeEvidence(evidenceData);
+          setKnowledgeClaims(claimData);
+          setKnowledgeQueryHistory(queryHistoryData);
+          setKnowledgeQuerySummary(querySummaryData);
+          setLoadedKnowledgeVersion(effectiveKnowledgeVersion);
+          if (selectedKnowledgeCardId && !cardData.some((card) => card.id === selectedKnowledgeCardId)) {
+            setSelectedKnowledgeCardId(null);
+          }
+        },
+      )
+      .catch((nextError: Error) => setError(nextError.message));
+  }, [effectiveKnowledgeVersion, knowledge]);
+
   const averageConfidence = useMemo(() => {
     if (scores.length === 0) return 0;
     return scores.reduce((total, item) => total + item.confidence, 0) / scores.length;
@@ -401,6 +431,10 @@ export function App() {
   const sourceById = useMemo(
     () => new Map(knowledgeSources.map((source) => [source.id, source])),
     [knowledgeSources],
+  );
+  const sourceIngestionStatusById = useMemo(
+    () => new Map(knowledgeSourceIngestionStatuses.map((status) => [status.source_id, status])),
+    [knowledgeSourceIngestionStatuses],
   );
   const nodeById = useMemo(
     () => new Map(knowledgeNodes.map((node) => [node.id, node])),
@@ -449,7 +483,7 @@ export function App() {
   );
 
   async function refreshAuditEvents(filterLabel = auditFilter) {
-    setAuditEvents(await loadAuditEvents(filterLabel, knowledge?.version));
+    setAuditEvents(await loadAuditEvents(filterLabel, loadedKnowledgeVersion));
   }
 
   function commaList(value: string) {
@@ -498,12 +532,12 @@ export function App() {
     setError(null);
     try {
       setKnowledgeResult(
-        await queryKnowledge(knowledgeQuery, knowledge?.version, knowledgeQueryLimit),
+        await queryKnowledge(knowledgeQuery, selectedKnowledgeVersion, knowledgeQueryLimit),
       );
       setKnowledgeQueryHistory(
-        await getKnowledgeQueryHistory(knowledge?.version, knowledgeQueryHistoryLimit),
+        await getKnowledgeQueryHistory(effectiveKnowledgeVersion, knowledgeQueryHistoryLimit),
       );
-      setKnowledgeQuerySummary(await getKnowledgeQuerySummary(knowledge?.version));
+      setKnowledgeQuerySummary(await getKnowledgeQuerySummary(effectiveKnowledgeVersion));
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -525,7 +559,7 @@ export function App() {
     setKnowledgeQueryHistoryLimit(nextLimit);
     setSelectedKnowledgeQueryEventId(null);
     try {
-      setKnowledgeQueryHistory(await getKnowledgeQueryHistory(knowledge?.version, nextLimit));
+      setKnowledgeQueryHistory(await getKnowledgeQueryHistory(effectiveKnowledgeVersion, nextLimit));
     } catch (nextError) {
       setError((nextError as Error).message);
     }
@@ -534,9 +568,7 @@ export function App() {
   function handleExploreKnowledgeVersion(version: string) {
     setActive("knowledge");
     setError(null);
-    if (knowledge?.version !== version) {
-      setError(`La version ${version} no esta cargada en la exploracion actual.`);
-    }
+    setSelectedKnowledgeVersion(version);
   }
 
   async function handlePreferenceStatus(preferenceId: string, status: PreferenceStatus) {
@@ -880,9 +912,30 @@ export function App() {
         {active === "knowledge" && (
           <section className="panel">
             <h2>Estado de conocimiento</h2>
+            <div className="versionToolbar">
+              <label htmlFor="knowledgeVersionSelect">Version explorada</label>
+              <select
+                id="knowledgeVersionSelect"
+                onChange={(event) => setSelectedKnowledgeVersion(event.target.value)}
+                value={selectedKnowledgeVersion}
+              >
+                <option value="latest">latest ({latestPublishedKnowledgeVersion})</option>
+                {knowledgeVersions.map((version) => (
+                  <option key={version.id} value={version.id}>
+                    {version.id} · {version.status}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div className="metricGrid">
-              <Metric label="Version" value={knowledge?.version ?? "..."} />
-              <Metric label="Estado" value={knowledge?.state ?? "..."} />
+              <Metric label="Version cargada" value={loadedKnowledgeVersion} />
+              <Metric
+                label="Publicacion"
+                value={
+                  knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
+                    ?.status ?? knowledge?.state ?? "..."
+                }
+              />
               <Metric label="Cobertura" value={`${knowledge?.coverage.length ?? 0} areas`} />
               <Metric label="Validacion" value={`${pendingKnowledgeValidationCount} pendientes`} />
               <Metric label="No ingeridas" value={registeredOnlySourceCount} />
@@ -933,7 +986,10 @@ export function App() {
             </div>
             <div className="proposalBox">
               <h3>Exploracion persistente</h3>
-              <p className="note">Version navegada: {knowledge?.version ?? "..."}</p>
+              <p className="note">
+                Version navegada: {loadedKnowledgeVersion}. knowledge-v0 queda congelada; latest
+                resuelve a la ultima version publicada.
+              </p>
               <h3>Trazabilidad persistente</h3>
               <div className="metricGrid">
                 <Metric label="Fuentes" value={knowledgeSources.length} />
@@ -949,6 +1005,15 @@ export function App() {
                     <span>
                       {source.source_type} · {source.status}
                     </span>
+                    {sourceIngestionStatusById.get(source.id) ? (
+                      <div className="pipelineTrace">
+                        {pipelineSteps(sourceIngestionStatusById.get(source.id)).map((step) => (
+                          <span className={step.done ? "pipelineStep done" : "pipelineStep"} key={step.label}>
+                            {step.label}
+                          </span>
+                        ))}
+                      </div>
+                    ) : null}
                     {(nodesBySource.get(source.id) ?? []).map((node) => (
                       <div className="listBlock" key={node.id}>
                         <h3>{node.title}</h3>
@@ -1151,6 +1216,7 @@ export function App() {
             ) : null}
             <div className="proposalBox">
               <h3>Consulta</h3>
+              <p className="note">La consulta usa la version explorada: {loadedKnowledgeVersion}.</p>
               <div className="rowActions">
                 <input
                   className="textInput"
@@ -1175,7 +1241,8 @@ export function App() {
               {knowledgeResult ? (
                 <>
                   <p className="note">
-                    Resultado para "{knowledgeResult.query}" en version {knowledgeResult.version}.
+                    Resultado para "{knowledgeResult.query}" en version resuelta{" "}
+                    {knowledgeResult.resolved_version}.
                   </p>
                   <div className="metricGrid">
                     <Metric label="Fichas" value={knowledgeResult.card_count} />
@@ -2147,6 +2214,19 @@ function payloadList(value: unknown) {
 
 function validationLabel(confidence: number) {
   return confidence >= 0.7 ? "Validado" : "Validacion pendiente";
+}
+
+function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
+  return [
+    { label: "Fuente", done: status?.is_registered ?? false },
+    { label: "Edicion", done: status?.has_edition ?? false },
+    { label: "Indice", done: status?.has_index ?? false },
+    { label: "Segmento", done: status?.has_segments ?? false },
+    { label: "ExtractionRun", done: status?.has_extractions ?? false },
+    { label: "Proposals", done: status?.has_proposals ?? false },
+    { label: "Conocimiento", done: status?.has_materialized_knowledge ?? false },
+    { label: "Publicacion", done: status?.is_published ?? false },
+  ];
 }
 
 function ValidationPill({ confidence }: { confidence: number }) {

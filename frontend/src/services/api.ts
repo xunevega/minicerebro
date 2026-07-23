@@ -47,6 +47,7 @@ import type {
   KnowledgeSourceEdition,
   KnowledgeSourceEditionCreate,
   KnowledgeSourceIngestionStatus,
+  KnowledgeVersion,
   KnowledgeVersioningPolicy,
   LabOverride,
   LabSimulationResult,
@@ -116,6 +117,10 @@ export function getKnowledgeSourceIngestionStatuses(sourceId?: string) {
   return request<KnowledgeSourceIngestionStatus[]>(
     withParams("/knowledge/ingestion/sources", { source_id: sourceId }),
   );
+}
+
+export function getKnowledgeVersions() {
+  return request<KnowledgeVersion[]>("/knowledge/versions");
 }
 
 export function registerKnowledgeSource(payload: KnowledgeSourceCreate) {

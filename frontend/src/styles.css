@@ -448,6 +448,20 @@ textarea + .primaryButton {
   padding-top: 18px;
 }
 
+.versionToolbar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 14px;
+}
+
+.versionToolbar label {
+  color: #69756f;
+  font-size: 13px;
+  font-weight: 700;
+}
+
 .proposalItem {
   border: 1px solid #e0e6df;
   border-radius: 8px;
@@ -503,6 +517,27 @@ textarea + .primaryButton {
   color: #34413b;
   font-size: 13px;
   margin-top: 0;
+}
+
+.pipelineTrace {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 12px;
+}
+
+.pipelineStep {
+  border: 1px solid #d9dfd7;
+  border-radius: 999px;
+  color: #7a837d;
+  font-size: 12px;
+  padding: 4px 8px;
+}
+
+.pipelineStep.done {
+  background: #e7f2e8;
+  border-color: #9bc89f;
+  color: #2f5f38;
 }
 
 .preferenceItem strong,

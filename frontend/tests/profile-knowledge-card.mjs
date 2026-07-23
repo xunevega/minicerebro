@@ -8,13 +8,13 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
 
-  const precisionClaim = page.locator(".traceClaim", {
-    hasText: "La precision lexica favorece formulaciones concretas y verificables.",
+  const complementoClaim = page.locator(".traceClaim", {
+    hasText: "El complemento directo funciona como participante seleccionado por el predicado verbal",
   });
-  await precisionClaim.getByRole("button", { name: "Ver ficha" }).click();
+  await complementoClaim.getByRole("button", { name: "Ver ficha" }).click();
 
   const selectedCard = page.locator(".proposalBox", { hasText: "Ficha seleccionada" });
-  await selectedCard.locator("article.knowledgeItem > strong", { hasText: "Precision lexica" }).waitFor();
+  await selectedCard.locator("article.knowledgeItem > strong", { hasText: "Complemento directo" }).waitFor();
   await selectedCard.getByRole("button", { name: "Cambiar" }).click();
 
   await selectedCard.getByLabel("Feedback de usuario").fill("Smoke UI de ficha de usuario.");
@@ -25,7 +25,7 @@ try {
   const saveResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (
-      url.pathname === "/profiles/default/knowledge-cards/lexico-precision" &&
+      url.pathname === "/profiles/default/knowledge-cards/card-complemento-directo" &&
       response.request().method() === "POST"
     );
   });

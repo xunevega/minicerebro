@@ -141,6 +141,17 @@ export type KnowledgeSourceIngestionStatus = {
   blockers: string[];
 };
 
+export type KnowledgeVersion = {
+  id: string;
+  status: string;
+  published_at: string;
+  source_count: number;
+  node_count: number;
+  evidence_count: number;
+  claim_count: number;
+  card_count: number;
+};
+
 export type KnowledgeSourceCreate = {
   id: string;
   catalog_id: string;
