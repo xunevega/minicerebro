@@ -1496,6 +1496,269 @@ def test_register_knowledge_proposals_from_completed_extraction_without_stable_o
             session.commit()
 
 
+def test_approve_and_reject_knowledge_proposals_review_stable_objects():
+    entry_id = "test-review-proposals-entry"
+    segment_id = "test-review-proposals-segment"
+    node_id = "test-review-proposals-node"
+    evidence_id = "test-review-proposals-evidence"
+    claim_id = "test-review-proposals-claim"
+    decision = {
+        "reviewer": "test-editor",
+        "reason": "revision editorial de prueba",
+    }
+    proposals: list[dict] = []
+    try:
+        assert client.post(
+            "/knowledge/editions/rae-ngle:pending-edition/index",
+            json=[
+                {
+                    "id": entry_id,
+                    "edition_id": "rae-ngle:pending-edition",
+                    "parent_id": None,
+                    "level": 1,
+                    "order": 97,
+                    "title": "Aprobacion de propuestas",
+                    "locator": "smoke editorial > 1",
+                    "page_start": "1",
+                    "page_end": "2",
+                    "status": "registered",
+                }
+            ],
+        ).status_code == 200
+        assert client.post(
+            f"/knowledge/index/{entry_id}/segments",
+            json=[
+                {
+                    "id": segment_id,
+                    "index_entry_id": entry_id,
+                    "parent_segment_id": None,
+                    "segment_type": "paragraph",
+                    "title": "Segmento editorial",
+                    "text": "La revision editorial convierte propuestas en objetos trazables.",
+                    "order": 1,
+                    "start_locator": "smoke editorial > 1 > p1",
+                    "end_locator": "smoke editorial > 1 > p1",
+                    "language": "es",
+                    "status": "registered",
+                }
+            ],
+        ).status_code == 200
+        extraction = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json={
+                "extractor_type": "deterministic",
+                "extractor_name": "manual-placeholder",
+                "extractor_version": "1.0",
+                "configuration": {"mode": "review-proposals"},
+            },
+        ).json()
+        response = client.post(
+            f"/knowledge/extractions/{extraction['id']}/proposals",
+            json=[
+                {
+                    "proposal_type": "node",
+                    "title": "Nodo editorial de prueba",
+                    "payload": {
+                        "id": node_id,
+                        "source_id": "rae-ngle",
+                        "node_type": "concepto",
+                        "title": "Nodo editorial de prueba",
+                        "summary": "Nodo aprobado desde una propuesta editorial.",
+                        "canonical_name": "Nodo editorial de prueba",
+                        "primary_branch": "lengua espanola",
+                        "secondary_branch": "auditoria",
+                        "short_definition": "Concepto de prueba aprobado.",
+                        "long_definition": "Concepto creado para probar la revision editorial de propuestas.",
+                        "aliases": ["propuesta aprobada"],
+                    },
+                    "rationale": "El segmento propone un nodo revisable.",
+                    "confidence": 0.81,
+                    "source_locator": "smoke editorial > 1 > p1",
+                },
+                {
+                    "proposal_type": "evidence",
+                    "title": "Evidencia editorial de prueba",
+                    "payload": {
+                        "id": evidence_id,
+                        "node_id": node_id,
+                        "source_id": "rae-ngle",
+                        "source_edition_id": "rae-ngle:pending-edition",
+                        "evidence_type": "documented_paraphrase",
+                        "locator": {
+                            "catalog_id": "F001",
+                            "edition": "pendiente de identificacion",
+                            "unit": "smoke editorial",
+                            "locator": "smoke editorial > 1 > p1",
+                            "url": None,
+                        },
+                        "reference": "smoke editorial > 1 > p1",
+                        "excerpt": "La revision editorial convierte propuestas en objetos trazables.",
+                        "context": "reviewed_proposal",
+                        "confidence_level": 4,
+                    },
+                    "rationale": "La evidencia procede del segmento revisado.",
+                    "confidence": 0.82,
+                    "source_locator": "smoke editorial > 1 > p1",
+                },
+                {
+                    "proposal_type": "claim",
+                    "title": "Claim editorial de prueba",
+                    "payload": {
+                        "id": claim_id,
+                        "evidence_id": evidence_id,
+                        "card_id": "lexico-precision",
+                        "statement": "Las propuestas aprobadas se transforman en objetos trazables.",
+                        "claim_type": "architectural",
+                        "node_id": node_id,
+                        "related_node_ids": ["rae-norma-estilo"],
+                        "domain": "knowledge.review",
+                        "scope": {"language": "es", "register": "technical"},
+                    },
+                    "rationale": "El claim queda sustentado por la evidencia aprobada.",
+                    "confidence": 0.83,
+                    "source_locator": "smoke editorial > 1 > p1",
+                },
+                {
+                    "proposal_type": "definition",
+                    "title": "Definicion no mutable",
+                    "payload": {"node_id": node_id, "definition": "No mutar silenciosamente."},
+                    "rationale": "Las definiciones requieren regla de mutacion versionada.",
+                    "confidence": 0.5,
+                    "source_locator": "smoke editorial > 1 > p1",
+                },
+            ],
+        )
+        assert response.status_code == 200
+        proposals = response.json()
+        proposal_by_type = {proposal["proposal_type"]: proposal for proposal in proposals}
+
+        approved_node = client.post(
+            f"/knowledge/proposals/{proposal_by_type['node']['id']}/approve",
+            json=decision,
+        )
+        assert approved_node.status_code == 200
+        assert approved_node.json()["status"] == "approved"
+
+        approved_evidence = client.post(
+            f"/knowledge/proposals/{proposal_by_type['evidence']['id']}/approve",
+            json=decision,
+        )
+        assert approved_evidence.status_code == 200
+        assert approved_evidence.json()["status"] == "approved"
+
+        approved_claim = client.post(
+            f"/knowledge/proposals/{proposal_by_type['claim']['id']}/approve",
+            json=decision,
+        )
+        assert approved_claim.status_code == 200
+        assert approved_claim.json()["status"] == "approved"
+
+        repeated_approval = client.post(
+            f"/knowledge/proposals/{proposal_by_type['claim']['id']}/approve",
+            json=decision,
+        )
+        assert repeated_approval.status_code == 409
+        assert repeated_approval.json()["detail"] == "Knowledge proposal is already decided"
+
+        rejected_definition = client.post(
+            f"/knowledge/proposals/{proposal_by_type['definition']['id']}/reject",
+            json=decision,
+        )
+        assert rejected_definition.status_code == 200
+        assert rejected_definition.json()["status"] == "rejected"
+
+        unsupported_definition = client.post(
+            f"/knowledge/proposals/{proposal_by_type['definition']['id']}/approve",
+            json=decision,
+        )
+        assert unsupported_definition.status_code == 409
+        assert unsupported_definition.json()["detail"] == "Knowledge proposal is already decided"
+
+        with SessionLocal() as session:
+            node = session.get(KnowledgeNodeRecord, node_id)
+            assert node is not None
+            assert node.status == "validated"
+            assert node.published_at == "not-published"
+            evidence = session.get(KnowledgeEvidenceItemRecord, evidence_id)
+            assert evidence is not None
+            assert evidence.status == "validated"
+            assert evidence.reviewed_by == "test-editor"
+            claim = session.get(KnowledgeClaimRecord, claim_id)
+            assert claim is not None
+            assert claim.status == "validated"
+            assert claim.published_at is None
+            link = session.get(
+                KnowledgeClaimEvidenceLinkRecord,
+                f"{claim_id}:{evidence_id}:primary",
+            )
+            assert link is not None
+            assert link.role == "primary"
+            node_revision = session.get(KnowledgeObjectRevisionRecord, f"{node_id}:r1")
+            assert node_revision is not None
+            assert node_revision.change_type == "created_from_proposal"
+            assert node_revision.status == "validated"
+            approved_event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.proposal.approved",
+                    AuditEventRecord.entity_id == proposal_by_type["claim"]["id"],
+                )
+            ).first()
+            assert approved_event is not None
+            assert approved_event.payload["target_type"] == "claim"
+            assert approved_event.payload["published"] is False
+            rejected_event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.proposal.rejected",
+                    AuditEventRecord.entity_id == proposal_by_type["definition"]["id"],
+                )
+            ).first()
+            assert rejected_event is not None
+            assert rejected_event.payload["stable_knowledge_created"] is False
+    finally:
+        proposal_ids = [proposal["id"] for proposal in proposals]
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_(
+                    [entry_id, extraction["id"] if "extraction" in locals() else "", *proposal_ids]
+                )
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeClaimRevisionRecord).filter(
+                KnowledgeClaimRevisionRecord.claim_id == claim_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeClaimEvidenceLinkRecord).filter(
+                KnowledgeClaimEvidenceLinkRecord.claim_id == claim_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeClaimRecord).filter(
+                KnowledgeClaimRecord.id == claim_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeEvidenceRevisionRecord).filter(
+                KnowledgeEvidenceRevisionRecord.evidence_id == evidence_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeEvidenceItemRecord).filter(
+                KnowledgeEvidenceItemRecord.id == evidence_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeObjectRevisionRecord).filter(
+                KnowledgeObjectRevisionRecord.object_id == node_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeNodeRecord).filter(
+                KnowledgeNodeRecord.id == node_id
+            ).delete(synchronize_session=False)
+            if "extraction" in locals():
+                session.query(KnowledgeProposalRecord).filter(
+                    KnowledgeProposalRecord.extraction_id == extraction["id"]
+                ).delete(synchronize_session=False)
+                session.query(KnowledgeExtractionRunRecord).filter(
+                    KnowledgeExtractionRunRecord.id == extraction["id"]
+                ).delete(synchronize_session=False)
+            session.query(KnowledgeSegmentRecord).filter(
+                KnowledgeSegmentRecord.id == segment_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.id == entry_id
+            ).delete(synchronize_session=False)
+            session.commit()
+
+
 def test_knowledge_nodes_link_to_sources():
     response = client.get("/knowledge/nodes")
     assert response.status_code == 200

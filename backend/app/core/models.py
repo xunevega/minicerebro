@@ -507,6 +507,11 @@ class KnowledgeProposalCreate(BaseModel):
     source_locator: str = Field(min_length=1, max_length=240)
 
 
+class KnowledgeProposalDecision(BaseModel):
+    reviewer: str = Field(min_length=1, max_length=120)
+    reason: str = Field(min_length=1)
+
+
 class KnowledgeNode(BaseModel):
     id: str
     source_id: str

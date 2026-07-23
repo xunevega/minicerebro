@@ -38,6 +38,7 @@ from app.core.models import (
     KnowledgePublicationReadiness,
     KnowledgeProposal,
     KnowledgeProposalCreate,
+    KnowledgeProposalDecision,
     KnowledgeQueryContract,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
@@ -71,7 +72,9 @@ from app.db.models import (
     KnowledgeCardRecord,
     KnowledgeClaimEvidenceLinkRecord,
     KnowledgeClaimRecord,
+    KnowledgeClaimRevisionRecord,
     KnowledgeEvidenceItemRecord,
+    KnowledgeEvidenceRevisionRecord,
     KnowledgeExtractionRunRecord,
     KnowledgeIndexEntryRecord,
     KnowledgeIngestionBatchRecord,
@@ -1358,6 +1361,328 @@ class Repository:
         if record is None:
             raise KeyError(proposal_id)
         return knowledge_proposal_from_record(record)
+
+    def approve_knowledge_proposal(
+        self,
+        proposal_id: str,
+        decision: KnowledgeProposalDecision,
+    ) -> KnowledgeProposal:
+        record = self.session.get(KnowledgeProposalRecord, proposal_id)
+        if record is None:
+            raise KeyError(proposal_id)
+        if record.status != "proposed":
+            raise ValueError("Knowledge proposal is already decided")
+        target_type, target_id = self._create_object_from_proposal(record, decision)
+        now = datetime.now(UTC).isoformat()
+        record.status = "approved"
+        record.reviewed_at = now
+        record.updated_at = now
+        record.reviewer = decision.reviewer
+        record.decision_reason = decision.reason
+        self.add_audit_event(
+            "knowledge.proposal.approved",
+            "knowledge_proposal",
+            proposal_id,
+            {
+                "proposal_type": record.proposal_type,
+                "target_type": target_type,
+                "target_id": target_id,
+                "reviewer": decision.reviewer,
+                "reason": decision.reason,
+                "published": False,
+                "candidate_version_created": False,
+            },
+        )
+        self.session.commit()
+        return knowledge_proposal_from_record(record)
+
+    def reject_knowledge_proposal(
+        self,
+        proposal_id: str,
+        decision: KnowledgeProposalDecision,
+    ) -> KnowledgeProposal:
+        record = self.session.get(KnowledgeProposalRecord, proposal_id)
+        if record is None:
+            raise KeyError(proposal_id)
+        if record.status != "proposed":
+            raise ValueError("Knowledge proposal is already decided")
+        now = datetime.now(UTC).isoformat()
+        record.status = "rejected"
+        record.reviewed_at = now
+        record.updated_at = now
+        record.reviewer = decision.reviewer
+        record.decision_reason = decision.reason
+        self.add_audit_event(
+            "knowledge.proposal.rejected",
+            "knowledge_proposal",
+            proposal_id,
+            {
+                "proposal_type": record.proposal_type,
+                "reviewer": decision.reviewer,
+                "reason": decision.reason,
+                "stable_knowledge_created": False,
+                "published": False,
+            },
+        )
+        self.session.commit()
+        return knowledge_proposal_from_record(record)
+
+    def _create_object_from_proposal(
+        self,
+        proposal: KnowledgeProposalRecord,
+        decision: KnowledgeProposalDecision,
+    ) -> tuple[str, str]:
+        if proposal.proposal_type == "node":
+            return "node", self._create_node_from_proposal(proposal, decision)
+        if proposal.proposal_type == "evidence":
+            return "evidence", self._create_evidence_from_proposal(proposal, decision)
+        if proposal.proposal_type == "claim":
+            return "claim", self._create_claim_from_proposal(proposal, decision)
+        if proposal.proposal_type == "relation":
+            return "relation", self._create_relation_from_proposal(proposal)
+        raise ValueError(
+            "Knowledge proposal type requires a versioned mutation rule before approval"
+        )
+
+    def _required_payload_value(
+        self,
+        proposal: KnowledgeProposalRecord,
+        key: str,
+    ) -> str:
+        value = proposal.payload.get(key)
+        if not isinstance(value, str) or not value:
+            raise ValueError(f"Knowledge proposal payload missing {key}")
+        return value
+
+    def _create_node_from_proposal(
+        self,
+        proposal: KnowledgeProposalRecord,
+        decision: KnowledgeProposalDecision,
+    ) -> str:
+        node_id = self._required_payload_value(proposal, "id")
+        source_id = self._required_payload_value(proposal, "source_id")
+        version = proposal.payload.get("version", "knowledge-v0")
+        if not isinstance(version, str):
+            raise ValueError("Knowledge proposal payload missing version")
+        if self.session.get(KnowledgeNodeRecord, node_id) is not None:
+            raise ValueError("Knowledge node already exists")
+        if self.session.get(KnowledgeSourceRecord, source_id) is None:
+            raise KeyError(source_id)
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        now = datetime.now(UTC).isoformat()
+        aliases = proposal.payload.get("aliases", [])
+        if not isinstance(aliases, list):
+            raise ValueError("Knowledge proposal payload aliases must be a list")
+        self.session.add(
+            KnowledgeNodeRecord(
+                id=node_id,
+                source_id=source_id,
+                node_type=self._required_payload_value(proposal, "node_type"),
+                title=proposal.payload.get("title", proposal.title),
+                summary=self._required_payload_value(proposal, "summary"),
+                canonical_name=self._required_payload_value(proposal, "canonical_name"),
+                primary_branch=self._required_payload_value(proposal, "primary_branch"),
+                secondary_branch=self._required_payload_value(proposal, "secondary_branch"),
+                short_definition=self._required_payload_value(proposal, "short_definition"),
+                long_definition=self._required_payload_value(proposal, "long_definition"),
+                status="validated",
+                version=version,
+                created_at=now,
+                published_at="not-published",
+                aliases=aliases,
+            )
+        )
+        self.session.add(
+            KnowledgeObjectRevisionRecord(
+                id=f"{node_id}:r1",
+                object_type="node",
+                object_id=node_id,
+                revision_number=1,
+                object_version=f"{node_id}@r1",
+                knowledge_version=version,
+                status="validated",
+                change_type="created_from_proposal",
+                author=decision.reviewer,
+                reason=decision.reason,
+                previous_revision=None,
+                replaces_object_id=None,
+                replaced_by_object_id=None,
+                before={},
+                after=proposal.payload,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        return node_id
+
+    def _create_evidence_from_proposal(
+        self,
+        proposal: KnowledgeProposalRecord,
+        decision: KnowledgeProposalDecision,
+    ) -> str:
+        evidence_id = self._required_payload_value(proposal, "id")
+        node_id = self._required_payload_value(proposal, "node_id")
+        source_id = self._required_payload_value(proposal, "source_id")
+        source_edition_id = self._required_payload_value(proposal, "source_edition_id")
+        version = proposal.payload.get("version", "knowledge-v0")
+        locator = proposal.payload.get("locator")
+        if not isinstance(version, str):
+            raise ValueError("Knowledge proposal payload missing version")
+        if not isinstance(locator, dict):
+            raise ValueError("Knowledge proposal payload missing locator")
+        if self.session.get(KnowledgeEvidenceItemRecord, evidence_id) is not None:
+            raise ValueError("Knowledge evidence already exists")
+        if self.session.get(KnowledgeNodeRecord, node_id) is None:
+            raise KeyError(node_id)
+        if self.session.get(KnowledgeSourceRecord, source_id) is None:
+            raise KeyError(source_id)
+        edition = self.session.get(KnowledgeSourceEditionRecord, source_edition_id)
+        if edition is None or edition.source_id != source_id:
+            raise KeyError(source_edition_id)
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        now = datetime.now(UTC).isoformat()
+        self.session.add(
+            KnowledgeEvidenceItemRecord(
+                id=evidence_id,
+                node_id=node_id,
+                source_id=source_id,
+                source_edition_id=source_edition_id,
+                evidence_type=self._required_payload_value(proposal, "evidence_type"),
+                locator=locator,
+                reference=self._required_payload_value(proposal, "reference"),
+                excerpt=self._required_payload_value(proposal, "excerpt"),
+                context=proposal.payload.get("context", "reviewed_proposal"),
+                confidence=proposal.confidence,
+                confidence_level=int(proposal.payload.get("confidence_level", 3)),
+                status="validated",
+                version=version,
+                created_at=now,
+                updated_at=now,
+                incorporated_by=decision.reviewer,
+                reviewed_by=decision.reviewer,
+                revision=1,
+            )
+        )
+        self.session.add(
+            KnowledgeEvidenceRevisionRecord(
+                id=f"{evidence_id}:r1",
+                evidence_id=evidence_id,
+                revision=1,
+                author=decision.reviewer,
+                reason=decision.reason,
+                changes=proposal.payload,
+                created_at=now,
+            )
+        )
+        return evidence_id
+
+    def _create_claim_from_proposal(
+        self,
+        proposal: KnowledgeProposalRecord,
+        decision: KnowledgeProposalDecision,
+    ) -> str:
+        claim_id = self._required_payload_value(proposal, "id")
+        evidence_id = self._required_payload_value(proposal, "evidence_id")
+        card_id = self._required_payload_value(proposal, "card_id")
+        node_id = self._required_payload_value(proposal, "node_id")
+        version = proposal.payload.get("version", "knowledge-v0")
+        related_node_ids = proposal.payload.get("related_node_ids", [])
+        scope = proposal.payload.get("scope")
+        if not isinstance(version, str):
+            raise ValueError("Knowledge proposal payload missing version")
+        if not isinstance(related_node_ids, list):
+            raise ValueError("Knowledge proposal payload related_node_ids must be a list")
+        if not isinstance(scope, dict):
+            raise ValueError("Knowledge proposal payload missing scope")
+        if self.session.get(KnowledgeClaimRecord, claim_id) is not None:
+            raise ValueError("Knowledge claim already exists")
+        if self.session.get(KnowledgeEvidenceItemRecord, evidence_id) is None:
+            raise KeyError(evidence_id)
+        if self.session.get(KnowledgeCardRecord, card_id) is None:
+            raise KeyError(card_id)
+        if self.session.get(KnowledgeNodeRecord, node_id) is None:
+            raise KeyError(node_id)
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        now = datetime.now(UTC).isoformat()
+        self.session.add(
+            KnowledgeClaimRecord(
+                id=claim_id,
+                evidence_id=evidence_id,
+                card_id=card_id,
+                statement=self._required_payload_value(proposal, "statement"),
+                claim_type=self._required_payload_value(proposal, "claim_type"),
+                node_id=node_id,
+                related_node_ids=related_node_ids,
+                domain=self._required_payload_value(proposal, "domain"),
+                scope=scope,
+                status="validated",
+                confidence=proposal.confidence,
+                origin="approved_knowledge_proposal",
+                version=version,
+                revision=1,
+                created_at=now,
+                updated_at=now,
+                published_at=None,
+            )
+        )
+        self.session.add(
+            KnowledgeClaimEvidenceLinkRecord(
+                id=f"{claim_id}:{evidence_id}:primary",
+                claim_id=claim_id,
+                evidence_id=evidence_id,
+                role="primary",
+                created_at=now,
+            )
+        )
+        self.session.add(
+            KnowledgeClaimRevisionRecord(
+                id=f"{claim_id}:r1",
+                claim_id=claim_id,
+                revision=1,
+                knowledge_version=version,
+                author=decision.reviewer,
+                reason=decision.reason,
+                changed_fields=list(proposal.payload.keys()),
+                previous_claim={},
+                new_claim=proposal.payload,
+                created_at=now,
+            )
+        )
+        return claim_id
+
+    def _create_relation_from_proposal(self, proposal: KnowledgeProposalRecord) -> str:
+        relation_id = self._required_payload_value(proposal, "id")
+        version = proposal.payload.get("version", "knowledge-v0")
+        if not isinstance(version, str):
+            raise ValueError("Knowledge proposal payload missing version")
+        if self.session.get(KnowledgeRelationRecord, relation_id) is not None:
+            raise ValueError("Knowledge relation already exists")
+        if self.session.get(KnowledgeVersionRecord, version) is None:
+            raise KeyError(version)
+        now = datetime.now(UTC).isoformat()
+        self.session.add(
+            KnowledgeRelationRecord(
+                id=relation_id,
+                source_entity_type=self._required_payload_value(proposal, "source_entity_type"),
+                source_entity_id=self._required_payload_value(proposal, "source_entity_id"),
+                target_entity_type=self._required_payload_value(proposal, "target_entity_type"),
+                target_entity_id=self._required_payload_value(proposal, "target_entity_id"),
+                relation_type=self._required_payload_value(proposal, "relation_type"),
+                direction=proposal.payload.get("direction", "outgoing"),
+                cardinality=proposal.payload.get("cardinality", "N:N"),
+                weight=float(proposal.payload.get("weight", 1.0)),
+                confidence=proposal.confidence,
+                context=proposal.payload.get("context", "reviewed_proposal"),
+                status="validated",
+                version=version,
+                created_at=now,
+                updated_at=now,
+            )
+        )
+        return relation_id
 
     def list_knowledge_nodes(
         self,

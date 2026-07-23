@@ -32,6 +32,7 @@ import type {
   KnowledgePublicationReadiness,
   KnowledgeProposal,
   KnowledgeProposalCreate,
+  KnowledgeProposalDecision,
   KnowledgeQueryContract,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryInterpretation,
@@ -230,6 +231,32 @@ export function getKnowledgeProposals(extractionId: string) {
 export function getKnowledgeProposal(proposalId: string) {
   return request<KnowledgeProposal>(
     `/knowledge/proposals/${encodeURIComponent(proposalId)}`,
+  );
+}
+
+export function approveKnowledgeProposal(
+  proposalId: string,
+  payload: KnowledgeProposalDecision,
+) {
+  return request<KnowledgeProposal>(
+    `/knowledge/proposals/${encodeURIComponent(proposalId)}/approve`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function rejectKnowledgeProposal(
+  proposalId: string,
+  payload: KnowledgeProposalDecision,
+) {
+  return request<KnowledgeProposal>(
+    `/knowledge/proposals/${encodeURIComponent(proposalId)}/reject`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
   );
 }
 

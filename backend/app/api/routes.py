@@ -42,6 +42,7 @@ from app.core.models import (
     KnowledgePublicationReadiness,
     KnowledgeProposal,
     KnowledgeProposalCreate,
+    KnowledgeProposalDecision,
     KnowledgeQueryContract,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
@@ -436,6 +437,34 @@ def knowledge_proposal(
         return repository.get_knowledge_proposal(proposal_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge proposal not found") from exc
+
+
+@router.post("/knowledge/proposals/{proposal_id}/approve")
+def approve_knowledge_proposal(
+    proposal_id: str,
+    payload: KnowledgeProposalDecision,
+    repository: RepositoryDep,
+) -> KnowledgeProposal:
+    try:
+        return repository.approve_knowledge_proposal(proposal_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge proposal dependency not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/knowledge/proposals/{proposal_id}/reject")
+def reject_knowledge_proposal(
+    proposal_id: str,
+    payload: KnowledgeProposalDecision,
+    repository: RepositoryDep,
+) -> KnowledgeProposal:
+    try:
+        return repository.reject_knowledge_proposal(proposal_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge proposal not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.get("/knowledge/nodes")

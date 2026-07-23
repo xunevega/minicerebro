@@ -401,6 +401,11 @@ export type KnowledgeProposalCreate = {
   source_locator: string;
 };
 
+export type KnowledgeProposalDecision = {
+  reviewer: string;
+  reason: string;
+};
+
 export type KnowledgeNode = {
   id: string;
   source_id: string;
