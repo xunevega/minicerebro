@@ -24,6 +24,7 @@ from app.db.models import (
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
     KnowledgeVersionSnapshotRecord,
+    ProfileKnowledgeCardRecord,
 )
 from app.db.session import SessionLocal
 from app.main import app
@@ -90,6 +91,7 @@ def test_profile_export_includes_traceable_profile_without_knowledge():
     assert any(
         item["evidence"]["context"] == "ensayo" for item in payload["preferences"]
     )
+    assert payload["knowledge_cards"] == []
     assert payload["knowledge_policy"] == (
         "La exportacion del perfil no incluye ni modifica la base de conocimiento."
     )
@@ -102,11 +104,137 @@ def test_profile_export_rejects_missing_profile():
     assert response.json()["detail"] == "Profile not found"
 
 
+def test_profile_knowledge_card_records_user_feedback_without_mutating_knowledge():
+    try:
+        with SessionLocal() as session:
+            card = session.get(KnowledgeCardRecord, "lexico-precision")
+            assert card is not None
+            original_version = card.version
+
+        response = client.post(
+            "/profiles/default/knowledge-cards/lexico-precision",
+            json={
+                "knowledge_version": "knowledge-v0",
+                "stance": "kept",
+                "user_score": 820,
+                "feedback": "Mantener esta ficha para precision lexica.",
+                "maintained_elements": ["definicion", "tono"],
+                "change_requests": [],
+                "notes": "Preferencia personal, no conocimiento estable.",
+            },
+        )
+        assert response.status_code == 200
+        created = response.json()
+        assert created["profile_id"] == "default"
+        assert created["card_id"] == "lexico-precision"
+        assert created["knowledge_version"] == "knowledge-v0"
+        assert created["stance"] == "kept"
+        assert created["user_score"] == 820
+        assert created["maintained_elements"] == ["definicion", "tono"]
+        assert created["change_requests"] == []
+
+        updated = client.post(
+            "/profiles/default/knowledge-cards/lexico-precision",
+            json={
+                "knowledge_version": "knowledge-v0",
+                "stance": "changed",
+                "user_score": 610,
+                "feedback": "Me gusta la base, pero quiero ejemplos menos rigidos.",
+                "maintained_elements": ["precision"],
+                "change_requests": ["ejemplos menos rigidos"],
+                "notes": "Ajuste de usuario.",
+            },
+        )
+        assert updated.status_code == 200
+        updated_payload = updated.json()
+        assert updated_payload["id"] == created["id"]
+        assert updated_payload["stance"] == "changed"
+        assert updated_payload["user_score"] == 610
+        assert updated_payload["change_requests"] == ["ejemplos menos rigidos"]
+
+        listed = client.get("/profiles/default/knowledge-cards")
+        assert listed.status_code == 200
+        assert [item["id"] for item in listed.json()] == [created["id"]]
+
+        detail = client.get(
+            "/profiles/default/knowledge-cards/lexico-precision?knowledge_version=knowledge-v0"
+        )
+        assert detail.status_code == 200
+        assert detail.json()["id"] == created["id"]
+
+        export = client.get("/profiles/default/export")
+        assert export.status_code == 200
+        assert export.json()["knowledge_cards"][0]["id"] == created["id"]
+
+        missing_profile = client.post(
+            "/profiles/missing-profile/knowledge-cards/lexico-precision",
+            json={
+                "knowledge_version": "knowledge-v0",
+                "stance": "liked",
+                "user_score": 700,
+                "feedback": "No debe crearse sin perfil.",
+            },
+        )
+        assert missing_profile.status_code == 404
+
+        missing_card = client.post(
+            "/profiles/default/knowledge-cards/missing-card",
+            json={
+                "knowledge_version": "knowledge-v0",
+                "stance": "liked",
+                "user_score": 700,
+                "feedback": "No debe crearse sin ficha de conocimiento.",
+            },
+        )
+        assert missing_card.status_code == 404
+
+        with SessionLocal() as session:
+            records = session.scalars(
+                select(ProfileKnowledgeCardRecord).where(
+                    ProfileKnowledgeCardRecord.profile_id == "default",
+                    ProfileKnowledgeCardRecord.card_id == "lexico-precision",
+                    ProfileKnowledgeCardRecord.knowledge_version == "knowledge-v0",
+                )
+            ).all()
+            assert len(records) == 1
+            card = session.get(KnowledgeCardRecord, "lexico-precision")
+            assert card is not None
+            assert card.version == original_version
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "profile.knowledge_card.updated",
+                    AuditEventRecord.entity_id == created["id"],
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["stable_knowledge_mutated"] is False
+    finally:
+        with SessionLocal() as session:
+            record_ids = [
+                record.id
+                for record in session.scalars(
+                    select(ProfileKnowledgeCardRecord).where(
+                        ProfileKnowledgeCardRecord.profile_id == "default",
+                        ProfileKnowledgeCardRecord.card_id == "lexico-precision",
+                        ProfileKnowledgeCardRecord.knowledge_version == "knowledge-v0",
+                    )
+                ).all()
+            ]
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_(record_ids)
+            ).delete(synchronize_session=False)
+            session.query(ProfileKnowledgeCardRecord).filter(
+                ProfileKnowledgeCardRecord.id.in_(record_ids)
+            ).delete(synchronize_session=False)
+            session.commit()
+
+
 def test_profile_surfaces_reject_missing_profile_consistently():
     assert client.get("/profiles/missing/summary").status_code == 404
     assert client.get("/profiles/missing/scores").status_code == 404
     assert client.get("/profiles/missing/statistics").status_code == 404
     assert client.get("/profiles/missing/contradictions").status_code == 404
+    assert client.get("/profiles/missing/knowledge-cards").status_code == 404
     patched = client.patch(
         "/profiles/missing/scores/dinamismo",
         json={"manual_adjustment": 10, "reason": "No debe crear perfil inexistente."},

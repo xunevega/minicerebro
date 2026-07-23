@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from datetime import datetime
 
-from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text
+from sqlalchemy import Boolean, DateTime, Float, ForeignKey, Integer, JSON, String, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.db.session import Base
@@ -115,6 +115,31 @@ class GeneratedTextRecord(Base):
     used_profile_variables: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
     learning_applied: Mapped[bool] = mapped_column(Boolean, nullable=False, default=False)
     created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class ProfileKnowledgeCardRecord(Base):
+    __tablename__ = "profile_knowledge_cards"
+    __table_args__ = (
+        UniqueConstraint(
+            "profile_id",
+            "card_id",
+            "knowledge_version",
+            name="uq_profile_knowledge_card_version",
+        ),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    card_id: Mapped[str] = mapped_column(ForeignKey("knowledge_cards.id"), nullable=False, index=True)
+    knowledge_version: Mapped[str] = mapped_column(ForeignKey("knowledge_versions.id"), nullable=False, index=True)
+    stance: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    user_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    feedback: Mapped[str] = mapped_column(Text, nullable=False)
+    maintained_elements: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    change_requests: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
 class KnowledgeVersionRecord(Base):

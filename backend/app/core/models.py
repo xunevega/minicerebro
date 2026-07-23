@@ -127,6 +127,31 @@ class FeedbackDecisionInput(BaseModel):
     variable_keys: list[str] | None = None
 
 
+class ProfileKnowledgeCard(BaseModel):
+    id: UUID = Field(default_factory=uuid4)
+    profile_id: str
+    card_id: str
+    knowledge_version: str
+    stance: Literal["liked", "kept", "changed", "dismissed"]
+    user_score: int = Field(ge=0, le=1000)
+    feedback: str
+    maintained_elements: list[str]
+    change_requests: list[str]
+    notes: str = ""
+    created_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+    updated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
+class ProfileKnowledgeCardInput(BaseModel):
+    knowledge_version: str = Field(default="knowledge-v0", min_length=1, max_length=80)
+    stance: Literal["liked", "kept", "changed", "dismissed"]
+    user_score: int = Field(ge=0, le=1000)
+    feedback: str = Field(min_length=1, max_length=5000)
+    maintained_elements: list[str] = Field(default_factory=list)
+    change_requests: list[str] = Field(default_factory=list)
+    notes: str = Field(default="", max_length=5000)
+
+
 class Profile(BaseModel):
     id: str
     name: str
@@ -822,6 +847,7 @@ class ProfileExport(BaseModel):
     profile: Profile
     variables_by_context: dict[str, list[dict]]
     preferences: list[Preference]
+    knowledge_cards: list[ProfileKnowledgeCard]
     statistics_by_context: dict[str, ProfileStatistics]
     contradictions_by_context: dict[str, list[Contradiction]]
     knowledge_policy: str

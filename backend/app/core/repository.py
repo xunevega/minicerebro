@@ -57,6 +57,8 @@ from app.core.models import (
     Preference,
     PreferenceStatus,
     Profile,
+    ProfileKnowledgeCard,
+    ProfileKnowledgeCardInput,
     ProfileStatistics,
     ScoreProposal,
     ScoreVariable,
@@ -89,6 +91,7 @@ from app.db.models import (
     KnowledgeVersionRecord,
     KnowledgeVersionSnapshotRecord,
     PreferenceRecord,
+    ProfileKnowledgeCardRecord,
     ProfileRecord,
     ScoreVariableRecord,
 )
@@ -177,6 +180,23 @@ def profile_from_record(record: ProfileRecord) -> Profile:
         summary=record.summary,
         variables=[score_from_record(variable) for variable in record.variables],
         preferences=[preference_from_record(preference) for preference in record.preferences],
+        updated_at=record.updated_at,
+    )
+
+
+def profile_knowledge_card_from_record(record: ProfileKnowledgeCardRecord) -> ProfileKnowledgeCard:
+    return ProfileKnowledgeCard(
+        id=UUID(record.id),
+        profile_id=record.profile_id,
+        card_id=record.card_id,
+        knowledge_version=record.knowledge_version,
+        stance=record.stance,
+        user_score=record.user_score,
+        feedback=record.feedback,
+        maintained_elements=record.maintained_elements,
+        change_requests=record.change_requests,
+        notes=record.notes,
+        created_at=record.created_at,
         updated_at=record.updated_at,
     )
 
@@ -2103,6 +2123,99 @@ class Repository:
         if record is None:
             raise KeyError(profile_id)
         return profile_from_record(record)
+
+    def list_profile_knowledge_cards(self, profile_id: str) -> list[ProfileKnowledgeCard]:
+        if self.session.get(ProfileRecord, profile_id) is None:
+            raise KeyError(profile_id)
+        records = self.session.scalars(
+            select(ProfileKnowledgeCardRecord)
+            .where(ProfileKnowledgeCardRecord.profile_id == profile_id)
+            .order_by(ProfileKnowledgeCardRecord.updated_at.desc())
+        ).all()
+        return [profile_knowledge_card_from_record(record) for record in records]
+
+    def get_profile_knowledge_card(
+        self,
+        profile_id: str,
+        card_id: str,
+        knowledge_version: str,
+    ) -> ProfileKnowledgeCard:
+        record = self.session.scalar(
+            select(ProfileKnowledgeCardRecord).where(
+                ProfileKnowledgeCardRecord.profile_id == profile_id,
+                ProfileKnowledgeCardRecord.card_id == card_id,
+                ProfileKnowledgeCardRecord.knowledge_version == knowledge_version,
+            )
+        )
+        if record is None:
+            raise KeyError(card_id)
+        return profile_knowledge_card_from_record(record)
+
+    def upsert_profile_knowledge_card(
+        self,
+        profile_id: str,
+        card_id: str,
+        payload: ProfileKnowledgeCardInput,
+    ) -> ProfileKnowledgeCard:
+        profile = self.session.get(ProfileRecord, profile_id)
+        if profile is None:
+            raise KeyError(profile_id)
+        if self.session.get(KnowledgeVersionRecord, payload.knowledge_version) is None:
+            raise KeyError(payload.knowledge_version)
+        card = self.session.get(KnowledgeCardRecord, card_id)
+        if card is None:
+            raise KeyError(card_id)
+        record = self.session.scalar(
+            select(ProfileKnowledgeCardRecord).where(
+                ProfileKnowledgeCardRecord.profile_id == profile_id,
+                ProfileKnowledgeCardRecord.card_id == card_id,
+                ProfileKnowledgeCardRecord.knowledge_version == payload.knowledge_version,
+            )
+        )
+        now = datetime.now(UTC)
+        event_type = "profile.knowledge_card.registered"
+        if record is None:
+            record = ProfileKnowledgeCardRecord(
+                id=str(uuid4()),
+                profile_id=profile_id,
+                card_id=card_id,
+                knowledge_version=payload.knowledge_version,
+                stance=payload.stance,
+                user_score=payload.user_score,
+                feedback=payload.feedback,
+                maintained_elements=payload.maintained_elements,
+                change_requests=payload.change_requests,
+                notes=payload.notes,
+                created_at=now,
+                updated_at=now,
+            )
+            self.session.add(record)
+        else:
+            event_type = "profile.knowledge_card.updated"
+            record.stance = payload.stance
+            record.user_score = payload.user_score
+            record.feedback = payload.feedback
+            record.maintained_elements = payload.maintained_elements
+            record.change_requests = payload.change_requests
+            record.notes = payload.notes
+            record.updated_at = now
+        profile.updated_at = now
+        self.add_audit_event(
+            event_type,
+            "profile_knowledge_card",
+            record.id,
+            {
+                "profile_id": profile_id,
+                "card_id": card_id,
+                "knowledge_version": payload.knowledge_version,
+                "stance": payload.stance,
+                "user_score": payload.user_score,
+                "stable_knowledge_mutated": False,
+            },
+        )
+        self.session.commit()
+        self.session.refresh(record)
+        return profile_knowledge_card_from_record(record)
 
     def get_context_variables(self, profile_id: str, context: str) -> list[ScoreVariable]:
         self.ensure_context_variables(profile_id, context)
