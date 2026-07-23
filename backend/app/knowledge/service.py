@@ -33,9 +33,11 @@ from app.core.models import (
 )
 
 KNOWLEDGE_VERSION = "knowledge-v0"
+PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v1"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
+KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 RELATION_UPDATED_AT = "2026-07-23"
-LATEST_KNOWLEDGE_VERSION = KNOWLEDGE_VERSION
+LATEST_KNOWLEDGE_VERSION = PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
     "draft",
     "review",
@@ -256,7 +258,7 @@ def versioning_policy() -> KnowledgeVersioningPolicy:
             "que lo sustituyo despues",
             "como era exactamente en cualquier version publicada",
         ],
-        release_chain=["knowledge-v0"],
+        release_chain=["knowledge-v0", "knowledge-v1"],
     )
 
 
@@ -1300,12 +1302,12 @@ def seed_nodes() -> list[KnowledgeNode]:
             short_definition="Funcion sintactica asociada al participante seleccionado por el verbo.",
             long_definition=(
                 "Concepto validado desde el primer lote real de ingestion de la NGLE Manual "
-                "2010. Queda materializado como conocimiento estable pendiente de publicacion."
+                "2010. Queda materializado como conocimiento estable publicado en knowledge-v1."
             ),
-            status="validated",
-            version=KNOWLEDGE_VERSION,
+            status="published",
+            version=PUBLISHED_KNOWLEDGE_VERSION,
             created_at="2026-07-23",
-            published_at="not-published",
+            published_at=KNOWLEDGE_V1_PUBLISHED_AT,
             aliases=["objeto directo"],
         ),
     ]
@@ -1353,8 +1355,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             weight=0.7,
             confidence=0.64,
             context="seed_ingestion_candidate",
-            status="validated",
-            version=KNOWLEDGE_VERSION,
+            status="published",
+            version=PUBLISHED_KNOWLEDGE_VERSION,
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
@@ -1373,6 +1375,7 @@ def _relation(
     confidence: float = 0.58,
     context: str = "knowledge_graph",
     status: str = "published",
+    version: str = KNOWLEDGE_VERSION,
 ) -> KnowledgeRelation:
     return KnowledgeRelation(
         id=f"rel-{source_type}-{source_id}-{relation_type}-{target_type}-{target_id}",
@@ -1387,7 +1390,7 @@ def _relation(
         confidence=confidence,
         context=context,
         status=status,
-        version=KNOWLEDGE_VERSION,
+        version=version,
         created_at=KNOWLEDGE_PUBLISHED_AT,
         updated_at=RELATION_UPDATED_AT,
     )
@@ -1406,6 +1409,7 @@ def seed_relations() -> list[KnowledgeRelation]:
             "node",
             node.id,
             status=node.status,
+            version=node.version,
         )
         for node in seed_nodes()
     ]
@@ -1420,6 +1424,7 @@ def seed_relations() -> list[KnowledgeRelation]:
             confidence=relation.confidence,
             context=relation.context,
             status=relation.status,
+            version=relation.version,
         )
         for relation in seed_node_relations()
     ]
@@ -1434,6 +1439,7 @@ def seed_relations() -> list[KnowledgeRelation]:
             confidence=evidence.confidence,
             context=evidence.context,
             status=evidence.status,
+            version=evidence.version,
         )
         for evidence in seed_evidence()
     ]
@@ -1448,6 +1454,7 @@ def seed_relations() -> list[KnowledgeRelation]:
             confidence=claim.confidence,
             context=claim.domain,
             status=claim.status,
+            version=claim.version,
         )
         for claim in seed_claims()
     ]
@@ -1462,6 +1469,7 @@ def seed_relations() -> list[KnowledgeRelation]:
             confidence=claim.confidence,
             context=claim.domain,
             status=claim.status,
+            version=claim.version,
         )
         for claim in seed_claims()
     ]
@@ -1476,6 +1484,7 @@ def seed_relations() -> list[KnowledgeRelation]:
             confidence=evidence.confidence,
             context=evidence.context,
             status=evidence.status,
+            version=evidence.version,
         )
         for evidence in seed_evidence()
     ]
@@ -1586,10 +1595,10 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             context="seed_ingestion_candidate",
             confidence=0.66,
             confidence_level=3,
-            status="validated",
-            version=KNOWLEDGE_VERSION,
+            status="published",
+            version=PUBLISHED_KNOWLEDGE_VERSION,
             created_at="2026-07-23",
-            updated_at="2026-07-23",
+            updated_at=KNOWLEDGE_V1_PUBLISHED_AT,
             incorporated_by="minicerebro-seed",
             reviewed_by="minicerebro-seed",
             revision=1,
@@ -1712,14 +1721,14 @@ def seed_claims() -> list[KnowledgeClaim]:
                 "period": "contemporary",
                 "text_type": "grammar",
             },
-            status="validated",
+            status="published",
             confidence=0.64,
             origin="approved_knowledge_proposal",
-            version=KNOWLEDGE_VERSION,
+            version=PUBLISHED_KNOWLEDGE_VERSION,
             revision=1,
             created_at="2026-07-23",
-            updated_at="2026-07-23",
-            published_at=None,
+            updated_at=KNOWLEDGE_V1_PUBLISHED_AT,
+            published_at=KNOWLEDGE_V1_PUBLISHED_AT,
         ),
     ]
 
@@ -1818,14 +1827,14 @@ def seed_cards() -> list[KnowledgeCard]:
             name="Complemento directo",
             definition="Funcion sintactica asociada al participante seleccionado por el verbo.",
             confidence=0.64,
-            version=KNOWLEDGE_VERSION,
+            version=PUBLISHED_KNOWLEDGE_VERSION,
             payload={
                 "signals": [
                     "vinculo con el predicado verbal",
                     "participante seleccionado por el verbo",
                     "analisis dentro de funciones sintacticas",
                 ],
-                "risks": ["requiere revision editorial antes de publicacion"],
+                "risks": ["requiere ampliacion con mas evidencias en futuros lotes"],
                 "contexts": ["gramatica", "sintaxis", "revision linguistica"],
             },
         ),
@@ -1833,6 +1842,27 @@ def seed_cards() -> list[KnowledgeCard]:
 
 
 def seed_versions() -> list[KnowledgeVersion]:
+    published_sources = [source for source in seed_sources() if source.id == "rae-ngle"]
+    published_nodes = [
+        node
+        for node in seed_nodes()
+        if node.id in {"rae-ngle-complemento-directo", "rae-norma-estilo"}
+    ]
+    published_evidence = [
+        evidence
+        for evidence in seed_evidence()
+        if evidence.version == PUBLISHED_KNOWLEDGE_VERSION
+    ]
+    published_claims = [
+        claim
+        for claim in seed_claims()
+        if claim.version == PUBLISHED_KNOWLEDGE_VERSION
+    ]
+    published_cards = [
+        card
+        for card in seed_cards()
+        if card.version == PUBLISHED_KNOWLEDGE_VERSION
+    ]
     return [
         KnowledgeVersion(
             id=KNOWLEDGE_VERSION,
@@ -1843,7 +1873,17 @@ def seed_versions() -> list[KnowledgeVersion]:
             evidence_count=len(seed_evidence()),
             claim_count=len(seed_claims()),
             card_count=len(seed_cards()),
-        )
+        ),
+        KnowledgeVersion(
+            id=PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V1_PUBLISHED_AT,
+            source_count=len(published_sources),
+            node_count=len(published_nodes),
+            evidence_count=len(published_evidence),
+            claim_count=len(published_claims),
+            card_count=len(published_cards),
+        ),
     ]
 
 
@@ -2107,7 +2147,7 @@ def query_contract() -> KnowledgeQueryContract:
             "ranking_policy",
         ],
         out_of_scope=QUERY_OUT_OF_SCOPE,
-        allowed_version_values=[KNOWLEDGE_VERSION, "latest"],
+        allowed_version_values=[KNOWLEDGE_VERSION, PUBLISHED_KNOWLEDGE_VERSION, "latest"],
         profile_boundary=(
             "El perfil puede influir solo en presentacion u ordenacion futura; "
             "no altera la interpretacion contractual ni el conocimiento estable."

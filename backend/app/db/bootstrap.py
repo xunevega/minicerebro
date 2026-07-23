@@ -113,6 +113,14 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 published_at="not-published",
             )
         )
+    if session.get(KnowledgeVersionRecord, "knowledge-v1") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v1",
+                status="published",
+                published_at="2026-07-23",
+            )
+        )
     for source in seed_sources():
         source_record = session.get(KnowledgeSourceRecord, source.id)
         values = {
@@ -688,5 +696,62 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 revision_ids=[revision.id for revision in published_revisions],
                 created_at="2026-07-22",
                 updated_at="2026-07-22",
+            )
+        )
+    if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v1") is None:
+        source_ids = ["rae-ngle"]
+        source_edition_ids = ["rae-ngle:manual-2010"]
+        node_ids = ["rae-ngle-complemento-directo", "rae-norma-estilo"]
+        evidence_ids = ["ev-rae-ngle-complemento-directo-candidata"]
+        claim_ids = ["claim-rae-ngle-complemento-directo"]
+        card_ids = ["card-complemento-directo"]
+        snapshot_object_ids = {
+            *source_ids,
+            *source_edition_ids,
+            *node_ids,
+            *evidence_ids,
+            *claim_ids,
+            *card_ids,
+        }
+        node_relation_ids = [
+            relation.id
+            for relation in seed_node_relations()
+            if relation.version == "knowledge-v1"
+            and relation.source_node_id in snapshot_object_ids
+            and relation.target_node_id in snapshot_object_ids
+        ]
+        relation_ids = [
+            relation.id
+            for relation in seed_relations()
+            if relation.version == "knowledge-v1"
+            and relation.source_entity_id in snapshot_object_ids
+            and relation.target_entity_id in snapshot_object_ids
+        ]
+        revision_ids = [
+            revision.id
+            for revision in seed_object_revisions()
+            if revision.object_id in snapshot_object_ids or revision.object_id in relation_ids
+        ]
+        claim_evidence_link_ids = [
+            link.id
+            for link in seed_claim_evidence_links()
+            if link.claim_id in claim_ids and link.evidence_id in evidence_ids
+        ]
+        session.add(
+            KnowledgeVersionSnapshotRecord(
+                version_id="knowledge-v1",
+                status="published",
+                source_ids=source_ids,
+                source_edition_ids=source_edition_ids,
+                node_ids=node_ids,
+                node_relation_ids=node_relation_ids,
+                relation_ids=relation_ids,
+                evidence_ids=evidence_ids,
+                claim_ids=claim_ids,
+                claim_evidence_link_ids=claim_evidence_link_ids,
+                card_ids=card_ids,
+                revision_ids=revision_ids,
+                created_at="2026-07-23",
+                updated_at="2026-07-23",
             )
         )

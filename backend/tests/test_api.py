@@ -658,7 +658,7 @@ def test_source_ingestion_status_distinguishes_registered_from_ingested():
 
     status = response.json()[0]
     assert status["source_id"] == "rae-ngle"
-    assert status["current_phase"] == "validated"
+    assert status["current_phase"] == "published"
     assert status["is_registered"] is True
     assert status["has_edition"] is True
     assert status["has_index"] is True
@@ -676,14 +676,15 @@ def test_source_ingestion_status_distinguishes_registered_from_ingested():
     assert status["counts"]["completed_extractions"] >= 1
     assert status["counts"]["proposals"] >= 3
     assert status["counts"]["reviewed_proposals"] >= 3
-    assert status["blockers"] == ["missing_publication"]
+    assert status["is_published"] is True
+    assert status["blockers"] == []
 
     missing = client.get("/knowledge/ingestion/sources?source_id=fuente-inexistente")
     assert missing.status_code == 404
     assert missing.json()["detail"] == "Knowledge source not found"
 
 
-def test_seed_real_ingestion_batch_materializes_reviewed_knowledge_without_publication():
+def test_seed_real_ingestion_batch_publishes_reviewed_knowledge_in_v1():
     edition = client.get("/knowledge/editions/rae-ngle:manual-2010")
     assert edition.status_code == 200
     assert edition.json()["source_id"] == "rae-ngle"
@@ -744,14 +745,18 @@ def test_seed_real_ingestion_batch_materializes_reviewed_knowledge_without_publi
             "claim-rae-ngle-complemento-directo:ev-rae-ngle-complemento-directo-candidata:primary",
         )
     assert node is not None
-    assert node.status == "validated"
-    assert node.published_at == "not-published"
+    assert node.status == "published"
+    assert node.version == "knowledge-v1"
+    assert node.published_at == "2026-07-23"
     assert evidence is not None
-    assert evidence.status == "validated"
+    assert evidence.status == "published"
+    assert evidence.version == "knowledge-v1"
     assert claim is not None
-    assert claim.status == "validated"
-    assert claim.published_at is None
+    assert claim.status == "published"
+    assert claim.version == "knowledge-v1"
+    assert claim.published_at == "2026-07-23"
     assert card is not None
+    assert card.version == "knowledge-v1"
     assert card.id == claim.card_id
     assert link is not None
 
@@ -771,12 +776,15 @@ def test_seed_real_ingestion_batch_materializes_reviewed_knowledge_without_publi
     versioned_cards = client.get("/knowledge/cards?version=knowledge-v0")
     assert versioned_cards.status_code == 200
     assert "card-complemento-directo" not in {card["id"] for card in versioned_cards.json()}
+    v1_cards = client.get("/knowledge/cards?version=knowledge-v1")
+    assert v1_cards.status_code == 200
+    assert {card["id"] for card in v1_cards.json()} == {"card-complemento-directo"}
 
     status = client.get("/knowledge/ingestion/sources?source_id=rae-ngle").json()[0]
-    assert status["current_phase"] == "validated"
+    assert status["current_phase"] == "published"
     assert status["is_ingested"] is True
-    assert status["is_published"] is False
-    assert status["blockers"] == ["missing_publication"]
+    assert status["is_published"] is True
+    assert status["blockers"] == []
 
 
 def test_register_knowledge_source_persists_without_registering_edition_or_publication():
@@ -2206,7 +2214,7 @@ def test_knowledge_nodes_link_to_sources():
     assert all(node["secondary_branch"] for node in nodes)
     assert all(node["short_definition"] for node in nodes)
     assert all(node["long_definition"] for node in nodes)
-    assert {node["status"] for node in nodes} == {"published", "validated"}
+    assert {node["status"] for node in nodes} == {"published"}
     assert all(node["created_at"] for node in nodes)
     assert all(node["published_at"] for node in nodes)
     assert all(len(node["relations"]) >= 1 for node in nodes)
@@ -2217,7 +2225,6 @@ def test_knowledge_nodes_link_to_sources():
     assert all(relation["context"] for node in nodes for relation in node["relations"])
     assert {relation["status"] for node in nodes for relation in node["relations"]} == {
         "published",
-        "validated",
     }
     assert all(relation["updated_at"] for node in nodes for relation in node["relations"])
     assert {
@@ -2335,7 +2342,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
         for item in evidence_payload
     )
     assert {item["confidence_level"] for item in evidence_payload} == {2, 3}
-    assert {item["status"] for item in evidence_payload} == {"draft", "validated"}
+    assert {item["status"] for item in evidence_payload} == {"draft", "published"}
     assert all(item["created_at"] for item in evidence_payload)
     assert all(item["updated_at"] for item in evidence_payload)
     assert {item["incorporated_by"] for item in evidence_payload} == {"minicerebro-seed"}
@@ -2355,13 +2362,13 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
     assert all(claim["domain"] for claim in claim_payload)
     assert all(claim["scope"]["language"] == "es" for claim in claim_payload)
     assert all(claim["scope"]["register"] == "general" for claim in claim_payload)
-    assert {claim["status"] for claim in claim_payload} == {"draft", "validated"}
+    assert {claim["status"] for claim in claim_payload} == {"draft", "published"}
     assert {claim["origin"] for claim in claim_payload} == {
         "seed_contract_entry",
         "approved_knowledge_proposal",
     }
     assert {claim["revision"] for claim in claim_payload} == {1}
-    assert {claim["published_at"] for claim in claim_payload} == {None}
+    assert {claim["published_at"] for claim in claim_payload} == {None, "2026-07-23"}
     assert all(len(claim["evidence_links"]) >= 1 for claim in claim_payload)
     assert {
         link["role"]
@@ -2422,12 +2429,20 @@ def test_knowledge_versions_include_chain_counts():
 
     versions = response.json()
     version_sources = client.get("/knowledge/sources?version=knowledge-v0").json()
-    assert versions[0]["id"] == "knowledge-v0"
-    assert versions[0]["source_count"] == len(version_sources)
-    assert versions[0]["node_count"] >= 1
-    assert versions[0]["evidence_count"] >= 1
-    assert versions[0]["claim_count"] >= 1
-    assert versions[0]["card_count"] >= 1
+    versions_by_id = {version["id"]: version for version in versions}
+    assert set(versions_by_id) >= {"knowledge-v0", "knowledge-v1"}
+    assert versions_by_id["knowledge-v0"]["status"] == "seed"
+    assert versions_by_id["knowledge-v0"]["source_count"] == len(version_sources)
+    assert versions_by_id["knowledge-v0"]["node_count"] >= 1
+    assert versions_by_id["knowledge-v0"]["evidence_count"] >= 1
+    assert versions_by_id["knowledge-v0"]["claim_count"] >= 1
+    assert versions_by_id["knowledge-v0"]["card_count"] >= 1
+    assert versions_by_id["knowledge-v1"]["status"] == "published"
+    assert versions_by_id["knowledge-v1"]["published_at"] == "2026-07-23"
+    assert versions_by_id["knowledge-v1"]["source_count"] == 1
+    assert versions_by_id["knowledge-v1"]["evidence_count"] == 1
+    assert versions_by_id["knowledge-v1"]["claim_count"] == 1
+    assert versions_by_id["knowledge-v1"]["card_count"] == 1
 
 
 def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_state():
@@ -2934,8 +2949,8 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
         )
         assert query.status_code == 200
         query_payload = query.json()
-        assert query_payload["card_count"] == 1
-        assert query_payload["cards"][0]["id"] == "lexico-precision"
+        assert query_payload["card_count"] >= 1
+        assert "lexico-precision" in {card["id"] for card in query_payload["cards"]}
         assert query_payload["claims"][0]["status"] == "published"
         assert query_payload["evidence"][0]["status"] == "published"
 
@@ -3041,29 +3056,29 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
                 card.version = "knowledge-v0"
             seed_node = session.get(KnowledgeNodeRecord, "rae-ngle-complemento-directo")
             if seed_node is not None:
-                seed_node.status = "validated"
-                seed_node.version = "knowledge-v0"
-                seed_node.published_at = "not-published"
+                seed_node.status = "published"
+                seed_node.version = "knowledge-v1"
+                seed_node.published_at = "2026-07-23"
             seed_evidence = session.get(
                 KnowledgeEvidenceItemRecord, "ev-rae-ngle-complemento-directo-candidata"
             )
             if seed_evidence is not None:
-                seed_evidence.status = "validated"
-                seed_evidence.version = "knowledge-v0"
+                seed_evidence.status = "published"
+                seed_evidence.version = "knowledge-v1"
             seed_claim = session.get(KnowledgeClaimRecord, "claim-rae-ngle-complemento-directo")
             if seed_claim is not None:
-                seed_claim.status = "validated"
-                seed_claim.version = "knowledge-v0"
-                seed_claim.published_at = None
+                seed_claim.status = "published"
+                seed_claim.version = "knowledge-v1"
+                seed_claim.published_at = "2026-07-23"
             seed_card = session.get(KnowledgeCardRecord, "card-complemento-directo")
             if seed_card is not None:
-                seed_card.version = "knowledge-v0"
+                seed_card.version = "knowledge-v1"
             seed_node_relation = session.get(
                 KnowledgeNodeRelationRecord, "rel-complemento-directo-depende-norma"
             )
             if seed_node_relation is not None:
-                seed_node_relation.status = "validated"
-                seed_node_relation.version = "knowledge-v0"
+                seed_node_relation.status = "published"
+                seed_node_relation.version = "knowledge-v1"
             seed_relation_ids = [
                 "rel-source-rae-ngle-documentado_en-node-rae-ngle-complemento-directo",
                 "rel-node-rae-ngle-complemento-directo-depende_de-node-rae-norma-estilo",
@@ -3075,8 +3090,8 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
             for seed_relation_id in seed_relation_ids:
                 seed_relation = session.get(KnowledgeRelationRecord, seed_relation_id)
                 if seed_relation is not None:
-                    seed_relation.status = "validated"
-                    seed_relation.version = "knowledge-v0"
+                    seed_relation.status = "published"
+                    seed_relation.version = "knowledge-v1"
             seed_revision_object_ids = [
                 "rae-ngle:manual-2010",
                 "rae-ngle-complemento-directo",
@@ -3090,14 +3105,14 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
             ).update(
                 {
                     KnowledgeObjectRevisionRecord.status: "active",
-                    KnowledgeObjectRevisionRecord.knowledge_version: "knowledge-v0",
+                    KnowledgeObjectRevisionRecord.knowledge_version: "knowledge-v1",
                 },
                 synchronize_session=False,
             )
             session.query(KnowledgeClaimRevisionRecord).filter(
                 KnowledgeClaimRevisionRecord.claim_id == "claim-rae-ngle-complemento-directo"
             ).update(
-                {KnowledgeClaimRevisionRecord.knowledge_version: "knowledge-v0"},
+                {KnowledgeClaimRevisionRecord.knowledge_version: "knowledge-v1"},
                 synchronize_session=False,
             )
             session.commit()
@@ -3305,7 +3320,7 @@ def test_knowledge_query_contract_separates_query_from_retrieval_and_generation(
     assert "resolved_version" in payload["interpretation_fields"]
     assert "profile_mutation_allowed" in payload["restriction_fields"]
     assert "generaciones" in payload["out_of_scope"]
-    assert payload["allowed_version_values"] == ["knowledge-v0", "latest"]
+    assert payload["allowed_version_values"] == ["knowledge-v0", "knowledge-v1", "latest"]
     assert "presentacion" in payload["profile_boundary"]
     assert "solicitud de recuperacion" in payload["retrieval_boundary"]
     assert "no forma parte" in payload["generation_boundary"]
@@ -3323,7 +3338,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["query"] == query
     assert payload["normalized_query"] == "precision lexica verificable"
     assert payload["requested_version"] == "latest"
-    assert payload["resolved_version"] == "knowledge-v0"
+    assert payload["resolved_version"] == "knowledge-v1"
     assert payload["query_type"] == ["writing_recommendation"]
     assert "LENGUA" in payload["domain"]
     assert payload["restrictions"]["max_cards"] == 3
@@ -3333,7 +3348,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["context"]["profile_influence"] == "presentation_only"
     assert payload["context"]["retrieval_unit"] == "knowledge_card"
     assert payload["retrieval_request"]["required"] is True
-    assert payload["retrieval_request"]["version"] == "knowledge-v0"
+    assert payload["retrieval_request"]["version"] == "knowledge-v1"
     assert payload["retrieval_request"]["query_terms"] == [
         "lexica",
         "precision",
@@ -3350,18 +3365,19 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert missing.json()["detail"] == "Knowledge version not found"
 
 
-def test_knowledge_query_resolves_latest_and_declares_no_match():
+def test_knowledge_query_resolves_latest_to_published_v1():
     latest_response = client.post(
         "/knowledge/query",
-        json={"query": "precision lexica", "version": "latest", "limit": 1},
+        json={"query": "complemento directo", "version": "latest", "limit": 3},
     )
     assert latest_response.status_code == 200
     latest_payload = latest_response.json()
     assert latest_payload["requested_version"] == "latest"
-    assert latest_payload["resolved_version"] == "knowledge-v0"
-    assert latest_payload["version"] == "knowledge-v0"
-    assert latest_payload["status"] == "no_match"
-    assert latest_payload["card_count"] == 0
+    assert latest_payload["resolved_version"] == "knowledge-v1"
+    assert latest_payload["version"] == "knowledge-v1"
+    assert latest_payload["status"] == "ok"
+    assert latest_payload["card_count"] == 1
+    assert latest_payload["cards"][0]["id"] == "card-complemento-directo"
 
     empty_response = client.post(
         "/knowledge/query",
@@ -3637,7 +3653,7 @@ def test_knowledge_pipeline_is_persisted():
     assert all(relation.target_entity_id for relation in relations)
     assert all(relation.relation_type for relation in relations)
     assert {relation.direction for relation in relations} == {"outgoing"}
-    assert {relation.version for relation in relations} == {"knowledge-v0"}
+    assert {relation.version for relation in relations} == {"knowledge-v0", "knowledge-v1"}
     assert len(object_revisions) >= len(sources) + len(source_editions) + len(nodes)
     assert {
         "source",
@@ -3660,20 +3676,22 @@ def test_knowledge_pipeline_is_persisted():
     assert {item.source_edition_id for item in evidence} <= {
         edition.id for edition in source_editions
     }
-    assert {item.status for item in evidence} == {"draft", "validated"}
+    assert {item.status for item in evidence} == {"draft", "published"}
     candidate_evidence = next(
         item for item in evidence if item.id == "ev-rae-ngle-complemento-directo-candidata"
     )
-    assert candidate_evidence.status == "validated"
+    assert candidate_evidence.status == "published"
+    assert candidate_evidence.version == "knowledge-v1"
     assert len(evidence_revisions) == len(evidence)
     assert {revision.evidence_id for revision in evidence_revisions} == {item.id for item in evidence}
     assert {claim.evidence_id for claim in claims} <= {item.id for item in evidence}
     assert {claim.node_id for claim in claims} <= {node.id for node in nodes}
-    assert {claim.status for claim in claims} == {"draft", "validated"}
+    assert {claim.status for claim in claims} == {"draft", "published"}
     assert {claim.claim_type for claim in claims} == {"stylistic", "grammatical"}
     candidate_claim = next(claim for claim in claims if claim.id == "claim-rae-ngle-complemento-directo")
-    assert candidate_claim.status == "validated"
+    assert candidate_claim.status == "published"
     assert candidate_claim.claim_type == "grammatical"
+    assert candidate_claim.version == "knowledge-v1"
     assert len(claim_links) == len(claims)
     assert {link.claim_id for link in claim_links} == {claim.id for claim in claims}
     assert {link.evidence_id for link in claim_links} <= {item.id for item in evidence}
