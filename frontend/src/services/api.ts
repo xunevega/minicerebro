@@ -54,6 +54,10 @@ import type {
   PreferenceStatus,
   PersistenceDomain,
   ProfileExport,
+  ProfileKnowledgeCard,
+  ProfileKnowledgeCardInput,
+  ProfileKnowledgeCardScoreApplyResult,
+  ProfileKnowledgeCardScoreProposal,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -419,6 +423,51 @@ export function getProfileSummary() {
 
 export function getProfileExport() {
   return request<ProfileExport>("/profiles/default/export");
+}
+
+export function getProfileKnowledgeCards() {
+  return request<ProfileKnowledgeCard[]>("/profiles/default/knowledge-cards");
+}
+
+export function saveProfileKnowledgeCard(cardId: string, payload: ProfileKnowledgeCardInput) {
+  return request<ProfileKnowledgeCard>(
+    `/profiles/default/knowledge-cards/${encodeURIComponent(cardId)}`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getProfileKnowledgeCardScoreProposal(
+  cardId: string,
+  knowledgeVersion: string,
+  context: string,
+) {
+  return request<ProfileKnowledgeCardScoreProposal>(
+    withParams(
+      `/profiles/default/knowledge-cards/${encodeURIComponent(cardId)}/score-proposal`,
+      { knowledge_version: knowledgeVersion, context },
+    ),
+  );
+}
+
+export function applyProfileKnowledgeCardScoreProposal(
+  cardId: string,
+  knowledgeVersion: string,
+  context: string,
+  reason: string,
+) {
+  return request<ProfileKnowledgeCardScoreApplyResult>(
+    withParams(
+      `/profiles/default/knowledge-cards/${encodeURIComponent(cardId)}/score-proposal/apply`,
+      { knowledge_version: knowledgeVersion, context },
+    ),
+    {
+      method: "POST",
+      body: JSON.stringify({ reason }),
+    },
+  );
 }
 
 export function getScores(context: string) {

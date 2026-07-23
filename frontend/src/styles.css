@@ -372,6 +372,35 @@ textarea + .primaryButton {
   color: #913b30;
 }
 
+.activeGhostButton {
+  background: #eaf3d2;
+  border-color: #1f6f5b;
+}
+
+.buttonRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 12px 0 14px;
+}
+
+.userCardPanel {
+  border-top: 1px solid #e0e5df;
+  display: grid;
+  gap: 12px;
+  margin-top: 18px;
+  padding-top: 18px;
+}
+
+.userCardPanel input[type="range"] {
+  accent-color: #1f6f5b;
+  width: min(620px, 100%);
+}
+
+.userCardPanel textarea {
+  min-height: 100px;
+}
+
 .preferenceList {
   margin-top: 24px;
 }

@@ -39,6 +39,51 @@ export type ScoreProposalApplyResult = {
   variables: ScoreVariable[];
 };
 
+export type ProfileKnowledgeCardStance = "liked" | "kept" | "changed" | "dismissed";
+
+export type ProfileKnowledgeCard = {
+  id: string;
+  profile_id: string;
+  card_id: string;
+  knowledge_version: string;
+  stance: ProfileKnowledgeCardStance;
+  user_score: number;
+  feedback: string;
+  maintained_elements: string[];
+  change_requests: string[];
+  notes: string;
+  created_at: string;
+  updated_at: string;
+};
+
+export type ProfileKnowledgeCardInput = {
+  knowledge_version: string;
+  stance: ProfileKnowledgeCardStance;
+  user_score: number;
+  feedback: string;
+  maintained_elements: string[];
+  change_requests: string[];
+  notes: string;
+};
+
+export type ProfileKnowledgeCardScoreProposal = {
+  profile_knowledge_card_id: string;
+  status: "pending_review" | "not_applicable";
+  items: Array<{
+    variable_key: string;
+    context: string;
+    current_value: number;
+    proposed_value: number;
+    delta: number;
+    reason: string;
+  }>;
+};
+
+export type ProfileKnowledgeCardScoreApplyResult = {
+  proposal: ProfileKnowledgeCardScoreProposal;
+  variables: ScoreVariable[];
+};
+
 export type KnowledgeStatus = {
   version: string;
   state: string;
@@ -613,6 +658,7 @@ export type ProfileExport = {
   profile_id: string;
   variables_by_context: Record<string, ScoreVariable[]>;
   preferences: Preference[];
+  knowledge_cards: ProfileKnowledgeCard[];
   knowledge_policy: string;
 };
 

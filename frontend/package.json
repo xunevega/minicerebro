@@ -15,7 +15,8 @@
     "test:feedback-flow": "node tests/feedback-flow.mjs",
     "test:scoring-manual": "node tests/scoring-manual.mjs",
     "test:editor-persistence": "node tests/editor-persistence.mjs",
-    "test:smoke-ui": "npm run test:knowledge-empty && npm run test:lab-compare && npm run test:profile-export && npm run test:closure-surfaces && npm run test:cerebro-acceptance && npm run test:feedback-flow && npm run test:scoring-manual && npm run test:editor-persistence"
+    "test:profile-knowledge-card": "node tests/profile-knowledge-card.mjs",
+    "test:smoke-ui": "npm run test:knowledge-empty && npm run test:lab-compare && npm run test:profile-export && npm run test:closure-surfaces && npm run test:cerebro-acceptance && npm run test:feedback-flow && npm run test:scoring-manual && npm run test:editor-persistence && npm run test:profile-knowledge-card"
   },
   "dependencies": {
     "@vitejs/plugin-react": "^4.7.0",

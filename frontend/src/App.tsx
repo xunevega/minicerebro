@@ -17,6 +17,7 @@ import {
   SlidersHorizontal,
 } from "lucide-react";
 import {
+  applyProfileKnowledgeCardScoreProposal,
   applyScoreProposal,
   compareLabTexts,
   compareTexts,
@@ -48,6 +49,8 @@ import {
   getPersistenceStatus,
   getPreferences,
   getProfileExport,
+  getProfileKnowledgeCardScoreProposal,
+  getProfileKnowledgeCards,
   getProfileSummary,
   getProfileStatistics,
   getScoreProposal,
@@ -57,6 +60,7 @@ import {
   getTechnicalRoadmap,
   getV1Screens,
   queryKnowledge,
+  saveProfileKnowledgeCard,
   simulateLab,
   updatePreferenceStatus,
   updateScore,
@@ -92,6 +96,9 @@ import type {
   PreferenceStatus,
   PersistenceDomain,
   ProfileExport,
+  ProfileKnowledgeCard,
+  ProfileKnowledgeCardScoreProposal,
+  ProfileKnowledgeCardStance,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -131,6 +138,13 @@ const auditEventFilters = [
   { label: "Textos generados", eventType: "text.generated", entityType: "generated_text" },
 ] as const;
 
+const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label: string }> = [
+  { value: "liked", label: "Me gusta" },
+  { value: "kept", label: "Mantener" },
+  { value: "changed", label: "Cambiar" },
+  { value: "dismissed", label: "Descartar" },
+];
+
 type TabId = (typeof tabs)[number]["id"];
 
 export function App() {
@@ -154,6 +168,21 @@ export function App() {
   const [selectedKnowledgeCardId, setSelectedKnowledgeCardId] = useState<string | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
   const [profileExport, setProfileExport] = useState<ProfileExport | null>(null);
+  const [profileKnowledgeCards, setProfileKnowledgeCards] = useState<ProfileKnowledgeCard[]>([]);
+  const [profileKnowledgeCardStance, setProfileKnowledgeCardStance] =
+    useState<ProfileKnowledgeCardStance>("kept");
+  const [profileKnowledgeCardScore, setProfileKnowledgeCardScore] = useState(700);
+  const [profileKnowledgeCardFeedback, setProfileKnowledgeCardFeedback] = useState(
+    "Mantener esta ficha como referencia personal.",
+  );
+  const [profileKnowledgeCardMaintained, setProfileKnowledgeCardMaintained] =
+    useState("definicion, precision");
+  const [profileKnowledgeCardChanges, setProfileKnowledgeCardChanges] = useState("");
+  const [profileKnowledgeCardNotes, setProfileKnowledgeCardNotes] = useState("");
+  const [profileKnowledgeCardProposal, setProfileKnowledgeCardProposal] =
+    useState<ProfileKnowledgeCardScoreProposal | null>(null);
+  const [profileKnowledgeCardSaved, setProfileKnowledgeCardSaved] =
+    useState<ProfileKnowledgeCard | null>(null);
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
   const [scores, setScores] = useState<ScoreVariable[]>([]);
@@ -218,6 +247,7 @@ export function App() {
           getProfileStatistics(activeContext),
           getContradictions(activeContext),
           getScores(activeContext),
+          getProfileKnowledgeCards(),
           getPreferences(activeContext),
           getAuditEvents(),
           getFeedbackProposals(),
@@ -251,6 +281,7 @@ export function App() {
           statisticsData,
           contradictionData,
           scoreData,
+          profileKnowledgeCardData,
           preferenceData,
           auditData,
           feedbackData,
@@ -281,6 +312,7 @@ export function App() {
         setStatistics(statisticsData);
         setContradictions(contradictionData);
         setScores(scoreData);
+        setProfileKnowledgeCards(profileKnowledgeCardData);
         setPreferences(preferenceData);
         setAuditEvents(auditData);
         setFeedbackProposals(feedbackData);
@@ -343,6 +375,13 @@ export function App() {
   const selectedKnowledgeCard = selectedKnowledgeCardId
     ? (cardById.get(selectedKnowledgeCardId) ?? null)
     : null;
+  const selectedProfileKnowledgeCard = selectedKnowledgeCard
+    ? (profileKnowledgeCards.find(
+        (item) =>
+          item.card_id === selectedKnowledgeCard.id &&
+          item.knowledge_version === selectedKnowledgeCard.version,
+      ) ?? null)
+    : null;
   const pendingKnowledgeValidationCount = useMemo(
     () =>
       [...knowledgeCards, ...knowledgeClaims, ...knowledgeEvidence].filter(
@@ -354,6 +393,35 @@ export function App() {
   async function refreshAuditEvents(filterLabel = auditFilter) {
     setAuditEvents(await loadAuditEvents(filterLabel, knowledge?.version));
   }
+
+  function commaList(value: string) {
+    return value
+      .split(",")
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  useEffect(() => {
+    if (!selectedKnowledgeCard) return;
+    if (selectedProfileKnowledgeCard) {
+      setProfileKnowledgeCardStance(selectedProfileKnowledgeCard.stance);
+      setProfileKnowledgeCardScore(selectedProfileKnowledgeCard.user_score);
+      setProfileKnowledgeCardFeedback(selectedProfileKnowledgeCard.feedback);
+      setProfileKnowledgeCardMaintained(selectedProfileKnowledgeCard.maintained_elements.join(", "));
+      setProfileKnowledgeCardChanges(selectedProfileKnowledgeCard.change_requests.join(", "));
+      setProfileKnowledgeCardNotes(selectedProfileKnowledgeCard.notes);
+      setProfileKnowledgeCardSaved(selectedProfileKnowledgeCard);
+    } else {
+      setProfileKnowledgeCardStance("kept");
+      setProfileKnowledgeCardScore(700);
+      setProfileKnowledgeCardFeedback("Mantener esta ficha como referencia personal.");
+      setProfileKnowledgeCardMaintained("definicion, precision");
+      setProfileKnowledgeCardChanges("");
+      setProfileKnowledgeCardNotes("");
+      setProfileKnowledgeCardSaved(null);
+    }
+    setProfileKnowledgeCardProposal(null);
+  }, [selectedKnowledgeCard?.id, selectedKnowledgeCard?.version]);
 
   async function handlePreference() {
     setError(null);
@@ -517,6 +585,82 @@ export function App() {
         ),
       );
       setScoreProposal(applied.proposal);
+      await refreshAuditEvents();
+      setActive("scoring");
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleSaveProfileKnowledgeCard() {
+    if (!selectedKnowledgeCard) return;
+    setError(null);
+    try {
+      const saved = await saveProfileKnowledgeCard(selectedKnowledgeCard.id, {
+        knowledge_version: selectedKnowledgeCard.version,
+        stance: profileKnowledgeCardStance,
+        user_score: profileKnowledgeCardScore,
+        feedback: profileKnowledgeCardFeedback,
+        maintained_elements: commaList(profileKnowledgeCardMaintained),
+        change_requests: commaList(profileKnowledgeCardChanges),
+        notes: profileKnowledgeCardNotes,
+      });
+      setProfileKnowledgeCardSaved(saved);
+      setProfileKnowledgeCards((current) => [
+        saved,
+        ...current.filter(
+          (item) =>
+            item.card_id !== saved.card_id || item.knowledge_version !== saved.knowledge_version,
+        ),
+      ]);
+      setProfileExport(null);
+      setProfileKnowledgeCardProposal(
+        await getProfileKnowledgeCardScoreProposal(
+          selectedKnowledgeCard.id,
+          selectedKnowledgeCard.version,
+          activeContext,
+        ),
+      );
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleProfileKnowledgeCardScoreProposal() {
+    if (!selectedKnowledgeCard) return;
+    setError(null);
+    try {
+      setProfileKnowledgeCardProposal(
+        await getProfileKnowledgeCardScoreProposal(
+          selectedKnowledgeCard.id,
+          selectedKnowledgeCard.version,
+          activeContext,
+        ),
+      );
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleApplyProfileKnowledgeCardScoreProposal() {
+    if (!selectedKnowledgeCard || !profileKnowledgeCardProposal) return;
+    setError(null);
+    try {
+      const applied = await applyProfileKnowledgeCardScoreProposal(
+        selectedKnowledgeCard.id,
+        selectedKnowledgeCard.version,
+        activeContext,
+        "Aplicar scoring desde ficha de usuario revisada.",
+      );
+      setProfileKnowledgeCardProposal(applied.proposal);
+      setScores((current) =>
+        current.map(
+          (item) => applied.variables.find((variable) => variable.key === item.key) ?? item,
+        ),
+      );
+      setStatistics(await getProfileStatistics(activeContext));
+      setProfileExport(null);
       await refreshAuditEvents();
       setActive("scoring");
     } catch (nextError) {
@@ -784,6 +928,127 @@ export function App() {
                         </article>
                       );
                     })}
+                  </div>
+                  <div className="userCardPanel">
+                    <h3>Ficha de usuario</h3>
+                    <div className="metricGrid">
+                      <Metric
+                        label="Estado"
+                        value={profileKnowledgeCardSaved?.stance ?? "sin guardar"}
+                      />
+                      <Metric label="Score usuario" value={profileKnowledgeCardScore} />
+                      <Metric label="Contexto" value={activeContext} />
+                    </div>
+                    <div className="buttonRow" role="group" aria-label="Estado de ficha de usuario">
+                      {userKnowledgeCardStances.map((stance) => (
+                        <button
+                          className={
+                            profileKnowledgeCardStance === stance.value
+                              ? "ghostButton activeGhostButton"
+                              : "ghostButton"
+                          }
+                          key={stance.value}
+                          onClick={() => setProfileKnowledgeCardStance(stance.value)}
+                          type="button"
+                        >
+                          {stance.label}
+                        </button>
+                      ))}
+                    </div>
+                    <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
+                      Score personal
+                    </label>
+                    <input
+                      id="profileKnowledgeCardScore"
+                      max="1000"
+                      min="0"
+                      onChange={(event) => setProfileKnowledgeCardScore(Number(event.target.value))}
+                      type="range"
+                      value={profileKnowledgeCardScore}
+                    />
+                    <label className="fieldLabel" htmlFor="profileKnowledgeCardFeedback">
+                      Feedback de usuario
+                    </label>
+                    <textarea
+                      id="profileKnowledgeCardFeedback"
+                      onChange={(event) => setProfileKnowledgeCardFeedback(event.target.value)}
+                      value={profileKnowledgeCardFeedback}
+                    />
+                    <label className="fieldLabel" htmlFor="profileKnowledgeCardMaintained">
+                      Mantener
+                    </label>
+                    <input
+                      className="textInput"
+                      id="profileKnowledgeCardMaintained"
+                      onChange={(event) => setProfileKnowledgeCardMaintained(event.target.value)}
+                      value={profileKnowledgeCardMaintained}
+                    />
+                    <label className="fieldLabel" htmlFor="profileKnowledgeCardChanges">
+                      Cambiar
+                    </label>
+                    <input
+                      className="textInput"
+                      id="profileKnowledgeCardChanges"
+                      onChange={(event) => setProfileKnowledgeCardChanges(event.target.value)}
+                      value={profileKnowledgeCardChanges}
+                    />
+                    <label className="fieldLabel" htmlFor="profileKnowledgeCardNotes">
+                      Notas
+                    </label>
+                    <textarea
+                      id="profileKnowledgeCardNotes"
+                      onChange={(event) => setProfileKnowledgeCardNotes(event.target.value)}
+                      value={profileKnowledgeCardNotes}
+                    />
+                    <div className="rowActions">
+                      <button
+                        className="primaryButton"
+                        onClick={handleSaveProfileKnowledgeCard}
+                        type="button"
+                      >
+                        Guardar ficha
+                      </button>
+                      <button
+                        className="ghostButton"
+                        onClick={handleProfileKnowledgeCardScoreProposal}
+                        type="button"
+                      >
+                        Ver propuesta
+                      </button>
+                    </div>
+                    {profileKnowledgeCardProposal ? (
+                      <div className="proposalBox">
+                        <h3>Propuesta de scoring</h3>
+                        <div className="metricGrid">
+                          <Metric label="Estado" value={profileKnowledgeCardProposal.status} />
+                          <Metric label="Ajustes" value={profileKnowledgeCardProposal.items.length} />
+                        </div>
+                        <div className="auditList">
+                          {profileKnowledgeCardProposal.items.map((item) => (
+                            <article
+                              className="auditItem"
+                              key={`${item.variable_key}-${item.context}`}
+                            >
+                              <div>
+                                <strong>{item.variable_key}</strong>
+                                <span>{item.reason}</span>
+                              </div>
+                              <span>
+                                {item.current_value} -&gt; {item.proposed_value} ({item.delta})
+                              </span>
+                            </article>
+                          ))}
+                        </div>
+                        <button
+                          className="primaryButton editorButton"
+                          disabled={profileKnowledgeCardProposal.items.length === 0}
+                          onClick={handleApplyProfileKnowledgeCardScoreProposal}
+                          type="button"
+                        >
+                          Aplicar al scoring
+                        </button>
+                      </div>
+                    ) : null}
                   </div>
                 </article>
               </div>
@@ -1179,6 +1444,7 @@ export function App() {
                     value={Object.keys(profileExport.variables_by_context).length}
                   />
                   <Metric label="Preferencias" value={profileExport.preferences.length} />
+                  <Metric label="Fichas usuario" value={profileExport.knowledge_cards.length} />
                 </div>
                 <p className="note">{profileExport.knowledge_policy}</p>
                 <List
@@ -1186,6 +1452,17 @@ export function App() {
                   items={Object.entries(profileExport.variables_by_context).map(
                     ([context, variables]) => `${context}: ${variables.length} variables`,
                   )}
+                />
+                <List
+                  title="Fichas de usuario"
+                  items={
+                    profileExport.knowledge_cards.length === 0
+                      ? ["Sin fichas de usuario guardadas."]
+                      : profileExport.knowledge_cards.map(
+                          (item) =>
+                            `${item.card_id}: ${item.stance} (${item.user_score}) en ${item.knowledge_version}`,
+                        )
+                  }
                 />
               </div>
             ) : null}
