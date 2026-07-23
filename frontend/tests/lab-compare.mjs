@@ -7,7 +7,8 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Laboratorio" }).click();
+  await page.getByRole("button", { name: "Escribir" }).click();
+  await page.getByRole("button", { name: "Probar cambios" }).click();
 
   const labPanel = page.locator(".panel", { hasText: "Simulacion" });
   await labPanel.locator("textarea").first().fill("Texto base para comparar.");

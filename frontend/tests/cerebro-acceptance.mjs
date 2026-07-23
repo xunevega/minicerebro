@@ -8,7 +8,8 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
 
-  await page.getByRole("button", { name: "Cerebro" }).click();
+  await page.getByRole("button", { name: "Sistema" }).click();
+  await page.getByRole("button", { name: "Revision Cerebro" }).click();
   const cerebroPanel = page.locator(".panel", { hasText: "Auditoria Cerebro" });
   await cerebroPanel.getByText("Auditoria Cerebro").waitFor();
   await cerebroPanel.getByText("pending_code_evidence").first().waitFor();

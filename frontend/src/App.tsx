@@ -111,21 +111,21 @@ import type {
 } from "./types/api";
 
 const tabs = [
-  { id: "knowledge", label: "Conocimiento", icon: BookOpen },
+  { id: "knowledge", label: "Lo que sabe la app", icon: BookOpen },
   { id: "preferences", label: "Preferencias", icon: PenLine },
-  { id: "profile", label: "Lo que sabe", icon: Brain },
-  { id: "scoring", label: "Scoring", icon: SlidersHorizontal },
-  { id: "editor", label: "Editor", icon: FilePenLine },
-  { id: "lab", label: "Laboratorio", icon: FlaskConical },
-  { id: "compare", label: "Comparador", icon: GitCompare },
-  { id: "rules", label: "Reglas", icon: ShieldCheck },
-  { id: "persistence", label: "Persistencia", icon: Database },
-  { id: "cerebro", label: "Cerebro", icon: Search },
+  { id: "profile", label: "Ficha usuario", icon: Brain },
+  { id: "scoring", label: "Puntuacion", icon: SlidersHorizontal },
+  { id: "editor", label: "Escribir", icon: FilePenLine },
+  { id: "lab", label: "Probar cambios", icon: FlaskConical },
+  { id: "compare", label: "Comparar", icon: GitCompare },
+  { id: "rules", label: "Reglas de decision", icon: ShieldCheck },
+  { id: "persistence", label: "Datos guardados", icon: Database },
+  { id: "cerebro", label: "Revision Cerebro", icon: Search },
   { id: "acceptance", label: "Aceptacion", icon: ClipboardCheck },
-  { id: "closure", label: "Cierre", icon: Flag },
-  { id: "roadmap", label: "Roadmap", icon: Route },
-  { id: "screens", label: "Pantallas", icon: LayoutDashboard },
-  { id: "audit", label: "Auditoria", icon: History },
+  { id: "closure", label: "Cierre V1", icon: Flag },
+  { id: "roadmap", label: "Plan tecnico", icon: Route },
+  { id: "screens", label: "Mapa de pantallas", icon: LayoutDashboard },
+  { id: "audit", label: "Historial", icon: History },
 ] as const;
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
@@ -148,6 +148,48 @@ const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label
 ];
 
 type TabId = (typeof tabs)[number]["id"];
+
+const mainSections: Array<{
+  id: string;
+  label: string;
+  description: string;
+  icon: (typeof tabs)[number]["icon"];
+  defaultTab: TabId;
+  tabs: TabId[];
+}> = [
+  {
+    id: "write",
+    label: "Escribir",
+    description: "Crear, corregir, comparar y probar textos.",
+    icon: FilePenLine,
+    defaultTab: "editor",
+    tabs: ["editor", "compare", "lab"],
+  },
+  {
+    id: "profile",
+    label: "Mi perfil",
+    description: "Preferencias, puntuacion y ficha personal.",
+    icon: Brain,
+    defaultTab: "preferences",
+    tabs: ["preferences", "scoring", "profile"],
+  },
+  {
+    id: "knowledge",
+    label: "Conocimiento",
+    description: "Fuentes, fichas, consulta y estado de ingestion.",
+    icon: BookOpen,
+    defaultTab: "knowledge",
+    tabs: ["knowledge"],
+  },
+  {
+    id: "system",
+    label: "Sistema",
+    description: "Diagnostico, historial, cierre y contrato tecnico.",
+    icon: Database,
+    defaultTab: "audit",
+    tabs: ["audit", "persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
+  },
+];
 
 export function App() {
   const [active, setActive] = useState<TabId>("knowledge");
@@ -234,6 +276,10 @@ export function App() {
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const activeTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
+  const activeSection =
+    mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
+  const activeSectionTabs = tabs.filter((tab) => activeSection.tabs.includes(tab.id));
 
   useEffect(() => {
     getKnowledgeStatus()
@@ -770,18 +816,18 @@ export function App() {
           </div>
         </div>
         <nav>
-          {tabs.map((tab) => {
-            const Icon = tab.icon;
+          {mainSections.map((section) => {
+            const Icon = section.icon;
             return (
               <button
-                className={active === tab.id ? "tab active" : "tab"}
-                key={tab.id}
-                onClick={() => setActive(tab.id)}
+                className={activeSection.id === section.id ? "tab active" : "tab"}
+                key={section.id}
+                onClick={() => setActive(section.defaultTab)}
                 type="button"
-                title={tab.label}
+                title={section.description}
               >
                 <Icon size={18} />
-                <span>{tab.label}</span>
+                <span>{section.label}</span>
               </button>
             );
           })}
@@ -791,8 +837,8 @@ export function App() {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <h1>{tabs.find((tab) => tab.id === active)?.label}</h1>
-            <p>Conocimiento estable y perfil de preferencias permanecen separados.</p>
+            <h1>{activeTab.label}</h1>
+            <p>{activeSection.description}</p>
           </div>
           <div className="contextControl">
             <label htmlFor="contextSelect">Contexto</label>
@@ -809,6 +855,25 @@ export function App() {
             </select>
           </div>
         </header>
+
+        {activeSectionTabs.length > 1 ? (
+          <div className="subnav" aria-label={`Secciones de ${activeSection.label}`}>
+            {activeSectionTabs.map((tab) => {
+              const Icon = tab.icon;
+              return (
+                <button
+                  className={active === tab.id ? "subtab active" : "subtab"}
+                  key={tab.id}
+                  onClick={() => setActive(tab.id)}
+                  type="button"
+                >
+                  <Icon size={16} />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
+        ) : null}
 
         {error ? <div className="error">{error}</div> : null}
 
@@ -1044,7 +1109,7 @@ export function App() {
                         onClick={handleProfileKnowledgeCardScoreProposal}
                         type="button"
                       >
-                        Ver propuesta
+                        Calcular puntuacion sugerida
                       </button>
                     </div>
                     {profileKnowledgeCardProposal ? (
@@ -1076,7 +1141,7 @@ export function App() {
                           onClick={handleApplyProfileKnowledgeCardScoreProposal}
                           type="button"
                         >
-                          Aplicar al scoring
+                        Aplicar a la puntuacion
                         </button>
                       </div>
                     ) : null}
@@ -1186,7 +1251,7 @@ export function App() {
               ) : null}
             </div>
             <List title="Cobertura" items={knowledge?.coverage ?? []} />
-            <List title="Fuera de alcance V1" items={knowledge?.gaps ?? []} />
+            <List title="Todavia no incluido en V1" items={knowledge?.gaps ?? []} />
           </section>
         )}
 
@@ -1196,7 +1261,7 @@ export function App() {
               <h2>Anadir preferencia</h2>
               <textarea value={preferenceText} onChange={(event) => setPreferenceText(event.target.value)} />
               <button className="primaryButton" onClick={handlePreference} type="button">
-                Revisar interpretacion
+                Guardar como propuesta
               </button>
               <div className="preferenceList">
                 <h2>Revision pendiente</h2>
@@ -1224,7 +1289,7 @@ export function App() {
                             onClick={() => handleScoreProposal(item.id)}
                             type="button"
                           >
-                            Ver propuesta
+                            Ver ajuste sugerido
                           </button>
                         ) : null}
                         <button
@@ -1248,7 +1313,7 @@ export function App() {
               </div>
             </div>
             <div className="inspector">
-              <h2>Interpretacion</h2>
+              <h2>Como lo ha entendido</h2>
               {preference ? (
                 <>
                   <p>{preference.interpreted_as}</p>
@@ -1275,7 +1340,7 @@ export function App() {
                         </div>
                       ))}
                       <button className="primaryButton" onClick={handleApplyScoreProposal} type="button">
-                        Aplicar al scoring
+                        Aplicar a la puntuacion
                       </button>
                     </>
                   )}
@@ -1326,7 +1391,7 @@ export function App() {
                 value={protectedTerms}
               />
               <button className="primaryButton editorButton" onClick={handleGenerate} type="button">
-                Ejecutar
+                Generar texto
               </button>
             </div>
             <div className="inspector">
@@ -1404,7 +1469,7 @@ export function App() {
                 </label>
               </div>
               <button className="primaryButton editorButton" onClick={handleLabSimulation} type="button">
-                Simular
+                Probar sin guardar
               </button>
               <textarea
                 aria-label="Texto revisado de laboratorio"
@@ -1463,7 +1528,7 @@ export function App() {
             </div>
             <p className="note">{summary?.confidence_note}</p>
             <button className="primaryButton editorButton" onClick={handleProfileExport} type="button">
-              Ver export del perfil
+              Ver datos del perfil
             </button>
             {profileExport ? (
               <div className="proposalBox">
@@ -1513,7 +1578,7 @@ export function App() {
           <section className="panel">
             <h2>Variables</h2>
             <label className="fieldLabel" htmlFor="scoreReason">
-              Motivo del ajuste
+              Por que cambias la puntuacion
             </label>
             <input
               className="textInput"
@@ -1586,7 +1651,7 @@ export function App() {
                     )}
                   />
                   <button className="primaryButton editorButton" onClick={handleFeedbackProposal} type="button">
-                    Proponer feedback
+                    Crear aprendizaje sugerido
                   </button>
                 </>
               ) : (
@@ -1611,7 +1676,7 @@ export function App() {
                         onClick={() => handleFeedbackDecision(activeFeedback, "applied")}
                         type="button"
                       >
-                        Aplicar
+                        Aprender esto
                       </button>
                       <button
                         className="ghostButton danger"
@@ -1932,7 +1997,7 @@ export function App() {
                           onClick={() => handleExploreKnowledgeVersion(item.version)}
                           type="button"
                         >
-                          Explorar version
+                          Ver version consultada
                         </button>
                       </div>
                       <pre>

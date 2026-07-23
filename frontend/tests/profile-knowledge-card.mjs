@@ -35,7 +35,7 @@ try {
   await selectedCard.locator(".metric", { hasText: "Estado" }).filter({ hasText: "changed" }).waitFor();
   await selectedCard.getByText("Propuesta de scoring").waitFor();
   await selectedCard.locator(".metric", { hasText: "Ajustes" }).waitFor();
-  await selectedCard.getByRole("button", { name: "Aplicar al scoring" }).waitFor();
+  await selectedCard.getByRole("button", { name: "Aplicar a la puntuacion" }).waitFor();
 } finally {
   await browser.close();
 }

@@ -9,7 +9,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
   await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "9 pendientes" }).first().waitFor();
-  await page.getByRole("heading", { name: "Fuera de alcance V1" }).waitFor();
+  await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
   await explorationPanel.getByText("Trazabilidad persistente").waitFor();
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "23" }).waitFor();
@@ -52,7 +52,8 @@ try {
     await metrics.filter({ hasText: label }).filter({ hasText: value }).waitFor();
   }
 
-  await page.getByRole("button", { name: "Auditoria" }).click();
+  await page.getByRole("button", { name: "Sistema" }).click();
+  await page.getByRole("button", { name: "Historial" }).click();
   const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de conocimiento" });
   await page.getByText("Historial de consultas de conocimiento").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
@@ -97,7 +98,7 @@ try {
     .first()
     .waitFor();
   await page.getByText("knowledge.query.executed").first().waitFor();
-  await historyItem.getByRole("button", { name: "Explorar version" }).click();
+  await historyItem.getByRole("button", { name: "Ver version consultada" }).click();
   await page.getByText("Version navegada: knowledge-v0").waitFor();
 } finally {
   await browser.close();

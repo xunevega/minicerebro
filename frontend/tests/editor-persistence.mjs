@@ -7,7 +7,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Editor" }).click();
+  await page.getByRole("button", { name: "Escribir" }).click();
 
   const editorPanel = page.locator(".panel", { hasText: "Texto" });
   const inputText = `Smoke editor persistencia ${Date.now()}. Frase para guardar.`;
@@ -17,7 +17,7 @@ try {
     const url = new URL(response.url());
     return url.pathname === "/generation" && response.request().method() === "POST";
   });
-  await page.getByRole("button", { name: "Ejecutar" }).click();
+  await page.getByRole("button", { name: "Generar texto" }).click();
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Resultado" });
@@ -28,7 +28,8 @@ try {
     throw new Error("La generacion no devolvio un texto persistible.");
   }
 
-  await page.getByRole("button", { name: "Persistencia" }).click();
+  await page.getByRole("button", { name: "Sistema" }).click();
+  await page.getByRole("button", { name: "Datos guardados" }).click();
 
   const persistencePanel = page.locator(".panel", { hasText: "Dominios persistidos" });
   await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();

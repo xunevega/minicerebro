@@ -7,9 +7,10 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
-  await page.getByRole("button", { name: "Scoring" }).click();
+  await page.getByRole("button", { name: "Mi perfil" }).click();
+  await page.getByRole("button", { name: "Puntuacion" }).click();
 
-  await page.getByLabel("Motivo del ajuste").fill("Smoke UI de ajuste manual revisable.");
+  await page.getByLabel("Por que cambias la puntuacion").fill("Smoke UI de ajuste manual revisable.");
 
   const scoreRow = page.locator(".scoreRow", { hasText: "Dinamismo" }).first();
   const slider = scoreRow.locator('input[type="range"]');
