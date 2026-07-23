@@ -17,6 +17,7 @@ from app.db.models import (
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
+    KnowledgeProposalRecord,
     KnowledgeRelationRecord,
     KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
@@ -1240,6 +1241,237 @@ def test_register_knowledge_extraction_run_is_auditable_without_creating_knowled
             ]
             session.query(AuditEventRecord).filter(
                 AuditEventRecord.entity_id.in_([source_id, edition_id, entry_id, *extraction_ids])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeExtractionRunRecord).filter(
+                KnowledgeExtractionRunRecord.segment_id == segment_id
+            ).delete()
+            session.query(KnowledgeSegmentRecord).filter(
+                KnowledgeSegmentRecord.index_entry_id == entry_id
+            ).delete()
+            session.query(KnowledgeIndexEntryRecord).filter(
+                KnowledgeIndexEntryRecord.edition_id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceEditionRecord).filter(
+                KnowledgeSourceEditionRecord.id == edition_id
+            ).delete()
+            session.query(KnowledgeSourceRecord).filter(
+                KnowledgeSourceRecord.id == source_id
+            ).delete()
+            session.commit()
+
+
+def test_register_knowledge_proposals_from_completed_extraction_without_stable_objects():
+    source_id = "test-fuente-propuestas"
+    edition_id = "test-fuente-propuestas:primera"
+    entry_id = "test-fuente-propuestas:primera:sec-1-1"
+    segment_id = "test-fuente-propuestas:primera:sec-1-1:seg-1"
+    source_payload = {
+        "id": source_id,
+        "catalog_id": "TEST-F006",
+        "name": "Fuente de prueba con propuestas",
+        "responsible": "Equipo editorial",
+        "source_type": "manual de prueba",
+        "domains": ["sintaxis"],
+        "authority_level": 3,
+        "priority": 104,
+    }
+    edition_payload = {
+        "id": edition_id,
+        "source_id": source_id,
+        "title": "Fuente de prueba con propuestas",
+        "edition_label": "Primera edicion propositiva",
+        "publication_year": "2026",
+        "publisher": "Editorial de prueba",
+        "isbn": "978-0-000000-00-6",
+        "language": "es",
+        "format": "pdf",
+        "access_location": "/tmp/fuente-propuestas.pdf",
+        "rights_status": "uso local autorizado; contenido no ingerido",
+        "status": "available",
+        "notes": "Registro bibliografico para prueba de propuestas.",
+    }
+    index_payload = [
+        {
+            "id": entry_id,
+            "edition_id": edition_id,
+            "parent_id": None,
+            "level": 1,
+            "order": 1,
+            "title": "Complemento directo",
+            "locator": "capitulo 1 > 1.1",
+            "page_start": "10",
+            "page_end": "14",
+            "status": "registered",
+        }
+    ]
+    segment_payload = [
+        {
+            "id": segment_id,
+            "index_entry_id": entry_id,
+            "parent_segment_id": None,
+            "segment_type": "paragraph",
+            "title": "Parrafo inicial",
+            "text": "El complemento directo aparece descrito en este apartado documental.",
+            "order": 1,
+            "start_locator": "capitulo 1 > 1.1 > p1",
+            "end_locator": "capitulo 1 > 1.1 > p1",
+            "language": "es",
+            "status": "registered",
+        }
+    ]
+    extraction_payload = {
+        "extractor_type": "deterministic",
+        "extractor_name": "manual-placeholder",
+        "extractor_version": "1.0",
+        "configuration": {"mode": "proposal-smoke"},
+    }
+    proposal_payload = [
+        {
+            "proposal_type": "node",
+            "title": "Complemento directo",
+            "payload": {
+                "canonical_name": "Complemento directo",
+                "node_type": "concepto",
+            },
+            "rationale": "El segmento contiene un apartado documental con ese titulo.",
+            "confidence": 0.72,
+            "source_locator": "capitulo 1 > 1.1 > p1",
+        },
+        {
+            "proposal_type": "evidence",
+            "title": "Evidencia textual sobre complemento directo",
+            "payload": {
+                "excerpt": "El complemento directo aparece descrito en este apartado documental.",
+            },
+            "rationale": "El texto del segmento puede sustentar una evidencia candidata.",
+            "confidence": 0.68,
+            "source_locator": "capitulo 1 > 1.1 > p1",
+        },
+    ]
+    try:
+        assert client.post("/knowledge/sources", json=source_payload).status_code == 200
+        assert (
+            client.post(f"/knowledge/sources/{source_id}/editions", json=edition_payload).status_code
+            == 200
+        )
+        assert client.post(f"/knowledge/editions/{edition_id}/index", json=index_payload).status_code == 200
+        assert client.post(f"/knowledge/index/{entry_id}/segments", json=segment_payload).status_code == 200
+        extraction_response = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json=extraction_payload,
+        )
+        assert extraction_response.status_code == 200
+        extraction = extraction_response.json()
+
+        response = client.post(
+            f"/knowledge/extractions/{extraction['id']}/proposals",
+            json=proposal_payload,
+        )
+        assert response.status_code == 200
+        proposals = response.json()
+        assert len(proposals) == 2
+        assert {proposal["proposal_type"] for proposal in proposals} == {"node", "evidence"}
+        assert {proposal["status"] for proposal in proposals} == {"proposed"}
+        assert {proposal["segment_id"] for proposal in proposals} == {segment_id}
+        assert {proposal["extraction_id"] for proposal in proposals} == {extraction["id"]}
+        assert proposals[0]["payload"]["canonical_name"] == "Complemento directo"
+        assert proposals[0]["reviewed_at"] is None
+        assert proposals[0]["reviewer"] is None
+        assert proposals[0]["decision_reason"] is None
+
+        listed = client.get(f"/knowledge/extractions/{extraction['id']}/proposals")
+        assert listed.status_code == 200
+        assert {proposal["id"] for proposal in listed.json()} == {
+            proposal["id"] for proposal in proposals
+        }
+
+        detail = client.get(f"/knowledge/proposals/{proposals[0]['id']}")
+        assert detail.status_code == 200
+        assert detail.json()["id"] == proposals[0]["id"]
+
+        failed_extraction = client.post(
+            f"/knowledge/segments/{segment_id}/extractions",
+            json={
+                **extraction_payload,
+                "status": "failed",
+                "error_code": "parser_error",
+            },
+        ).json()
+        failed_proposal = client.post(
+            f"/knowledge/extractions/{failed_extraction['id']}/proposals",
+            json=proposal_payload,
+        )
+        assert failed_proposal.status_code == 409
+        assert failed_proposal.json()["detail"] == (
+            "Knowledge proposals require a completed extraction"
+        )
+
+        missing_extraction = client.post(
+            "/knowledge/extractions/ext-inexistente/proposals",
+            json=proposal_payload,
+        )
+        assert missing_extraction.status_code == 404
+        assert missing_extraction.json()["detail"] == "Knowledge extraction not found"
+
+        missing_proposal = client.get("/knowledge/proposals/prop-inexistente")
+        assert missing_proposal.status_code == 404
+        assert missing_proposal.json()["detail"] == "Knowledge proposal not found"
+
+        nodes_after = client.get(f"/knowledge/nodes?source_id={source_id}")
+        assert nodes_after.status_code == 200
+        assert nodes_after.json() == []
+
+        with SessionLocal() as session:
+            proposal_records = session.scalars(
+                select(KnowledgeProposalRecord).where(
+                    KnowledgeProposalRecord.extraction_id == extraction["id"]
+                )
+            ).all()
+            assert len(proposal_records) == 2
+            evidence = session.scalars(
+                select(KnowledgeEvidenceItemRecord).where(
+                    KnowledgeEvidenceItemRecord.source_id == source_id
+                )
+            ).all()
+            assert evidence == []
+            claims = session.scalars(
+                select(KnowledgeClaimRecord).where(KnowledgeClaimRecord.node_id == source_id)
+            ).all()
+            assert claims == []
+            cards = session.scalars(
+                select(KnowledgeCardRecord).where(KnowledgeCardRecord.id.contains(source_id))
+            ).all()
+            assert cards == []
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.proposal.registered",
+                    AuditEventRecord.entity_id == extraction["id"],
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["proposal_count"] == 2
+            assert event.payload["proposal_types"] == ["node", "evidence"]
+            assert event.payload["nodes_created"] is False
+            assert event.payload["evidence_created"] is False
+            assert event.payload["claims_created"] is False
+            assert event.payload["cards_created"] is False
+            assert event.payload["published"] is False
+            assert event.payload["stable_knowledge_created"] is False
+    finally:
+        with SessionLocal() as session:
+            extraction_ids = [
+                record.id
+                for record in session.scalars(
+                    select(KnowledgeExtractionRunRecord).where(
+                        KnowledgeExtractionRunRecord.segment_id == segment_id
+                    )
+                ).all()
+            ]
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_([source_id, edition_id, entry_id, *extraction_ids])
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeProposalRecord).filter(
+                KnowledgeProposalRecord.extraction_id.in_(extraction_ids)
             ).delete(synchronize_session=False)
             session.query(KnowledgeExtractionRunRecord).filter(
                 KnowledgeExtractionRunRecord.segment_id == segment_id

@@ -34,6 +34,8 @@ from app.core.models import (
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
     KnowledgePublicationReadiness,
+    KnowledgeProposal,
+    KnowledgeProposalCreate,
     KnowledgeQueryContract,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
@@ -74,6 +76,7 @@ from app.db.models import (
     KnowledgeNodeRecord,
     KnowledgeNodeRelationRecord,
     KnowledgeObjectRevisionRecord,
+    KnowledgeProposalRecord,
     KnowledgeRelationRecord,
     KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
@@ -384,6 +387,26 @@ def knowledge_extraction_run_from_record(
         error_message=record.error_message,
         created_at=record.created_at,
         updated_at=record.updated_at,
+    )
+
+
+def knowledge_proposal_from_record(record: KnowledgeProposalRecord) -> KnowledgeProposal:
+    return KnowledgeProposal(
+        id=record.id,
+        extraction_id=record.extraction_id,
+        segment_id=record.segment_id,
+        proposal_type=record.proposal_type,
+        status=record.status,
+        title=record.title,
+        payload=record.payload,
+        rationale=record.rationale,
+        confidence=record.confidence,
+        source_locator=record.source_locator,
+        created_at=record.created_at,
+        updated_at=record.updated_at,
+        reviewed_at=record.reviewed_at,
+        reviewer=record.reviewer,
+        decision_reason=record.decision_reason,
     )
 
 
@@ -1136,6 +1159,76 @@ class Repository:
         if record is None:
             raise KeyError(extraction_id)
         return knowledge_extraction_run_from_record(record)
+
+    def register_knowledge_proposals(
+        self,
+        extraction_id: str,
+        payload: list[KnowledgeProposalCreate],
+    ) -> list[KnowledgeProposal]:
+        extraction = self.session.get(KnowledgeExtractionRunRecord, extraction_id)
+        if extraction is None:
+            raise KeyError(extraction_id)
+        if extraction.status != "completed":
+            raise ValueError("Knowledge proposals require a completed extraction")
+        if not payload:
+            raise ValueError("Knowledge proposals cannot be empty")
+        now = datetime.now(UTC).isoformat()
+        records = [
+            KnowledgeProposalRecord(
+                id=f"prop-{uuid4()}",
+                extraction_id=extraction_id,
+                segment_id=extraction.segment_id,
+                proposal_type=proposal.proposal_type,
+                status="proposed",
+                title=proposal.title,
+                payload=proposal.payload,
+                rationale=proposal.rationale,
+                confidence=proposal.confidence,
+                source_locator=proposal.source_locator,
+                created_at=now,
+                updated_at=now,
+                reviewed_at=None,
+                reviewer=None,
+                decision_reason=None,
+            )
+            for proposal in payload
+        ]
+        self.session.add_all(records)
+        self.add_audit_event(
+            "knowledge.proposal.registered",
+            "knowledge_extraction_run",
+            extraction_id,
+            {
+                "proposal_count": len(records),
+                "segment_id": extraction.segment_id,
+                "proposal_types": [record.proposal_type for record in records],
+                "status": "proposed",
+                "nodes_created": False,
+                "evidence_created": False,
+                "claims_created": False,
+                "cards_created": False,
+                "published": False,
+                "stable_knowledge_created": False,
+            },
+        )
+        self.session.commit()
+        return [knowledge_proposal_from_record(record) for record in records]
+
+    def list_knowledge_proposals(self, extraction_id: str) -> list[KnowledgeProposal]:
+        if self.session.get(KnowledgeExtractionRunRecord, extraction_id) is None:
+            raise KeyError(extraction_id)
+        records = self.session.scalars(
+            select(KnowledgeProposalRecord)
+            .where(KnowledgeProposalRecord.extraction_id == extraction_id)
+            .order_by(KnowledgeProposalRecord.created_at, KnowledgeProposalRecord.id)
+        ).all()
+        return [knowledge_proposal_from_record(record) for record in records]
+
+    def get_knowledge_proposal(self, proposal_id: str) -> KnowledgeProposal:
+        record = self.session.get(KnowledgeProposalRecord, proposal_id)
+        if record is None:
+            raise KeyError(proposal_id)
+        return knowledge_proposal_from_record(record)
 
     def list_knowledge_nodes(
         self,

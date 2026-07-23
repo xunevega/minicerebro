@@ -467,6 +467,33 @@ class KnowledgeExtractionRunCreate(BaseModel):
     knowledge_version: str | None = Field(default=None, max_length=80)
 
 
+class KnowledgeProposal(BaseModel):
+    id: str
+    extraction_id: str
+    segment_id: str
+    proposal_type: str
+    status: str
+    title: str
+    payload: dict
+    rationale: str
+    confidence: float = Field(ge=0, le=1)
+    source_locator: str
+    created_at: str
+    updated_at: str
+    reviewed_at: str | None = None
+    reviewer: str | None = None
+    decision_reason: str | None = None
+
+
+class KnowledgeProposalCreate(BaseModel):
+    proposal_type: Literal["node", "evidence", "claim", "relation", "alias", "definition"]
+    title: str = Field(min_length=1, max_length=320)
+    payload: dict
+    rationale: str = Field(min_length=1)
+    confidence: float = Field(ge=0, le=1)
+    source_locator: str = Field(min_length=1, max_length=240)
+
+
 class KnowledgeNode(BaseModel):
     id: str
     source_id: str

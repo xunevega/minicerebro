@@ -30,6 +30,8 @@ import type {
   KnowledgeObjectRevision,
   KnowledgePublicationPolicy,
   KnowledgePublicationReadiness,
+  KnowledgeProposal,
+  KnowledgeProposalCreate,
   KnowledgeQueryContract,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryInterpretation,
@@ -203,6 +205,31 @@ export function getKnowledgeExtractionRuns(segmentId: string) {
 export function getKnowledgeExtractionRun(extractionId: string) {
   return request<KnowledgeExtractionRun>(
     `/knowledge/extractions/${encodeURIComponent(extractionId)}`,
+  );
+}
+
+export function registerKnowledgeProposals(
+  extractionId: string,
+  payload: KnowledgeProposalCreate[],
+) {
+  return request<KnowledgeProposal[]>(
+    `/knowledge/extractions/${encodeURIComponent(extractionId)}/proposals`,
+    {
+      method: "POST",
+      body: JSON.stringify(payload),
+    },
+  );
+}
+
+export function getKnowledgeProposals(extractionId: string) {
+  return request<KnowledgeProposal[]>(
+    `/knowledge/extractions/${encodeURIComponent(extractionId)}/proposals`,
+  );
+}
+
+export function getKnowledgeProposal(proposalId: string) {
+  return request<KnowledgeProposal>(
+    `/knowledge/proposals/${encodeURIComponent(proposalId)}`,
   );
 }
 

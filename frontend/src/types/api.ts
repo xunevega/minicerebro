@@ -374,6 +374,33 @@ export type KnowledgeExtractionRunCreate = {
   knowledge_version?: string | null;
 };
 
+export type KnowledgeProposal = {
+  id: string;
+  extraction_id: string;
+  segment_id: string;
+  proposal_type: string;
+  status: string;
+  title: string;
+  payload: Record<string, unknown>;
+  rationale: string;
+  confidence: number;
+  source_locator: string;
+  created_at: string;
+  updated_at: string;
+  reviewed_at: string | null;
+  reviewer: string | null;
+  decision_reason: string | null;
+};
+
+export type KnowledgeProposalCreate = {
+  proposal_type: "node" | "evidence" | "claim" | "relation" | "alias" | "definition";
+  title: string;
+  payload: Record<string, unknown>;
+  rationale: string;
+  confidence: number;
+  source_locator: string;
+};
+
 export type KnowledgeNode = {
   id: string;
   source_id: string;

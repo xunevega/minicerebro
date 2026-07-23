@@ -38,6 +38,8 @@ from app.core.models import (
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
     KnowledgePublicationReadiness,
+    KnowledgeProposal,
+    KnowledgeProposalCreate,
     KnowledgeQueryContract,
     KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
@@ -370,6 +372,42 @@ def knowledge_extraction_run(
         return repository.get_knowledge_extraction_run(extraction_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge extraction not found") from exc
+
+
+@router.post("/knowledge/extractions/{extraction_id}/proposals")
+def register_knowledge_proposals(
+    extraction_id: str,
+    payload: list[KnowledgeProposalCreate],
+    repository: RepositoryDep,
+) -> list[KnowledgeProposal]:
+    try:
+        return repository.register_knowledge_proposals(extraction_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge extraction not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.get("/knowledge/extractions/{extraction_id}/proposals")
+def knowledge_proposals(
+    extraction_id: str,
+    repository: RepositoryDep,
+) -> list[KnowledgeProposal]:
+    try:
+        return repository.list_knowledge_proposals(extraction_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge extraction not found") from exc
+
+
+@router.get("/knowledge/proposals/{proposal_id}")
+def knowledge_proposal(
+    proposal_id: str,
+    repository: RepositoryDep,
+) -> KnowledgeProposal:
+    try:
+        return repository.get_knowledge_proposal(proposal_id)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge proposal not found") from exc
 
 
 @router.get("/knowledge/nodes")

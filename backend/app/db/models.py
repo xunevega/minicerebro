@@ -287,6 +287,28 @@ class KnowledgeExtractionRunRecord(Base):
     updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
 
 
+class KnowledgeProposalRecord(Base):
+    __tablename__ = "knowledge_proposals"
+
+    id: Mapped[str] = mapped_column(String(180), primary_key=True)
+    extraction_id: Mapped[str] = mapped_column(
+        ForeignKey("knowledge_extraction_runs.id"), nullable=False, index=True
+    )
+    segment_id: Mapped[str] = mapped_column(ForeignKey("knowledge_segments.id"), nullable=False, index=True)
+    proposal_type: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    status: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    title: Mapped[str] = mapped_column(String(320), nullable=False)
+    payload: Mapped[dict] = mapped_column(JSON, nullable=False)
+    rationale: Mapped[str] = mapped_column(Text, nullable=False)
+    confidence: Mapped[float] = mapped_column(Float, nullable=False)
+    source_locator: Mapped[str] = mapped_column(String(240), nullable=False)
+    created_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    updated_at: Mapped[str] = mapped_column(String(80), nullable=False)
+    reviewed_at: Mapped[str | None] = mapped_column(String(80), nullable=True)
+    reviewer: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    decision_reason: Mapped[str | None] = mapped_column(Text, nullable=True)
+
+
 class KnowledgeNodeRecord(Base):
     __tablename__ = "knowledge_nodes"
 
