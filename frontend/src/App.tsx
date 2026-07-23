@@ -324,7 +324,9 @@ export function App() {
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
   const activeSectionTabs = tabs.filter((tab) => activeSection.tabs.includes(tab.id));
   const latestPublishedKnowledgeVersion =
-    [...knowledgeVersions].reverse().find((version) => version.status === "published")?.id ??
+    [...knowledgeVersions]
+      .filter((version) => version.status === "published")
+      .sort((left, right) => knowledgeVersionRank(right.id) - knowledgeVersionRank(left.id))[0]?.id ??
     knowledge?.version ??
     "knowledge-v0";
   const effectiveKnowledgeVersion =

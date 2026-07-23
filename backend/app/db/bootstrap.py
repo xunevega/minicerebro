@@ -57,6 +57,90 @@ BACKEND_DIR = Path(__file__).resolve().parents[2]
 _SEED_LOCK = Lock()
 
 
+def _add_published_snapshot(
+    session: Session,
+    *,
+    version_id: str,
+    version_chain: set[str],
+    timestamp: str,
+) -> None:
+    if session.get(KnowledgeVersionSnapshotRecord, version_id) is not None:
+        return
+    evidence = [item for item in seed_evidence() if item.version in version_chain]
+    claims = [claim for claim in seed_claims() if claim.version in version_chain]
+    cards = [card for card in seed_cards() if card.version in version_chain]
+    node_ids_from_claims = {
+        claim.node_id
+        for claim in claims
+    } | {
+        related_node_id
+        for claim in claims
+        for related_node_id in claim.related_node_ids
+    }
+    node_ids_from_evidence = {item.node_id for item in evidence}
+    nodes = [
+        node
+        for node in seed_nodes()
+        if node.version in version_chain or node.id in node_ids_from_claims | node_ids_from_evidence
+    ]
+    source_ids = sorted({node.source_id for node in nodes} | {item.source_id for item in evidence})
+    source_edition_ids = sorted({item.source_edition_id for item in evidence})
+    node_ids = [node.id for node in nodes]
+    evidence_ids = [item.id for item in evidence]
+    claim_ids = [claim.id for claim in claims]
+    card_ids = [card.id for card in cards]
+    snapshot_object_ids = {
+        *source_ids,
+        *source_edition_ids,
+        *node_ids,
+        *evidence_ids,
+        *claim_ids,
+        *card_ids,
+    }
+    node_relation_ids = [
+        relation.id
+        for relation in seed_node_relations()
+        if relation.version in version_chain
+        and relation.source_node_id in snapshot_object_ids
+        and relation.target_node_id in snapshot_object_ids
+    ]
+    relation_ids = [
+        relation.id
+        for relation in seed_relations()
+        if relation.version in version_chain
+        and relation.source_entity_id in snapshot_object_ids
+        and relation.target_entity_id in snapshot_object_ids
+    ]
+    revision_ids = [
+        revision.id
+        for revision in seed_object_revisions()
+        if revision.object_id in snapshot_object_ids or revision.object_id in relation_ids
+    ]
+    claim_evidence_link_ids = [
+        link.id
+        for link in seed_claim_evidence_links()
+        if link.claim_id in claim_ids and link.evidence_id in evidence_ids
+    ]
+    session.add(
+        KnowledgeVersionSnapshotRecord(
+            version_id=version_id,
+            status="published",
+            source_ids=source_ids,
+            source_edition_ids=source_edition_ids,
+            node_ids=node_ids,
+            node_relation_ids=node_relation_ids,
+            relation_ids=relation_ids,
+            evidence_ids=evidence_ids,
+            claim_ids=claim_ids,
+            claim_evidence_link_ids=claim_evidence_link_ids,
+            card_ids=card_ids,
+            revision_ids=revision_ids,
+            created_at=timestamp,
+            updated_at=timestamp,
+        )
+    )
+
+
 def upgrade_database() -> None:
     config = Config(str(BACKEND_DIR / "alembic.ini"))
     config.set_main_option("script_location", str(BACKEND_DIR / "alembic"))
@@ -167,6 +251,30 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 id="knowledge-v7",
                 status="published",
                 published_at="2026-07-23T06:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v8") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v8",
+                status="published",
+                published_at="2026-07-23T07:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v9") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v9",
+                status="published",
+                published_at="2026-07-23T08:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v10") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v10",
+                status="published",
+                published_at="2026-07-23T09:00:00+00:00",
             )
         )
     for source in seed_sources():
@@ -752,6 +860,30 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "claim-rae-ngle-complemento-regimen",
             "card-complemento-regimen",
         }
+        published_versions = {
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+            "knowledge-v10",
+        }
+        candidate_object_ids.update(
+            node.id for node in seed_nodes() if node.version in published_versions
+        )
+        candidate_object_ids.update(
+            evidence.id for evidence in seed_evidence() if evidence.version in published_versions
+        )
+        candidate_object_ids.update(
+            claim.id for claim in seed_claims() if claim.version in published_versions
+        )
+        candidate_object_ids.update(
+            card.id for card in seed_cards() if card.version in published_versions
+        )
         published_source_editions = [
             edition for edition in seed_source_editions() if edition.id not in candidate_object_ids
         ]
@@ -1160,6 +1292,54 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 updated_at="2026-07-23T06:00:00+00:00",
             )
         )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v8",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+        },
+        timestamp="2026-07-23T07:00:00+00:00",
+    )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v9",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+        },
+        timestamp="2026-07-23T08:00:00+00:00",
+    )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v10",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+            "knowledge-v10",
+        },
+        timestamp="2026-07-23T09:00:00+00:00",
+    )
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v1") is None:
         source_ids = ["rae-ngle"]
         source_edition_ids = ["rae-ngle:manual-2010"]
