@@ -1855,20 +1855,24 @@ def query_knowledge(
     cards = cards if cards is not None else seed_cards()
     claims = claims if claims is not None else seed_claims()
     evidence = evidence if evidence is not None else seed_evidence()
+    allowed_statuses = {"published"}
+    published_claims = [claim for claim in claims if claim.status in allowed_statuses]
+    published_evidence = [item for item in evidence if item.status in allowed_statuses]
     sources_by_id = {source.id: source for source in sources}
     nodes_by_id = {node.id: node for node in nodes}
-    evidence_by_id = {item.id: item for item in evidence}
+    evidence_by_id = {item.id: item for item in published_evidence}
     claims_by_card: dict[str, list[KnowledgeClaim]] = {}
-    for claim in claims:
+    for claim in published_claims:
         claims_by_card.setdefault(claim.card_id, []).append(claim)
 
     relations = seed_relations()
     relations_by_source = {
         (relation.source_entity_type, relation.source_entity_id): relation
         for relation in relations
-        if relation.version == resolved_version and relation.confidence >= 0.5
+        if relation.version == resolved_version
+        and relation.status in allowed_statuses
+        and relation.confidence >= 0.5
     }
-    allowed_statuses = {"published", "draft"}
     candidate_nodes: set[str] = set()
     discarded_claims: list[str] = []
     ranking: list[dict] = []
@@ -1880,6 +1884,8 @@ def query_knowledge(
             for claim in linked_claims
             if claim.evidence_id in evidence_by_id
         ]
+        if not linked_claims or not linked_evidence:
+            return 0.0, {"concept_match": 0.0}, [], []
         linked_nodes = [
             nodes_by_id[item.node_id] for item in linked_evidence if item.node_id in nodes_by_id
         ]

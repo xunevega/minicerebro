@@ -29,12 +29,9 @@ try {
   await queryPanel.locator("input").fill("precision lexica");
   await page.getByLabel("Limite de fichas").selectOption("3");
   await page.getByRole("button", { name: "Consultar" }).click();
-  await queryPanel.getByText('Resultado para "precision lexica"').waitFor();
-  await queryPanel.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "3 pendientes" }).waitFor();
-  await queryPanel
-    .locator(".knowledgeItem", { hasText: "Precision lexica" })
-    .getByText("Validacion pendiente")
-    .first()
+  await queryPanel.getByText("Consulta valida sin resultados").waitFor();
+  await page
+    .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v0.")
     .waitFor();
 
   await queryPanel.locator("input").fill(emptyQuery);
@@ -74,16 +71,16 @@ try {
   await historyLimitResponse;
   await page.getByText("knowledge-v0 -> consulta").first().waitFor();
   const historyItem = auditPanel.locator(".auditItem", {
-    hasText: "3 validaciones pendientes",
+    hasText: "0 validaciones pendientes",
   }).first();
-  await historyItem.getByText("3 validaciones pendientes").waitFor();
+  await historyItem.getByText("0 validaciones pendientes").waitFor();
   await historyItem.getByRole("button", { name: "Detalle" }).click();
   await historyItem.locator("dt", { hasText: "Evento" }).waitFor();
   await historyItem.locator("dt", { hasText: "Version" }).waitFor();
   await historyItem.locator("dt", { hasText: "Longitud" }).waitFor();
   await historyItem.locator("dt", { hasText: "Recorrido" }).waitFor();
   await historyItem.locator("dt", { hasText: "Validacion" }).waitFor();
-  await historyItem.getByText("3 pendientes").waitFor();
+  await historyItem.getByText("0 pendientes").waitFor();
   const filteredAuditResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return (

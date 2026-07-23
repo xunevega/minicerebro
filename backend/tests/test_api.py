@@ -2014,7 +2014,7 @@ def test_knowledge_revisions_allow_historical_recovery():
     assert missing_version.json()["detail"] == "Knowledge version not found"
 
 
-def test_knowledge_query_returns_cards_claims_and_evidence():
+def test_knowledge_query_uses_only_published_cards_claims_and_evidence():
     response = client.post(
         "/knowledge/query",
         json={"query": "precision lexica verificable", "version": "knowledge-v0", "limit": 3},
@@ -2027,26 +2027,23 @@ def test_knowledge_query_returns_cards_claims_and_evidence():
     assert payload["resolved_version"] == "knowledge-v0"
     assert payload["query_type"] == ["writing_recommendation"]
     assert "LENGUA" in payload["domain"]
-    assert payload["status"] == "low_confidence"
-    assert payload["cards"][0]["id"] == "lexico-precision"
+    assert payload["status"] == "no_match"
+    assert payload["cards"] == []
+    assert payload["claims"] == []
+    assert payload["evidence"] == []
+    assert payload["sources"] == []
+    assert payload["retrieved_cards"] == []
+    assert payload["ranking"] == []
     assert payload["card_count"] == len(payload["cards"])
     assert payload["claim_count"] == len(payload["claims"])
     assert payload["evidence_count"] == len(payload["evidence"])
-    assert payload["sources"][0]["id"] == "rae-dle"
-    assert payload["retrieved_cards"][0]["card_id"] == "lexico-precision"
-    assert payload["retrieved_cards"][0]["node_id"] == "rae-norma-estilo"
-    assert payload["retrieved_cards"][0]["claim_ids"] == ["claim-precision-lexica"]
-    assert payload["ranking"][0]["card_id"] == "lexico-precision"
-    assert "concept_match" in payload["ranking"][0]["factors"]
     assert payload["retrieval_trace"]["normalized_query"] == "precision lexica verificable"
-    assert payload["retrieval_trace"]["selected_cards"] == ["lexico-precision"]
+    assert payload["retrieval_trace"]["filters"]["claim_status"] == ["published"]
+    assert payload["retrieval_trace"]["candidate_cards"] == []
+    assert payload["retrieval_trace"]["selected_cards"] == []
+    assert payload["retrieval_trace"]["selected_claims"] == []
+    assert payload["retrieval_trace"]["selected_evidence"] == []
     assert payload["limits"]["max_cards"] == 3
-    assert {claim["card_id"] for claim in payload["claims"]} <= {
-        card["id"] for card in payload["cards"]
-    }
-    assert {item["id"] for item in payload["evidence"]} >= {
-        claim["evidence_id"] for claim in payload["claims"]
-    }
 
 
 def test_knowledge_query_contract_separates_query_from_retrieval_and_generation():
@@ -2122,7 +2119,8 @@ def test_knowledge_query_resolves_latest_and_declares_no_match():
     assert latest_payload["requested_version"] == "latest"
     assert latest_payload["resolved_version"] == "knowledge-v0"
     assert latest_payload["version"] == "knowledge-v0"
-    assert latest_payload["card_count"] == 1
+    assert latest_payload["status"] == "no_match"
+    assert latest_payload["card_count"] == 0
 
     empty_response = client.post(
         "/knowledge/query",
@@ -2161,8 +2159,8 @@ def test_knowledge_query_records_audit_event_without_raw_query():
     )
     assert event["payload"]["requested_version"] == "knowledge-v0"
     assert event["payload"]["resolved_version"] == "knowledge-v0"
-    assert event["payload"]["status"] == "low_confidence"
-    assert event["payload"]["candidate_nodes"] >= 1
+    assert event["payload"]["status"] == "no_match"
+    assert event["payload"]["candidate_nodes"] == 0
     assert event["payload"]["selected_cards"] == result["card_count"]
     assert event["payload"]["cache_hit"] is False
     assert query not in str(event["payload"])
@@ -2227,19 +2225,19 @@ def test_knowledge_query_summary_is_derived_from_audit_events():
         json={"query": "zzzinexistente", "version": "knowledge-v0", "limit": 5},
     )
     assert empty_response.status_code == 200
-    hit_response = client.post(
+    second_empty_response = client.post(
         "/knowledge/query",
         json={"query": "precision lexica", "version": "knowledge-v0", "limit": 5},
     )
-    assert hit_response.status_code == 200
+    assert second_empty_response.status_code == 200
 
     response = client.get("/knowledge/query-summary?version=knowledge-v0")
     assert response.status_code == 200
     summary = response.json()
     assert summary["version"] == "knowledge-v0"
     assert summary["total_count"] >= 2
-    assert summary["empty_count"] >= 1
-    assert summary["hit_count"] >= 1
+    assert summary["empty_count"] >= 2
+    assert summary["hit_count"] == 0
     assert summary["last_query_at"] is not None
 
 
@@ -2294,21 +2292,21 @@ def test_knowledge_query_matches_the_full_persisted_chain():
         json={"query": "ambiguedad", "version": "knowledge-v0", "limit": 3},
     )
     assert evidence_match.status_code == 200
-    assert evidence_match.json()["cards"][0]["id"] == "lexico-precision"
+    assert evidence_match.json()["cards"] == []
 
     node_match = client.post(
         "/knowledge/query",
         json={"query": "reglas normativas", "version": "knowledge-v0", "limit": 3},
     )
     assert node_match.status_code == 200
-    assert node_match.json()["cards"][0]["id"] == "lexico-precision"
+    assert node_match.json()["cards"] == []
 
     source_match = client.post(
         "/knowledge/query",
         json={"query": "Diccionario lengua espanola", "version": "knowledge-v0", "limit": 3},
     )
     assert source_match.status_code == 200
-    assert source_match.json()["cards"][0]["id"] == "lexico-precision"
+    assert source_match.json()["cards"] == []
 
 
 def test_knowledge_query_rejects_missing_version():
