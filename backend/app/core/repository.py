@@ -828,7 +828,10 @@ class Repository:
             if edition_record is None or edition_record.source_id != source_id:
                 raise KeyError(source_edition_id)
         elif editions:
-            edition_record = editions[0]
+            edition_record = next(
+                (edition for edition in editions if not edition.id.endswith(":pending-edition")),
+                editions[0],
+            )
         edition = (
             knowledge_source_edition_from_record(edition_record)
             if edition_record is not None

@@ -36,12 +36,14 @@ KNOWLEDGE_VERSION = "knowledge-v0"
 PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v1"
 KNOWLEDGE_V2_VERSION = "knowledge-v2"
 KNOWLEDGE_V3_VERSION = "knowledge-v3"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v4"
+KNOWLEDGE_V4_VERSION = "knowledge-v4"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v5"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
 KNOWLEDGE_V3_PUBLISHED_AT = "2026-07-23T02:00:00+00:00"
 KNOWLEDGE_V4_PUBLISHED_AT = "2026-07-23T03:00:00+00:00"
+KNOWLEDGE_V5_PUBLISHED_AT = "2026-07-23T04:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -264,7 +266,14 @@ def versioning_policy() -> KnowledgeVersioningPolicy:
             "que lo sustituyo despues",
             "como era exactamente en cualquier version publicada",
         ],
-        release_chain=["knowledge-v0", "knowledge-v1", "knowledge-v2", "knowledge-v3", "knowledge-v4"],
+        release_chain=[
+            "knowledge-v0",
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+        ],
     )
 
 
@@ -827,6 +836,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["lexico", "acepciones", "categorias", "locuciones", "marcas de uso"],
             authority_level=5,
             priority=1,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F006",
@@ -1156,6 +1168,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["entrada", "relacion terminologica", "segmento"],
             locator_system=["edicion", "entrada", "relacion", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="rae-dle:edicion-23-digital",
+            source_id="rae-dle",
+            title="Diccionario de la lengua espanola",
+            edition_label="23.a edicion digital",
+            publication_year="2014",
+            publisher="Real Academia Espanola y Asociacion de Academias de la Lengua Espanola",
+            isbn="9788467041897",
+            language="es",
+            format="obra de consulta digital",
+            access_location="https://dle.rae.es/",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Quinto lote documental minimo para probar publicacion incremental "
+                "de conocimiento lexico sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            label="23.a edicion digital",
+            publication_date="2014",
+            location="dle.rae.es",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["entrada", "acepcion", "segmento"],
+            locator_system=["edicion", "entrada", "acepcion", "url"],
+        ),
     ]
 
 
@@ -1211,6 +1251,20 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
             order=1,
             title="Terminologia sintactica",
             locator="Edicion 2019 > terminologia sintactica",
+            page_start=None,
+            page_end=None,
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
+        KnowledgeIndexEntry(
+            id="rae-dle:edicion-23-digital:precision-lexica",
+            edition_id="rae-dle:edicion-23-digital",
+            parent_id=None,
+            level=1,
+            order=1,
+            title="Precision lexica y seleccion de acepciones",
+            locator="23.a edicion digital > lexico > precision lexica",
             page_start=None,
             page_end=None,
             status="available",
@@ -1298,6 +1352,25 @@ def seed_segments() -> list[KnowledgeSegment]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        KnowledgeSegment(
+            id="rae-dle:edicion-23-digital:precision-lexica:seg-1",
+            index_entry_id="rae-dle:edicion-23-digital:precision-lexica",
+            parent_segment_id=None,
+            segment_type="editorial_summary",
+            title="Precision lexica como seleccion verificable",
+            text=(
+                "Resumen editorial minimo: en la consulta lexica, la precision consiste "
+                "en escoger palabras y acepciones acordes con el sentido buscado para "
+                "reducir vaguedad, falsos sinonimos y ambiguedades."
+            ),
+            order=1,
+            start_locator="23.a edicion digital > lexico > precision lexica > resumen editorial 1",
+            end_locator="23.a edicion digital > lexico > precision lexica > resumen editorial 1",
+            language="es",
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
@@ -1306,6 +1379,7 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
     lese_segment = seed_segments()[1]
     ole_segment = seed_segments()[2]
     gtg_segment = seed_segments()[3]
+    dle_segment = seed_segments()[4]
     return [
         KnowledgeExtractionRun(
             id="ext-rae-ngle-manual-2010-funciones-sintacticas-1",
@@ -1395,6 +1469,28 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        KnowledgeExtractionRun(
+            id="ext-rae-dle-23-digital-precision-lexica-1",
+            segment_id=dle_segment.id,
+            status="completed",
+            extractor_type="deterministic",
+            extractor_name="seed-editorial-extractor",
+            extractor_version="1.0",
+            configuration={
+                "mode": "seed_lexicon_incremental_batch",
+                "creates_stable_knowledge": False,
+                "source_text_policy": "editorial_summary_no_extended_quote",
+            },
+            input_segment_revision=1,
+            input_segment_hash=sha256(dle_segment.text.encode("utf-8")).hexdigest(),
+            knowledge_version=None,
+            started_at="2026-07-23",
+            completed_at="2026-07-23",
+            error_code=None,
+            error_message=None,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
     ]
 
 
@@ -1407,6 +1503,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
     ole_segment = seed_segments()[2]
     gtg_extraction = seed_extraction_runs()[3]
     gtg_segment = seed_segments()[3]
+    dle_extraction = seed_extraction_runs()[4]
+    dle_segment = seed_segments()[4]
     return [
         KnowledgeProposal(
             id="prop-rae-ngle-complemento-directo-node",
@@ -1802,7 +1900,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "de conocimiento."
                 ),
                 "aliases": ["nomenclatura gramatical", "terminos gramaticales"],
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V4_VERSION,
             },
             rationale="El segmento identifica la terminologia como soporte del analisis gramatical.",
             confidence=0.64,
@@ -1830,7 +1928,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "risks": ["confundir sinonimos con conceptos distintos"],
                     "contexts": ["gramatica", "glosario", "revision linguistica"],
                 },
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V4_VERSION,
             },
             rationale="La ficha agrupa la utilidad del glosario para consulta y trazabilidad.",
             confidence=0.62,
@@ -1863,7 +1961,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                 "excerpt": gtg_segment.text,
                 "context": "seed_terminology_incremental",
                 "confidence_level": 3,
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V4_VERSION,
             },
             rationale="El segmento conserva un resumen editorial minimo verificable.",
             confidence=0.62,
@@ -1900,7 +1998,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "period": "contemporary",
                     "text_type": "grammar",
                 },
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V4_VERSION,
             },
             rationale="El claim queda sustentado por la evidencia validada del segmento.",
             confidence=0.62,
@@ -1910,6 +2008,137 @@ def seed_proposals() -> list[KnowledgeProposal]:
             reviewed_at="2026-07-23",
             reviewer="minicerebro-seed",
             decision_reason="revision editorial del cuarto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-dle-precision-lexica-node",
+            extraction_id=dle_extraction.id,
+            segment_id=dle_segment.id,
+            proposal_type="node",
+            status="approved",
+            title="Precision lexica",
+            payload={
+                "id": "rae-dle-precision-lexica",
+                "source_id": "rae-dle",
+                "source_edition_id": "rae-dle:edicion-23-digital",
+                "canonical_name": "Precision lexica",
+                "node_type": "concepto",
+                "primary_branch": "lexico",
+                "secondary_branch": "seleccion lexica",
+                "summary": "Criterio para elegir palabras y acepciones con sentido verificable.",
+                "short_definition": "Rasgo de escritura basado en seleccionar palabras exactas para el sentido buscado.",
+                "long_definition": (
+                    "Concepto validado desde un segmento editorial minimo del Diccionario "
+                    "de la lengua espanola y publicado como quinto lote estable de conocimiento."
+                ),
+                "aliases": ["exactitud lexica", "propiedad lexica"],
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento identifica la precision como criterio lexico verificable.",
+            confidence=0.63,
+            source_locator=dle_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del quinto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-dle-precision-lexica-card",
+            extraction_id=dle_extraction.id,
+            segment_id=dle_segment.id,
+            proposal_type="card",
+            status="approved",
+            title="Ficha candidata sobre precision lexica",
+            payload={
+                "id": "card-precision-lexica",
+                "card_type": "lexical_trait",
+                "name": "Precision lexica",
+                "definition": "Criterio para elegir palabras concretas y acepciones acordes con el sentido buscado.",
+                "payload": {
+                    "signals": ["palabras concretas", "acepciones pertinentes", "menos vaguedad"],
+                    "risks": ["tecnicismo innecesario", "perdida de naturalidad"],
+                    "contexts": ["revision lexica", "ensayo", "texto tecnico"],
+                },
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="La ficha agrupa el criterio lexico validado por el lote.",
+            confidence=0.61,
+            source_locator=dle_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del quinto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-dle-precision-lexica-evidence",
+            extraction_id=dle_extraction.id,
+            segment_id=dle_segment.id,
+            proposal_type="evidence",
+            status="approved",
+            title="Evidencia candidata sobre precision lexica",
+            payload={
+                "id": "ev-rae-dle-precision-lexica",
+                "node_id": "rae-dle-precision-lexica",
+                "source_id": "rae-dle",
+                "source_edition_id": "rae-dle:edicion-23-digital",
+                "evidence_type": "editorial_summary",
+                "locator": {
+                    "edition": "23.a edicion digital",
+                    "section": "precision lexica y seleccion de acepciones",
+                    "segment_id": dle_segment.id,
+                },
+                "reference": dle_segment.start_locator,
+                "excerpt": dle_segment.text,
+                "context": "seed_lexicon_incremental",
+                "confidence_level": 3,
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El segmento conserva un resumen editorial minimo verificable.",
+            confidence=0.61,
+            source_locator=dle_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del quinto lote real de ingestion",
+        ),
+        KnowledgeProposal(
+            id="prop-rae-dle-precision-lexica-claim",
+            extraction_id=dle_extraction.id,
+            segment_id=dle_segment.id,
+            proposal_type="claim",
+            status="approved",
+            title="Claim candidato sobre precision lexica",
+            payload={
+                "id": "claim-rae-dle-precision-lexica",
+                "evidence_id": "ev-rae-dle-precision-lexica",
+                "card_id": "card-precision-lexica",
+                "statement": (
+                    "La precision lexica reduce vaguedad y ambiguedad al elegir palabras "
+                    "y acepciones acordes con el sentido buscado."
+                ),
+                "claim_type": "lexical",
+                "node_id": "rae-dle-precision-lexica",
+                "related_node_ids": ["rae-norma-estilo", "manual-rasgos-escritura"],
+                "domain": "writing.lexicon",
+                "scope": {
+                    "language": "es",
+                    "register": "general",
+                    "geography": "panhispanic",
+                    "period": "contemporary",
+                    "text_type": "writing",
+                },
+                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            },
+            rationale="El claim queda sustentado por la evidencia validada del segmento.",
+            confidence=0.61,
+            source_locator=dle_segment.start_locator,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            reviewed_at="2026-07-23",
+            reviewer="minicerebro-seed",
+            decision_reason="revision editorial del quinto lote real de ingestion",
         ),
     ]
 
@@ -2033,10 +2262,31 @@ def seed_nodes() -> list[KnowledgeNode]:
                 "estable publicado en knowledge-v4."
             ),
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V4_VERSION,
             created_at="2026-07-23",
             published_at=KNOWLEDGE_V4_PUBLISHED_AT,
             aliases=["nomenclatura gramatical", "terminos gramaticales"],
+        ),
+        KnowledgeNode(
+            id="rae-dle-precision-lexica",
+            source_id="rae-dle",
+            node_type="concepto",
+            title="Precision lexica",
+            summary="Criterio para elegir palabras y acepciones con sentido verificable.",
+            canonical_name="Precision lexica",
+            primary_branch="lexico",
+            secondary_branch="seleccion lexica",
+            short_definition="Rasgo de escritura basado en seleccionar palabras exactas para el sentido buscado.",
+            long_definition=(
+                "Concepto validado desde el quinto lote real de ingestion del Diccionario "
+                "de la lengua espanola. Queda materializado como conocimiento estable "
+                "publicado en knowledge-v5."
+            ),
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            published_at=KNOWLEDGE_V5_PUBLISHED_AT,
+            aliases=["exactitud lexica", "propiedad lexica"],
         ),
     ]
 
@@ -2128,6 +2378,21 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             weight=0.68,
             confidence=0.62,
             context="seed_terminology_incremental",
+            status="published",
+            version=KNOWLEDGE_V4_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        ),
+        KnowledgeNodeRelation(
+            id="rel-precision-lexica-depende-norma",
+            source_node_id="rae-dle-precision-lexica",
+            target_node_id="rae-norma-estilo",
+            relation_type="depende_de",
+            direction="outgoing",
+            cardinality="N:1",
+            weight=0.67,
+            confidence=0.61,
+            context="seed_lexicon_incremental",
             status="published",
             version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             created_at="2026-07-23",
@@ -2441,9 +2706,33 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             confidence=0.62,
             confidence_level=3,
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V4_VERSION,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V4_PUBLISHED_AT,
+            incorporated_by="minicerebro-seed",
+            reviewed_by="minicerebro-seed",
+            revision=1,
+        ),
+        KnowledgeEvidenceItem(
+            id="ev-rae-dle-precision-lexica",
+            node_id="rae-dle-precision-lexica",
+            source_id="rae-dle",
+            source_edition_id="rae-dle:edicion-23-digital",
+            evidence_type="editorial_summary",
+            locator={
+                "edition": "23.a edicion digital",
+                "section": "precision lexica y seleccion de acepciones",
+                "segment_id": "rae-dle:edicion-23-digital:precision-lexica:seg-1",
+            },
+            reference="23.a edicion digital > lexico > precision lexica > resumen editorial 1",
+            excerpt=seed_segments()[4].text,
+            context="seed_lexicon_incremental",
+            confidence=0.61,
+            confidence_level=3,
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V5_PUBLISHED_AT,
             incorporated_by="minicerebro-seed",
             reviewed_by="minicerebro-seed",
             revision=1,
@@ -2653,11 +2942,39 @@ def seed_claims() -> list[KnowledgeClaim]:
             status="published",
             confidence=0.62,
             origin="approved_knowledge_proposal",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V4_VERSION,
             revision=1,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V4_PUBLISHED_AT,
             published_at=KNOWLEDGE_V4_PUBLISHED_AT,
+        ),
+        KnowledgeClaim(
+            id="claim-rae-dle-precision-lexica",
+            evidence_id="ev-rae-dle-precision-lexica",
+            card_id="card-precision-lexica",
+            statement=(
+                "La precision lexica reduce vaguedad y ambiguedad al elegir palabras "
+                "y acepciones acordes con el sentido buscado."
+            ),
+            claim_type="lexical",
+            node_id="rae-dle-precision-lexica",
+            related_node_ids=["rae-norma-estilo", "manual-rasgos-escritura"],
+            domain="writing.lexicon",
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "writing",
+            },
+            status="published",
+            confidence=0.61,
+            origin="approved_knowledge_proposal",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            revision=1,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V5_PUBLISHED_AT,
+            published_at=KNOWLEDGE_V5_PUBLISHED_AT,
         ),
     ]
 
@@ -2799,11 +3116,24 @@ def seed_cards() -> list[KnowledgeCard]:
             name="Terminologia gramatical",
             definition="Marco de nombres estables para categorias, funciones y relaciones gramaticales.",
             confidence=0.62,
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V4_VERSION,
             payload={
                 "signals": ["denominacion estable", "alias controlados", "relaciones conceptuales"],
                 "risks": ["confundir sinonimos con conceptos distintos"],
                 "contexts": ["gramatica", "glosario", "revision linguistica"],
+            },
+        ),
+        KnowledgeCard(
+            id="card-precision-lexica",
+            card_type="lexical_trait",
+            name="Precision lexica",
+            definition="Criterio para elegir palabras concretas y acepciones acordes con el sentido buscado.",
+            confidence=0.61,
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            payload={
+                "signals": ["palabras concretas", "acepciones pertinentes", "menos vaguedad"],
+                "risks": ["tecnicismo innecesario", "perdida de naturalidad"],
+                "contexts": ["revision lexica", "ensayo", "texto tecnico"],
             },
         ),
     ]
@@ -2919,7 +3249,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             PUBLISHED_KNOWLEDGE_VERSION,
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
-            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V4_VERSION,
         }
     ]
     v4_claims = [
@@ -2930,7 +3260,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             PUBLISHED_KNOWLEDGE_VERSION,
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
-            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V4_VERSION,
         }
     ]
     v4_cards = [
@@ -2941,6 +3271,61 @@ def seed_versions() -> list[KnowledgeVersion]:
             PUBLISHED_KNOWLEDGE_VERSION,
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
+            KNOWLEDGE_V4_VERSION,
+        }
+    ]
+    v5_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {"rae-ngle", "rae-lese", "rae-ole", "rae-gtg", "rae-dle"}
+    ]
+    v5_nodes = [
+        node
+        for node in seed_nodes()
+        if node.id
+        in {
+            "rae-norma-estilo",
+            "manual-rasgos-escritura",
+            "rae-ngle-complemento-directo",
+            "rae-lese-dinamismo-frase",
+            "rae-ole-acentuacion-grafica",
+            "rae-gtg-terminologia-gramatical",
+            "rae-dle-precision-lexica",
+        }
+    ]
+    v5_evidence = [
+        evidence
+        for evidence in seed_evidence()
+        if evidence.version
+        in {
+            PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
+            KNOWLEDGE_V4_VERSION,
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+        }
+    ]
+    v5_claims = [
+        claim
+        for claim in seed_claims()
+        if claim.version
+        in {
+            PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
+            KNOWLEDGE_V4_VERSION,
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+        }
+    ]
+    v5_cards = [
+        card
+        for card in seed_cards()
+        if card.version
+        in {
+            PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V2_VERSION,
+            KNOWLEDGE_V3_VERSION,
+            KNOWLEDGE_V4_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
         }
     ]
@@ -2986,7 +3371,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v3_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V4_VERSION,
             status="published",
             published_at=KNOWLEDGE_V4_PUBLISHED_AT,
             source_count=len(v4_sources),
@@ -2994,6 +3379,16 @@ def seed_versions() -> list[KnowledgeVersion]:
             evidence_count=len(v4_evidence),
             claim_count=len(v4_claims),
             card_count=len(v4_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V5_PUBLISHED_AT,
+            source_count=len(v5_sources),
+            node_count=len(v5_nodes),
+            evidence_count=len(v5_evidence),
+            claim_count=len(v5_claims),
+            card_count=len(v5_cards),
         ),
     ]
 
@@ -3263,6 +3658,7 @@ def query_contract() -> KnowledgeQueryContract:
             PUBLISHED_KNOWLEDGE_VERSION,
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
+            KNOWLEDGE_V4_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
