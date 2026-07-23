@@ -22,6 +22,7 @@ from app.db.models import (
     KnowledgeSegmentRecord,
     KnowledgeSourceRecord,
     KnowledgeSourceEditionRecord,
+    KnowledgeVersionRecord,
     KnowledgeVersionSnapshotRecord,
 )
 from app.db.session import SessionLocal
@@ -1865,6 +1866,108 @@ def test_knowledge_publication_readiness_reports_real_blockers():
     missing_version = client.get("/knowledge/publication/readiness?version=missing-version")
     assert missing_version.status_code == 404
     assert missing_version.json()["detail"] == "Knowledge version not found"
+
+
+def test_candidate_version_creates_snapshot_and_publication_requires_gates():
+    candidate_id = "test-candidate-publication"
+    candidate_payload = {
+        "id": candidate_id,
+        "base_version": "knowledge-v0",
+        "author": "test-suite",
+        "reason": "probar publicacion real bloqueada por gates",
+    }
+    try:
+        response = client.post("/knowledge/candidates", json=candidate_payload)
+        assert response.status_code == 200
+        candidate = response.json()
+        assert candidate["id"] == candidate_id
+        assert candidate["status"] == "candidate"
+        assert candidate["published_at"] == "not-published"
+        assert candidate["source_count"] >= 23
+        assert candidate["node_count"] >= 2
+
+        with SessionLocal() as session:
+            snapshot = session.get(KnowledgeVersionSnapshotRecord, candidate_id)
+            assert snapshot is not None
+            assert snapshot.status == "candidate"
+            assert len(snapshot.source_ids) == candidate["source_count"]
+            assert len(snapshot.evidence_ids) == candidate["evidence_count"]
+            assert len(snapshot.claim_ids) == candidate["claim_count"]
+
+        duplicate = client.post("/knowledge/candidates", json=candidate_payload)
+        assert duplicate.status_code == 409
+        assert duplicate.json()["detail"] == "Knowledge version already exists"
+
+        missing_base = client.post(
+            "/knowledge/candidates",
+            json={
+                **candidate_payload,
+                "id": "test-candidate-missing-base",
+                "base_version": "missing-version",
+            },
+        )
+        assert missing_base.status_code == 404
+        assert missing_base.json()["detail"] == "Base knowledge version not found"
+
+        blocked_publication = client.post(
+            "/knowledge/publications",
+            json={
+                "version": candidate_id,
+                "author": "test-suite",
+                "reason": "intento de publicacion con blockers",
+            },
+        )
+        assert blocked_publication.status_code == 409
+        assert "Knowledge version is not publishable" in blocked_publication.json()["detail"]
+
+        seed_publication = client.post(
+            "/knowledge/publications",
+            json={
+                "version": "knowledge-v0",
+                "author": "test-suite",
+                "reason": "seed no es candidate",
+            },
+        )
+        assert seed_publication.status_code == 409
+        assert seed_publication.json()["detail"] == (
+            "Knowledge publication requires a candidate or validated version"
+        )
+
+        missing_publication = client.post(
+            "/knowledge/publications",
+            json={
+                "version": "missing-version",
+                "author": "test-suite",
+                "reason": "version inexistente",
+            },
+        )
+        assert missing_publication.status_code == 404
+        assert missing_publication.json()["detail"] == "Knowledge version not found"
+
+        with SessionLocal() as session:
+            event = session.scalars(
+                select(AuditEventRecord).where(
+                    AuditEventRecord.event_type == "knowledge.candidate.created",
+                    AuditEventRecord.entity_id == candidate_id,
+                )
+            ).first()
+            assert event is not None
+            assert event.payload["snapshot_created"] is True
+            assert event.payload["publication_created"] is False
+    finally:
+        with SessionLocal() as session:
+            session.query(AuditEventRecord).filter(
+                AuditEventRecord.entity_id.in_(
+                    [candidate_id, "test-candidate-missing-base", "missing-version"]
+                )
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeVersionSnapshotRecord).filter(
+                KnowledgeVersionSnapshotRecord.version_id == candidate_id
+            ).delete(synchronize_session=False)
+            session.query(KnowledgeVersionRecord).filter(
+                KnowledgeVersionRecord.id == candidate_id
+            ).delete(synchronize_session=False)
+            session.commit()
 
 
 def test_knowledge_ingestion_policy_closes_documental_pipeline_contract():

@@ -18,6 +18,7 @@ from app.core.models import (
     Evidence,
     EvidenceType,
     KnowledgeCard,
+    KnowledgeCandidateVersionCreate,
     KnowledgeClaim,
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
@@ -33,6 +34,7 @@ from app.core.models import (
     KnowledgeNodeRelation,
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
+    KnowledgePublicationCreate,
     KnowledgePublicationReadiness,
     KnowledgeProposal,
     KnowledgeProposalCreate,
@@ -621,6 +623,33 @@ class Repository:
             raise KeyError(version)
         return record
 
+    def _build_knowledge_snapshot_record(
+        self,
+        version_id: str,
+        status: str,
+        created_at: str,
+    ) -> KnowledgeVersionSnapshotRecord:
+        def ids(model: type, field_name: str = "id") -> list[str]:
+            field = getattr(model, field_name)
+            return list(self.session.scalars(select(field).order_by(field)).all())
+
+        return KnowledgeVersionSnapshotRecord(
+            version_id=version_id,
+            status=status,
+            source_ids=ids(KnowledgeSourceRecord),
+            source_edition_ids=ids(KnowledgeSourceEditionRecord),
+            node_ids=ids(KnowledgeNodeRecord),
+            node_relation_ids=ids(KnowledgeNodeRelationRecord),
+            relation_ids=ids(KnowledgeRelationRecord),
+            evidence_ids=ids(KnowledgeEvidenceItemRecord),
+            claim_ids=ids(KnowledgeClaimRecord),
+            claim_evidence_link_ids=ids(KnowledgeClaimEvidenceLinkRecord),
+            card_ids=ids(KnowledgeCardRecord),
+            revision_ids=ids(KnowledgeObjectRevisionRecord),
+            created_at=created_at,
+            updated_at=created_at,
+        )
+
     def list_knowledge_versions(self) -> list[KnowledgeVersion]:
         records = self.session.scalars(
             select(KnowledgeVersionRecord).order_by(KnowledgeVersionRecord.id)
@@ -703,6 +732,90 @@ class Repository:
             cards=self.list_knowledge_cards(version=version),
         )
 
+    def create_knowledge_candidate(
+        self,
+        payload: KnowledgeCandidateVersionCreate,
+    ) -> KnowledgeVersion:
+        if self.session.get(KnowledgeVersionRecord, payload.base_version) is None:
+            raise KeyError(payload.base_version)
+        self._knowledge_snapshot(payload.base_version)
+        if self.session.get(KnowledgeVersionRecord, payload.id) is not None:
+            raise ValueError("Knowledge version already exists")
+        now = datetime.now(UTC).isoformat()
+        record = KnowledgeVersionRecord(
+            id=payload.id,
+            status="candidate",
+            published_at="not-published",
+        )
+        snapshot = self._build_knowledge_snapshot_record(
+            version_id=payload.id,
+            status="candidate",
+            created_at=now,
+        )
+        self.session.add(record)
+        self.session.add(snapshot)
+        self.add_audit_event(
+            "knowledge.candidate.created",
+            "knowledge_version",
+            payload.id,
+            {
+                "base_version": payload.base_version,
+                "author": payload.author,
+                "reason": payload.reason,
+                "publication_created": False,
+                "snapshot_created": True,
+                "source_count": len(snapshot.source_ids),
+                "node_count": len(snapshot.node_ids),
+                "evidence_count": len(snapshot.evidence_ids),
+                "claim_count": len(snapshot.claim_ids),
+                "card_count": len(snapshot.card_ids),
+            },
+        )
+        self.session.commit()
+        return knowledge_version_from_record(record, self)
+
+    def publish_knowledge_version(
+        self,
+        payload: KnowledgePublicationCreate,
+    ) -> KnowledgeVersion:
+        record = self.session.get(KnowledgeVersionRecord, payload.version)
+        if record is None:
+            raise KeyError(payload.version)
+        snapshot = self._knowledge_snapshot(payload.version)
+        if record.status == "published":
+            raise ValueError("Knowledge version is already published")
+        if record.status not in {"candidate", "validated"}:
+            raise ValueError("Knowledge publication requires a candidate or validated version")
+        readiness = self.knowledge_publication_readiness(payload.version)
+        if not readiness.publishable:
+            raise ValueError(
+                "Knowledge version is not publishable: " + ", ".join(readiness.blockers)
+            )
+        now = datetime.now(UTC).isoformat()
+        record.status = "published"
+        record.published_at = now
+        snapshot.status = "published"
+        snapshot.updated_at = now
+        self.add_audit_event(
+            "knowledge.published",
+            "knowledge_version",
+            payload.version,
+            {
+                "author": payload.author,
+                "reason": payload.reason,
+                "base_version": payload.version,
+                "snapshot_created": False,
+                "snapshot_activated": True,
+                "source_count": len(snapshot.source_ids),
+                "node_count": len(snapshot.node_ids),
+                "evidence_count": len(snapshot.evidence_ids),
+                "claim_count": len(snapshot.claim_ids),
+                "card_count": len(snapshot.card_ids),
+            },
+        )
+        self.session.commit()
+        return knowledge_version_from_record(record, self)
+
     def list_knowledge_object_revisions(
         self,
         object_type: str | None = None,
@@ -717,7 +830,7 @@ class Repository:
             query = query.where(KnowledgeObjectRevisionRecord.object_type == object_type)
         if object_id:
             query = query.where(KnowledgeObjectRevisionRecord.object_id == object_id)
-        if knowledge_version:
+        if knowledge_version and snapshot is None:
             query = query.where(
                 KnowledgeObjectRevisionRecord.knowledge_version == knowledge_version
             )
@@ -1257,7 +1370,7 @@ class Repository:
             query = query.where(KnowledgeNodeRecord.id.in_(snapshot.node_ids))
         if source_id:
             query = query.where(KnowledgeNodeRecord.source_id == source_id)
-        if version:
+        if version and snapshot is None:
             query = query.where(KnowledgeNodeRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeNodeRecord.id)).all()
         relation_query = select(KnowledgeNodeRelationRecord)
@@ -1265,7 +1378,7 @@ class Repository:
             relation_query = relation_query.where(
                 KnowledgeNodeRelationRecord.id.in_(snapshot.node_relation_ids)
             )
-        if version:
+        if version and snapshot is None:
             relation_query = relation_query.where(KnowledgeNodeRelationRecord.version == version)
         relations = self.session.scalars(
             relation_query.order_by(KnowledgeNodeRelationRecord.id)
@@ -1291,7 +1404,7 @@ class Repository:
         snapshot = self._knowledge_snapshot(version) if version else None
         if snapshot is not None:
             query = query.where(KnowledgeRelationRecord.id.in_(snapshot.relation_ids))
-        if version:
+        if version and snapshot is None:
             query = query.where(KnowledgeRelationRecord.version == version)
         if source_entity_type:
             query = query.where(KnowledgeRelationRecord.source_entity_type == source_entity_type)
@@ -1313,7 +1426,7 @@ class Repository:
             query = query.where(KnowledgeEvidenceItemRecord.id.in_(snapshot.evidence_ids))
         if node_id:
             query = query.where(KnowledgeEvidenceItemRecord.node_id == node_id)
-        if version:
+        if version and snapshot is None:
             query = query.where(KnowledgeEvidenceItemRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeEvidenceItemRecord.id)).all()
         return [knowledge_evidence_from_record(record) for record in records]
@@ -1329,7 +1442,7 @@ class Repository:
             query = query.where(KnowledgeClaimRecord.id.in_(snapshot.claim_ids))
         if card_id:
             query = query.where(KnowledgeClaimRecord.card_id == card_id)
-        if version:
+        if version and snapshot is None:
             query = query.where(KnowledgeClaimRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeClaimRecord.id)).all()
         link_query = select(KnowledgeClaimEvidenceLinkRecord)
@@ -1353,7 +1466,7 @@ class Repository:
         snapshot = self._knowledge_snapshot(version) if version else None
         if snapshot is not None:
             query = query.where(KnowledgeCardRecord.id.in_(snapshot.card_ids))
-        if version:
+        if version and snapshot is None:
             query = query.where(KnowledgeCardRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeCardRecord.id)).all()
         return [knowledge_card_from_record(record) for record in records]

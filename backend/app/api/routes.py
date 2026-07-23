@@ -24,6 +24,7 @@ from app.core.models import (
     GeneratedText,
     GenerationInput,
     KnowledgeCard,
+    KnowledgeCandidateVersionCreate,
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeExtractionRun,
@@ -37,6 +38,7 @@ from app.core.models import (
     KnowledgeNode,
     KnowledgeObjectRevision,
     KnowledgePublicationPolicy,
+    KnowledgePublicationCreate,
     KnowledgePublicationReadiness,
     KnowledgeProposal,
     KnowledgeProposalCreate,
@@ -158,6 +160,32 @@ def knowledge_publication_readiness(
         return repository.knowledge_publication_readiness(version)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
+
+
+@router.post("/knowledge/candidates")
+def create_knowledge_candidate(
+    payload: KnowledgeCandidateVersionCreate,
+    repository: RepositoryDep,
+) -> KnowledgeVersion:
+    try:
+        return repository.create_knowledge_candidate(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Base knowledge version not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
+
+
+@router.post("/knowledge/publications")
+def publish_knowledge_version(
+    payload: KnowledgePublicationCreate,
+    repository: RepositoryDep,
+) -> KnowledgeVersion:
+    try:
+        return repository.publish_knowledge_version(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
+    except ValueError as exc:
+        raise HTTPException(status_code=409, detail=str(exc)) from exc
 
 
 @router.get("/knowledge/ingestion")

@@ -156,6 +156,19 @@ class KnowledgeVersion(BaseModel):
     card_count: int
 
 
+class KnowledgeCandidateVersionCreate(BaseModel):
+    id: str = Field(min_length=1, max_length=80)
+    base_version: str = Field(default="knowledge-v0", min_length=1, max_length=80)
+    author: str = Field(min_length=1, max_length=120)
+    reason: str = Field(min_length=1)
+
+
+class KnowledgePublicationCreate(BaseModel):
+    version: str = Field(min_length=1, max_length=80)
+    author: str = Field(min_length=1, max_length=120)
+    reason: str = Field(min_length=1)
+
+
 class KnowledgeObjectRevision(BaseModel):
     id: str
     object_type: str
