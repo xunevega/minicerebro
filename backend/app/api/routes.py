@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+from os import getenv
 from time import perf_counter
 from typing import Annotated
 from uuid import UUID
@@ -106,6 +107,49 @@ def ensure_knowledge_version(repository: Repository, version: str | None) -> Non
         return
     if not any(item.id == version for item in repository.list_knowledge_versions()):
         raise HTTPException(status_code=404, detail="Knowledge version not found")
+
+
+@router.get("/security/status")
+def security_status():
+    configured_origins = [
+        origin.strip().rstrip("/")
+        for origin in getenv("CORS_ALLOW_ORIGINS", "").split(",")
+        if origin.strip()
+    ]
+    production_origins = [
+        origin
+        for origin in configured_origins
+        if not origin.startswith("http://localhost")
+        and not origin.startswith("http://127.0.0.1")
+    ]
+    return {
+        "security_model": "local-first",
+        "internet_exposure": "not_ready_without_additional_controls",
+        "implemented_controls": {
+            "cors": "configured_allowlist",
+            "sql_injection": "sqlalchemy_orm",
+            "secret_redaction": "status_endpoint_does_not_expose_secret_values",
+        },
+        "missing_production_controls": [
+            "authentication",
+            "production_secrets_policy",
+            "rate_limiting",
+        ],
+        "cors": {
+            "localhost_allowed": True,
+            "configured_origin_count": len(configured_origins),
+            "production_origin_count": len(production_origins),
+            "wildcard_allowed": "*" in configured_origins,
+        },
+        "secrets": {
+            "database_url_configured": bool(getenv("DATABASE_URL")),
+            "openai_api_key_configured": bool(getenv("OPENAI_API_KEY")),
+        },
+        "policy": (
+            "Minicerebro V1 no debe exponerse a internet sin autenticacion, "
+            "secretos propios, CORS de produccion y rate limiting."
+        ),
+    }
 
 
 @router.get("/knowledge/status")

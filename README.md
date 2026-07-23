@@ -13,6 +13,8 @@ Minicerebro V1 es una aplicacion local-first para desarrollo y uso en localhost.
 
 El `docker-compose.yml` liga PostgreSQL a `127.0.0.1` y usa credenciales de desarrollo. Son aceptables solo para entorno local.
 
+El estado declarativo de estos limites se puede consultar en `GET /security/status`.
+
 ## Desarrollo local
 
 Backend:

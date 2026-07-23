@@ -56,6 +56,33 @@ def test_cors_origins_include_configured_frontend_without_trailing_slash(monkeyp
     ]
 
 
+def test_security_status_declares_v1_production_limits_without_secret_values(monkeypatch):
+    monkeypatch.setenv("DATABASE_URL", "postgresql://secret-user:secret-pass@example/app")
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-secret-value")
+    monkeypatch.setenv(
+        "CORS_ALLOW_ORIGINS",
+        "http://localhost:5173,https://frontend-production-834c.up.railway.app",
+    )
+
+    response = client.get("/security/status")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["security_model"] == "local-first"
+    assert payload["internet_exposure"] == "not_ready_without_additional_controls"
+    assert payload["implemented_controls"]["cors"] == "configured_allowlist"
+    assert "authentication" in payload["missing_production_controls"]
+    assert "rate_limiting" in payload["missing_production_controls"]
+    assert payload["cors"]["production_origin_count"] == 1
+    assert payload["cors"]["wildcard_allowed"] is False
+    assert payload["secrets"] == {
+        "database_url_configured": True,
+        "openai_api_key_configured": True,
+    }
+    assert "secret-pass" not in str(payload)
+    assert "sk-secret-value" not in str(payload)
+
+
 def test_profile_scores_include_effective_value():
     response = client.get("/profiles/default/scores")
     assert response.status_code == 200
