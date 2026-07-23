@@ -42,7 +42,8 @@ KNOWLEDGE_V6_VERSION = "knowledge-v6"
 KNOWLEDGE_V7_VERSION = "knowledge-v7"
 KNOWLEDGE_V8_VERSION = "knowledge-v8"
 KNOWLEDGE_V9_VERSION = "knowledge-v9"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v10"
+KNOWLEDGE_V10_VERSION = "knowledge-v10"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v11"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -54,6 +55,7 @@ KNOWLEDGE_V7_PUBLISHED_AT = "2026-07-23T06:00:00+00:00"
 KNOWLEDGE_V8_PUBLISHED_AT = "2026-07-23T07:00:00+00:00"
 KNOWLEDGE_V9_PUBLISHED_AT = "2026-07-23T08:00:00+00:00"
 KNOWLEDGE_V10_PUBLISHED_AT = "2026-07-23T09:00:00+00:00"
+KNOWLEDGE_V11_PUBLISHED_AT = "2026-07-23T10:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -1392,6 +1394,194 @@ V10_SEED_ITEMS = [
     },
 ]
 
+V11_SEED_ITEMS = [
+    {
+        "key": "coherencia-textual",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:coherencia-textual",
+        "index_title": "Coherencia textual",
+        "index_locator": "Edicion 2012 > texto y sentido > coherencia textual",
+        "segment_id": "reyes-arte-escribir:edicion-2012:coherencia-textual:seg-1",
+        "segment_title": "Coherencia textual en redaccion",
+        "segment_text": "Resumen editorial minimo: la coherencia textual organiza las ideas para que cada parte sostenga el sentido global y no contradiga el proposito del texto.",
+        "extraction_id": "ext-reyes-2012-coherencia-textual-1",
+        "node_id": "reyes-coherencia-textual",
+        "canonical_name": "Coherencia textual",
+        "node_type": "concepto",
+        "primary_branch": "escritura",
+        "secondary_branch": "organizacion textual",
+        "node_summary": "Relacion de sentido que mantiene unido el texto completo.",
+        "short_definition": "Criterio por el que las partes del texto sostienen un sentido global compatible.",
+        "aliases": ["coherencia del texto"],
+        "relation_target": "rae-lese-claridad",
+        "relation_type": "depende_de",
+        "card_id": "card-coherencia-textual",
+        "card_type": "writing_method",
+        "card_name": "Coherencia textual",
+        "card_definition": "Criterio para revisar que las ideas sostengan un sentido global sin contradicciones.",
+        "signals": ["sentido global", "ideas compatibles", "proposito textual"],
+        "risks": ["corregir frases aisladas sin revisar el conjunto"],
+        "contexts": ["redaccion", "revision", "ensayo"],
+        "evidence_id": "ev-reyes-coherencia-textual",
+        "evidence_section": "coherencia textual",
+        "confidence": 0.62,
+        "claim_id": "claim-reyes-coherencia-textual",
+        "statement": "La coherencia textual exige que las partes del texto sostengan un sentido global compatible con su proposito.",
+        "claim_type": "stylistic",
+        "domain": "writing.coherence",
+        "related_node_ids": ["rae-lese-claridad", "manual-rasgos-escritura"],
+    },
+    {
+        "key": "progresion-informativa",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:progresion-informativa",
+        "index_title": "Progresion informativa",
+        "index_locator": "Edicion 2012 > texto y sentido > progresion informativa",
+        "segment_id": "reyes-arte-escribir:edicion-2012:progresion-informativa:seg-1",
+        "segment_title": "Orden de informacion",
+        "segment_text": "Resumen editorial minimo: la progresion informativa introduce, retoma y desarrolla datos en un orden que permite seguir el avance del texto.",
+        "extraction_id": "ext-reyes-2012-progresion-informativa-1",
+        "node_id": "reyes-progresion-informativa",
+        "canonical_name": "Progresion informativa",
+        "node_type": "metodo",
+        "primary_branch": "escritura",
+        "secondary_branch": "organizacion textual",
+        "node_summary": "Avance ordenado de datos e ideas dentro del texto.",
+        "short_definition": "Orden que introduce, retoma y desarrolla informacion de modo seguible.",
+        "aliases": ["avance informativo"],
+        "relation_target": "reyes-coherencia-textual",
+        "relation_type": "es_parte_de",
+        "card_id": "card-progresion-informativa",
+        "card_type": "writing_method",
+        "card_name": "Progresion informativa",
+        "card_definition": "Criterio para ordenar informacion nueva y conocida en el avance del texto.",
+        "signals": ["informacion nueva", "informacion conocida", "avance"],
+        "risks": ["saltar entre ideas sin puente"],
+        "contexts": ["redaccion", "revision", "articulo"],
+        "evidence_id": "ev-reyes-progresion-informativa",
+        "evidence_section": "progresion informativa",
+        "confidence": 0.62,
+        "claim_id": "claim-reyes-progresion-informativa",
+        "statement": "La progresion informativa ordena informacion conocida y nueva para que el texto avance sin saltos bruscos.",
+        "claim_type": "stylistic",
+        "domain": "writing.coherence",
+        "related_node_ids": ["reyes-coherencia-textual", "rae-lese-claridad"],
+    },
+    {
+        "key": "conectores",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:conectores",
+        "index_title": "Conectores",
+        "index_locator": "Edicion 2012 > cohesion > conectores",
+        "segment_id": "reyes-arte-escribir:edicion-2012:conectores:seg-1",
+        "segment_title": "Conectores y relaciones logicas",
+        "segment_text": "Resumen editorial minimo: los conectores hacen explicitas relaciones logicas entre enunciados, pero deben responder a una relacion real y no decorar el texto.",
+        "extraction_id": "ext-reyes-2012-conectores-1",
+        "node_id": "reyes-conectores",
+        "canonical_name": "Conectores",
+        "node_type": "recurso",
+        "primary_branch": "escritura",
+        "secondary_branch": "cohesion",
+        "node_summary": "Recursos que explicitan relaciones logicas entre segmentos.",
+        "short_definition": "Palabras o expresiones que orientan la relacion entre partes del texto.",
+        "aliases": ["marcadores discursivos", "enlaces textuales"],
+        "relation_target": "reyes-progresion-informativa",
+        "relation_type": "usa",
+        "card_id": "card-conectores",
+        "card_type": "writing_resource",
+        "card_name": "Conectores",
+        "card_definition": "Criterio para usar conectores que expresen relaciones logicas reales.",
+        "signals": ["por tanto", "sin embargo", "ademas", "relacion logica"],
+        "risks": ["anadir conectores decorativos o contradictorios"],
+        "contexts": ["redaccion", "revision", "ensayo"],
+        "evidence_id": "ev-reyes-conectores",
+        "evidence_section": "conectores",
+        "confidence": 0.61,
+        "claim_id": "claim-reyes-conectores",
+        "statement": "Los conectores deben expresar relaciones logicas reales entre partes del texto, no funcionar como adorno.",
+        "claim_type": "stylistic",
+        "domain": "writing.cohesion",
+        "related_node_ids": ["reyes-progresion-informativa", "rae-lese-claridad"],
+    },
+    {
+        "key": "enfoque-lector",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:enfoque-lector",
+        "index_title": "Enfoque del lector",
+        "index_locator": "Edicion 2012 > pragmatica > enfoque del lector",
+        "segment_id": "reyes-arte-escribir:edicion-2012:enfoque-lector:seg-1",
+        "segment_title": "Lector previsto",
+        "segment_text": "Resumen editorial minimo: escribir para un lector previsto obliga a seleccionar informacion, tono y explicaciones segun lo que ese lector necesita para comprender.",
+        "extraction_id": "ext-reyes-2012-enfoque-lector-1",
+        "node_id": "reyes-enfoque-lector",
+        "canonical_name": "Enfoque del lector",
+        "node_type": "metodo",
+        "primary_branch": "escritura",
+        "secondary_branch": "pragmatica",
+        "node_summary": "Metodo para ajustar el texto a las necesidades del lector previsto.",
+        "short_definition": "Criterio de seleccion de informacion, tono y explicacion segun lector.",
+        "aliases": ["lector previsto", "destinatario"],
+        "relation_target": "rae-lese-adecuacion-lector",
+        "relation_type": "equivale_a",
+        "card_id": "card-enfoque-lector",
+        "card_type": "writing_method",
+        "card_name": "Enfoque del lector",
+        "card_definition": "Criterio para seleccionar informacion y tono segun el lector previsto.",
+        "signals": ["lector previsto", "necesidad de informacion", "tono adecuado"],
+        "risks": ["escribir desde lo que sabe el autor y no desde lo que necesita el lector"],
+        "contexts": ["redaccion", "revision", "comunicacion"],
+        "evidence_id": "ev-reyes-enfoque-lector",
+        "evidence_section": "enfoque del lector",
+        "confidence": 0.62,
+        "claim_id": "claim-reyes-enfoque-lector",
+        "statement": "El enfoque del lector obliga a seleccionar informacion, tono y explicaciones segun las necesidades del destinatario previsto.",
+        "claim_type": "editing",
+        "domain": "writing.audience",
+        "related_node_ids": ["rae-lese-adecuacion-lector", "rae-lese-registro"],
+    },
+    {
+        "key": "revision-borrador",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:revision-borrador",
+        "index_title": "Revision del borrador",
+        "index_locator": "Edicion 2012 > proceso de escritura > revision del borrador",
+        "segment_id": "reyes-arte-escribir:edicion-2012:revision-borrador:seg-1",
+        "segment_title": "Revision como fase de escritura",
+        "segment_text": "Resumen editorial minimo: la revision del borrador no es solo correccion superficial; comprueba organizacion, sentido, precision y adecuacion antes de cerrar el texto.",
+        "extraction_id": "ext-reyes-2012-revision-borrador-1",
+        "node_id": "reyes-revision-borrador",
+        "canonical_name": "Revision del borrador",
+        "node_type": "metodo",
+        "primary_branch": "escritura",
+        "secondary_branch": "proceso",
+        "node_summary": "Fase de escritura que comprueba organizacion, sentido y adecuacion.",
+        "short_definition": "Metodo de relectura y ajuste antes de cerrar un texto.",
+        "aliases": ["revision de borrador", "reescritura"],
+        "relation_target": "martinez-sousa-criterio-editorial",
+        "relation_type": "relacionado_con",
+        "card_id": "card-revision-borrador",
+        "card_type": "editing_method",
+        "card_name": "Revision del borrador",
+        "card_definition": "Criterio para revisar organizacion, sentido, precision y adecuacion antes de cerrar.",
+        "signals": ["borrador", "reescritura", "organizacion", "adecuacion"],
+        "risks": ["limitar la revision a ortografia o superficie"],
+        "contexts": ["revision", "redaccion", "edicion"],
+        "evidence_id": "ev-reyes-revision-borrador",
+        "evidence_section": "revision del borrador",
+        "confidence": 0.62,
+        "claim_id": "claim-reyes-revision-borrador",
+        "statement": "La revision del borrador debe comprobar organizacion, sentido, precision y adecuacion, no solo correccion superficial.",
+        "claim_type": "editing",
+        "domain": "editing.revision",
+        "related_node_ids": ["reyes-coherencia-textual", "martinez-sousa-criterio-editorial"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -1995,7 +2185,7 @@ def evaluate_publication_readiness(
         },
     ]
     blockers = [check["label"] for check in checks if not check["passed"]]
-    publishable = not blockers and version.status in {"candidate", "validated"}
+    publishable = (not blockers) and (version.status in {"candidate", "validated"})
     return KnowledgePublicationReadiness(
         version=version.id,
         status=version.status,
@@ -2718,12 +2908,14 @@ def _v7_cards() -> list[KnowledgeCard]:
 PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: "seed_grammar_practice_part_2_batch",
     KNOWLEDGE_V9_VERSION: "seed_orthography_punctuation_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_editorial_style_batch",
+    KNOWLEDGE_V10_VERSION: "seed_editorial_style_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_writing_practice_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
     KNOWLEDGE_V9_VERSION: KNOWLEDGE_V9_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V10_PUBLISHED_AT,
+    KNOWLEDGE_V10_VERSION: KNOWLEDGE_V10_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V11_PUBLISHED_AT,
 }
 
 
@@ -3149,6 +3341,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["redaccion", "pragmatica", "coherencia", "construccion textual", "estilo"],
             authority_level=4,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F009",
@@ -3480,6 +3675,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["entrada", "acepcion", "segmento"],
             locator_system=["edicion", "entrada", "acepcion", "url"],
         ),
+        KnowledgeSourceEdition(
+            id="reyes-arte-escribir:edicion-2012",
+            source_id="reyes-arte-escribir",
+            title="El arte de escribir bien en espanol",
+            edition_label="Edicion de referencia, 2012",
+            publication_year="2012",
+            publisher="Arco/Libros",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso",
+            access_location="Madrid: Arco/Libros, 2012",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de redaccion aplicada para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia, 2012",
+            publication_date="2012",
+            location="Madrid",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["capitulo", "criterio de redaccion", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -3561,6 +3784,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V8_SEED_ITEMS),
         *_published_batch_index_entries(V9_SEED_ITEMS),
         *_published_batch_index_entries(V10_SEED_ITEMS),
+        *_published_batch_index_entries(V11_SEED_ITEMS),
     ]
 
 
@@ -3666,6 +3890,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V8_SEED_ITEMS),
         *_published_batch_segments(V9_SEED_ITEMS),
         *_published_batch_segments(V10_SEED_ITEMS),
+        *_published_batch_segments(V11_SEED_ITEMS),
     ]
 
 
@@ -3790,7 +4015,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_v7_extraction_runs(),
         *_published_batch_extraction_runs(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_extraction_runs(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_extraction_runs(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_extraction_runs(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4444,7 +4670,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_v7_proposals(),
         *_published_batch_proposals(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_proposals(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_proposals(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_proposals(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4597,7 +4824,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_v7_nodes(),
         *_published_batch_nodes(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_nodes(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_nodes(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_nodes(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4712,7 +4940,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_v7_node_relations(),
         *_published_batch_node_relations(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_node_relations(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_node_relations(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_node_relations(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5056,7 +5285,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_v7_evidence(),
         *_published_batch_evidence(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_evidence(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_evidence(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_evidence(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5300,7 +5530,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_v7_claims(),
         *_published_batch_claims(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_claims(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_claims(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_claims(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5465,7 +5696,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_v7_cards(),
         *_published_batch_cards(V8_SEED_ITEMS, KNOWLEDGE_V8_VERSION),
         *_published_batch_cards(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
-        *_published_batch_cards(V10_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
+        *_published_batch_cards(V11_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5712,9 +5944,20 @@ def seed_versions() -> list[KnowledgeVersion]:
     v9_evidence = [evidence for evidence in seed_evidence() if evidence.version in v9_chain]
     v9_claims = [claim for claim in seed_claims() if claim.version in v9_chain]
     v9_cards = [card for card in seed_cards() if card.version in v9_chain]
-    latest_chain = {*v9_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = v7_sources
-    latest_node_ids = {*v9_node_ids, *{item["node_id"] for item in V10_SEED_ITEMS}}
+    v10_chain = {*v9_chain, KNOWLEDGE_V10_VERSION}
+    v10_sources = v7_sources
+    v10_node_ids = {*v9_node_ids, *{item["node_id"] for item in V10_SEED_ITEMS}}
+    v10_nodes = [node for node in seed_nodes() if node.id in v10_node_ids]
+    v10_evidence = [evidence for evidence in seed_evidence() if evidence.version in v10_chain]
+    v10_claims = [claim for claim in seed_claims() if claim.version in v10_chain]
+    v10_cards = [card for card in seed_cards() if card.version in v10_chain]
+    latest_chain = {*v10_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {*v7_source_ids, *{item["source_id"] for item in V11_SEED_ITEMS}}
+    ]
+    latest_node_ids = {*v10_node_ids, *{item["node_id"] for item in V11_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -5821,9 +6064,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v9_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V10_VERSION,
             status="published",
             published_at=KNOWLEDGE_V10_PUBLISHED_AT,
+            source_count=len(v10_sources),
+            node_count=len(v10_nodes),
+            evidence_count=len(v10_evidence),
+            claim_count=len(v10_claims),
+            card_count=len(v10_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V11_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -6104,6 +6357,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V7_VERSION,
             KNOWLEDGE_V8_VERSION,
             KNOWLEDGE_V9_VERSION,
+            KNOWLEDGE_V10_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

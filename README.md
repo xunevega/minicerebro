@@ -107,7 +107,7 @@ curl https://<backend>.up.railway.app/health
 curl https://<backend>.up.railway.app/knowledge/status
 curl -X POST https://<backend>.up.railway.app/knowledge/query \
   -H 'Content-Type: application/json' \
-  -d '{"query":"claridad concision registro coma concordancia","version":"latest","limit":3}'
+  -d '{"query":"coherencia textual progresion conectores lector borrador","version":"latest","limit":3}'
 ```
 
 Con los dominios actuales de Railway tambien puede ejecutarse:
@@ -119,7 +119,7 @@ make smoke-production
 ## Estado de esta base
 
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
-- `knowledge-v10` es la version publicada actual; acumula `knowledge-v8` (Gramatica Practica, Parte 2), `knowledge-v9` (Ortografia y Puntuacion) y `knowledge-v10` (Estilo Editorial).
+- `knowledge-v11` es la version publicada actual; acumula `knowledge-v8` (Gramatica Practica, Parte 2), `knowledge-v9` (Ortografia y Puntuacion), `knowledge-v10` (Estilo Editorial) y `knowledge-v11` (Redaccion aplicada).
 - Migraciones Alembic explicitas antes del arranque; `Base.metadata.create_all()` no se usa como mecanismo de esquema y la app no ejecuta migraciones durante el startup.
 - React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
 - SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.
