@@ -12,6 +12,17 @@ try {
   await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v3" }).first().waitFor();
   await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "9 pendientes" }).first().waitFor();
   await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
+  const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de conocimiento" });
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v3" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "3" }).waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v3" }).getByText("+1 fuentes").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v0" }).getByText("base congelada").waitFor();
+  const sourceExplorerPanel = page.locator(".proposalBox", { hasText: "Explorador de fuentes" });
+  await sourceExplorerPanel.getByText("Publicadas · 3").waitFor();
+  await sourceExplorerPanel.getByText("Ingeridas sin publicar · 0").waitFor();
+  await sourceExplorerPanel.getByText("Disponibles sin ingerir · 0").waitFor();
+  await sourceExplorerPanel.getByText("Registradas pendientes · 20").waitFor();
+  await sourceExplorerPanel.locator(".sourceMiniCard", { hasText: "Ortografia de la lengua espanola" }).getByText("available · publicada").waitFor();
+  await sourceExplorerPanel.locator(".sourceMiniCard", { hasText: "Glosario de terminos gramaticales" }).getByText("registered · con edicion").waitFor();
   const ingestionPanel = page.locator(".proposalBox", { hasText: "Registro frente a ingestion" });
   await ingestionPanel.locator(".metric", { hasText: "Publicadas" }).filter({ hasText: "3" }).waitFor();
   await ingestionPanel.locator(".metric", { hasText: "Ingeridas" }).filter({ hasText: "3" }).waitFor();

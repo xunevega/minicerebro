@@ -215,6 +215,7 @@ export function App() {
   const [activeContext, setActiveContext] = useState("general");
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
+  const [allKnowledgeSources, setAllKnowledgeSources] = useState<KnowledgeSource[]>([]);
   const [knowledgeSources, setKnowledgeSources] = useState<KnowledgeSource[]>([]);
   const [knowledgeSourceIngestionStatuses, setKnowledgeSourceIngestionStatuses] = useState<
     KnowledgeSourceIngestionStatus[]
@@ -335,6 +336,7 @@ export function App() {
         Promise.all([
           Promise.resolve(knowledgeData),
           getKnowledgeVersions(),
+          getKnowledgeSources(),
           getKnowledgeSourceIngestionStatuses(),
           getProfileSummary(),
           getProfileStatistics(activeContext),
@@ -364,6 +366,7 @@ export function App() {
         ([
           knowledgeData,
           versionData,
+          allSourceData,
           sourceIngestionStatusData,
           summaryData,
           statisticsData,
@@ -390,6 +393,7 @@ export function App() {
         ]) => {
         setKnowledge(knowledgeData);
         setKnowledgeVersions(versionData);
+        setAllKnowledgeSources(allSourceData);
         setKnowledgeSourceIngestionStatuses(sourceIngestionStatusData);
         setSummary(summaryData);
         setStatistics(statisticsData);
@@ -469,6 +473,10 @@ export function App() {
     () => new Map(knowledgeSources.map((source) => [source.id, source])),
     [knowledgeSources],
   );
+  const sourceCatalogById = useMemo(
+    () => new Map(allKnowledgeSources.map((source) => [source.id, source])),
+    [allKnowledgeSources],
+  );
   const sourceIngestionStatusById = useMemo(
     () => new Map(knowledgeSourceIngestionStatuses.map((status) => [status.source_id, status])),
     [knowledgeSourceIngestionStatuses],
@@ -545,6 +553,43 @@ export function App() {
         return normalizedLeftRank - normalizedRightRank || left.source_name.localeCompare(right.source_name);
       }),
     [knowledgeSourceIngestionStatuses],
+  );
+  const orderedKnowledgeVersions = useMemo(
+    () => [...knowledgeVersions].sort((left, right) => knowledgeVersionRank(left.id) - knowledgeVersionRank(right.id)),
+    [knowledgeVersions],
+  );
+  const sourceExplorerGroups = useMemo(
+    () => [
+      {
+        id: "published",
+        title: "Publicadas",
+        items: orderedIngestionStatuses.filter((status) => status.is_published),
+      },
+      {
+        id: "ingested",
+        title: "Ingeridas sin publicar",
+        items: orderedIngestionStatuses.filter((status) => status.is_ingested && !status.is_published),
+      },
+      {
+        id: "available",
+        title: "Disponibles sin ingerir",
+        items: orderedIngestionStatuses.filter(
+          (status) =>
+            !status.is_ingested &&
+            sourceCatalogById.get(status.source_id)?.acquisition_status === "available",
+        ),
+      },
+      {
+        id: "registered",
+        title: "Registradas pendientes",
+        items: orderedIngestionStatuses.filter(
+          (status) =>
+            !status.is_ingested &&
+            sourceCatalogById.get(status.source_id)?.acquisition_status !== "available",
+        ),
+      },
+    ],
+    [orderedIngestionStatuses, sourceCatalogById],
   );
   const manualIngestionStatus =
     knowledgeSourceIngestionStatuses.find((item) => item.source_id === manualIngestionSourceId) ??
@@ -1319,6 +1364,79 @@ export function App() {
               <Metric label="No ingeridas" value={registeredOnlySourceCount} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
+            <div className="proposalBox">
+              <h3>Versiones de conocimiento</h3>
+              <div className="versionList">
+                {orderedKnowledgeVersions.map((version, index) => {
+                  const previousVersion = orderedKnowledgeVersions[index - 1] ?? null;
+                  const isLoaded = version.id === loadedKnowledgeVersion;
+                  return (
+                    <article className={isLoaded ? "versionItem active" : "versionItem"} key={version.id}>
+                      <div className="versionHeader">
+                        <div>
+                          <strong>{version.id}</strong>
+                          <span>
+                            {version.status} · {version.published_at}
+                          </span>
+                        </div>
+                        <button
+                          className="ghostButton"
+                          onClick={() => handleExploreKnowledgeVersion(version.id)}
+                          type="button"
+                        >
+                          Explorar
+                        </button>
+                      </div>
+                      <div className="versionCounts">
+                        <Metric label="Fuentes" value={version.source_count} />
+                        <Metric label="Nodos" value={version.node_count} />
+                        <Metric label="Evid." value={version.evidence_count} />
+                        <Metric label="Claims" value={version.claim_count} />
+                        <Metric label="Fichas" value={version.card_count} />
+                      </div>
+                      <div className="phaseSummary">
+                        {versionChangeBadges(version, previousVersion).map((badge) => (
+                          <span className="phaseBadge" key={badge}>
+                            {badge}
+                          </span>
+                        ))}
+                      </div>
+                    </article>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="proposalBox">
+              <h3>Explorador de fuentes</h3>
+              <div className="sourceExplorer">
+                {sourceExplorerGroups.map((group) => (
+                  <section className="sourceGroup" key={group.id}>
+                    <h3>
+                      {group.title} · {group.items.length}
+                    </h3>
+                    <div className="sourceGroupList">
+                      {group.items.length ? (
+                        group.items.map((status) => {
+                          const source = sourceCatalogById.get(status.source_id);
+                          return (
+                            <article className="sourceMiniCard" key={status.source_id}>
+                              <strong>{status.source_name}</strong>
+                              <span>{source?.source_type ?? status.source_id}</span>
+                              <span>
+                                {source?.acquisition_status ?? "sin catalogo"} ·{" "}
+                                {ingestionPhaseLabel(status.current_phase)}
+                              </span>
+                            </article>
+                          );
+                        })
+                      ) : (
+                        <p className="note">Sin fuentes en este grupo.</p>
+                      )}
+                    </div>
+                  </section>
+                ))}
+              </div>
+            </div>
             <div className="proposalBox">
               <h3>Registro frente a ingestion</h3>
               <div className="metricGrid">
@@ -2892,6 +3010,32 @@ function ingestionPhaseLabel(phase: string) {
 
 function ingestionBlockerLabel(blocker: string) {
   return INGESTION_BLOCKER_LABELS[blocker] ?? blocker;
+}
+
+function knowledgeVersionRank(versionId: string) {
+  const match = /^knowledge-v(\d+)$/.exec(versionId);
+  if (!match) {
+    return Number.MAX_SAFE_INTEGER;
+  }
+  return Number.parseInt(match[1], 10);
+}
+
+function versionChangeBadges(version: KnowledgeVersion, previousVersion: KnowledgeVersion | null) {
+  if (!previousVersion) {
+    return ["base congelada"];
+  }
+  return [
+    versionDeltaLabel("fuentes", version.source_count - previousVersion.source_count),
+    versionDeltaLabel("nodos", version.node_count - previousVersion.node_count),
+    versionDeltaLabel("evidencias", version.evidence_count - previousVersion.evidence_count),
+    versionDeltaLabel("claims", version.claim_count - previousVersion.claim_count),
+    versionDeltaLabel("fichas", version.card_count - previousVersion.card_count),
+  ];
+}
+
+function versionDeltaLabel(label: string, delta: number) {
+  const sign = delta > 0 ? "+" : "";
+  return `${sign}${delta} ${label}`;
 }
 
 function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {

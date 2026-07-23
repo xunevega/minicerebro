@@ -520,6 +520,79 @@ textarea + .primaryButton {
   padding: 5px 9px;
 }
 
+.versionList,
+.sourceExplorer {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.versionItem,
+.sourceGroup {
+  border: 1px solid #e0e6df;
+  border-radius: 8px;
+  padding: 12px;
+}
+
+.versionItem.active {
+  border-color: #9bc89f;
+  box-shadow: inset 0 0 0 1px #9bc89f;
+}
+
+.versionHeader {
+  align-items: start;
+  display: grid;
+  gap: 10px;
+  grid-template-columns: 1fr auto;
+}
+
+.versionHeader strong,
+.versionHeader span,
+.sourceMiniCard strong,
+.sourceMiniCard span {
+  display: block;
+}
+
+.versionHeader span,
+.sourceMiniCard span {
+  color: #69756f;
+  font-size: 12px;
+  margin-top: 4px;
+}
+
+.versionCounts {
+  display: grid;
+  gap: 8px;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  margin-top: 10px;
+}
+
+.versionCounts .metric {
+  padding: 8px;
+}
+
+.versionCounts .metric strong {
+  font-size: 15px;
+}
+
+.sourceGroup h3 {
+  margin-bottom: 10px;
+}
+
+.sourceGroupList {
+  display: grid;
+  gap: 8px;
+  max-height: 360px;
+  overflow: auto;
+}
+
+.sourceMiniCard {
+  background: #fbfcf9;
+  border: 1px solid #e7ece5;
+  border-radius: 8px;
+  padding: 10px;
+}
+
 .ingestionList {
   display: grid;
   gap: 10px;
@@ -763,7 +836,11 @@ textarea + .primaryButton {
 
   .ingestionList,
   .ingestionHeader,
-  .ingestionMetrics {
+  .ingestionMetrics,
+  .versionList,
+  .sourceExplorer,
+  .versionHeader,
+  .versionCounts {
     grid-template-columns: 1fr;
   }
 
