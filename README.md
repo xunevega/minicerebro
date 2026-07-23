@@ -48,6 +48,35 @@ npm run dev
 
 Por defecto el frontend espera la API en `http://localhost:8000`.
 
+## Railway backend
+
+El repositorio incluye un `Dockerfile` para desplegar el backend FastAPI en Railway desde la raiz del repo.
+
+Variables necesarias en el servicio backend:
+
+```bash
+DATABASE_URL=postgresql://...
+```
+
+Variable opcional para generacion real:
+
+```bash
+OPENAI_API_KEY=...
+```
+
+El contenedor ejecuta:
+
+```bash
+alembic upgrade head
+python -m uvicorn app.main:app --host 0.0.0.0 --port ${PORT:-8000}
+```
+
+En Railway, genera el dominio del servicio apuntando al puerto `8000` y verifica:
+
+```text
+https://<tu-dominio>.up.railway.app/health
+```
+
 ## Estado de esta base
 
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
