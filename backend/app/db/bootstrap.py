@@ -153,6 +153,14 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 published_at="2026-07-23T04:00:00+00:00",
             )
         )
+    if session.get(KnowledgeVersionRecord, "knowledge-v6") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v6",
+                status="published",
+                published_at="2026-07-23T05:00:00+00:00",
+            )
+        )
     for source in seed_sources():
         source_record = session.get(KnowledgeSourceRecord, source.id)
         values = {
@@ -700,6 +708,21 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "ev-rae-dle-precision-lexica",
             "claim-rae-dle-precision-lexica",
             "card-precision-lexica",
+            "rae-dpd:edicion-2005",
+            "rae-dpd-dequeismo",
+            "ev-rae-dpd-dequeismo",
+            "claim-rae-dpd-dequeismo",
+            "card-dequeismo-queismo",
+            "fundeu-recomendaciones:web-2026",
+            "fundeu-extranjerismos",
+            "ev-fundeu-extranjerismos",
+            "claim-fundeu-extranjerismos",
+            "card-extranjerismos",
+            "martinez-sousa-mele:edicion-2015",
+            "martinez-sousa-criterio-editorial",
+            "ev-martinez-sousa-criterio-editorial",
+            "claim-martinez-sousa-criterio-editorial",
+            "card-unidad-criterio-editorial",
         }
         published_source_editions = [
             edition for edition in seed_source_editions() if edition.id not in candidate_object_ids
@@ -844,6 +867,127 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 revision_ids=revision_ids,
                 created_at="2026-07-23T04:00:00+00:00",
                 updated_at="2026-07-23T04:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v6") is None:
+        source_ids = [
+            "rae-ngle",
+            "rae-lese",
+            "rae-ole",
+            "rae-gtg",
+            "rae-dle",
+            "rae-dpd",
+            "fundeu-recomendaciones",
+            "martinez-sousa-mele",
+        ]
+        source_edition_ids = [
+            "rae-ngle:manual-2010",
+            "rae-lese:edicion-2018",
+            "rae-ole:edicion-2010",
+            "rae-gtg:edicion-2019",
+            "rae-dle:edicion-23-digital",
+            "rae-dpd:edicion-2005",
+            "fundeu-recomendaciones:web-2026",
+            "martinez-sousa-mele:edicion-2015",
+        ]
+        node_ids = [
+            "rae-norma-estilo",
+            "manual-rasgos-escritura",
+            "rae-ngle-complemento-directo",
+            "rae-lese-dinamismo-frase",
+            "rae-ole-acentuacion-grafica",
+            "rae-gtg-terminologia-gramatical",
+            "rae-dle-precision-lexica",
+            "rae-dpd-dequeismo",
+            "fundeu-extranjerismos",
+            "martinez-sousa-criterio-editorial",
+        ]
+        evidence_ids = [
+            "ev-rae-ngle-complemento-directo-candidata",
+            "ev-rae-lese-dinamismo-frase",
+            "ev-rae-ole-acentuacion-grafica",
+            "ev-rae-gtg-terminologia-gramatical",
+            "ev-rae-dle-precision-lexica",
+            "ev-rae-dpd-dequeismo",
+            "ev-fundeu-extranjerismos",
+            "ev-martinez-sousa-criterio-editorial",
+        ]
+        claim_ids = [
+            "claim-rae-ngle-complemento-directo",
+            "claim-rae-lese-dinamismo-frase",
+            "claim-rae-ole-acentuacion-grafica",
+            "claim-rae-gtg-terminologia-gramatical",
+            "claim-rae-dle-precision-lexica",
+            "claim-rae-dpd-dequeismo",
+            "claim-fundeu-extranjerismos",
+            "claim-martinez-sousa-criterio-editorial",
+        ]
+        card_ids = [
+            "card-complemento-directo",
+            "card-dinamismo-frase",
+            "card-acentuacion-grafica",
+            "card-terminologia-gramatical",
+            "card-precision-lexica",
+            "card-dequeismo-queismo",
+            "card-extranjerismos",
+            "card-unidad-criterio-editorial",
+        ]
+        snapshot_object_ids = {
+            *source_ids,
+            *source_edition_ids,
+            *node_ids,
+            *evidence_ids,
+            *claim_ids,
+            *card_ids,
+        }
+        version_chain = {
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+        }
+        node_relation_ids = [
+            relation.id
+            for relation in seed_node_relations()
+            if relation.version in version_chain
+            and relation.source_node_id in snapshot_object_ids
+            and relation.target_node_id in snapshot_object_ids
+        ]
+        relation_ids = [
+            relation.id
+            for relation in seed_relations()
+            if relation.version in version_chain
+            and relation.source_entity_id in snapshot_object_ids
+            and relation.target_entity_id in snapshot_object_ids
+        ]
+        revision_ids = [
+            revision.id
+            for revision in seed_object_revisions()
+            if revision.object_id in snapshot_object_ids or revision.object_id in relation_ids
+        ]
+        claim_evidence_link_ids = [
+            link.id
+            for link in seed_claim_evidence_links()
+            if link.claim_id in claim_ids and link.evidence_id in evidence_ids
+        ]
+        session.add(
+            KnowledgeVersionSnapshotRecord(
+                version_id="knowledge-v6",
+                status="published",
+                source_ids=source_ids,
+                source_edition_ids=source_edition_ids,
+                node_ids=node_ids,
+                node_relation_ids=node_relation_ids,
+                relation_ids=relation_ids,
+                evidence_ids=evidence_ids,
+                claim_ids=claim_ids,
+                claim_evidence_link_ids=claim_evidence_link_ids,
+                card_ids=card_ids,
+                revision_ids=revision_ids,
+                created_at="2026-07-23T05:00:00+00:00",
+                updated_at="2026-07-23T05:00:00+00:00",
             )
         )
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v1") is None:

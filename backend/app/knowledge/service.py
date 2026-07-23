@@ -37,13 +37,15 @@ PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v1"
 KNOWLEDGE_V2_VERSION = "knowledge-v2"
 KNOWLEDGE_V3_VERSION = "knowledge-v3"
 KNOWLEDGE_V4_VERSION = "knowledge-v4"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v5"
+KNOWLEDGE_V5_VERSION = "knowledge-v5"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v6"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
 KNOWLEDGE_V3_PUBLISHED_AT = "2026-07-23T02:00:00+00:00"
 KNOWLEDGE_V4_PUBLISHED_AT = "2026-07-23T03:00:00+00:00"
 KNOWLEDGE_V5_PUBLISHED_AT = "2026-07-23T04:00:00+00:00"
+KNOWLEDGE_V6_PUBLISHED_AT = "2026-07-23T05:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -110,6 +112,171 @@ QUERY_OUT_OF_SCOPE = [
     "prompts",
     "generaciones",
     "historial de usuario",
+]
+
+V6_SEED_ITEMS = [
+    {
+        "key": "dequeismo",
+        "source_id": "rae-dpd",
+        "source_edition_id": "rae-dpd:edicion-2005",
+        "edition_title": "Diccionario panhispanico de dudas",
+        "edition_label": "Primera edicion, 2005",
+        "publication_year": "2005",
+        "publisher": "Santillana",
+        "isbn": "pendiente de identificacion",
+        "format": "obra de consulta",
+        "access_location": "Madrid: Santillana, 2005",
+        "structure": ["entrada", "duda de uso", "segmento"],
+        "locator_system": ["edicion", "entrada", "apartado", "pagina"],
+        "index_id": "rae-dpd:edicion-2005:dequeismo",
+        "index_title": "Dequeismo y queismo",
+        "index_locator": "Primera edicion 2005 > dudas gramaticales > dequeismo y queismo",
+        "segment_id": "rae-dpd:edicion-2005:dequeismo:seg-1",
+        "segment_title": "Dequeismo como duda gramatical",
+        "segment_text": (
+            "Resumen editorial minimo: el dequeismo y el queismo son dudas de regimen "
+            "que afectan a la presencia o ausencia de la preposicion de ante "
+            "subordinadas introducidas por que."
+        ),
+        "extraction_id": "ext-rae-dpd-2005-dequeismo-1",
+        "node_id": "rae-dpd-dequeismo",
+        "canonical_name": "Dequeismo y queismo",
+        "node_type": "norma",
+        "primary_branch": "gramatica",
+        "secondary_branch": "dudas de uso",
+        "node_summary": "Duda de regimen sobre la presencia de la preposicion de ante que.",
+        "short_definition": "Norma de uso que controla si corresponde de que o que segun el regimen.",
+        "aliases": ["queismo", "regimen de que"],
+        "relation_target": "rae-norma-estilo",
+        "relation_type": "depende_de",
+        "card_id": "card-dequeismo-queismo",
+        "card_type": "grammar_usage",
+        "card_name": "Dequeismo y queismo",
+        "card_definition": "Criterio para revisar la presencia o ausencia de de ante subordinadas con que.",
+        "signals": ["de que", "que subordinante", "regimen verbal"],
+        "risks": ["corregir por intuicion sin comprobar el regimen"],
+        "contexts": ["revision gramatical", "ensayo", "edicion"],
+        "evidence_id": "ev-rae-dpd-dequeismo",
+        "evidence_section": "dequeismo y queismo",
+        "evidence_context": "seed_usage_large_batch",
+        "confidence": 0.63,
+        "claim_id": "claim-rae-dpd-dequeismo",
+        "statement": (
+            "La revision de dequeismo y queismo exige comprobar el regimen que "
+            "autoriza o descarta la secuencia de que."
+        ),
+        "claim_type": "usage",
+        "domain": "grammar.usage",
+        "related_node_ids": ["rae-norma-estilo", "rae-ngle-complemento-directo"],
+    },
+    {
+        "key": "extranjerismos",
+        "source_id": "fundeu-recomendaciones",
+        "source_edition_id": "fundeu-recomendaciones:web-2026",
+        "edition_title": "Recomendaciones de FundeuRAE",
+        "edition_label": "Consulta digital viva, corte editorial 2026",
+        "publication_year": "2026",
+        "publisher": "FundeuRAE",
+        "isbn": "no aplica",
+        "format": "recurso digital",
+        "access_location": "https://www.fundeu.es/",
+        "structure": ["recomendacion", "criterio de uso", "segmento"],
+        "locator_system": ["url", "tema", "fecha", "segmento"],
+        "index_id": "fundeu-recomendaciones:web-2026:extranjerismos",
+        "index_title": "Extranjerismos y alternativas en espanol",
+        "index_locator": "Consulta digital 2026 > lexico actual > extranjerismos",
+        "segment_id": "fundeu-recomendaciones:web-2026:extranjerismos:seg-1",
+        "segment_title": "Extranjerismo como decision editorial",
+        "segment_text": (
+            "Resumen editorial minimo: ante extranjerismos de uso actual, la revision "
+            "debe valorar si existe alternativa asentada en espanol, si conviene "
+            "adaptar la forma o si procede marcar el extranjerismo."
+        ),
+        "extraction_id": "ext-fundeu-2026-extranjerismos-1",
+        "node_id": "fundeu-extranjerismos",
+        "canonical_name": "Extranjerismos",
+        "node_type": "norma",
+        "primary_branch": "lexico",
+        "secondary_branch": "uso actual",
+        "node_summary": "Criterio editorial para tratar voces extranjeras en textos espanoles.",
+        "short_definition": "Decision de uso sobre prestamo, adaptacion o alternativa espanola.",
+        "aliases": ["prestamos", "anglicismos", "voces extranjeras"],
+        "relation_target": "rae-dle-precision-lexica",
+        "relation_type": "relacionado_con",
+        "card_id": "card-extranjerismos",
+        "card_type": "lexical_usage",
+        "card_name": "Extranjerismos",
+        "card_definition": "Criterio para decidir entre extranjerismo, adaptacion o alternativa espanola.",
+        "signals": ["prestamo", "alternativa espanola", "adaptacion grafica"],
+        "risks": ["rechazar un uso asentado sin revisar contexto"],
+        "contexts": ["medios", "texto tecnico", "revision lexica"],
+        "evidence_id": "ev-fundeu-extranjerismos",
+        "evidence_section": "extranjerismos y alternativas",
+        "evidence_context": "seed_usage_large_batch",
+        "confidence": 0.6,
+        "claim_id": "claim-fundeu-extranjerismos",
+        "statement": (
+            "La revision de extranjerismos debe decidir entre alternativa espanola, "
+            "adaptacion o marca explicita segun asentamiento y contexto."
+        ),
+        "claim_type": "lexical",
+        "domain": "writing.lexicon",
+        "related_node_ids": ["rae-dle-precision-lexica"],
+    },
+    {
+        "key": "criterio-editorial",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "edition_title": "Manual de estilo de la lengua espanola",
+        "edition_label": "Edicion de referencia editorial, 2015",
+        "publication_year": "2015",
+        "publisher": "Trea",
+        "isbn": "pendiente de identificacion",
+        "format": "libro impreso",
+        "access_location": "Gijon: Trea, 2015",
+        "structure": ["capitulo", "criterio editorial", "segmento"],
+        "locator_system": ["edicion", "capitulo", "apartado", "pagina"],
+        "index_id": "martinez-sousa-mele:edicion-2015:criterio-editorial",
+        "index_title": "Unidad de criterio editorial",
+        "index_locator": "Edicion 2015 > estilo editorial > unidad de criterio",
+        "segment_id": "martinez-sousa-mele:edicion-2015:criterio-editorial:seg-1",
+        "segment_title": "Unidad de criterio en la revision",
+        "segment_text": (
+            "Resumen editorial minimo: la revision editorial no solo corrige casos "
+            "aislados; tambien mantiene decisiones coherentes de grafia, estilo, "
+            "terminologia y presentacion a lo largo de un texto."
+        ),
+        "extraction_id": "ext-martinez-sousa-2015-criterio-editorial-1",
+        "node_id": "martinez-sousa-criterio-editorial",
+        "canonical_name": "Unidad de criterio editorial",
+        "node_type": "metodo",
+        "primary_branch": "edicion",
+        "secondary_branch": "estilo editorial",
+        "node_summary": "Metodo para conservar decisiones coherentes durante la revision.",
+        "short_definition": "Principio de coherencia aplicado a grafia, estilo, terminologia y presentacion.",
+        "aliases": ["coherencia editorial", "criterio de edicion"],
+        "relation_target": "manual-rasgos-escritura",
+        "relation_type": "usa",
+        "card_id": "card-unidad-criterio-editorial",
+        "card_type": "editing_method",
+        "card_name": "Unidad de criterio editorial",
+        "card_definition": "Metodo para mantener decisiones editoriales coherentes en todo el texto.",
+        "signals": ["coherencia", "terminologia estable", "criterio repetible"],
+        "risks": ["correcciones locales que contradicen decisiones previas"],
+        "contexts": ["edicion", "revision", "texto largo"],
+        "evidence_id": "ev-martinez-sousa-criterio-editorial",
+        "evidence_section": "unidad de criterio editorial",
+        "evidence_context": "seed_editing_large_batch",
+        "confidence": 0.62,
+        "claim_id": "claim-martinez-sousa-criterio-editorial",
+        "statement": (
+            "La unidad de criterio editorial exige mantener decisiones coherentes "
+            "de estilo, terminologia y presentacion a lo largo del texto."
+        ),
+        "claim_type": "editing",
+        "domain": "editing.consistency",
+        "related_node_ids": ["manual-rasgos-escritura", "rae-gtg-terminologia-gramatical"],
+    },
 ]
 
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
@@ -770,6 +937,356 @@ def _source(
     )
 
 
+def _v6_long_definition(item: dict) -> str:
+    return (
+        f"Concepto validado desde un resumen editorial de {item['edition_title']} "
+        "y publicado como parte del primer lote amplio de conocimiento estable "
+        "en knowledge-v6."
+    )
+
+
+def _v6_source_editions() -> list[KnowledgeSourceEdition]:
+    return [
+        KnowledgeSourceEdition(
+            id=item["source_edition_id"],
+            source_id=item["source_id"],
+            title=item["edition_title"],
+            edition_label=item["edition_label"],
+            publication_year=item["publication_year"],
+            publisher=item["publisher"],
+            isbn=item["isbn"],
+            language="es",
+            format=item["format"],
+            access_location=item["access_location"],
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote amplio knowledge-v6 para ampliar conocimiento estable sin "
+                "incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+            label=item["edition_label"],
+            publication_date=item["publication_year"],
+            location=item["access_location"],
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=item["structure"],
+            locator_system=item["locator_system"],
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_index_entries() -> list[KnowledgeIndexEntry]:
+    return [
+        KnowledgeIndexEntry(
+            id=item["index_id"],
+            edition_id=item["source_edition_id"],
+            parent_id=None,
+            level=1,
+            order=index,
+            title=item["index_title"],
+            locator=item["index_locator"],
+            page_start=None,
+            page_end=None,
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for index, item in enumerate(V6_SEED_ITEMS, start=1)
+    ]
+
+
+def _v6_segments() -> list[KnowledgeSegment]:
+    return [
+        KnowledgeSegment(
+            id=item["segment_id"],
+            index_entry_id=item["index_id"],
+            parent_segment_id=None,
+            segment_type="editorial_summary",
+            title=item["segment_title"],
+            text=item["segment_text"],
+            order=1,
+            start_locator=f"{item['index_locator']} > resumen editorial 1",
+            end_locator=f"{item['index_locator']} > resumen editorial 1",
+            language="es",
+            status="available",
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_extraction_runs() -> list[KnowledgeExtractionRun]:
+    segments_by_id = {segment.id: segment for segment in _v6_segments()}
+    return [
+        KnowledgeExtractionRun(
+            id=item["extraction_id"],
+            segment_id=item["segment_id"],
+            status="completed",
+            extractor_type="deterministic",
+            extractor_name="seed-editorial-extractor",
+            extractor_version="1.0",
+            configuration={
+                "mode": "seed_large_real_batch",
+                "creates_stable_knowledge": False,
+                "source_text_policy": "editorial_summary_no_extended_quote",
+            },
+            input_segment_revision=1,
+            input_segment_hash=sha256(segments_by_id[item["segment_id"]].text.encode("utf-8")).hexdigest(),
+            knowledge_version=None,
+            started_at="2026-07-23",
+            completed_at="2026-07-23",
+            error_code=None,
+            error_message=None,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_proposals() -> list[KnowledgeProposal]:
+    proposals: list[KnowledgeProposal] = []
+    segments_by_id = {segment.id: segment for segment in _v6_segments()}
+    for item in V6_SEED_ITEMS:
+        segment = segments_by_id[item["segment_id"]]
+        common = {
+            "extraction_id": item["extraction_id"],
+            "segment_id": item["segment_id"],
+            "status": "approved",
+            "confidence": item["confidence"],
+            "source_locator": segment.start_locator,
+            "created_at": "2026-07-23",
+            "updated_at": "2026-07-23",
+            "reviewed_at": "2026-07-23",
+            "reviewer": "minicerebro-seed",
+            "decision_reason": "revision editorial del primer lote amplio de conocimiento estable",
+        }
+        proposals.extend(
+            [
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-node",
+                    proposal_type="node",
+                    title=item["canonical_name"],
+                    payload={
+                        "id": item["node_id"],
+                        "source_id": item["source_id"],
+                        "source_edition_id": item["source_edition_id"],
+                        "canonical_name": item["canonical_name"],
+                        "node_type": item["node_type"],
+                        "primary_branch": item["primary_branch"],
+                        "secondary_branch": item["secondary_branch"],
+                        "summary": item["node_summary"],
+                        "short_definition": item["short_definition"],
+                        "long_definition": _v6_long_definition(item),
+                        "aliases": item["aliases"],
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="El segmento identifica un concepto candidato verificable.",
+                    **common,
+                ),
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-card",
+                    proposal_type="card",
+                    title=f"Ficha candidata sobre {item['card_name']}",
+                    payload={
+                        "id": item["card_id"],
+                        "card_type": item["card_type"],
+                        "name": item["card_name"],
+                        "definition": item["card_definition"],
+                        "payload": {
+                            "signals": item["signals"],
+                            "risks": item["risks"],
+                            "contexts": item["contexts"],
+                        },
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="La ficha agrupa el criterio validado por el lote.",
+                    **common,
+                ),
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-evidence",
+                    proposal_type="evidence",
+                    title=f"Evidencia candidata sobre {item['card_name']}",
+                    payload={
+                        "id": item["evidence_id"],
+                        "node_id": item["node_id"],
+                        "source_id": item["source_id"],
+                        "source_edition_id": item["source_edition_id"],
+                        "evidence_type": "editorial_summary",
+                        "locator": {
+                            "edition": item["edition_label"],
+                            "section": item["evidence_section"],
+                            "segment_id": item["segment_id"],
+                        },
+                        "reference": segment.start_locator,
+                        "excerpt": segment.text,
+                        "context": item["evidence_context"],
+                        "confidence_level": 3,
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="El segmento conserva un resumen editorial minimo verificable.",
+                    **common,
+                ),
+                KnowledgeProposal(
+                    id=f"prop-{item['key']}-claim",
+                    proposal_type="claim",
+                    title=f"Claim candidato sobre {item['card_name']}",
+                    payload={
+                        "id": item["claim_id"],
+                        "evidence_id": item["evidence_id"],
+                        "card_id": item["card_id"],
+                        "statement": item["statement"],
+                        "claim_type": item["claim_type"],
+                        "node_id": item["node_id"],
+                        "related_node_ids": item["related_node_ids"],
+                        "domain": item["domain"],
+                        "scope": {
+                            "language": "es",
+                            "register": "general",
+                            "geography": "panhispanic",
+                            "period": "contemporary",
+                            "text_type": "writing",
+                        },
+                        "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                    },
+                    rationale="El claim queda sustentado por la evidencia validada del segmento.",
+                    **common,
+                ),
+            ]
+        )
+    return proposals
+
+
+def _v6_nodes() -> list[KnowledgeNode]:
+    return [
+        KnowledgeNode(
+            id=item["node_id"],
+            source_id=item["source_id"],
+            node_type=item["node_type"],
+            title=item["canonical_name"],
+            summary=item["node_summary"],
+            canonical_name=item["canonical_name"],
+            primary_branch=item["primary_branch"],
+            secondary_branch=item["secondary_branch"],
+            short_definition=item["short_definition"],
+            long_definition=_v6_long_definition(item),
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            published_at=KNOWLEDGE_V6_PUBLISHED_AT,
+            aliases=item["aliases"],
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_node_relations() -> list[KnowledgeNodeRelation]:
+    return [
+        KnowledgeNodeRelation(
+            id=f"rel-{item['key']}-{item['relation_type']}-{item['relation_target']}",
+            source_node_id=item["node_id"],
+            target_node_id=item["relation_target"],
+            relation_type=item["relation_type"],
+            direction="outgoing",
+            cardinality="N:N",
+            weight=0.66,
+            confidence=item["confidence"],
+            context="seed_large_real_batch",
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at="2026-07-23",
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_evidence() -> list[KnowledgeEvidenceItem]:
+    segments_by_id = {segment.id: segment for segment in _v6_segments()}
+    return [
+        KnowledgeEvidenceItem(
+            id=item["evidence_id"],
+            node_id=item["node_id"],
+            source_id=item["source_id"],
+            source_edition_id=item["source_edition_id"],
+            evidence_type="editorial_summary",
+            locator={
+                "edition": item["edition_label"],
+                "section": item["evidence_section"],
+                "segment_id": item["segment_id"],
+            },
+            reference=segments_by_id[item["segment_id"]].start_locator,
+            excerpt=segments_by_id[item["segment_id"]].text,
+            context=item["evidence_context"],
+            confidence=item["confidence"],
+            confidence_level=3,
+            status="published",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V6_PUBLISHED_AT,
+            incorporated_by="minicerebro-seed",
+            reviewed_by="minicerebro-seed",
+            revision=1,
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_claims() -> list[KnowledgeClaim]:
+    return [
+        KnowledgeClaim(
+            id=item["claim_id"],
+            evidence_id=item["evidence_id"],
+            card_id=item["card_id"],
+            statement=item["statement"],
+            claim_type=item["claim_type"],
+            node_id=item["node_id"],
+            related_node_ids=item["related_node_ids"],
+            domain=item["domain"],
+            scope={
+                "language": "es",
+                "register": "general",
+                "geography": "panhispanic",
+                "period": "contemporary",
+                "text_type": "writing",
+            },
+            status="published",
+            confidence=item["confidence"],
+            origin="approved_knowledge_proposal",
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            revision=1,
+            created_at="2026-07-23",
+            updated_at=KNOWLEDGE_V6_PUBLISHED_AT,
+            published_at=KNOWLEDGE_V6_PUBLISHED_AT,
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
+def _v6_cards() -> list[KnowledgeCard]:
+    return [
+        KnowledgeCard(
+            id=item["card_id"],
+            card_type=item["card_type"],
+            name=item["card_name"],
+            definition=item["card_definition"],
+            confidence=item["confidence"],
+            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            payload={
+                "signals": item["signals"],
+                "risks": item["risks"],
+                "contexts": item["contexts"],
+            },
+        )
+        for item in V6_SEED_ITEMS
+    ]
+
+
 def seed_sources() -> list[KnowledgeSource]:
     return [
         _source(
@@ -826,6 +1343,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["gramatica", "ortografia", "lexico", "extranjerismos", "dudas de uso"],
             authority_level=5,
             priority=1,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F005",
@@ -881,6 +1401,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["estilo", "edicion", "ortotipografia", "presentacion"],
             authority_level=4,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F010",
@@ -891,6 +1414,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["neologismos", "tecnologia", "medios", "extranjerismos", "actualidad"],
             authority_level=3,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F011",
@@ -1196,6 +1722,7 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["entrada", "acepcion", "segmento"],
             locator_system=["edicion", "entrada", "acepcion", "url"],
         ),
+        *_v6_source_editions(),
     ]
 
 
@@ -1271,6 +1798,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        *_v6_index_entries(),
     ]
 
 
@@ -1371,6 +1899,7 @@ def seed_segments() -> list[KnowledgeSegment]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        *_v6_segments(),
     ]
 
 
@@ -1491,6 +2020,7 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        *_v6_extraction_runs(),
     ]
 
 
@@ -2031,7 +2561,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "de la lengua espanola y publicado como quinto lote estable de conocimiento."
                 ),
                 "aliases": ["exactitud lexica", "propiedad lexica"],
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V5_VERSION,
             },
             rationale="El segmento identifica la precision como criterio lexico verificable.",
             confidence=0.63,
@@ -2059,7 +2589,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "risks": ["tecnicismo innecesario", "perdida de naturalidad"],
                     "contexts": ["revision lexica", "ensayo", "texto tecnico"],
                 },
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V5_VERSION,
             },
             rationale="La ficha agrupa el criterio lexico validado por el lote.",
             confidence=0.61,
@@ -2092,7 +2622,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                 "excerpt": dle_segment.text,
                 "context": "seed_lexicon_incremental",
                 "confidence_level": 3,
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V5_VERSION,
             },
             rationale="El segmento conserva un resumen editorial minimo verificable.",
             confidence=0.61,
@@ -2129,7 +2659,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
                     "period": "contemporary",
                     "text_type": "writing",
                 },
-                "version": LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+                "version": KNOWLEDGE_V5_VERSION,
             },
             rationale="El claim queda sustentado por la evidencia validada del segmento.",
             confidence=0.61,
@@ -2140,6 +2670,7 @@ def seed_proposals() -> list[KnowledgeProposal]:
             reviewer="minicerebro-seed",
             decision_reason="revision editorial del quinto lote real de ingestion",
         ),
+        *_v6_proposals(),
     ]
 
 
@@ -2283,11 +2814,12 @@ def seed_nodes() -> list[KnowledgeNode]:
                 "publicado en knowledge-v5."
             ),
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V5_VERSION,
             created_at="2026-07-23",
             published_at=KNOWLEDGE_V5_PUBLISHED_AT,
             aliases=["exactitud lexica", "propiedad lexica"],
         ),
+        *_v6_nodes(),
     ]
 
 
@@ -2394,10 +2926,11 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
             confidence=0.61,
             context="seed_lexicon_incremental",
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V5_VERSION,
             created_at="2026-07-23",
             updated_at="2026-07-23",
         ),
+        *_v6_node_relations(),
     ]
 
 
@@ -2730,13 +3263,14 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
             confidence=0.61,
             confidence_level=3,
             status="published",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V5_VERSION,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V5_PUBLISHED_AT,
             incorporated_by="minicerebro-seed",
             reviewed_by="minicerebro-seed",
             revision=1,
         ),
+        *_v6_evidence(),
     ]
 
 
@@ -2970,12 +3504,13 @@ def seed_claims() -> list[KnowledgeClaim]:
             status="published",
             confidence=0.61,
             origin="approved_knowledge_proposal",
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V5_VERSION,
             revision=1,
             created_at="2026-07-23",
             updated_at=KNOWLEDGE_V5_PUBLISHED_AT,
             published_at=KNOWLEDGE_V5_PUBLISHED_AT,
         ),
+        *_v6_claims(),
     ]
 
 
@@ -3129,13 +3664,14 @@ def seed_cards() -> list[KnowledgeCard]:
             name="Precision lexica",
             definition="Criterio para elegir palabras concretas y acepciones acordes con el sentido buscado.",
             confidence=0.61,
-            version=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            version=KNOWLEDGE_V5_VERSION,
             payload={
                 "signals": ["palabras concretas", "acepciones pertinentes", "menos vaguedad"],
                 "risks": ["tecnicismo innecesario", "perdida de naturalidad"],
                 "contexts": ["revision lexica", "ensayo", "texto tecnico"],
             },
         ),
+        *_v6_cards(),
     ]
 
 
@@ -3302,7 +3838,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
             KNOWLEDGE_V4_VERSION,
-            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V5_VERSION,
         }
     ]
     v5_claims = [
@@ -3314,7 +3850,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
             KNOWLEDGE_V4_VERSION,
-            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V5_VERSION,
         }
     ]
     v5_cards = [
@@ -3326,9 +3862,40 @@ def seed_versions() -> list[KnowledgeVersion]:
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
             KNOWLEDGE_V4_VERSION,
-            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            KNOWLEDGE_V5_VERSION,
         }
     ]
+    v6_source_ids = {
+        "rae-ngle",
+        "rae-lese",
+        "rae-ole",
+        "rae-gtg",
+        "rae-dle",
+        *{item["source_id"] for item in V6_SEED_ITEMS},
+    }
+    v6_sources = [source for source in seed_sources() if source.id in v6_source_ids]
+    v6_node_ids = {
+        "rae-norma-estilo",
+        "manual-rasgos-escritura",
+        "rae-ngle-complemento-directo",
+        "rae-lese-dinamismo-frase",
+        "rae-ole-acentuacion-grafica",
+        "rae-gtg-terminologia-gramatical",
+        "rae-dle-precision-lexica",
+        *{item["node_id"] for item in V6_SEED_ITEMS},
+    }
+    v6_nodes = [node for node in seed_nodes() if node.id in v6_node_ids]
+    published_chain = {
+        PUBLISHED_KNOWLEDGE_VERSION,
+        KNOWLEDGE_V2_VERSION,
+        KNOWLEDGE_V3_VERSION,
+        KNOWLEDGE_V4_VERSION,
+        KNOWLEDGE_V5_VERSION,
+        LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+    }
+    v6_evidence = [evidence for evidence in seed_evidence() if evidence.version in published_chain]
+    v6_claims = [claim for claim in seed_claims() if claim.version in published_chain]
+    v6_cards = [card for card in seed_cards() if card.version in published_chain]
     return [
         KnowledgeVersion(
             id=KNOWLEDGE_VERSION,
@@ -3381,7 +3948,7 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v4_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V5_VERSION,
             status="published",
             published_at=KNOWLEDGE_V5_PUBLISHED_AT,
             source_count=len(v5_sources),
@@ -3389,6 +3956,16 @@ def seed_versions() -> list[KnowledgeVersion]:
             evidence_count=len(v5_evidence),
             claim_count=len(v5_claims),
             card_count=len(v5_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V6_PUBLISHED_AT,
+            source_count=len(v6_sources),
+            node_count=len(v6_nodes),
+            evidence_count=len(v6_evidence),
+            claim_count=len(v6_claims),
+            card_count=len(v6_cards),
         ),
     ]
 
@@ -3659,6 +4236,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V2_VERSION,
             KNOWLEDGE_V3_VERSION,
             KNOWLEDGE_V4_VERSION,
+            KNOWLEDGE_V5_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
