@@ -56,7 +56,8 @@ KNOWLEDGE_V20_VERSION = "knowledge-v20"
 KNOWLEDGE_V21_VERSION = "knowledge-v21"
 KNOWLEDGE_V22_VERSION = "knowledge-v22"
 KNOWLEDGE_V23_VERSION = "knowledge-v23"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v24"
+KNOWLEDGE_V24_VERSION = "knowledge-v24"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v25"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -82,6 +83,7 @@ KNOWLEDGE_V21_PUBLISHED_AT = "2026-07-23T20:00:00+00:00"
 KNOWLEDGE_V22_PUBLISHED_AT = "2026-07-23T21:00:00+00:00"
 KNOWLEDGE_V23_PUBLISHED_AT = "2026-07-23T22:00:00+00:00"
 KNOWLEDGE_V24_PUBLISHED_AT = "2026-07-23T23:00:00+00:00"
+KNOWLEDGE_V25_PUBLISHED_AT = "2026-07-24T00:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -4052,6 +4054,194 @@ V24_SEED_ITEMS = [
     },
 ]
 
+V25_SEED_ITEMS = [
+    {
+        "key": "claridad-no-ficcion",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:claridad-no-ficcion",
+        "index_title": "Claridad en no ficcion",
+        "index_locator": "Edicion de referencia > principios de escritura > claridad",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:claridad-no-ficcion:seg-1",
+        "segment_title": "Claridad como obligacion del escritor",
+        "segment_text": "Resumen editorial minimo: la claridad en no ficcion exige que cada frase ayude al lector a seguir una idea concreta sin ruido innecesario.",
+        "extraction_id": "ext-zinsser-claridad-no-ficcion-1",
+        "node_id": "zinsser-claridad-no-ficcion",
+        "canonical_name": "Claridad en no ficcion",
+        "node_type": "recurso",
+        "primary_branch": "escritura de no ficcion",
+        "secondary_branch": "claridad",
+        "node_summary": "Criterio de escritura que prioriza comprension, continuidad y utilidad para el lector.",
+        "short_definition": "Criterio para revisar si una frase ayuda al lector a seguir la idea principal.",
+        "aliases": ["claridad expositiva", "claridad para el lector"],
+        "relation_target": "rae-lese-claridad",
+        "relation_type": "relacionado_con",
+        "card_id": "card-zinsser-claridad-no-ficcion",
+        "card_type": "writing_revision_concept",
+        "card_name": "Claridad en no ficcion",
+        "card_definition": "Criterio para escribir no ficcion comprensible, directa y orientada al lector.",
+        "signals": ["idea principal", "lector perdido", "ruido verbal"],
+        "risks": ["simplificar tanto que desaparezca la precision conceptual"],
+        "contexts": ["no ficcion", "claridad", "revision"],
+        "evidence_id": "ev-zinsser-claridad-no-ficcion",
+        "evidence_section": "claridad en no ficcion",
+        "confidence": 0.6,
+        "claim_id": "claim-zinsser-claridad-no-ficcion",
+        "statement": "La claridad en no ficcion mejora cuando cada frase conserva una funcion reconocible para el lector.",
+        "claim_type": "stylistic",
+        "domain": "writing.nonfiction",
+        "related_node_ids": ["rae-lese-claridad", "strunk-white-concision-estilo"],
+    },
+    {
+        "key": "sencillez-estilo",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:sencillez-estilo",
+        "index_title": "Sencillez de estilo",
+        "index_locator": "Edicion de referencia > principios de escritura > sencillez",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:sencillez-estilo:seg-1",
+        "segment_title": "Quitar complicacion innecesaria",
+        "segment_text": "Resumen editorial minimo: la sencillez de estilo reduce adornos y complicaciones para que el texto conserve precision, tono y avance.",
+        "extraction_id": "ext-zinsser-sencillez-estilo-1",
+        "node_id": "zinsser-sencillez-estilo",
+        "canonical_name": "Sencillez de estilo",
+        "node_type": "recurso",
+        "primary_branch": "escritura de no ficcion",
+        "secondary_branch": "sencillez",
+        "node_summary": "Criterio que elimina complejidad verbal innecesaria sin empobrecer la idea.",
+        "short_definition": "Criterio de revision para preferir una formulacion limpia cuando el ornamento no aporta.",
+        "aliases": ["simplicidad expresiva", "estilo sencillo"],
+        "relation_target": "strunk-white-concision-estilo",
+        "relation_type": "relacionado_con",
+        "card_id": "card-zinsser-sencillez-estilo",
+        "card_type": "writing_revision_concept",
+        "card_name": "Sencillez de estilo",
+        "card_definition": "Criterio para quitar complicacion verbal que no mejora el contenido.",
+        "signals": ["adornos", "frase sobrecargada", "complicacion innecesaria"],
+        "risks": ["confundir sencillez con pobreza expresiva o falta de matiz"],
+        "contexts": ["no ficcion", "estilo", "revision"],
+        "evidence_id": "ev-zinsser-sencillez-estilo",
+        "evidence_section": "sencillez de estilo",
+        "confidence": 0.6,
+        "claim_id": "claim-zinsser-sencillez-estilo",
+        "statement": "La sencillez de estilo ayuda a que un texto avance cuando elimina complicaciones que no anaden precision ni tono.",
+        "claim_type": "stylistic",
+        "domain": "writing.style",
+        "related_node_ids": ["strunk-white-concision-estilo", "rae-lese-claridad"],
+    },
+    {
+        "key": "voz-del-autor",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:voz-del-autor",
+        "index_title": "Voz del autor",
+        "index_locator": "Edicion de referencia > principios de escritura > voz",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:voz-del-autor:seg-1",
+        "segment_title": "Presencia reconocible",
+        "segment_text": "Resumen editorial minimo: la voz del autor aparece cuando el texto mantiene una presencia reconocible sin imponer artificio ni perder claridad.",
+        "extraction_id": "ext-zinsser-voz-del-autor-1",
+        "node_id": "zinsser-voz-del-autor",
+        "canonical_name": "Voz del autor",
+        "node_type": "concepto",
+        "primary_branch": "escritura de no ficcion",
+        "secondary_branch": "voz",
+        "node_summary": "Presencia estilistica reconocible que convive con claridad y control.",
+        "short_definition": "Rasgo de escritura que hace reconocible una mirada sin oscurecer el contenido.",
+        "aliases": ["voz propia", "presencia del autor"],
+        "relation_target": "reyes-progresion-informativa",
+        "relation_type": "relacionado_con",
+        "card_id": "card-zinsser-voz-del-autor",
+        "card_type": "writing_revision_concept",
+        "card_name": "Voz del autor",
+        "card_definition": "Criterio para conservar presencia personal sin sacrificar claridad.",
+        "signals": ["tono reconocible", "mirada propia", "presencia"],
+        "risks": ["confundir voz con amaneramiento o exceso de protagonismo"],
+        "contexts": ["no ficcion", "voz", "estilo"],
+        "evidence_id": "ev-zinsser-voz-del-autor",
+        "evidence_section": "voz del autor",
+        "confidence": 0.6,
+        "claim_id": "claim-zinsser-voz-del-autor",
+        "statement": "La voz del autor aporta identidad cuando se percibe como presencia controlada y no como artificio que bloquea la lectura.",
+        "claim_type": "stylistic",
+        "domain": "writing.voice",
+        "related_node_ids": ["reyes-progresion-informativa", "strunk-white-revision-frases"],
+    },
+    {
+        "key": "revision-no-ficcion",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:revision-no-ficcion",
+        "index_title": "Revision de no ficcion",
+        "index_locator": "Edicion de referencia > proceso de escritura > revision",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:revision-no-ficcion:seg-1",
+        "segment_title": "Reescritura con criterio",
+        "segment_text": "Resumen editorial minimo: la revision de no ficcion reordena, corta y precisa para que el texto responda mejor a su promesa informativa.",
+        "extraction_id": "ext-zinsser-revision-no-ficcion-1",
+        "node_id": "zinsser-revision-no-ficcion",
+        "canonical_name": "Revision de no ficcion",
+        "node_type": "metodo",
+        "primary_branch": "escritura de no ficcion",
+        "secondary_branch": "revision",
+        "node_summary": "Metodo de reescritura orientado a claridad, orden y promesa informativa.",
+        "short_definition": "Revision que ajusta orden, cortes y precision segun la funcion del texto.",
+        "aliases": ["reescritura de no ficcion", "revision expositiva"],
+        "relation_target": "strunk-white-revision-frases",
+        "relation_type": "usa",
+        "card_id": "card-zinsser-revision-no-ficcion",
+        "card_type": "writing_revision_concept",
+        "card_name": "Revision de no ficcion",
+        "card_definition": "Metodo para reescribir un texto informativo hasta que cumpla mejor su funcion.",
+        "signals": ["orden", "corte", "promesa informativa"],
+        "risks": ["editar solo la superficie sin revisar estructura ni foco"],
+        "contexts": ["no ficcion", "revision", "estructura"],
+        "evidence_id": "ev-zinsser-revision-no-ficcion",
+        "evidence_section": "revision de no ficcion",
+        "confidence": 0.6,
+        "claim_id": "claim-zinsser-revision-no-ficcion",
+        "statement": "La revision de no ficcion debe ajustar orden, cortes y precision para que el texto cumpla su promesa informativa.",
+        "claim_type": "editing",
+        "domain": "writing.revision",
+        "related_node_ids": ["strunk-white-revision-frases", "reyes-revision-borrador"],
+    },
+    {
+        "key": "lector-no-ficcion",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:lector-no-ficcion",
+        "index_title": "Lector de no ficcion",
+        "index_locator": "Edicion de referencia > principios de escritura > lector",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:lector-no-ficcion:seg-1",
+        "segment_title": "Atencion al lector",
+        "segment_text": "Resumen editorial minimo: escribir no ficcion implica anticipar que necesita el lector para comprender, confiar y seguir leyendo.",
+        "extraction_id": "ext-zinsser-lector-no-ficcion-1",
+        "node_id": "zinsser-lector-no-ficcion",
+        "canonical_name": "Lector de no ficcion",
+        "node_type": "concepto",
+        "primary_branch": "escritura de no ficcion",
+        "secondary_branch": "lector",
+        "node_summary": "Criterio que mantiene visible la necesidad de comprension y confianza del lector.",
+        "short_definition": "Perspectiva de revision centrada en lo que el lector necesita para seguir el texto.",
+        "aliases": ["atencion al lector", "lector implicito"],
+        "relation_target": "reyes-progresion-informativa",
+        "relation_type": "relacionado_con",
+        "card_id": "card-zinsser-lector-no-ficcion",
+        "card_type": "writing_revision_concept",
+        "card_name": "Lector de no ficcion",
+        "card_definition": "Criterio para revisar si el texto permite comprender, confiar y seguir leyendo.",
+        "signals": ["necesidad del lector", "confianza", "continuidad"],
+        "risks": ["sobreexplicar hasta frenar el ritmo o subestimar al lector"],
+        "contexts": ["no ficcion", "lector", "revision"],
+        "evidence_id": "ev-zinsser-lector-no-ficcion",
+        "evidence_section": "lector de no ficcion",
+        "confidence": 0.6,
+        "claim_id": "claim-zinsser-lector-no-ficcion",
+        "statement": "La atencion al lector mejora un texto de no ficcion cuando orienta decisiones de claridad, orden y confianza.",
+        "claim_type": "stylistic",
+        "domain": "writing.reader",
+        "related_node_ids": ["reyes-progresion-informativa", "zinsser-claridad-no-ficcion"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -5392,7 +5582,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V21_VERSION: "seed_general_linguistics_batch",
     KNOWLEDGE_V22_VERSION: "seed_corpus_usage_batch",
     KNOWLEDGE_V23_VERSION: "seed_generative_syntax_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_style_elements_batch",
+    KNOWLEDGE_V24_VERSION: "seed_style_elements_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_zinsser_writing_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -5411,7 +5602,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V21_VERSION: KNOWLEDGE_V21_PUBLISHED_AT,
     KNOWLEDGE_V22_VERSION: KNOWLEDGE_V22_PUBLISHED_AT,
     KNOWLEDGE_V23_VERSION: KNOWLEDGE_V23_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V24_PUBLISHED_AT,
+    KNOWLEDGE_V24_VERSION: KNOWLEDGE_V24_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V25_PUBLISHED_AT,
 }
 
 
@@ -6009,6 +6201,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["claridad", "sencillez", "voz", "revision", "no ficcion"],
             authority_level=4,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F022",
@@ -6602,6 +6797,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "principio de estilo", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="zinsser-on-writing-well:edicion-referencia",
+            source_id="zinsser-on-writing-well",
+            title="On Writing Well",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="en",
+            format="libro impreso o edicion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de escritura de no ficcion para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "principio de escritura", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -6697,6 +6920,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V22_SEED_ITEMS),
         *_published_batch_index_entries(V23_SEED_ITEMS),
         *_published_batch_index_entries(V24_SEED_ITEMS),
+        *_published_batch_index_entries(V25_SEED_ITEMS),
     ]
 
 
@@ -6816,6 +7040,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V22_SEED_ITEMS),
         *_published_batch_segments(V23_SEED_ITEMS),
         *_published_batch_segments(V24_SEED_ITEMS),
+        *_published_batch_segments(V25_SEED_ITEMS),
     ]
 
 
@@ -6954,7 +7179,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_extraction_runs(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_extraction_runs(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_extraction_runs(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_extraction_runs(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7622,7 +7848,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_proposals(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_proposals(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_proposals(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_proposals(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7789,7 +8016,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_nodes(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_nodes(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_nodes(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_nodes(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7918,7 +8146,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_node_relations(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_node_relations(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_node_relations(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_node_relations(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8276,7 +8505,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_evidence(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_evidence(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_evidence(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_evidence(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8534,7 +8764,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_claims(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_claims(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_claims(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_claims(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8713,7 +8944,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_cards(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_cards(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
-        *_published_batch_cards(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
+        *_published_batch_cards(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9220,8 +9452,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v23_evidence = [evidence for evidence in seed_evidence() if evidence.version in v23_chain]
     v23_claims = [claim for claim in seed_claims() if claim.version in v23_chain]
     v23_cards = [card for card in seed_cards() if card.version in v23_chain]
-    latest_chain = {*v23_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v24_chain = {*v23_chain, KNOWLEDGE_V24_VERSION}
+    v24_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -9242,7 +9474,35 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V24_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v23_node_ids, *{item["node_id"] for item in V24_SEED_ITEMS}}
+    v24_node_ids = {*v23_node_ids, *{item["node_id"] for item in V24_SEED_ITEMS}}
+    v24_nodes = [node for node in seed_nodes() if node.id in v24_node_ids]
+    v24_evidence = [evidence for evidence in seed_evidence() if evidence.version in v24_chain]
+    v24_claims = [claim for claim in seed_claims() if claim.version in v24_chain]
+    v24_cards = [card for card in seed_cards() if card.version in v24_chain]
+    latest_chain = {*v24_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v24_node_ids, *{item["node_id"] for item in V25_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -9489,9 +9749,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v23_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V24_VERSION,
             status="published",
             published_at=KNOWLEDGE_V24_PUBLISHED_AT,
+            source_count=len(v24_sources),
+            node_count=len(v24_nodes),
+            evidence_count=len(v24_evidence),
+            claim_count=len(v24_claims),
+            card_count=len(v24_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V25_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -9786,6 +10056,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V21_VERSION,
             KNOWLEDGE_V22_VERSION,
             KNOWLEDGE_V23_VERSION,
+            KNOWLEDGE_V24_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
