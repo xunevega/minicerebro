@@ -51,7 +51,8 @@ KNOWLEDGE_V15_VERSION = "knowledge-v15"
 KNOWLEDGE_V16_VERSION = "knowledge-v16"
 KNOWLEDGE_V17_VERSION = "knowledge-v17"
 KNOWLEDGE_V18_VERSION = "knowledge-v18"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v19"
+KNOWLEDGE_V19_VERSION = "knowledge-v19"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v20"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -72,6 +73,7 @@ KNOWLEDGE_V16_PUBLISHED_AT = "2026-07-23T15:00:00+00:00"
 KNOWLEDGE_V17_PUBLISHED_AT = "2026-07-23T16:00:00+00:00"
 KNOWLEDGE_V18_PUBLISHED_AT = "2026-07-23T17:00:00+00:00"
 KNOWLEDGE_V19_PUBLISHED_AT = "2026-07-23T18:00:00+00:00"
+KNOWLEDGE_V20_PUBLISHED_AT = "2026-07-23T19:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -3102,6 +3104,194 @@ V19_SEED_ITEMS = [
     },
 ]
 
+V20_SEED_ITEMS = [
+    {
+        "key": "focalizacion",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:focalizacion",
+        "index_title": "Focalizacion",
+        "index_locator": "Edicion de referencia > modo narrativo > focalizacion",
+        "segment_id": "genette-figuras-iii:edicion-referencia:focalizacion:seg-1",
+        "segment_title": "Regulacion de la informacion narrativa",
+        "segment_text": "Resumen editorial minimo: la focalizacion permite analizar desde que restriccion de informacion se organiza lo narrado.",
+        "extraction_id": "ext-genette-figuras-iii-focalizacion-1",
+        "node_id": "genette-figuras-focalizacion",
+        "canonical_name": "Focalizacion",
+        "node_type": "concepto",
+        "primary_branch": "narratologia",
+        "secondary_branch": "modo narrativo",
+        "node_summary": "Restriccion de informacion que organiza la perspectiva narrativa.",
+        "short_definition": "Concepto para analizar quien percibe o desde que limite informativo se presenta el relato.",
+        "aliases": ["punto de vista", "perspectiva"],
+        "relation_target": "genette-modo-narrativo",
+        "relation_type": "define",
+        "card_id": "card-focalizacion",
+        "card_type": "narratology_concept",
+        "card_name": "Focalizacion",
+        "card_definition": "Criterio para distinguir la instancia que narra de la perspectiva que restringe la informacion.",
+        "signals": ["perspectiva", "informacion", "punto de vista"],
+        "risks": ["confundir focalizacion con voz narrativa o con autor empirico"],
+        "contexts": ["narratologia", "comentario literario", "perspectiva"],
+        "evidence_id": "ev-genette-figuras-focalizacion",
+        "evidence_section": "focalizacion",
+        "confidence": 0.63,
+        "claim_id": "claim-genette-figuras-focalizacion",
+        "statement": "La focalizacion ayuda a explicar desde que restriccion de informacion se organiza la perspectiva del relato.",
+        "claim_type": "literary",
+        "domain": "narratology.mode",
+        "related_node_ids": ["genette-modo-narrativo", "genette-voz-narrativa"],
+    },
+    {
+        "key": "analepsis",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:analepsis",
+        "index_title": "Analepsis",
+        "index_locator": "Edicion de referencia > orden narrativo > analepsis",
+        "segment_id": "genette-figuras-iii:edicion-referencia:analepsis:seg-1",
+        "segment_title": "Retorno temporal",
+        "segment_text": "Resumen editorial minimo: la analepsis introduce un retorno hacia hechos anteriores respecto del punto alcanzado por el relato.",
+        "extraction_id": "ext-genette-figuras-iii-analepsis-1",
+        "node_id": "genette-figuras-analepsis",
+        "canonical_name": "Analepsis",
+        "node_type": "recurso",
+        "primary_branch": "narratologia",
+        "secondary_branch": "orden narrativo",
+        "node_summary": "Retorno del relato a hechos anteriores de la historia.",
+        "short_definition": "Recurso temporal que desplaza el relato hacia un momento anterior.",
+        "aliases": ["retrospeccion", "flashback"],
+        "relation_target": "genette-orden-narrativo",
+        "relation_type": "ejemplifica",
+        "card_id": "card-analepsis",
+        "card_type": "narratology_concept",
+        "card_name": "Analepsis",
+        "card_definition": "Criterio para detectar retornos temporales y explicar su funcion estructural.",
+        "signals": ["recuerdo", "antes", "retorno"],
+        "risks": ["llamar analepsis a cualquier informacion previa sin funcion de desplazamiento temporal"],
+        "contexts": ["narratologia", "comentario literario", "tiempo narrativo"],
+        "evidence_id": "ev-genette-figuras-analepsis",
+        "evidence_section": "analepsis",
+        "confidence": 0.63,
+        "claim_id": "claim-genette-figuras-analepsis",
+        "statement": "La analepsis reordena el relato al incorporar hechos anteriores al punto narrativo actual.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["genette-orden-narrativo", "aristoteles-poetica-mythos-trama"],
+    },
+    {
+        "key": "prolepsis",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:prolepsis",
+        "index_title": "Prolepsis",
+        "index_locator": "Edicion de referencia > orden narrativo > prolepsis",
+        "segment_id": "genette-figuras-iii:edicion-referencia:prolepsis:seg-1",
+        "segment_title": "Anticipacion temporal",
+        "segment_text": "Resumen editorial minimo: la prolepsis adelanta hechos futuros respecto del punto alcanzado por el relato.",
+        "extraction_id": "ext-genette-figuras-iii-prolepsis-1",
+        "node_id": "genette-figuras-prolepsis",
+        "canonical_name": "Prolepsis",
+        "node_type": "recurso",
+        "primary_branch": "narratologia",
+        "secondary_branch": "orden narrativo",
+        "node_summary": "Anticipacion narrativa de hechos posteriores.",
+        "short_definition": "Recurso temporal que desplaza el relato hacia un momento futuro.",
+        "aliases": ["anticipacion", "flashforward"],
+        "relation_target": "genette-figuras-analepsis",
+        "relation_type": "compara_con",
+        "card_id": "card-prolepsis",
+        "card_type": "narratology_concept",
+        "card_name": "Prolepsis",
+        "card_definition": "Criterio para identificar anticipaciones y valorar su efecto en la expectativa del lector.",
+        "signals": ["anticipacion", "despues", "futuro"],
+        "risks": ["confundir expectativa tematica con avance narrativo explicito"],
+        "contexts": ["narratologia", "comentario literario", "tiempo narrativo"],
+        "evidence_id": "ev-genette-figuras-prolepsis",
+        "evidence_section": "prolepsis",
+        "confidence": 0.62,
+        "claim_id": "claim-genette-figuras-prolepsis",
+        "statement": "La prolepsis adelanta informacion futura y modifica la expectativa estructural del relato.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["genette-orden-narrativo", "genette-figuras-analepsis"],
+    },
+    {
+        "key": "elipsis-narrativa",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:elipsis-narrativa",
+        "index_title": "Elipsis narrativa",
+        "index_locator": "Edicion de referencia > duracion narrativa > elipsis",
+        "segment_id": "genette-figuras-iii:edicion-referencia:elipsis-narrativa:seg-1",
+        "segment_title": "Supresion de un tramo temporal",
+        "segment_text": "Resumen editorial minimo: la elipsis narrativa omite un tramo de la historia y acelera el ritmo del relato.",
+        "extraction_id": "ext-genette-figuras-iii-elipsis-narrativa-1",
+        "node_id": "genette-figuras-elipsis-narrativa",
+        "canonical_name": "Elipsis narrativa",
+        "node_type": "recurso",
+        "primary_branch": "narratologia",
+        "secondary_branch": "duracion narrativa",
+        "node_summary": "Omisiones temporales que aceleran o condensan el relato.",
+        "short_definition": "Recurso de duracion que omite un tramo de la historia en el discurso narrativo.",
+        "aliases": ["elipsis", "omision narrativa"],
+        "relation_target": "genette-duracion-narrativa",
+        "relation_type": "ejemplifica",
+        "card_id": "card-elipsis-narrativa",
+        "card_type": "narratology_concept",
+        "card_name": "Elipsis narrativa",
+        "card_definition": "Criterio para analizar omisiones temporales y su efecto sobre el ritmo.",
+        "signals": ["omision", "salto temporal", "tiempo omitido"],
+        "risks": ["interpretar toda falta de detalle como elipsis estructural"],
+        "contexts": ["narratologia", "comentario literario", "ritmo narrativo"],
+        "evidence_id": "ev-genette-figuras-elipsis-narrativa",
+        "evidence_section": "elipsis narrativa",
+        "confidence": 0.62,
+        "claim_id": "claim-genette-figuras-elipsis-narrativa",
+        "statement": "La elipsis narrativa acelera el relato al omitir un tramo reconocible de la historia.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["genette-duracion-narrativa", "genette-orden-narrativo"],
+    },
+    {
+        "key": "relato-iterativo",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:relato-iterativo",
+        "index_title": "Relato iterativo",
+        "index_locator": "Edicion de referencia > frecuencia narrativa > relato iterativo",
+        "segment_id": "genette-figuras-iii:edicion-referencia:relato-iterativo:seg-1",
+        "segment_title": "Una formulacion para hechos repetidos",
+        "segment_text": "Resumen editorial minimo: el relato iterativo cuenta una vez una serie de hechos repetidos o habituales.",
+        "extraction_id": "ext-genette-figuras-iii-relato-iterativo-1",
+        "node_id": "genette-figuras-relato-iterativo",
+        "canonical_name": "Relato iterativo",
+        "node_type": "recurso",
+        "primary_branch": "narratologia",
+        "secondary_branch": "frecuencia narrativa",
+        "node_summary": "Modo de contar una vez hechos repetidos o habituales.",
+        "short_definition": "Recurso de frecuencia que resume varias ocurrencias mediante una sola formulacion narrativa.",
+        "aliases": ["iteracion narrativa", "frecuencia iterativa"],
+        "relation_target": "genette-frecuencia-narrativa",
+        "relation_type": "ejemplifica",
+        "card_id": "card-relato-iterativo",
+        "card_type": "narratology_concept",
+        "card_name": "Relato iterativo",
+        "card_definition": "Criterio para reconocer cuando un relato formula una vez acciones repetidas o habituales.",
+        "signals": ["siempre", "cada vez", "habitualmente"],
+        "risks": ["confundir repeticion de palabras con iteracion de hechos narrados"],
+        "contexts": ["narratologia", "comentario literario", "frecuencia narrativa"],
+        "evidence_id": "ev-genette-figuras-relato-iterativo",
+        "evidence_section": "relato iterativo",
+        "confidence": 0.62,
+        "claim_id": "claim-genette-figuras-relato-iterativo",
+        "statement": "El relato iterativo cuenta una vez una serie de hechos repetidos o habituales.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["genette-frecuencia-narrativa", "genette-duracion-narrativa"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -4437,7 +4627,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V16_VERSION: "seed_oral_communication_batch",
     KNOWLEDGE_V17_VERSION: "seed_poetics_batch",
     KNOWLEDGE_V18_VERSION: "seed_narratology_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_general_literary_theory_batch",
+    KNOWLEDGE_V19_VERSION: "seed_general_literary_theory_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_figures_narratology_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -4451,7 +4642,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V16_VERSION: KNOWLEDGE_V16_PUBLISHED_AT,
     KNOWLEDGE_V17_VERSION: KNOWLEDGE_V17_PUBLISHED_AT,
     KNOWLEDGE_V18_VERSION: KNOWLEDGE_V18_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V19_PUBLISHED_AT,
+    KNOWLEDGE_V19_VERSION: KNOWLEDGE_V19_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V20_PUBLISHED_AT,
 }
 
 
@@ -4981,6 +5173,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["tiempo", "modo", "voz", "orden", "duracion", "frecuencia"],
             authority_level=5,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F017",
@@ -5432,6 +5627,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
         KnowledgeSourceEdition(
+            id="genette-figuras-iii:edicion-referencia",
+            source_id="genette-figuras-iii",
+            title="Figuras III",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de narratologia aplicada para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "recurso narratologico", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
+        KnowledgeSourceEdition(
             id="genette-discurso-relato:edicion-referencia",
             source_id="genette-discurso-relato",
             title="Discurso del relato",
@@ -5577,6 +5800,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V17_SEED_ITEMS),
         *_published_batch_index_entries(V18_SEED_ITEMS),
         *_published_batch_index_entries(V19_SEED_ITEMS),
+        *_published_batch_index_entries(V20_SEED_ITEMS),
     ]
 
 
@@ -5691,6 +5915,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V17_SEED_ITEMS),
         *_published_batch_segments(V18_SEED_ITEMS),
         *_published_batch_segments(V19_SEED_ITEMS),
+        *_published_batch_segments(V20_SEED_ITEMS),
     ]
 
 
@@ -5824,7 +6049,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_extraction_runs(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_extraction_runs(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_extraction_runs(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_extraction_runs(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6487,7 +6713,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_proposals(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_proposals(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_proposals(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_proposals(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6649,7 +6876,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_nodes(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_nodes(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_nodes(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_nodes(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6773,7 +7001,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_node_relations(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_node_relations(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_node_relations(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_node_relations(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7126,7 +7355,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_evidence(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_evidence(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_evidence(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_evidence(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7379,7 +7609,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_claims(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_claims(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_claims(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_claims(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7553,7 +7784,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_cards(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_cards(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
-        *_published_batch_cards(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
+        *_published_batch_cards(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7940,8 +8172,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v18_evidence = [evidence for evidence in seed_evidence() if evidence.version in v18_chain]
     v18_claims = [claim for claim in seed_claims() if claim.version in v18_chain]
     v18_cards = [card for card in seed_cards() if card.version in v18_chain]
-    latest_chain = {*v18_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v19_chain = {*v18_chain, KNOWLEDGE_V19_VERSION}
+    v19_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -7957,7 +8189,30 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V19_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v18_node_ids, *{item["node_id"] for item in V19_SEED_ITEMS}}
+    v19_node_ids = {*v18_node_ids, *{item["node_id"] for item in V19_SEED_ITEMS}}
+    v19_nodes = [node for node in seed_nodes() if node.id in v19_node_ids]
+    v19_evidence = [evidence for evidence in seed_evidence() if evidence.version in v19_chain]
+    v19_claims = [claim for claim in seed_claims() if claim.version in v19_chain]
+    v19_cards = [card for card in seed_cards() if card.version in v19_chain]
+    latest_chain = {*v19_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v19_node_ids, *{item["node_id"] for item in V20_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -8154,9 +8409,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v18_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V19_VERSION,
             status="published",
             published_at=KNOWLEDGE_V19_PUBLISHED_AT,
+            source_count=len(v19_sources),
+            node_count=len(v19_nodes),
+            evidence_count=len(v19_evidence),
+            claim_count=len(v19_claims),
+            card_count=len(v19_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V20_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -8446,6 +8711,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V16_VERSION,
             KNOWLEDGE_V17_VERSION,
             KNOWLEDGE_V18_VERSION,
+            KNOWLEDGE_V19_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

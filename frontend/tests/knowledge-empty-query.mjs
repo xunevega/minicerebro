@@ -9,19 +9,19 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "networkidle" });
   await page.getByLabel("Version explorada").selectOption("latest");
-  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v19" }).first().waitFor();
-  await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "246 pendientes" }).first().waitFor();
+  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v20" }).first().waitFor();
+  await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "261 pendientes" }).first().waitFor();
   await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
   const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de conocimiento" });
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v19" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "17" }).waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v19" }).getByText("+1 fuentes").waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v19" }).getByText("+5 nodos").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v20" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "18" }).waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v20" }).getByText("+1 fuentes").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v20" }).getByText("+5 nodos").waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v0" }).getByText("base congelada").waitFor();
   const sourceExplorerPanel = page.locator(".proposalBox", { hasText: "Explorador de fuentes" });
-  await sourceExplorerPanel.getByText("Publicadas · 17").waitFor();
+  await sourceExplorerPanel.getByText("Publicadas · 18").waitFor();
   await sourceExplorerPanel.getByText("Ingeridas sin publicar · 0").waitFor();
   await sourceExplorerPanel.getByText("Disponibles sin ingerir · 0").waitFor();
-  await sourceExplorerPanel.getByText("Registradas pendientes · 6").waitFor();
+  await sourceExplorerPanel.getByText("Registradas pendientes · 5").waitFor();
   await sourceExplorerPanel.locator(".sourceMiniCard", { hasText: "Ortografia de la lengua espanola" }).getByText("available · publicada").waitFor();
   await sourceExplorerPanel.locator(".sourceMiniCard", { hasText: "Glosario de terminos gramaticales" }).getByText("available · publicada").waitFor();
   await sourceExplorerPanel.locator(".sourceMiniCard", { hasText: "El arte de escribir bien en espanol" }).getByText("available · publicada").waitFor();
@@ -51,12 +51,16 @@ try {
     .locator(".sourceMiniCard", { has: page.locator("strong", { hasText: /^Teoria de la literatura$/ }) })
     .getByText("available · publicada")
     .waitFor();
+  await sourceExplorerPanel
+    .locator(".sourceMiniCard", { has: page.locator("strong", { hasText: /^Figuras III$/ }) })
+    .getByText("available · publicada")
+    .waitFor();
   const ingestionPanel = page.locator(".proposalBox", { hasText: "Registro frente a ingestion" });
-  await ingestionPanel.locator(".metric", { hasText: "Publicadas" }).filter({ hasText: "17" }).waitFor();
-  await ingestionPanel.locator(".metric", { hasText: "Ingeridas" }).filter({ hasText: "17" }).waitFor();
-  await ingestionPanel.locator(".metric", { hasText: "No ingeridas" }).filter({ hasText: "6" }).waitFor();
-  await ingestionPanel.getByText("publicada: 17").waitFor();
-  await ingestionPanel.getByText("con edicion: 6").waitFor();
+  await ingestionPanel.locator(".metric", { hasText: "Publicadas" }).filter({ hasText: "18" }).waitFor();
+  await ingestionPanel.locator(".metric", { hasText: "Ingeridas" }).filter({ hasText: "18" }).waitFor();
+  await ingestionPanel.locator(".metric", { hasText: "No ingeridas" }).filter({ hasText: "5" }).waitFor();
+  await ingestionPanel.getByText("publicada: 18").waitFor();
+  await ingestionPanel.getByText("con edicion: 5").waitFor();
   await ingestionPanel.locator(".ingestionItem", { hasText: "Ortografia de la lengua espanola" }).getByText("publicada").waitFor();
   await ingestionPanel.locator(".ingestionItem", { hasText: "Glosario de terminos gramaticales" }).getByText("publicada").waitFor();
   await ingestionPanel.locator(".ingestionItem", { hasText: "El arte de escribir bien en espanol" }).getByText("publicada").waitFor();
@@ -86,15 +90,19 @@ try {
     .locator(".ingestionItem", { has: page.locator("strong", { hasText: /^Teoria de la literatura$/ }) })
     .getByText("publicada")
     .waitFor();
+  await ingestionPanel
+    .locator(".ingestionItem", { has: page.locator("strong", { hasText: /^Figuras III$/ }) })
+    .getByText("publicada")
+    .waitFor();
   const pipelinePanel = page.locator(".proposalBox", { hasText: "Explorador de pipeline" });
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Fuente").waitFor();
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("ExtractionRun").waitFor();
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Publicacion").waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
   await explorationPanel.getByText("Trazabilidad persistente").waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "17" }).waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "84" }).waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "82" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "18" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "89" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "87" }).waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Fuente$/ }).first().waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Publicacion$/ }).first().waitFor();
   const complementoClaim = explorationPanel.locator(".traceClaim", {
@@ -113,7 +121,7 @@ try {
   await page.getByRole("button", { name: "Consultar" }).click();
   await queryPanel.getByText("Resultado para \"complemento directo\"").waitFor();
   await queryPanel.getByText("Trazabilidad de consulta").waitFor();
-  await queryPanel.locator(".metric", { hasText: "Version recuperada" }).filter({ hasText: "knowledge-v19" }).waitFor();
+  await queryPanel.locator(".metric", { hasText: "Version recuperada" }).filter({ hasText: "knowledge-v20" }).waitFor();
   await queryPanel.getByText("Nueva gramatica de la lengua espanola").first().waitFor();
   await queryPanel.getByText("ev-rae-ngle-complemento-directo-candidata").first().waitFor();
   await queryPanel.locator("article.knowledgeItem > strong", { hasText: /^Complemento directo$/ }).waitFor();
@@ -122,7 +130,7 @@ try {
   await page.getByRole("button", { name: "Consultar" }).click();
   await page.getByText("Consulta valida sin resultados").waitFor();
   await page
-    .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v19.")
+    .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v20.")
     .waitFor();
 
   const metrics = page.locator(".proposalBox", { hasText: "Consulta" }).locator(".metric");
@@ -148,13 +156,13 @@ try {
     const url = new URL(response.url());
     return (
       url.pathname === "/knowledge/query-history" &&
-      url.searchParams.get("version") === "knowledge-v19" &&
+      url.searchParams.get("version") === "knowledge-v20" &&
       url.searchParams.get("limit") === "50"
     );
   });
   await page.getByLabel("Limite historial").selectOption("50");
   await historyLimitResponse;
-  await page.getByText("knowledge-v19 -> consulta").first().waitFor();
+  await page.getByText("knowledge-v20 -> consulta").first().waitFor();
   const historyItem = auditPanel.locator(".auditItem", {
     hasText: "0 validaciones pendientes",
   }).first();
@@ -172,18 +180,18 @@ try {
       url.pathname === "/audit/events" &&
       url.searchParams.get("event_type") === "knowledge.query.executed" &&
       url.searchParams.get("entity_type") === "knowledge_version" &&
-      url.searchParams.get("entity_id") === "knowledge-v19"
+      url.searchParams.get("entity_id") === "knowledge-v20"
     );
   });
   await page.getByLabel("Filtro auditoria").selectOption("Consultas de conocimiento");
   await filteredAuditResponse;
   await page
-    .getByText("knowledge-v19 -> consulta · 0 fichas · 0 claims · 0 evidencias")
+    .getByText("knowledge-v20 -> consulta · 0 fichas · 0 claims · 0 evidencias")
     .first()
     .waitFor();
   await page.getByText("knowledge.query.executed").first().waitFor();
   await historyItem.getByRole("button", { name: "Ver version consultada" }).click();
-  await page.getByText("Version navegada: knowledge-v19").waitFor();
+  await page.getByText("Version navegada: knowledge-v20").waitFor();
 } finally {
   await browser.close();
 }
