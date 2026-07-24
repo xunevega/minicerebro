@@ -119,7 +119,7 @@ make smoke-production
 ## Estado de esta base
 
 - FastAPI con endpoints del contrato V1 y superficies de cierre.
-- `knowledge-v16` es la version publicada actual; acumula `knowledge-v8` (Gramatica Practica, Parte 2), `knowledge-v9` (Ortografia y Puntuacion), `knowledge-v10` (Estilo Editorial), `knowledge-v11` (Redaccion aplicada), `knowledge-v12` (Ortotipografia aplicada), `knowledge-v13` (Comentario de texto), `knowledge-v14` (Retorica y argumentacion), `knowledge-v15` (Construccion del discurso) y `knowledge-v16` (Comunicacion oral practica).
+- `knowledge-v17` es la version publicada actual; acumula `knowledge-v8` (Gramatica Practica, Parte 2), `knowledge-v9` (Ortografia y Puntuacion), `knowledge-v10` (Estilo Editorial), `knowledge-v11` (Redaccion aplicada), `knowledge-v12` (Ortotipografia aplicada), `knowledge-v13` (Comentario de texto), `knowledge-v14` (Retorica y argumentacion), `knowledge-v15` (Construccion del discurso), `knowledge-v16` (Comunicacion oral practica) y `knowledge-v17` (Teoria literaria clasica).
 - Migraciones Alembic explicitas antes del arranque; `Base.metadata.create_all()` no se usa como mecanismo de esquema y la app no ejecuta migraciones durante el startup.
 - React/Vite con pantallas V1: conocimiento, preferencias, perfil, scoring, editor, laboratorio, comparador, reglas, persistencia, Cerebro, aceptacion, cierre, roadmap, pantallas y auditoria.
 - SQLAlchemy y Alembic con modelos persistentes para perfiles, preferencias, variables, evidencias, comparaciones, feedback, textos generados y eventos.

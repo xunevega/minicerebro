@@ -48,7 +48,8 @@ KNOWLEDGE_V12_VERSION = "knowledge-v12"
 KNOWLEDGE_V13_VERSION = "knowledge-v13"
 KNOWLEDGE_V14_VERSION = "knowledge-v14"
 KNOWLEDGE_V15_VERSION = "knowledge-v15"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v16"
+KNOWLEDGE_V16_VERSION = "knowledge-v16"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v17"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -66,6 +67,7 @@ KNOWLEDGE_V13_PUBLISHED_AT = "2026-07-23T12:00:00+00:00"
 KNOWLEDGE_V14_PUBLISHED_AT = "2026-07-23T13:00:00+00:00"
 KNOWLEDGE_V15_PUBLISHED_AT = "2026-07-23T14:00:00+00:00"
 KNOWLEDGE_V16_PUBLISHED_AT = "2026-07-23T15:00:00+00:00"
+KNOWLEDGE_V17_PUBLISHED_AT = "2026-07-23T16:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -2532,6 +2534,194 @@ V16_SEED_ITEMS = [
     },
 ]
 
+V17_SEED_ITEMS = [
+    {
+        "key": "mimesis",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:mimesis",
+        "index_title": "Mimesis",
+        "index_locator": "Edicion de referencia > principios poeticos > mimesis",
+        "segment_id": "aristoteles-poetica:edicion-referencia:mimesis:seg-1",
+        "segment_title": "Representacion poetica",
+        "segment_text": "Resumen editorial minimo: la mimesis permite entender la obra literaria como representacion organizada de acciones, no como copia plana de hechos.",
+        "extraction_id": "ext-aristoteles-poetica-mimesis-1",
+        "node_id": "aristoteles-poetica-mimesis",
+        "canonical_name": "Mimesis",
+        "node_type": "concepto",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "poetica",
+        "node_summary": "Representacion poetica de acciones mediante forma artistica.",
+        "short_definition": "Concepto para leer la obra como representacion organizada de acciones.",
+        "aliases": ["imitacion poetica", "representacion"],
+        "relation_target": "lazaro-correa-tema-texto-literario",
+        "relation_type": "relacionado_con",
+        "card_id": "card-mimesis",
+        "card_type": "literary_theory_concept",
+        "card_name": "Mimesis",
+        "card_definition": "Criterio para distinguir representacion literaria de copia literal de la realidad.",
+        "signals": ["representacion", "accion", "obra"],
+        "risks": ["leer la obra solo como reflejo directo de hechos externos"],
+        "contexts": ["comentario literario", "teoria literaria", "analisis"],
+        "evidence_id": "ev-aristoteles-poetica-mimesis",
+        "evidence_section": "mimesis",
+        "confidence": 0.62,
+        "claim_id": "claim-aristoteles-poetica-mimesis",
+        "statement": "La mimesis orienta el analisis hacia la representacion artistica de acciones dentro de la obra.",
+        "claim_type": "literary",
+        "domain": "literary_theory.poetics",
+        "related_node_ids": ["lazaro-correa-tema-texto-literario", "lazaro-correa-forma-contenido"],
+    },
+    {
+        "key": "mythos-trama",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:mythos-trama",
+        "index_title": "Mythos o trama",
+        "index_locator": "Edicion de referencia > composicion > mythos o trama",
+        "segment_id": "aristoteles-poetica:edicion-referencia:mythos-trama:seg-1",
+        "segment_title": "Organizacion de la accion",
+        "segment_text": "Resumen editorial minimo: la trama ordena acciones y consecuencias para producir una estructura inteligible en el texto.",
+        "extraction_id": "ext-aristoteles-poetica-mythos-trama-1",
+        "node_id": "aristoteles-poetica-mythos-trama",
+        "canonical_name": "Mythos o trama",
+        "node_type": "concepto",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "estructura narrativa",
+        "node_summary": "Organizacion de acciones y consecuencias en una obra.",
+        "short_definition": "Concepto para analizar el orden causal y estructural de la accion.",
+        "aliases": ["trama", "argumento narrativo"],
+        "relation_target": "lazaro-correa-estructura-interna",
+        "relation_type": "define",
+        "card_id": "card-mythos-trama",
+        "card_type": "literary_theory_concept",
+        "card_name": "Mythos o trama",
+        "card_definition": "Criterio para revisar como una obra organiza acciones y consecuencias.",
+        "signals": ["trama", "accion", "consecuencia"],
+        "risks": ["resumir acontecimientos sin explicar su organizacion"],
+        "contexts": ["comentario literario", "narrativa", "estructura"],
+        "evidence_id": "ev-aristoteles-poetica-mythos-trama",
+        "evidence_section": "mythos o trama",
+        "confidence": 0.63,
+        "claim_id": "claim-aristoteles-poetica-mythos-trama",
+        "statement": "El analisis de la trama atiende al modo en que las acciones se ordenan y producen consecuencias.",
+        "claim_type": "literary",
+        "domain": "literary_theory.plot",
+        "related_node_ids": ["lazaro-correa-estructura-interna", "reyes-progresion-informativa"],
+    },
+    {
+        "key": "personaje-accion",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:personaje-accion",
+        "index_title": "Personaje y accion",
+        "index_locator": "Edicion de referencia > personajes > accion",
+        "segment_id": "aristoteles-poetica:edicion-referencia:personaje-accion:seg-1",
+        "segment_title": "Caracterizacion por acciones",
+        "segment_text": "Resumen editorial minimo: el personaje se comprende por sus acciones y decisiones dentro de la estructura de la obra.",
+        "extraction_id": "ext-aristoteles-poetica-personaje-accion-1",
+        "node_id": "aristoteles-poetica-personaje-accion",
+        "canonical_name": "Personaje y accion",
+        "node_type": "concepto",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "personaje",
+        "node_summary": "Lectura del personaje a partir de acciones y decisiones.",
+        "short_definition": "Concepto para analizar caracterizacion mediante conducta dentro de la trama.",
+        "aliases": ["caracterizacion por acciones"],
+        "relation_target": "aristoteles-poetica-mythos-trama",
+        "relation_type": "depende_de",
+        "card_id": "card-personaje-accion",
+        "card_type": "literary_theory_concept",
+        "card_name": "Personaje y accion",
+        "card_definition": "Criterio para leer personajes desde acciones, decisiones y funcion estructural.",
+        "signals": ["personaje", "accion", "decision"],
+        "risks": ["describir rasgos psicologicos sin relacionarlos con la trama"],
+        "contexts": ["comentario literario", "narrativa", "personaje"],
+        "evidence_id": "ev-aristoteles-poetica-personaje-accion",
+        "evidence_section": "personaje y accion",
+        "confidence": 0.61,
+        "claim_id": "claim-aristoteles-poetica-personaje-accion",
+        "statement": "El personaje literario se analiza mejor cuando sus rasgos se vinculan a acciones y decisiones dentro de la trama.",
+        "claim_type": "literary",
+        "domain": "literary_theory.character",
+        "related_node_ids": ["aristoteles-poetica-mythos-trama", "lazaro-correa-comentario-critico"],
+    },
+    {
+        "key": "anagnorisis",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:anagnorisis",
+        "index_title": "Anagnorisis",
+        "index_locator": "Edicion de referencia > recursos de trama > reconocimiento",
+        "segment_id": "aristoteles-poetica:edicion-referencia:anagnorisis:seg-1",
+        "segment_title": "Reconocimiento",
+        "segment_text": "Resumen editorial minimo: el reconocimiento transforma la comprension de personajes o hechos y reorganiza el sentido de la accion.",
+        "extraction_id": "ext-aristoteles-poetica-anagnorisis-1",
+        "node_id": "aristoteles-poetica-anagnorisis",
+        "canonical_name": "Anagnorisis",
+        "node_type": "recurso",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "recursos de trama",
+        "node_summary": "Reconocimiento que modifica la comprension de la accion.",
+        "short_definition": "Recurso por el que se descubre una identidad, hecho o relacion decisiva.",
+        "aliases": ["reconocimiento"],
+        "relation_target": "aristoteles-poetica-mythos-trama",
+        "relation_type": "usa",
+        "card_id": "card-anagnorisis",
+        "card_type": "literary_theory_concept",
+        "card_name": "Anagnorisis",
+        "card_definition": "Criterio para detectar reconocimientos que cambian el sentido de una trama.",
+        "signals": ["reconocimiento", "descubrimiento", "identidad"],
+        "risks": ["confundir informacion nueva con giro estructural relevante"],
+        "contexts": ["comentario literario", "tragedia", "narrativa"],
+        "evidence_id": "ev-aristoteles-poetica-anagnorisis",
+        "evidence_section": "anagnorisis",
+        "confidence": 0.61,
+        "claim_id": "claim-aristoteles-poetica-anagnorisis",
+        "statement": "La anagnorisis es relevante cuando un reconocimiento modifica la comprension de la accion.",
+        "claim_type": "literary",
+        "domain": "literary_theory.plot",
+        "related_node_ids": ["aristoteles-poetica-mythos-trama", "lazaro-correa-estructura-interna"],
+    },
+    {
+        "key": "peripecia",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:peripecia",
+        "index_title": "Peripecia",
+        "index_locator": "Edicion de referencia > recursos de trama > peripecia",
+        "segment_id": "aristoteles-poetica:edicion-referencia:peripecia:seg-1",
+        "segment_title": "Cambio de fortuna",
+        "segment_text": "Resumen editorial minimo: la peripecia introduce un cambio decisivo de direccion en la accion y altera sus consecuencias.",
+        "extraction_id": "ext-aristoteles-poetica-peripecia-1",
+        "node_id": "aristoteles-poetica-peripecia",
+        "canonical_name": "Peripecia",
+        "node_type": "recurso",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "recursos de trama",
+        "node_summary": "Cambio decisivo de direccion en la accion literaria.",
+        "short_definition": "Recurso que invierte o transforma el curso esperado de la accion.",
+        "aliases": ["cambio de fortuna", "giro de accion"],
+        "relation_target": "aristoteles-poetica-anagnorisis",
+        "relation_type": "relacionado_con",
+        "card_id": "card-peripecia",
+        "card_type": "literary_theory_concept",
+        "card_name": "Peripecia",
+        "card_definition": "Criterio para analizar giros que cambian la direccion de una trama.",
+        "signals": ["giro", "cambio", "consecuencia"],
+        "risks": ["llamar peripecia a cualquier suceso sin funcion estructural"],
+        "contexts": ["comentario literario", "tragedia", "narrativa"],
+        "evidence_id": "ev-aristoteles-poetica-peripecia",
+        "evidence_section": "peripecia",
+        "confidence": 0.61,
+        "claim_id": "claim-aristoteles-poetica-peripecia",
+        "statement": "La peripecia cambia de forma decisiva la direccion de la accion y sus consecuencias.",
+        "claim_type": "literary",
+        "domain": "literary_theory.plot",
+        "related_node_ids": ["aristoteles-poetica-anagnorisis", "lazaro-correa-estructura-interna"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -3864,7 +4054,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V13_VERSION: "seed_literary_commentary_batch",
     KNOWLEDGE_V14_VERSION: "seed_rhetoric_argumentation_batch",
     KNOWLEDGE_V15_VERSION: "seed_quintilian_discourse_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_oral_communication_batch",
+    KNOWLEDGE_V16_VERSION: "seed_oral_communication_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_poetics_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -3875,7 +4066,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V13_VERSION: KNOWLEDGE_V13_PUBLISHED_AT,
     KNOWLEDGE_V14_VERSION: KNOWLEDGE_V14_PUBLISHED_AT,
     KNOWLEDGE_V15_VERSION: KNOWLEDGE_V15_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V16_PUBLISHED_AT,
+    KNOWLEDGE_V16_VERSION: KNOWLEDGE_V16_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V17_PUBLISHED_AT,
 }
 
 
@@ -4379,6 +4571,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["mimesis", "trama", "personaje", "tragedia", "reconocimiento", "peripecia"],
             authority_level=5,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F015",
@@ -4818,6 +5013,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["capitulo", "criterio de comunicacion oral", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="aristoteles-poetica:edicion-referencia",
+            source_id="aristoteles-poetica",
+            title="Poetica",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de teoria literaria clasica para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "concepto poetico", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -4905,6 +5128,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V14_SEED_ITEMS),
         *_published_batch_index_entries(V15_SEED_ITEMS),
         *_published_batch_index_entries(V16_SEED_ITEMS),
+        *_published_batch_index_entries(V17_SEED_ITEMS),
     ]
 
 
@@ -5016,6 +5240,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V14_SEED_ITEMS),
         *_published_batch_segments(V15_SEED_ITEMS),
         *_published_batch_segments(V16_SEED_ITEMS),
+        *_published_batch_segments(V17_SEED_ITEMS),
     ]
 
 
@@ -5146,7 +5371,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_extraction_runs(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_extraction_runs(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_extraction_runs(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_extraction_runs(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5806,7 +6032,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_proposals(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_proposals(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_proposals(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_proposals(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5965,7 +6192,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_nodes(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_nodes(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_nodes(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_nodes(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6086,7 +6314,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_node_relations(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_node_relations(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_node_relations(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_node_relations(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6436,7 +6665,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_evidence(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_evidence(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_evidence(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_evidence(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6686,7 +6916,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_claims(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_claims(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_claims(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_claims(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6857,7 +7088,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_cards(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_cards(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
-        *_published_batch_cards(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
+        *_published_batch_cards(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7184,8 +7416,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v15_evidence = [evidence for evidence in seed_evidence() if evidence.version in v15_chain]
     v15_claims = [claim for claim in seed_claims() if claim.version in v15_chain]
     v15_cards = [card for card in seed_cards() if card.version in v15_chain]
-    latest_chain = {*v15_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v16_chain = {*v15_chain, KNOWLEDGE_V16_VERSION}
+    v16_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -7198,7 +7430,27 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V16_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v15_node_ids, *{item["node_id"] for item in V16_SEED_ITEMS}}
+    v16_node_ids = {*v15_node_ids, *{item["node_id"] for item in V16_SEED_ITEMS}}
+    v16_nodes = [node for node in seed_nodes() if node.id in v16_node_ids]
+    v16_evidence = [evidence for evidence in seed_evidence() if evidence.version in v16_chain]
+    v16_claims = [claim for claim in seed_claims() if claim.version in v16_chain]
+    v16_cards = [card for card in seed_cards() if card.version in v16_chain]
+    latest_chain = {*v16_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v16_node_ids, *{item["node_id"] for item in V17_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -7365,9 +7617,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v15_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V16_VERSION,
             status="published",
             published_at=KNOWLEDGE_V16_PUBLISHED_AT,
+            source_count=len(v16_sources),
+            node_count=len(v16_nodes),
+            evidence_count=len(v16_evidence),
+            claim_count=len(v16_claims),
+            card_count=len(v16_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V17_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -7654,6 +7916,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V13_VERSION,
             KNOWLEDGE_V14_VERSION,
             KNOWLEDGE_V15_VERSION,
+            KNOWLEDGE_V16_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
