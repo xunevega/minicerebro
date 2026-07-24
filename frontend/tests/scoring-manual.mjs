@@ -14,6 +14,7 @@ try {
 
   const scoreRow = page.locator(".scoreRow", { hasText: "Dinamismo" }).first();
   const slider = scoreRow.locator('input[type="range"]');
+  const targetValue = (await slider.inputValue()) === "80" ? "60" : "80";
 
   const patchResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
@@ -22,17 +23,17 @@ try {
       response.request().method() === "PATCH"
     );
   });
-  await slider.evaluate((element) => {
+  await slider.evaluate((element, value) => {
     const valueSetter = Object.getOwnPropertyDescriptor(
       HTMLInputElement.prototype,
       "value",
     )?.set;
-    valueSetter?.call(element, "80");
+    valueSetter?.call(element, value);
     element.dispatchEvent(new Event("input", { bubbles: true }));
     element.dispatchEvent(new Event("change", { bubbles: true }));
-  });
+  }, targetValue);
   await patchResponse;
-  await scoreRow.getByText("Ajuste: 80").waitFor();
+  await scoreRow.getByText(`Ajuste: ${targetValue}`).waitFor();
 
   const resetResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());

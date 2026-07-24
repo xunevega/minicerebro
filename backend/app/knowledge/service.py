@@ -59,7 +59,8 @@ KNOWLEDGE_V23_VERSION = "knowledge-v23"
 KNOWLEDGE_V24_VERSION = "knowledge-v24"
 KNOWLEDGE_V25_VERSION = "knowledge-v25"
 KNOWLEDGE_V26_VERSION = "knowledge-v26"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v27"
+KNOWLEDGE_V27_VERSION = "knowledge-v27"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v28"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -88,6 +89,7 @@ KNOWLEDGE_V24_PUBLISHED_AT = "2026-07-23T23:00:00+00:00"
 KNOWLEDGE_V25_PUBLISHED_AT = "2026-07-24T00:00:00+00:00"
 KNOWLEDGE_V26_PUBLISHED_AT = "2026-07-24T01:00:00+00:00"
 KNOWLEDGE_V27_PUBLISHED_AT = "2026-07-24T02:00:00+00:00"
+KNOWLEDGE_V28_PUBLISHED_AT = "2026-07-24T03:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -4622,6 +4624,194 @@ V27_SEED_ITEMS = [
     },
 ]
 
+V28_SEED_ITEMS = [
+    {
+        "key": "parrafo-eficaz",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:parrafo-eficaz",
+        "index_title": "Parrafo eficaz",
+        "index_locator": "Edicion de referencia > redaccion > parrafo eficaz",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:parrafo-eficaz:seg-1",
+        "segment_title": "Idea dominante y desarrollo",
+        "segment_text": "Resumen editorial minimo: el parrafo eficaz organiza una idea dominante y la desarrolla con continuidad, orden y orientacion para el lector.",
+        "extraction_id": "ext-cassany-parrafo-eficaz-1",
+        "node_id": "cassany-parrafo-eficaz",
+        "canonical_name": "Parrafo eficaz",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "parrafo",
+        "node_summary": "Unidad de redaccion que desarrolla una idea dominante de forma ordenada.",
+        "short_definition": "Parrafo que guia al lector mediante foco, continuidad y desarrollo suficiente.",
+        "aliases": ["parrafo claro", "unidad de parrafo"],
+        "relation_target": "reyes-progresion-informativa",
+        "relation_type": "usa",
+        "card_id": "card-parrafo-eficaz",
+        "card_type": "writing_revision_concept",
+        "card_name": "Parrafo eficaz",
+        "card_definition": "Criterio para revisar si cada parrafo sostiene una idea dominante y avanza sin dispersarse.",
+        "signals": ["idea dominante", "continuidad", "desarrollo"],
+        "risks": ["mezclar ideas incompatibles en el mismo bloque"],
+        "contexts": ["redaccion", "revision", "estructura"],
+        "evidence_id": "ev-cassany-parrafo-eficaz",
+        "evidence_section": "parrafo eficaz",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-parrafo-eficaz",
+        "statement": "Un parrafo eficaz organiza una idea dominante y la desarrolla con continuidad suficiente para guiar al lector.",
+        "claim_type": "writing",
+        "domain": "writing.structure",
+        "related_node_ids": ["reyes-progresion-informativa", "rae-lese-claridad"],
+    },
+    {
+        "key": "prosa-acartonada",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:prosa-acartonada",
+        "index_title": "Prosa acartonada",
+        "index_locator": "Edicion de referencia > revision > prosa acartonada",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:prosa-acartonada:seg-1",
+        "segment_title": "Rigidez innecesaria",
+        "segment_text": "Resumen editorial minimo: la prosa acartonada aparece cuando giros burocraticos, nominalizaciones y rellenos vuelven distante un texto que podria decirse con naturalidad.",
+        "extraction_id": "ext-cassany-prosa-acartonada-1",
+        "node_id": "cassany-prosa-acartonada",
+        "canonical_name": "Prosa acartonada",
+        "node_type": "concepto",
+        "primary_branch": "redaccion",
+        "secondary_branch": "estilo",
+        "node_summary": "Rigidez expresiva que aleja el texto del lector sin aportar precision.",
+        "short_definition": "Estilo artificial o burocratico que conviene revisar por claridad y naturalidad.",
+        "aliases": ["prosa burocratica", "estilo acartonado"],
+        "relation_target": "rae-lese-claridad",
+        "relation_type": "contradice",
+        "card_id": "card-prosa-acartonada",
+        "card_type": "writing_revision_concept",
+        "card_name": "Prosa acartonada",
+        "card_definition": "Criterio para detectar solemnidad, relleno o rigidez que perjudican la lectura.",
+        "signals": ["solemnidad innecesaria", "nominalizaciones", "relleno"],
+        "risks": ["confundir formalidad con claridad"],
+        "contexts": ["redaccion", "estilo", "revision"],
+        "evidence_id": "ev-cassany-prosa-acartonada",
+        "evidence_section": "prosa acartonada",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-prosa-acartonada",
+        "statement": "La prosa acartonada debe revisarse cuando nominalizaciones, giros burocraticos o rellenos alejan la frase del lector.",
+        "claim_type": "stylistic",
+        "domain": "writing.style",
+        "related_node_ids": ["rae-lese-claridad", "strunk-white-concision-estilo"],
+    },
+    {
+        "key": "reescritura-global",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:reescritura-global",
+        "index_title": "Reescritura global",
+        "index_locator": "Edicion de referencia > proceso de escritura > reescritura global",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:reescritura-global:seg-1",
+        "segment_title": "Revision de estructura y foco",
+        "segment_text": "Resumen editorial minimo: la reescritura global mira primero estructura, foco, destinatario y orden antes de pulir detalles locales.",
+        "extraction_id": "ext-cassany-reescritura-global-1",
+        "node_id": "cassany-reescritura-global",
+        "canonical_name": "Reescritura global",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "revision",
+        "node_summary": "Revision amplia que reorganiza el texto antes del pulido verbal.",
+        "short_definition": "Fase de revision que evalua estructura, foco y orden del texto completo.",
+        "aliases": ["revision global", "reescritura estructural"],
+        "relation_target": "reyes-revision-borrador",
+        "relation_type": "requiere",
+        "card_id": "card-reescritura-global",
+        "card_type": "writing_revision_concept",
+        "card_name": "Reescritura global",
+        "card_definition": "Criterio para revisar primero el funcionamiento completo del texto antes de corregir frases sueltas.",
+        "signals": ["estructura", "foco", "orden"],
+        "risks": ["pulir frases sin resolver el problema de fondo"],
+        "contexts": ["redaccion", "revision", "borrador"],
+        "evidence_id": "ev-cassany-reescritura-global",
+        "evidence_section": "reescritura global",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-reescritura-global",
+        "statement": "La reescritura global revisa estructura, foco y orden antes de pulir solo palabras aisladas.",
+        "claim_type": "writing",
+        "domain": "writing.revision",
+        "related_node_ids": ["reyes-revision-borrador", "zinsser-revision-no-ficcion"],
+    },
+    {
+        "key": "entrada-salida-texto",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:entrada-salida-texto",
+        "index_title": "Entrada y salida del texto",
+        "index_locator": "Edicion de referencia > estructura textual > entrada y salida",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:entrada-salida-texto:seg-1",
+        "segment_title": "Apertura y cierre",
+        "segment_text": "Resumen editorial minimo: la entrada orienta la lectura y la salida cierra el recorrido textual con una funcion reconocible.",
+        "extraction_id": "ext-cassany-entrada-salida-texto-1",
+        "node_id": "cassany-entrada-salida-texto",
+        "canonical_name": "Entrada y salida del texto",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "estructura",
+        "node_summary": "Gestion de apertura y cierre para orientar y completar el recorrido del lector.",
+        "short_definition": "Criterio estructural para comprobar que inicio y final cumplen una funcion clara.",
+        "aliases": ["apertura y cierre", "inicio y final"],
+        "relation_target": "reyes-enfoque-lector",
+        "relation_type": "depende_de",
+        "card_id": "card-entrada-salida-texto",
+        "card_type": "writing_revision_concept",
+        "card_name": "Entrada y salida del texto",
+        "card_definition": "Criterio para revisar si el inicio orienta y el final cierra sin abandonar al lector.",
+        "signals": ["inicio", "cierre", "recorrido"],
+        "risks": ["empezar tarde o terminar sin resolver la promesa del texto"],
+        "contexts": ["redaccion", "estructura", "revision"],
+        "evidence_id": "ev-cassany-entrada-salida-texto",
+        "evidence_section": "entrada y salida",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-entrada-salida-texto",
+        "statement": "La entrada y la salida de un texto deben orientar al lector sobre el recorrido y dejar un cierre comprensible.",
+        "claim_type": "writing",
+        "domain": "writing.structure",
+        "related_node_ids": ["reyes-enfoque-lector", "cassany-parrafo-eficaz"],
+    },
+    {
+        "key": "tono-natural",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:tono-natural",
+        "index_title": "Tono natural",
+        "index_locator": "Edicion de referencia > estilo > tono natural",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:tono-natural:seg-1",
+        "segment_title": "Naturalidad y adecuacion",
+        "segment_text": "Resumen editorial minimo: el tono natural busca adecuacion, precision y cercania sin perder el registro que exige cada texto.",
+        "extraction_id": "ext-cassany-tono-natural-1",
+        "node_id": "cassany-tono-natural",
+        "canonical_name": "Tono natural",
+        "node_type": "concepto",
+        "primary_branch": "redaccion",
+        "secondary_branch": "estilo",
+        "node_summary": "Naturalidad expresiva compatible con precision y adecuacion de registro.",
+        "short_definition": "Criterio para escribir sin rigidez innecesaria y sin perder adecuacion.",
+        "aliases": ["naturalidad de estilo", "voz natural"],
+        "relation_target": "rae-lese-registro",
+        "relation_type": "relacionado_con",
+        "card_id": "card-tono-natural",
+        "card_type": "writing_revision_concept",
+        "card_name": "Tono natural",
+        "card_definition": "Criterio para conservar una voz legible y adecuada sin solemnidad innecesaria.",
+        "signals": ["naturalidad", "adecuacion", "voz"],
+        "risks": ["confundir tono natural con descuido o coloquialismo impropio"],
+        "contexts": ["redaccion", "estilo", "revision"],
+        "evidence_id": "ev-cassany-tono-natural",
+        "evidence_section": "tono natural",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-tono-natural",
+        "statement": "El tono natural conserva adecuacion y precision sin recurrir a solemnidad innecesaria.",
+        "claim_type": "stylistic",
+        "domain": "writing.style",
+        "related_node_ids": ["rae-lese-registro", "cassany-prosa-acartonada"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -5965,7 +6155,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V24_VERSION: "seed_style_elements_batch",
     KNOWLEDGE_V25_VERSION: "seed_zinsser_writing_batch",
     KNOWLEDGE_V26_VERSION: "seed_synonyms_antonyms_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_ideological_dictionary_batch",
+    KNOWLEDGE_V27_VERSION: "seed_ideological_dictionary_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_pragmatic_writing_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -5987,7 +6178,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V24_VERSION: KNOWLEDGE_V24_PUBLISHED_AT,
     KNOWLEDGE_V25_VERSION: KNOWLEDGE_V25_PUBLISHED_AT,
     KNOWLEDGE_V26_VERSION: KNOWLEDGE_V26_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V27_PUBLISHED_AT,
+    KNOWLEDGE_V27_VERSION: KNOWLEDGE_V27_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V28_PUBLISHED_AT,
 }
 
 
@@ -6635,6 +6827,19 @@ def seed_sources() -> list[KnowledgeSource]:
             responsible="Julio Casares",
             source_type="diccionario ideologico",
             domains=["idea dada", "campo semantico", "familia lexica", "precision lexica", "revision"],
+            authority_level=4,
+            priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+        ),
+        _source(
+            catalog_id="F026",
+            source_id="cassany-cocina-escritura",
+            name="La cocina de la escritura",
+            responsible="Daniel Cassany",
+            source_type="manual de redaccion pragmatica",
+            domains=["redaccion", "parrafo", "claridad", "revision", "estilo"],
             authority_level=4,
             priority=2,
             acquisition_status="available",
@@ -7291,6 +7496,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["diccionario ideologico", "campo semantico", "segmento"],
             locator_system=["edicion", "entrada ideologica", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="cassany-cocina-escritura:edicion-referencia",
+            source_id="cassany-cocina-escritura",
+            title="La cocina de la escritura",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o digital de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de redaccion pragmatica y estilistica moderna para estructurar "
+                "parrafos, evitar prosa acartonada y revisar borradores."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["manual de redaccion", "criterio practico", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -7389,6 +7622,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V25_SEED_ITEMS),
         *_published_batch_index_entries(V26_SEED_ITEMS),
         *_published_batch_index_entries(V27_SEED_ITEMS),
+        *_published_batch_index_entries(V28_SEED_ITEMS),
     ]
 
 
@@ -7511,6 +7745,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V25_SEED_ITEMS),
         *_published_batch_segments(V26_SEED_ITEMS),
         *_published_batch_segments(V27_SEED_ITEMS),
+        *_published_batch_segments(V28_SEED_ITEMS),
     ]
 
 
@@ -7652,7 +7887,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_extraction_runs(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_extraction_runs(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_extraction_runs(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_extraction_runs(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8323,7 +8559,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_proposals(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_proposals(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_proposals(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_proposals(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8493,7 +8730,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_nodes(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_nodes(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_nodes(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_nodes(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8625,7 +8863,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_node_relations(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_node_relations(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_node_relations(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_node_relations(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8986,7 +9225,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_evidence(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_evidence(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_evidence(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_evidence(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9247,7 +9487,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_claims(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_claims(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_claims(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_claims(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9429,7 +9670,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_cards(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_cards(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
-        *_published_batch_cards(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
+        *_published_batch_cards(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10020,8 +10262,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v26_evidence = [evidence for evidence in seed_evidence() if evidence.version in v26_chain]
     v26_claims = [claim for claim in seed_claims() if claim.version in v26_chain]
     v26_cards = [card for card in seed_cards() if card.version in v26_chain]
-    latest_chain = {*v26_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v27_chain = {*v26_chain, KNOWLEDGE_V27_VERSION}
+    v27_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -10045,7 +10287,38 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V27_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v26_node_ids, *{item["node_id"] for item in V27_SEED_ITEMS}}
+    v27_node_ids = {*v26_node_ids, *{item["node_id"] for item in V27_SEED_ITEMS}}
+    v27_nodes = [node for node in seed_nodes() if node.id in v27_node_ids]
+    v27_evidence = [evidence for evidence in seed_evidence() if evidence.version in v27_chain]
+    v27_claims = [claim for claim in seed_claims() if claim.version in v27_chain]
+    v27_cards = [card for card in seed_cards() if card.version in v27_chain]
+    latest_chain = {*v27_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+            *{item["source_id"] for item in V27_SEED_ITEMS},
+            *{item["source_id"] for item in V28_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v27_node_ids, *{item["node_id"] for item in V28_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -10322,9 +10595,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v26_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V27_VERSION,
             status="published",
             published_at=KNOWLEDGE_V27_PUBLISHED_AT,
+            source_count=len(v27_sources),
+            node_count=len(v27_nodes),
+            evidence_count=len(v27_evidence),
+            claim_count=len(v27_claims),
+            card_count=len(v27_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V28_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -10622,6 +10905,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V24_VERSION,
             KNOWLEDGE_V25_VERSION,
             KNOWLEDGE_V26_VERSION,
+            KNOWLEDGE_V27_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
