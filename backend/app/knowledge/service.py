@@ -50,7 +50,8 @@ KNOWLEDGE_V14_VERSION = "knowledge-v14"
 KNOWLEDGE_V15_VERSION = "knowledge-v15"
 KNOWLEDGE_V16_VERSION = "knowledge-v16"
 KNOWLEDGE_V17_VERSION = "knowledge-v17"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v18"
+KNOWLEDGE_V18_VERSION = "knowledge-v18"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v19"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -70,6 +71,7 @@ KNOWLEDGE_V15_PUBLISHED_AT = "2026-07-23T14:00:00+00:00"
 KNOWLEDGE_V16_PUBLISHED_AT = "2026-07-23T15:00:00+00:00"
 KNOWLEDGE_V17_PUBLISHED_AT = "2026-07-23T16:00:00+00:00"
 KNOWLEDGE_V18_PUBLISHED_AT = "2026-07-23T17:00:00+00:00"
+KNOWLEDGE_V19_PUBLISHED_AT = "2026-07-23T18:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -2912,6 +2914,194 @@ V18_SEED_ITEMS = [
     },
 ]
 
+V19_SEED_ITEMS = [
+    {
+        "key": "literariedad",
+        "source_id": "wellek-warren-teoria-literatura",
+        "source_edition_id": "wellek-warren-teoria-literatura:edicion-referencia",
+        "index_id": "wellek-warren-teoria-literatura:edicion-referencia:literariedad",
+        "index_title": "Literariedad",
+        "index_locator": "Edicion de referencia > naturaleza de la literatura > literariedad",
+        "segment_id": "wellek-warren-teoria-literatura:edicion-referencia:literariedad:seg-1",
+        "segment_title": "Rasgos del hecho literario",
+        "segment_text": "Resumen editorial minimo: la literariedad permite preguntar que rasgos hacen que un texto funcione como literatura dentro de una tradicion critica.",
+        "extraction_id": "ext-wellek-warren-teoria-literatura-literariedad-1",
+        "node_id": "wellek-warren-literariedad",
+        "canonical_name": "Literariedad",
+        "node_type": "concepto",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "naturaleza de la literatura",
+        "node_summary": "Rasgos que hacen reconocible un texto como hecho literario.",
+        "short_definition": "Concepto para analizar que vuelve literario a un texto.",
+        "aliases": ["hecho literario", "condicion literaria"],
+        "relation_target": "aristoteles-poetica-mimesis",
+        "relation_type": "relacionado_con",
+        "card_id": "card-literariedad",
+        "card_type": "literary_theory_concept",
+        "card_name": "Literariedad",
+        "card_definition": "Criterio para examinar los rasgos formales, historicos y culturales que configuran un texto como literatura.",
+        "signals": ["literatura", "rasgos", "forma"],
+        "risks": ["reducir la literatura a tema o argumento sin observar su forma verbal"],
+        "contexts": ["teoria literaria", "comentario literario", "analisis"],
+        "evidence_id": "ev-wellek-warren-literariedad",
+        "evidence_section": "literariedad",
+        "confidence": 0.62,
+        "claim_id": "claim-wellek-warren-literariedad",
+        "statement": "La literariedad orienta el analisis hacia los rasgos que configuran un texto como hecho literario.",
+        "claim_type": "literary",
+        "domain": "literary_theory.general",
+        "related_node_ids": ["aristoteles-poetica-mimesis", "lazaro-correa-forma-contenido"],
+    },
+    {
+        "key": "teoria-literaria",
+        "source_id": "wellek-warren-teoria-literatura",
+        "source_edition_id": "wellek-warren-teoria-literatura:edicion-referencia",
+        "index_id": "wellek-warren-teoria-literatura:edicion-referencia:teoria-literaria",
+        "index_title": "Teoria literaria",
+        "index_locator": "Edicion de referencia > disciplina literaria > teoria",
+        "segment_id": "wellek-warren-teoria-literatura:edicion-referencia:teoria-literaria:seg-1",
+        "segment_title": "Conceptos generales de la literatura",
+        "segment_text": "Resumen editorial minimo: la teoria literaria formula categorias generales para describir obras, generos, recursos y modos de lectura.",
+        "extraction_id": "ext-wellek-warren-teoria-literatura-teoria-literaria-1",
+        "node_id": "wellek-warren-teoria-literaria",
+        "canonical_name": "Teoria literaria",
+        "node_type": "metodo",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "disciplina",
+        "node_summary": "Marco conceptual general para estudiar obras y categorias literarias.",
+        "short_definition": "Disciplina que construye conceptos generales para el analisis literario.",
+        "aliases": ["teoria de la literatura"],
+        "relation_target": "wellek-warren-literariedad",
+        "relation_type": "define",
+        "card_id": "card-teoria-literaria",
+        "card_type": "literary_theory_concept",
+        "card_name": "Teoria literaria",
+        "card_definition": "Criterio para separar conceptos generales de la lectura de una obra concreta.",
+        "signals": ["concepto", "categoria", "metodo"],
+        "risks": ["usar etiquetas teoricas sin comprobar su funcion en el texto"],
+        "contexts": ["teoria literaria", "metodo", "comentario literario"],
+        "evidence_id": "ev-wellek-warren-teoria-literaria",
+        "evidence_section": "teoria literaria",
+        "confidence": 0.62,
+        "claim_id": "claim-wellek-warren-teoria-literaria",
+        "statement": "La teoria literaria proporciona categorias generales para describir y comparar fenomenos literarios.",
+        "claim_type": "literary",
+        "domain": "literary_theory.method",
+        "related_node_ids": ["wellek-warren-literariedad", "lazaro-correa-comentario-critico"],
+    },
+    {
+        "key": "critica-literaria",
+        "source_id": "wellek-warren-teoria-literatura",
+        "source_edition_id": "wellek-warren-teoria-literatura:edicion-referencia",
+        "index_id": "wellek-warren-teoria-literatura:edicion-referencia:critica-literaria",
+        "index_title": "Critica literaria",
+        "index_locator": "Edicion de referencia > disciplina literaria > critica",
+        "segment_id": "wellek-warren-teoria-literatura:edicion-referencia:critica-literaria:seg-1",
+        "segment_title": "Juicio e interpretacion de obras",
+        "segment_text": "Resumen editorial minimo: la critica literaria interpreta y valora obras concretas mediante argumentos apoyados en observaciones textuales.",
+        "extraction_id": "ext-wellek-warren-teoria-literatura-critica-literaria-1",
+        "node_id": "wellek-warren-critica-literaria",
+        "canonical_name": "Critica literaria",
+        "node_type": "metodo",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "critica",
+        "node_summary": "Interpretacion y valoracion argumentada de obras literarias.",
+        "short_definition": "Metodo de lectura que interpreta y evalua obras concretas.",
+        "aliases": ["comentario critico", "valoracion literaria"],
+        "relation_target": "lazaro-correa-comentario-critico",
+        "relation_type": "relacionado_con",
+        "card_id": "card-critica-literaria",
+        "card_type": "literary_theory_concept",
+        "card_name": "Critica literaria",
+        "card_definition": "Criterio para formular interpretaciones y valoraciones apoyadas en evidencias textuales.",
+        "signals": ["interpretacion", "valoracion", "argumento"],
+        "risks": ["opinar sobre una obra sin aportar evidencias textuales"],
+        "contexts": ["comentario literario", "critica", "analisis"],
+        "evidence_id": "ev-wellek-warren-critica-literaria",
+        "evidence_section": "critica literaria",
+        "confidence": 0.61,
+        "claim_id": "claim-wellek-warren-critica-literaria",
+        "statement": "La critica literaria debe sostener interpretaciones y valoraciones mediante observaciones textuales argumentadas.",
+        "claim_type": "literary",
+        "domain": "literary_theory.criticism",
+        "related_node_ids": ["lazaro-correa-comentario-critico", "wellek-warren-teoria-literaria"],
+    },
+    {
+        "key": "historia-literaria",
+        "source_id": "wellek-warren-teoria-literatura",
+        "source_edition_id": "wellek-warren-teoria-literatura:edicion-referencia",
+        "index_id": "wellek-warren-teoria-literatura:edicion-referencia:historia-literaria",
+        "index_title": "Historia literaria",
+        "index_locator": "Edicion de referencia > disciplina literaria > historia",
+        "segment_id": "wellek-warren-teoria-literatura:edicion-referencia:historia-literaria:seg-1",
+        "segment_title": "Secuencias, tradiciones y contexto",
+        "segment_text": "Resumen editorial minimo: la historia literaria estudia obras y formas en relacion con tradiciones, periodos y transformaciones culturales.",
+        "extraction_id": "ext-wellek-warren-teoria-literatura-historia-literaria-1",
+        "node_id": "wellek-warren-historia-literaria",
+        "canonical_name": "Historia literaria",
+        "node_type": "metodo",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "historia",
+        "node_summary": "Estudio de obras y formas dentro de tradiciones y periodos.",
+        "short_definition": "Metodo para situar textos en procesos, periodos y tradiciones literarias.",
+        "aliases": ["historia de la literatura"],
+        "relation_target": "wellek-warren-teoria-literaria",
+        "relation_type": "depende_de",
+        "card_id": "card-historia-literaria",
+        "card_type": "literary_theory_concept",
+        "card_name": "Historia literaria",
+        "card_definition": "Criterio para leer una obra dentro de tradiciones, periodos y cambios historicos.",
+        "signals": ["periodo", "tradicion", "contexto"],
+        "risks": ["explicar el texto solo por contexto externo sin analizar su forma"],
+        "contexts": ["historia literaria", "comentario literario", "contexto"],
+        "evidence_id": "ev-wellek-warren-historia-literaria",
+        "evidence_section": "historia literaria",
+        "confidence": 0.61,
+        "claim_id": "claim-wellek-warren-historia-literaria",
+        "statement": "La historia literaria situa obras y formas en tradiciones, periodos y transformaciones culturales.",
+        "claim_type": "literary",
+        "domain": "literary_theory.history",
+        "related_node_ids": ["wellek-warren-teoria-literaria", "lazaro-correa-tema-texto-literario"],
+    },
+    {
+        "key": "genero-literario",
+        "source_id": "wellek-warren-teoria-literatura",
+        "source_edition_id": "wellek-warren-teoria-literatura:edicion-referencia",
+        "index_id": "wellek-warren-teoria-literatura:edicion-referencia:genero-literario",
+        "index_title": "Genero literario",
+        "index_locator": "Edicion de referencia > categorias literarias > genero",
+        "segment_id": "wellek-warren-teoria-literatura:edicion-referencia:genero-literario:seg-1",
+        "segment_title": "Convenciones genericas",
+        "segment_text": "Resumen editorial minimo: el genero literario agrupa convenciones formales e historicas que orientan lectura, escritura e interpretacion.",
+        "extraction_id": "ext-wellek-warren-teoria-literatura-genero-literario-1",
+        "node_id": "wellek-warren-genero-literario",
+        "canonical_name": "Genero literario",
+        "node_type": "genero",
+        "primary_branch": "teoria literaria",
+        "secondary_branch": "generos",
+        "node_summary": "Convencion historica y formal para agrupar obras literarias.",
+        "short_definition": "Categoria que organiza obras por convenciones formales, historicas y pragmatica de lectura.",
+        "aliases": ["genero", "convencion generica"],
+        "relation_target": "aristoteles-poetica-mythos-trama",
+        "relation_type": "contiene",
+        "card_id": "card-genero-literario",
+        "card_type": "literary_theory_concept",
+        "card_name": "Genero literario",
+        "card_definition": "Criterio para analizar expectativas, convenciones y transformaciones de una clase de obras.",
+        "signals": ["genero", "convencion", "expectativa"],
+        "risks": ["tratar el genero como etiqueta fija sin atender a su variacion historica"],
+        "contexts": ["teoria literaria", "generos", "comentario literario"],
+        "evidence_id": "ev-wellek-warren-genero-literario",
+        "evidence_section": "genero literario",
+        "confidence": 0.62,
+        "claim_id": "claim-wellek-warren-genero-literario",
+        "statement": "El genero literario organiza obras mediante convenciones formales e historicas que orientan su interpretacion.",
+        "claim_type": "literary",
+        "domain": "literary_theory.genre",
+        "related_node_ids": ["aristoteles-poetica-mythos-trama", "wellek-warren-historia-literaria"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -4246,7 +4436,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V15_VERSION: "seed_quintilian_discourse_batch",
     KNOWLEDGE_V16_VERSION: "seed_oral_communication_batch",
     KNOWLEDGE_V17_VERSION: "seed_poetics_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_narratology_batch",
+    KNOWLEDGE_V18_VERSION: "seed_narratology_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_general_literary_theory_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -4259,7 +4450,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V15_VERSION: KNOWLEDGE_V15_PUBLISHED_AT,
     KNOWLEDGE_V16_VERSION: KNOWLEDGE_V16_PUBLISHED_AT,
     KNOWLEDGE_V17_VERSION: KNOWLEDGE_V17_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V18_PUBLISHED_AT,
+    KNOWLEDGE_V18_VERSION: KNOWLEDGE_V18_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V19_PUBLISHED_AT,
 }
 
 
@@ -4776,6 +4968,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["teoria literaria", "generos", "analisis", "historia", "critica"],
             authority_level=4,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F016",
@@ -5264,6 +5459,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "categoria narratologica", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="wellek-warren-teoria-literatura:edicion-referencia",
+            source_id="wellek-warren-teoria-literatura",
+            title="Teoria de la literatura",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de teoria literaria general para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "categoria teorica", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -5353,6 +5576,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V16_SEED_ITEMS),
         *_published_batch_index_entries(V17_SEED_ITEMS),
         *_published_batch_index_entries(V18_SEED_ITEMS),
+        *_published_batch_index_entries(V19_SEED_ITEMS),
     ]
 
 
@@ -5466,6 +5690,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V16_SEED_ITEMS),
         *_published_batch_segments(V17_SEED_ITEMS),
         *_published_batch_segments(V18_SEED_ITEMS),
+        *_published_batch_segments(V19_SEED_ITEMS),
     ]
 
 
@@ -5598,7 +5823,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_extraction_runs(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_extraction_runs(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_extraction_runs(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_extraction_runs(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6260,7 +6486,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_proposals(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_proposals(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_proposals(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_proposals(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6421,7 +6648,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_nodes(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_nodes(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_nodes(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_nodes(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6544,7 +6772,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_node_relations(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_node_relations(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_node_relations(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_node_relations(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6896,7 +7125,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_evidence(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_evidence(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_evidence(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_evidence(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7148,7 +7378,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_claims(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_claims(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_claims(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_claims(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7321,7 +7552,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_cards(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
         *_published_batch_cards(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
-        *_published_batch_cards(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
+        *_published_batch_cards(V19_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7687,8 +7919,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v17_evidence = [evidence for evidence in seed_evidence() if evidence.version in v17_chain]
     v17_claims = [claim for claim in seed_claims() if claim.version in v17_chain]
     v17_cards = [card for card in seed_cards() if card.version in v17_chain]
-    latest_chain = {*v17_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v18_chain = {*v17_chain, KNOWLEDGE_V18_VERSION}
+    v18_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -7703,7 +7935,29 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V18_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v17_node_ids, *{item["node_id"] for item in V18_SEED_ITEMS}}
+    v18_node_ids = {*v17_node_ids, *{item["node_id"] for item in V18_SEED_ITEMS}}
+    v18_nodes = [node for node in seed_nodes() if node.id in v18_node_ids]
+    v18_evidence = [evidence for evidence in seed_evidence() if evidence.version in v18_chain]
+    v18_claims = [claim for claim in seed_claims() if claim.version in v18_chain]
+    v18_cards = [card for card in seed_cards() if card.version in v18_chain]
+    latest_chain = {*v18_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v18_node_ids, *{item["node_id"] for item in V19_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -7890,9 +8144,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v17_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V18_VERSION,
             status="published",
             published_at=KNOWLEDGE_V18_PUBLISHED_AT,
+            source_count=len(v18_sources),
+            node_count=len(v18_nodes),
+            evidence_count=len(v18_evidence),
+            claim_count=len(v18_claims),
+            card_count=len(v18_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V19_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -8181,6 +8445,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V15_VERSION,
             KNOWLEDGE_V16_VERSION,
             KNOWLEDGE_V17_VERSION,
+            KNOWLEDGE_V18_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
