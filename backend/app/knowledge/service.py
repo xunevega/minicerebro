@@ -58,7 +58,8 @@ KNOWLEDGE_V22_VERSION = "knowledge-v22"
 KNOWLEDGE_V23_VERSION = "knowledge-v23"
 KNOWLEDGE_V24_VERSION = "knowledge-v24"
 KNOWLEDGE_V25_VERSION = "knowledge-v25"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v26"
+KNOWLEDGE_V26_VERSION = "knowledge-v26"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v27"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -86,6 +87,7 @@ KNOWLEDGE_V23_PUBLISHED_AT = "2026-07-23T22:00:00+00:00"
 KNOWLEDGE_V24_PUBLISHED_AT = "2026-07-23T23:00:00+00:00"
 KNOWLEDGE_V25_PUBLISHED_AT = "2026-07-24T00:00:00+00:00"
 KNOWLEDGE_V26_PUBLISHED_AT = "2026-07-24T01:00:00+00:00"
+KNOWLEDGE_V27_PUBLISHED_AT = "2026-07-24T02:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -4432,6 +4434,194 @@ V26_SEED_ITEMS = [
     },
 ]
 
+V27_SEED_ITEMS = [
+    {
+        "key": "idea-dada",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:idea-dada",
+        "index_title": "Idea dada",
+        "index_locator": "Edicion de referencia > organizacion ideologica > idea dada",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:idea-dada:seg-1",
+        "segment_title": "Busqueda desde la idea",
+        "segment_text": "Resumen editorial minimo: la consulta por idea dada parte del concepto que se quiere expresar para llegar a palabras posibles.",
+        "extraction_id": "ext-casares-idea-dada-1",
+        "node_id": "casares-idea-dada",
+        "canonical_name": "Idea dada",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "seleccion lexica",
+        "node_summary": "Metodo de busqueda que parte de una idea para encontrar una palabra precisa.",
+        "short_definition": "Consulta lexica orientada desde el concepto hacia las palabras disponibles.",
+        "aliases": ["busqueda ideologica", "consulta por concepto"],
+        "relation_target": "rae-dle-precision-lexica",
+        "relation_type": "usa",
+        "card_id": "card-idea-dada",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Idea dada",
+        "card_definition": "Criterio para buscar palabras desde la idea que se quiere decir, no desde una forma ya elegida.",
+        "signals": ["no encuentro la palabra", "quiero decir", "idea"],
+        "risks": ["elegir una palabra vistosa que no encaja con el contexto"],
+        "contexts": ["lexico", "revision", "precision"],
+        "evidence_id": "ev-casares-idea-dada",
+        "evidence_section": "idea dada",
+        "confidence": 0.6,
+        "claim_id": "claim-casares-idea-dada",
+        "statement": "La busqueda por idea dada ayuda a encontrar candidatos lexicos cuando el escritor conoce el concepto pero no la palabra exacta.",
+        "claim_type": "lexical",
+        "domain": "lexicon.precision",
+        "related_node_ids": ["rae-dle-precision-lexica", "diccionario-sinonimos-sinonimia-contextual"],
+    },
+    {
+        "key": "campo-semantico",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:campo-semantico",
+        "index_title": "Campo semantico",
+        "index_locator": "Edicion de referencia > organizacion ideologica > campo semantico",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:campo-semantico:seg-1",
+        "segment_title": "Palabras por zona de significado",
+        "segment_text": "Resumen editorial minimo: un campo semantico agrupa palabras vinculadas por una zona comun de significado.",
+        "extraction_id": "ext-casares-campo-semantico-1",
+        "node_id": "casares-campo-semantico",
+        "canonical_name": "Campo semantico",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "relaciones semanticas",
+        "node_summary": "Conjunto de palabras relacionadas por un area conceptual comun.",
+        "short_definition": "Agrupacion lexica que permite comparar opciones dentro de una misma zona de significado.",
+        "aliases": ["campo lexico", "area semantica"],
+        "relation_target": "casares-idea-dada",
+        "relation_type": "depende_de",
+        "card_id": "card-campo-semantico",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Campo semantico",
+        "card_definition": "Criterio para explorar alternativas dentro de una misma zona conceptual.",
+        "signals": ["familia de palabras", "tema", "zona de significado"],
+        "risks": ["confundir proximidad tematica con sinonimia real"],
+        "contexts": ["lexico", "revision", "matiz"],
+        "evidence_id": "ev-casares-campo-semantico",
+        "evidence_section": "campo semantico",
+        "confidence": 0.6,
+        "claim_id": "claim-casares-campo-semantico",
+        "statement": "El campo semantico sirve para generar alternativas, pero cada palabra debe validarse por matiz y contexto antes de sustituirla.",
+        "claim_type": "lexical",
+        "domain": "lexicon.semantics",
+        "related_node_ids": ["casares-idea-dada", "diccionario-sinonimos-falsos-sinonimos"],
+    },
+    {
+        "key": "familia-lexica",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:familia-lexica",
+        "index_title": "Familia lexica",
+        "index_locator": "Edicion de referencia > organizacion ideologica > familia lexica",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:familia-lexica:seg-1",
+        "segment_title": "Derivacion y parentesco lexico",
+        "segment_text": "Resumen editorial minimo: una familia lexica reune palabras emparentadas por forma, origen o derivacion.",
+        "extraction_id": "ext-casares-familia-lexica-1",
+        "node_id": "casares-familia-lexica",
+        "canonical_name": "Familia lexica",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "formacion de palabras",
+        "node_summary": "Grupo de palabras relacionadas por una raiz o proceso de formacion comun.",
+        "short_definition": "Conjunto de palabras emparentadas que puede orientar precision, variedad y coherencia terminologica.",
+        "aliases": ["familia de palabras", "parentesco lexico"],
+        "relation_target": "casares-campo-semantico",
+        "relation_type": "relacionado_con",
+        "card_id": "card-familia-lexica",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Familia lexica",
+        "card_definition": "Criterio para aprovechar parentescos de palabras sin confundirlos con equivalencia semantica.",
+        "signals": ["raiz", "derivado", "terminologia"],
+        "risks": ["repetir familias de palabras sin necesidad o crear falsa precision"],
+        "contexts": ["lexico", "coherencia", "revision"],
+        "evidence_id": "ev-casares-familia-lexica",
+        "evidence_section": "familia lexica",
+        "confidence": 0.6,
+        "claim_id": "claim-casares-familia-lexica",
+        "statement": "La familia lexica ayuda a mantener coherencia terminologica, pero no autoriza sustituciones si cambia el significado o la funcion.",
+        "claim_type": "lexical",
+        "domain": "lexicon.word_formation",
+        "related_node_ids": ["casares-campo-semantico", "martinez-sousa-coherencia-terminologica"],
+    },
+    {
+        "key": "colocacion-lexica",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:colocacion-lexica",
+        "index_title": "Colocacion lexica",
+        "index_locator": "Edicion de referencia > combinaciones > colocacion lexica",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:colocacion-lexica:seg-1",
+        "segment_title": "Combinaciones esperables",
+        "segment_text": "Resumen editorial minimo: la colocacion lexica observa combinaciones habituales entre palabras que suenan naturales en un registro.",
+        "extraction_id": "ext-casares-colocacion-lexica-1",
+        "node_id": "casares-colocacion-lexica",
+        "canonical_name": "Colocacion lexica",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "combinatoria",
+        "node_summary": "Combinacion habitual de palabras que favorece naturalidad y precision.",
+        "short_definition": "Relacion combinatoria que ayuda a elegir palabras que encajan entre si.",
+        "aliases": ["combinacion lexica", "coocurrencia significativa"],
+        "relation_target": "rae-corpes-contexto-uso",
+        "relation_type": "requiere",
+        "card_id": "card-colocacion-lexica",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Colocacion lexica",
+        "card_definition": "Criterio para comprobar si una palabra combina de forma natural con las que la rodean.",
+        "signals": ["suena raro", "combinacion", "naturalidad"],
+        "risks": ["forzar combinaciones correctas en abstracto pero poco idiomaticas"],
+        "contexts": ["lexico", "uso", "revision"],
+        "evidence_id": "ev-casares-colocacion-lexica",
+        "evidence_section": "colocacion lexica",
+        "confidence": 0.6,
+        "claim_id": "claim-casares-colocacion-lexica",
+        "statement": "La colocacion lexica debe comprobarse cuando una palabra correcta en definicion no encaja de forma natural con su entorno.",
+        "claim_type": "lexical",
+        "domain": "lexicon.usage",
+        "related_node_ids": ["rae-corpes-contexto-uso", "casares-idea-dada"],
+    },
+    {
+        "key": "palabra-precisa",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:palabra-precisa",
+        "index_title": "Palabra precisa",
+        "index_locator": "Edicion de referencia > seleccion lexica > palabra precisa",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:palabra-precisa:seg-1",
+        "segment_title": "Eleccion exacta",
+        "segment_text": "Resumen editorial minimo: la palabra precisa conserva la idea, el matiz, el registro y la combinacion esperable del contexto.",
+        "extraction_id": "ext-casares-palabra-precisa-1",
+        "node_id": "casares-palabra-precisa",
+        "canonical_name": "Palabra precisa",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "precision",
+        "node_summary": "Opcion lexica que expresa con exactitud la idea y encaja en su contexto.",
+        "short_definition": "Palabra que conserva sentido, matiz, registro y combinatoria en un texto concreto.",
+        "aliases": ["termino preciso", "eleccion lexica exacta"],
+        "relation_target": "casares-idea-dada",
+        "relation_type": "deriva_de",
+        "card_id": "card-palabra-precisa",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Palabra precisa",
+        "card_definition": "Criterio para escoger la palabra que dice exactamente lo necesario en ese contexto.",
+        "signals": ["exactitud", "matiz", "registro", "contexto"],
+        "risks": ["embellecer el texto con una palabra menos exacta"],
+        "contexts": ["lexico", "estilo", "revision"],
+        "evidence_id": "ev-casares-palabra-precisa",
+        "evidence_section": "palabra precisa",
+        "confidence": 0.6,
+        "claim_id": "claim-casares-palabra-precisa",
+        "statement": "La palabra precisa resulta de cruzar idea, campo semantico, matiz, registro y colocacion antes de sustituir una forma.",
+        "claim_type": "lexical",
+        "domain": "lexicon.precision",
+        "related_node_ids": ["casares-idea-dada", "casares-colocacion-lexica"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -5774,7 +5964,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V23_VERSION: "seed_generative_syntax_batch",
     KNOWLEDGE_V24_VERSION: "seed_style_elements_batch",
     KNOWLEDGE_V25_VERSION: "seed_zinsser_writing_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_synonyms_antonyms_batch",
+    KNOWLEDGE_V26_VERSION: "seed_synonyms_antonyms_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_ideological_dictionary_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -5795,7 +5986,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V23_VERSION: KNOWLEDGE_V23_PUBLISHED_AT,
     KNOWLEDGE_V24_VERSION: KNOWLEDGE_V24_PUBLISHED_AT,
     KNOWLEDGE_V25_VERSION: KNOWLEDGE_V25_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V26_PUBLISHED_AT,
+    KNOWLEDGE_V26_VERSION: KNOWLEDGE_V26_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V27_PUBLISHED_AT,
 }
 
 
@@ -6436,6 +6628,19 @@ def seed_sources() -> list[KnowledgeSource]:
             validation_status="validated",
             rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
+        _source(
+            catalog_id="F025",
+            source_id="casares-diccionario-ideologico",
+            name="Diccionario ideologico de la lengua espanola",
+            responsible="Julio Casares",
+            source_type="diccionario ideologico",
+            domains=["idea dada", "campo semantico", "familia lexica", "precision lexica", "revision"],
+            authority_level=4,
+            priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+        ),
     ]
 
 
@@ -7058,6 +7263,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["diccionario", "relacion lexica", "segmento"],
             locator_system=["edicion", "entrada", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="casares-diccionario-ideologico:edicion-referencia",
+            source_id="casares-diccionario-ideologico",
+            title="Diccionario ideologico de la lengua espanola",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="diccionario impreso o digital de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote lexico para buscar palabras desde la idea dada y comprobar "
+                "precision, campo semantico y colocacion."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["diccionario ideologico", "campo semantico", "segmento"],
+            locator_system=["edicion", "entrada ideologica", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -7155,6 +7388,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V24_SEED_ITEMS),
         *_published_batch_index_entries(V25_SEED_ITEMS),
         *_published_batch_index_entries(V26_SEED_ITEMS),
+        *_published_batch_index_entries(V27_SEED_ITEMS),
     ]
 
 
@@ -7276,6 +7510,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V24_SEED_ITEMS),
         *_published_batch_segments(V25_SEED_ITEMS),
         *_published_batch_segments(V26_SEED_ITEMS),
+        *_published_batch_segments(V27_SEED_ITEMS),
     ]
 
 
@@ -7416,7 +7651,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_extraction_runs(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_extraction_runs(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_extraction_runs(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_extraction_runs(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8086,7 +8322,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_proposals(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_proposals(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_proposals(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_proposals(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8255,7 +8492,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_nodes(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_nodes(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_nodes(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_nodes(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8386,7 +8624,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_node_relations(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_node_relations(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_node_relations(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_node_relations(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8746,7 +8985,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_evidence(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_evidence(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_evidence(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_evidence(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9006,7 +9246,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_claims(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_claims(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_claims(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_claims(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9187,7 +9428,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_cards(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
         *_published_batch_cards(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
-        *_published_batch_cards(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
+        *_published_batch_cards(V27_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9749,8 +9991,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v25_evidence = [evidence for evidence in seed_evidence() if evidence.version in v25_chain]
     v25_claims = [claim for claim in seed_claims() if claim.version in v25_chain]
     v25_cards = [card for card in seed_cards() if card.version in v25_chain]
-    latest_chain = {*v25_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v26_chain = {*v25_chain, KNOWLEDGE_V26_VERSION}
+    v26_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -9773,7 +10015,37 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V26_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v25_node_ids, *{item["node_id"] for item in V26_SEED_ITEMS}}
+    v26_node_ids = {*v25_node_ids, *{item["node_id"] for item in V26_SEED_ITEMS}}
+    v26_nodes = [node for node in seed_nodes() if node.id in v26_node_ids]
+    v26_evidence = [evidence for evidence in seed_evidence() if evidence.version in v26_chain]
+    v26_claims = [claim for claim in seed_claims() if claim.version in v26_chain]
+    v26_cards = [card for card in seed_cards() if card.version in v26_chain]
+    latest_chain = {*v26_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+            *{item["source_id"] for item in V27_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v26_node_ids, *{item["node_id"] for item in V27_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -10040,9 +10312,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v25_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V26_VERSION,
             status="published",
             published_at=KNOWLEDGE_V26_PUBLISHED_AT,
+            source_count=len(v26_sources),
+            node_count=len(v26_nodes),
+            evidence_count=len(v26_evidence),
+            claim_count=len(v26_claims),
+            card_count=len(v26_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V27_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -10339,6 +10621,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V23_VERSION,
             KNOWLEDGE_V24_VERSION,
             KNOWLEDGE_V25_VERSION,
+            KNOWLEDGE_V26_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

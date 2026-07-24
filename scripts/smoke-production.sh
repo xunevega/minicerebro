@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v26}"
-QUERY="${QUERY:-sinonimia-contextual antonimia-gradual antonimia-complementaria falsos-sinonimos matiz-semantico}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v27}"
+QUERY="${QUERY:-idea-dada campo-semantico familia-lexica colocacion-lexica palabra-precisa}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"
