@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v20}"
-QUERY="${QUERY:-focalizacion analepsis prolepsis elipsis-narrativa relato-iterativo}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v21}"
+QUERY="${QUERY:-lengua habla signo-linguistico significante-significado sincronia-diacronia}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"

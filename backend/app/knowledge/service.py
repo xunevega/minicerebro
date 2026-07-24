@@ -52,7 +52,8 @@ KNOWLEDGE_V16_VERSION = "knowledge-v16"
 KNOWLEDGE_V17_VERSION = "knowledge-v17"
 KNOWLEDGE_V18_VERSION = "knowledge-v18"
 KNOWLEDGE_V19_VERSION = "knowledge-v19"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v20"
+KNOWLEDGE_V20_VERSION = "knowledge-v20"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v21"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -74,6 +75,7 @@ KNOWLEDGE_V17_PUBLISHED_AT = "2026-07-23T16:00:00+00:00"
 KNOWLEDGE_V18_PUBLISHED_AT = "2026-07-23T17:00:00+00:00"
 KNOWLEDGE_V19_PUBLISHED_AT = "2026-07-23T18:00:00+00:00"
 KNOWLEDGE_V20_PUBLISHED_AT = "2026-07-23T19:00:00+00:00"
+KNOWLEDGE_V21_PUBLISHED_AT = "2026-07-23T20:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -3292,6 +3294,194 @@ V20_SEED_ITEMS = [
     },
 ]
 
+V21_SEED_ITEMS = [
+    {
+        "key": "lengua",
+        "source_id": "saussure-curso-linguistica",
+        "source_edition_id": "saussure-curso-linguistica:edicion-referencia",
+        "index_id": "saussure-curso-linguistica:edicion-referencia:lengua",
+        "index_title": "Lengua",
+        "index_locator": "Edicion de referencia > objeto de la linguistica > lengua",
+        "segment_id": "saussure-curso-linguistica:edicion-referencia:lengua:seg-1",
+        "segment_title": "Sistema compartido",
+        "segment_text": "Resumen editorial minimo: la lengua se entiende como sistema social compartido que permite organizar signos y usos.",
+        "extraction_id": "ext-saussure-curso-linguistica-lengua-1",
+        "node_id": "saussure-lengua",
+        "canonical_name": "Lengua",
+        "node_type": "concepto",
+        "primary_branch": "linguistica general",
+        "secondary_branch": "sistema linguistico",
+        "node_summary": "Sistema social compartido que organiza signos linguisticos.",
+        "short_definition": "Concepto para distinguir el sistema comun de sus realizaciones individuales.",
+        "aliases": ["sistema de la lengua", "langue"],
+        "relation_target": "saussure-habla",
+        "relation_type": "compara_con",
+        "card_id": "card-lengua",
+        "card_type": "general_linguistics_concept",
+        "card_name": "Lengua",
+        "card_definition": "Criterio para separar el sistema linguistico compartido de los usos concretos de los hablantes.",
+        "signals": ["sistema", "convencion", "comunidad"],
+        "risks": ["confundir lengua con idioma historico o con cualquier acto individual de habla"],
+        "contexts": ["linguistica general", "sistema", "revision linguistica"],
+        "evidence_id": "ev-saussure-lengua",
+        "evidence_section": "lengua",
+        "confidence": 0.63,
+        "claim_id": "claim-saussure-lengua",
+        "statement": "La lengua funciona como sistema social compartido que hace posibles los usos linguisticos individuales.",
+        "claim_type": "linguistic",
+        "domain": "general_linguistics.system",
+        "related_node_ids": ["saussure-habla", "saussure-signo-linguistico"],
+    },
+    {
+        "key": "habla",
+        "source_id": "saussure-curso-linguistica",
+        "source_edition_id": "saussure-curso-linguistica:edicion-referencia",
+        "index_id": "saussure-curso-linguistica:edicion-referencia:habla",
+        "index_title": "Habla",
+        "index_locator": "Edicion de referencia > objeto de la linguistica > habla",
+        "segment_id": "saussure-curso-linguistica:edicion-referencia:habla:seg-1",
+        "segment_title": "Uso individual",
+        "segment_text": "Resumen editorial minimo: el habla corresponde a la realizacion individual y concreta del sistema de la lengua.",
+        "extraction_id": "ext-saussure-curso-linguistica-habla-1",
+        "node_id": "saussure-habla",
+        "canonical_name": "Habla",
+        "node_type": "concepto",
+        "primary_branch": "linguistica general",
+        "secondary_branch": "uso linguistico",
+        "node_summary": "Realizacion individual y concreta del sistema linguistico.",
+        "short_definition": "Concepto para analizar actos concretos de uso frente al sistema compartido.",
+        "aliases": ["uso individual", "parole"],
+        "relation_target": "saussure-lengua",
+        "relation_type": "compara_con",
+        "card_id": "card-habla",
+        "card_type": "general_linguistics_concept",
+        "card_name": "Habla",
+        "card_definition": "Criterio para distinguir actos concretos de expresion del sistema comun que los hace interpretables.",
+        "signals": ["uso", "acto", "realizacion"],
+        "risks": ["deducir reglas del sistema desde un ejemplo aislado sin contexto"],
+        "contexts": ["linguistica general", "uso", "revision linguistica"],
+        "evidence_id": "ev-saussure-habla",
+        "evidence_section": "habla",
+        "confidence": 0.62,
+        "claim_id": "claim-saussure-habla",
+        "statement": "El habla designa realizaciones individuales del sistema linguistico compartido.",
+        "claim_type": "linguistic",
+        "domain": "general_linguistics.usage",
+        "related_node_ids": ["saussure-lengua", "rae-lese-registro"],
+    },
+    {
+        "key": "signo-linguistico",
+        "source_id": "saussure-curso-linguistica",
+        "source_edition_id": "saussure-curso-linguistica:edicion-referencia",
+        "index_id": "saussure-curso-linguistica:edicion-referencia:signo-linguistico",
+        "index_title": "Signo linguistico",
+        "index_locator": "Edicion de referencia > signo > signo linguistico",
+        "segment_id": "saussure-curso-linguistica:edicion-referencia:signo-linguistico:seg-1",
+        "segment_title": "Unidad de significacion",
+        "segment_text": "Resumen editorial minimo: el signo linguistico une una forma significante y un contenido significado dentro del sistema.",
+        "extraction_id": "ext-saussure-curso-linguistica-signo-linguistico-1",
+        "node_id": "saussure-signo-linguistico",
+        "canonical_name": "Signo linguistico",
+        "node_type": "concepto",
+        "primary_branch": "linguistica general",
+        "secondary_branch": "significacion",
+        "node_summary": "Unidad que articula forma significante y contenido significado.",
+        "short_definition": "Concepto para observar como una forma linguistica se asocia a un valor de significado.",
+        "aliases": ["signo", "unidad significativa"],
+        "relation_target": "saussure-significante-significado",
+        "relation_type": "contiene",
+        "card_id": "card-signo-linguistico",
+        "card_type": "general_linguistics_concept",
+        "card_name": "Signo linguistico",
+        "card_definition": "Criterio para analizar la asociacion entre forma expresiva y contenido dentro de una lengua.",
+        "signals": ["forma", "contenido", "significado"],
+        "risks": ["tratar el signo como una simple etiqueta pegada a una cosa externa"],
+        "contexts": ["linguistica general", "semantica", "significacion"],
+        "evidence_id": "ev-saussure-signo-linguistico",
+        "evidence_section": "signo linguistico",
+        "confidence": 0.64,
+        "claim_id": "claim-saussure-signo-linguistico",
+        "statement": "El signo linguistico articula una forma significante y un contenido significado dentro del sistema de la lengua.",
+        "claim_type": "linguistic",
+        "domain": "general_linguistics.sign",
+        "related_node_ids": ["saussure-lengua", "saussure-significante-significado"],
+    },
+    {
+        "key": "significante-significado",
+        "source_id": "saussure-curso-linguistica",
+        "source_edition_id": "saussure-curso-linguistica:edicion-referencia",
+        "index_id": "saussure-curso-linguistica:edicion-referencia:significante-significado",
+        "index_title": "Significante y significado",
+        "index_locator": "Edicion de referencia > signo > significante y significado",
+        "segment_id": "saussure-curso-linguistica:edicion-referencia:significante-significado:seg-1",
+        "segment_title": "Dos caras del signo",
+        "segment_text": "Resumen editorial minimo: significante y significado permiten describir la forma perceptible y el contenido conceptual del signo.",
+        "extraction_id": "ext-saussure-curso-linguistica-significante-significado-1",
+        "node_id": "saussure-significante-significado",
+        "canonical_name": "Significante y significado",
+        "node_type": "concepto",
+        "primary_branch": "linguistica general",
+        "secondary_branch": "significacion",
+        "node_summary": "Distincion entre forma perceptible y contenido conceptual del signo.",
+        "short_definition": "Par conceptual para analizar las dos caras de la unidad significativa.",
+        "aliases": ["significante", "significado"],
+        "relation_target": "saussure-signo-linguistico",
+        "relation_type": "es_parte_de",
+        "card_id": "card-significante-significado",
+        "card_type": "general_linguistics_concept",
+        "card_name": "Significante y significado",
+        "card_definition": "Criterio para separar la forma expresiva de una unidad y el contenido conceptual asociado.",
+        "signals": ["forma", "concepto", "asociacion"],
+        "risks": ["identificar significado con referente externo sin atender al valor dentro del sistema"],
+        "contexts": ["linguistica general", "semantica", "significacion"],
+        "evidence_id": "ev-saussure-significante-significado",
+        "evidence_section": "significante y significado",
+        "confidence": 0.64,
+        "claim_id": "claim-saussure-significante-significado",
+        "statement": "La distincion entre significante y significado permite describir la doble composicion del signo linguistico.",
+        "claim_type": "linguistic",
+        "domain": "general_linguistics.sign",
+        "related_node_ids": ["saussure-signo-linguistico", "saussure-lengua"],
+    },
+    {
+        "key": "sincronia-diacronia",
+        "source_id": "saussure-curso-linguistica",
+        "source_edition_id": "saussure-curso-linguistica:edicion-referencia",
+        "index_id": "saussure-curso-linguistica:edicion-referencia:sincronia-diacronia",
+        "index_title": "Sincronia y diacronia",
+        "index_locator": "Edicion de referencia > metodo > sincronia y diacronia",
+        "segment_id": "saussure-curso-linguistica:edicion-referencia:sincronia-diacronia:seg-1",
+        "segment_title": "Estado y cambio",
+        "segment_text": "Resumen editorial minimo: sincronia y diacronia distinguen el estudio de un estado de lengua y el estudio de sus cambios historicos.",
+        "extraction_id": "ext-saussure-curso-linguistica-sincronia-diacronia-1",
+        "node_id": "saussure-sincronia-diacronia",
+        "canonical_name": "Sincronia y diacronia",
+        "node_type": "metodo",
+        "primary_branch": "linguistica general",
+        "secondary_branch": "metodo",
+        "node_summary": "Distincion metodologica entre estado de lengua y cambio historico.",
+        "short_definition": "Par metodologico para separar descripcion de un estado y evolucion temporal.",
+        "aliases": ["sincronia", "diacronia"],
+        "relation_target": "saussure-lengua",
+        "relation_type": "describe",
+        "card_id": "card-sincronia-diacronia",
+        "card_type": "general_linguistics_concept",
+        "card_name": "Sincronia y diacronia",
+        "card_definition": "Criterio para decidir si un analisis describe un estado del sistema o explica su cambio historico.",
+        "signals": ["estado", "cambio", "historia"],
+        "risks": ["mezclar explicaciones historicas con criterios de funcionamiento actual sin distinguir planos"],
+        "contexts": ["linguistica general", "metodo", "historia de la lengua"],
+        "evidence_id": "ev-saussure-sincronia-diacronia",
+        "evidence_section": "sincronia y diacronia",
+        "confidence": 0.63,
+        "claim_id": "claim-saussure-sincronia-diacronia",
+        "statement": "La distincion entre sincronia y diacronia separa el analisis de un estado de lengua del analisis de su evolucion.",
+        "claim_type": "linguistic",
+        "domain": "general_linguistics.method",
+        "related_node_ids": ["saussure-lengua", "wellek-warren-historia-literaria"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -4628,7 +4818,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V17_VERSION: "seed_poetics_batch",
     KNOWLEDGE_V18_VERSION: "seed_narratology_batch",
     KNOWLEDGE_V19_VERSION: "seed_general_literary_theory_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_figures_narratology_batch",
+    KNOWLEDGE_V20_VERSION: "seed_figures_narratology_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_general_linguistics_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -4643,7 +4834,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V17_VERSION: KNOWLEDGE_V17_PUBLISHED_AT,
     KNOWLEDGE_V18_VERSION: KNOWLEDGE_V18_PUBLISHED_AT,
     KNOWLEDGE_V19_VERSION: KNOWLEDGE_V19_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V20_PUBLISHED_AT,
+    KNOWLEDGE_V20_VERSION: KNOWLEDGE_V20_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V21_PUBLISHED_AT,
 }
 
 
@@ -5199,6 +5391,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["signo", "lengua", "habla", "sincronia", "diacronia"],
             authority_level=5,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F019",
@@ -5710,6 +5905,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "categoria teorica", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="saussure-curso-linguistica:edicion-referencia",
+            source_id="saussure-curso-linguistica",
+            title="Curso de linguistica general",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de linguistica general para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "concepto linguistico", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -5801,6 +6024,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V18_SEED_ITEMS),
         *_published_batch_index_entries(V19_SEED_ITEMS),
         *_published_batch_index_entries(V20_SEED_ITEMS),
+        *_published_batch_index_entries(V21_SEED_ITEMS),
     ]
 
 
@@ -5916,6 +6140,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V18_SEED_ITEMS),
         *_published_batch_segments(V19_SEED_ITEMS),
         *_published_batch_segments(V20_SEED_ITEMS),
+        *_published_batch_segments(V21_SEED_ITEMS),
     ]
 
 
@@ -6050,7 +6275,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_extraction_runs(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_extraction_runs(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_extraction_runs(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_extraction_runs(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6714,7 +6940,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_proposals(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_proposals(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_proposals(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_proposals(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6877,7 +7104,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_nodes(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_nodes(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_nodes(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_nodes(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7002,7 +7230,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_node_relations(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_node_relations(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_node_relations(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_node_relations(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7356,7 +7585,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_evidence(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_evidence(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_evidence(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_evidence(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7610,7 +7840,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_claims(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_claims(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_claims(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_claims(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7785,7 +8016,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
         *_published_batch_cards(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_cards(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
-        *_published_batch_cards(V20_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
+        *_published_batch_cards(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8194,8 +8426,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v19_evidence = [evidence for evidence in seed_evidence() if evidence.version in v19_chain]
     v19_claims = [claim for claim in seed_claims() if claim.version in v19_chain]
     v19_cards = [card for card in seed_cards() if card.version in v19_chain]
-    latest_chain = {*v19_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v20_chain = {*v19_chain, KNOWLEDGE_V20_VERSION}
+    v20_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -8212,7 +8444,31 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V20_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v19_node_ids, *{item["node_id"] for item in V20_SEED_ITEMS}}
+    v20_node_ids = {*v19_node_ids, *{item["node_id"] for item in V20_SEED_ITEMS}}
+    v20_nodes = [node for node in seed_nodes() if node.id in v20_node_ids]
+    v20_evidence = [evidence for evidence in seed_evidence() if evidence.version in v20_chain]
+    v20_claims = [claim for claim in seed_claims() if claim.version in v20_chain]
+    v20_cards = [card for card in seed_cards() if card.version in v20_chain]
+    latest_chain = {*v20_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v20_node_ids, *{item["node_id"] for item in V21_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -8419,9 +8675,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v19_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V20_VERSION,
             status="published",
             published_at=KNOWLEDGE_V20_PUBLISHED_AT,
+            source_count=len(v20_sources),
+            node_count=len(v20_nodes),
+            evidence_count=len(v20_evidence),
+            claim_count=len(v20_claims),
+            card_count=len(v20_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V21_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -8712,6 +8978,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V17_VERSION,
             KNOWLEDGE_V18_VERSION,
             KNOWLEDGE_V19_VERSION,
+            KNOWLEDGE_V20_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
