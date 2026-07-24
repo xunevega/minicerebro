@@ -53,7 +53,8 @@ KNOWLEDGE_V17_VERSION = "knowledge-v17"
 KNOWLEDGE_V18_VERSION = "knowledge-v18"
 KNOWLEDGE_V19_VERSION = "knowledge-v19"
 KNOWLEDGE_V20_VERSION = "knowledge-v20"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v21"
+KNOWLEDGE_V21_VERSION = "knowledge-v21"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v22"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -76,6 +77,7 @@ KNOWLEDGE_V18_PUBLISHED_AT = "2026-07-23T17:00:00+00:00"
 KNOWLEDGE_V19_PUBLISHED_AT = "2026-07-23T18:00:00+00:00"
 KNOWLEDGE_V20_PUBLISHED_AT = "2026-07-23T19:00:00+00:00"
 KNOWLEDGE_V21_PUBLISHED_AT = "2026-07-23T20:00:00+00:00"
+KNOWLEDGE_V22_PUBLISHED_AT = "2026-07-23T21:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -3482,6 +3484,194 @@ V21_SEED_ITEMS = [
     },
 ]
 
+V22_SEED_ITEMS = [
+    {
+        "key": "corpus-linguistico",
+        "source_id": "rae-corpes",
+        "source_edition_id": "rae-corpes:edicion-referencia",
+        "index_id": "rae-corpes:edicion-referencia:corpus-linguistico",
+        "index_title": "Corpus linguistico",
+        "index_locator": "Edicion de referencia > consulta de corpus > corpus linguistico",
+        "segment_id": "rae-corpes:edicion-referencia:corpus-linguistico:seg-1",
+        "segment_title": "Base documental de usos",
+        "segment_text": "Resumen editorial minimo: un corpus linguistico reune muestras documentadas de uso para observar patrones, contextos y distribuciones.",
+        "extraction_id": "ext-rae-corpes-corpus-linguistico-1",
+        "node_id": "rae-corpes-corpus-linguistico",
+        "canonical_name": "Corpus linguistico",
+        "node_type": "recurso",
+        "primary_branch": "linguistica aplicada",
+        "secondary_branch": "corpus",
+        "node_summary": "Base documental que permite observar usos linguisticos reales.",
+        "short_definition": "Recurso para contrastar formas, contextos y distribuciones a partir de datos documentados.",
+        "aliases": ["corpus", "base de corpus"],
+        "relation_target": "saussure-habla",
+        "relation_type": "relacionado_con",
+        "card_id": "card-corpus-linguistico",
+        "card_type": "corpus_usage_concept",
+        "card_name": "Corpus linguistico",
+        "card_definition": "Criterio para apoyar observaciones de uso en ejemplos documentados y no solo en intuiciones.",
+        "signals": ["uso documentado", "muestra", "contexto"],
+        "risks": ["convertir una frecuencia de corpus en norma obligatoria sin contraste gramatical o editorial"],
+        "contexts": ["corpus", "uso", "revision linguistica"],
+        "evidence_id": "ev-rae-corpes-corpus-linguistico",
+        "evidence_section": "corpus linguistico",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-corpes-corpus-linguistico",
+        "statement": "Un corpus linguistico sirve para observar patrones de uso documentado dentro de contextos controlables.",
+        "claim_type": "usage",
+        "domain": "corpus.usage",
+        "related_node_ids": ["saussure-habla", "rae-dpd-dequeismo"],
+    },
+    {
+        "key": "frecuencia-uso",
+        "source_id": "rae-corpes",
+        "source_edition_id": "rae-corpes:edicion-referencia",
+        "index_id": "rae-corpes:edicion-referencia:frecuencia-uso",
+        "index_title": "Frecuencia de uso",
+        "index_locator": "Edicion de referencia > consulta de corpus > frecuencia",
+        "segment_id": "rae-corpes:edicion-referencia:frecuencia-uso:seg-1",
+        "segment_title": "Conteo y prudencia interpretativa",
+        "segment_text": "Resumen editorial minimo: la frecuencia de uso indica recurrencia en una muestra, pero necesita interpretarse con corpus, periodo, pais y genero.",
+        "extraction_id": "ext-rae-corpes-frecuencia-uso-1",
+        "node_id": "rae-corpes-frecuencia-uso",
+        "canonical_name": "Frecuencia de uso",
+        "node_type": "concepto",
+        "primary_branch": "linguistica aplicada",
+        "secondary_branch": "corpus",
+        "node_summary": "Recurrencia cuantificada de una forma dentro de una muestra documental.",
+        "short_definition": "Dato de corpus que ayuda a estimar extension relativa de un uso.",
+        "aliases": ["frecuencia", "recurrencia"],
+        "relation_target": "rae-corpes-corpus-linguistico",
+        "relation_type": "depende_de",
+        "card_id": "card-frecuencia-uso",
+        "card_type": "corpus_usage_concept",
+        "card_name": "Frecuencia de uso",
+        "card_definition": "Criterio para leer conteos de corpus como indicios de extension y no como prueba normativa aislada.",
+        "signals": ["frecuencia", "ocurrencias", "muestra"],
+        "risks": ["confundir lo frecuente con lo adecuado para todo registro o genero"],
+        "contexts": ["corpus", "uso", "revision linguistica"],
+        "evidence_id": "ev-rae-corpes-frecuencia-uso",
+        "evidence_section": "frecuencia de uso",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-corpes-frecuencia-uso",
+        "statement": "La frecuencia de uso debe interpretarse junto con los filtros de la muestra y el contexto textual.",
+        "claim_type": "usage",
+        "domain": "corpus.frequency",
+        "related_node_ids": ["rae-corpes-corpus-linguistico", "rae-lese-registro"],
+    },
+    {
+        "key": "concordancia-corpus",
+        "source_id": "rae-corpes",
+        "source_edition_id": "rae-corpes:edicion-referencia",
+        "index_id": "rae-corpes:edicion-referencia:concordancia-corpus",
+        "index_title": "Concordancia de corpus",
+        "index_locator": "Edicion de referencia > consulta de corpus > concordancias",
+        "segment_id": "rae-corpes:edicion-referencia:concordancia-corpus:seg-1",
+        "segment_title": "Forma en contexto inmediato",
+        "segment_text": "Resumen editorial minimo: una concordancia muestra una forma en sus contextos inmediatos para revisar construcciones, colocaciones y matices.",
+        "extraction_id": "ext-rae-corpes-concordancia-corpus-1",
+        "node_id": "rae-corpes-concordancia-corpus",
+        "canonical_name": "Concordancia de corpus",
+        "node_type": "metodo",
+        "primary_branch": "linguistica aplicada",
+        "secondary_branch": "corpus",
+        "node_summary": "Vista contextual de ocurrencias para analizar forma y entorno verbal.",
+        "short_definition": "Metodo de consulta que muestra una expresion junto a su contexto inmediato.",
+        "aliases": ["concordancia", "linea de concordancia"],
+        "relation_target": "rae-corpes-contexto-uso",
+        "relation_type": "usa",
+        "card_id": "card-concordancia-corpus",
+        "card_type": "corpus_usage_concept",
+        "card_name": "Concordancia de corpus",
+        "card_definition": "Criterio para comprobar como una forma aparece realmente rodeada de otras palabras.",
+        "signals": ["contexto inmediato", "colocacion", "ocurrencia"],
+        "risks": ["extraer una ocurrencia aislada sin revisar patron ni fuente documental"],
+        "contexts": ["corpus", "revision lexica", "uso"],
+        "evidence_id": "ev-rae-corpes-concordancia-corpus",
+        "evidence_section": "concordancia de corpus",
+        "confidence": 0.61,
+        "claim_id": "claim-rae-corpes-concordancia-corpus",
+        "statement": "La concordancia de corpus permite revisar una forma dentro de su entorno textual inmediato.",
+        "claim_type": "usage",
+        "domain": "corpus.context",
+        "related_node_ids": ["rae-corpes-contexto-uso", "rae-dle-precision-lexica"],
+    },
+    {
+        "key": "contexto-uso",
+        "source_id": "rae-corpes",
+        "source_edition_id": "rae-corpes:edicion-referencia",
+        "index_id": "rae-corpes:edicion-referencia:contexto-uso",
+        "index_title": "Contexto de uso",
+        "index_locator": "Edicion de referencia > consulta de corpus > contexto de uso",
+        "segment_id": "rae-corpes:edicion-referencia:contexto-uso:seg-1",
+        "segment_title": "Registro, genero y situacion",
+        "segment_text": "Resumen editorial minimo: el contexto de uso permite valorar registro, genero textual, procedencia y funcion antes de trasladar una forma a un texto propio.",
+        "extraction_id": "ext-rae-corpes-contexto-uso-1",
+        "node_id": "rae-corpes-contexto-uso",
+        "canonical_name": "Contexto de uso",
+        "node_type": "concepto",
+        "primary_branch": "linguistica aplicada",
+        "secondary_branch": "corpus",
+        "node_summary": "Condiciones textuales y situacionales que hacen interpretable una ocurrencia.",
+        "short_definition": "Criterio para valorar una forma segun registro, genero, procedencia y funcion.",
+        "aliases": ["contexto", "entorno de uso"],
+        "relation_target": "rae-lese-registro",
+        "relation_type": "relacionado_con",
+        "card_id": "card-contexto-uso",
+        "card_type": "corpus_usage_concept",
+        "card_name": "Contexto de uso",
+        "card_definition": "Criterio para decidir si un uso documentado es trasladable al texto que se esta revisando.",
+        "signals": ["registro", "genero", "procedencia"],
+        "risks": ["copiar un uso documentado en un registro incompatible"],
+        "contexts": ["corpus", "registro", "revision linguistica"],
+        "evidence_id": "ev-rae-corpes-contexto-uso",
+        "evidence_section": "contexto de uso",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-corpes-contexto-uso",
+        "statement": "El contexto de uso ayuda a decidir si una forma documentada encaja con el registro y genero del texto propio.",
+        "claim_type": "usage",
+        "domain": "corpus.context",
+        "related_node_ids": ["rae-lese-registro", "rae-corpes-frecuencia-uso"],
+    },
+    {
+        "key": "variacion-corpus",
+        "source_id": "rae-corpes",
+        "source_edition_id": "rae-corpes:edicion-referencia",
+        "index_id": "rae-corpes:edicion-referencia:variacion-corpus",
+        "index_title": "Variacion en corpus",
+        "index_locator": "Edicion de referencia > consulta de corpus > variacion",
+        "segment_id": "rae-corpes:edicion-referencia:variacion-corpus:seg-1",
+        "segment_title": "Distribucion geografica y textual",
+        "segment_text": "Resumen editorial minimo: la variacion en corpus permite observar diferencias por area, periodo, registro y genero textual.",
+        "extraction_id": "ext-rae-corpes-variacion-corpus-1",
+        "node_id": "rae-corpes-variacion-corpus",
+        "canonical_name": "Variacion en corpus",
+        "node_type": "concepto",
+        "primary_branch": "linguistica aplicada",
+        "secondary_branch": "variacion",
+        "node_summary": "Distribucion de usos segun area, periodo, registro o genero textual.",
+        "short_definition": "Criterio para observar diferencias de uso dentro de una muestra documental.",
+        "aliases": ["variacion de uso", "distribucion"],
+        "relation_target": "rae-corpes-frecuencia-uso",
+        "relation_type": "describe",
+        "card_id": "card-variacion-corpus",
+        "card_type": "corpus_usage_concept",
+        "card_name": "Variacion en corpus",
+        "card_definition": "Criterio para leer diferencias de uso por procedencia, periodo, registro o genero textual.",
+        "signals": ["pais", "periodo", "genero"],
+        "risks": ["presentar un uso local o especializado como si fuera general"],
+        "contexts": ["corpus", "variacion", "revision linguistica"],
+        "evidence_id": "ev-rae-corpes-variacion-corpus",
+        "evidence_section": "variacion en corpus",
+        "confidence": 0.61,
+        "claim_id": "claim-rae-corpes-variacion-corpus",
+        "statement": "La variacion en corpus permite distinguir distribuciones de uso por area, periodo, registro o genero textual.",
+        "claim_type": "usage",
+        "domain": "corpus.variation",
+        "related_node_ids": ["rae-corpes-frecuencia-uso", "rae-corpes-contexto-uso"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -4819,7 +5009,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V18_VERSION: "seed_narratology_batch",
     KNOWLEDGE_V19_VERSION: "seed_general_literary_theory_batch",
     KNOWLEDGE_V20_VERSION: "seed_figures_narratology_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_general_linguistics_batch",
+    KNOWLEDGE_V21_VERSION: "seed_general_linguistics_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_corpus_usage_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -4835,7 +5026,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V18_VERSION: KNOWLEDGE_V18_PUBLISHED_AT,
     KNOWLEDGE_V19_VERSION: KNOWLEDGE_V19_PUBLISHED_AT,
     KNOWLEDGE_V20_VERSION: KNOWLEDGE_V20_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V21_PUBLISHED_AT,
+    KNOWLEDGE_V21_VERSION: KNOWLEDGE_V21_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V22_PUBLISHED_AT,
 }
 
 
@@ -5251,6 +5443,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["frecuencia", "distribucion", "registro", "pais", "genero", "contexto"],
             authority_level=4,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F008",
@@ -5933,6 +6128,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "concepto linguistico", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="rae-corpes:edicion-referencia",
+            source_id="rae-corpes",
+            title="CORPES XXI",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="Real Academia Espanola y Asociacion de Academias de la Lengua Espanola",
+            isbn="no aplica",
+            language="es",
+            format="corpus digital",
+            access_location="consulta digital de referencia",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de corpus y uso documentado para ampliar conocimiento estable "
+                "sin incorporar citas literales extensas ni resultados de busqueda reales."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="consulta digital",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["consulta", "criterio de corpus", "segmento"],
+            locator_system=["consulta", "filtro", "resultado", "contexto"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -6025,6 +6248,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V19_SEED_ITEMS),
         *_published_batch_index_entries(V20_SEED_ITEMS),
         *_published_batch_index_entries(V21_SEED_ITEMS),
+        *_published_batch_index_entries(V22_SEED_ITEMS),
     ]
 
 
@@ -6141,6 +6365,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V19_SEED_ITEMS),
         *_published_batch_segments(V20_SEED_ITEMS),
         *_published_batch_segments(V21_SEED_ITEMS),
+        *_published_batch_segments(V22_SEED_ITEMS),
     ]
 
 
@@ -6276,7 +6501,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_extraction_runs(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_extraction_runs(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_extraction_runs(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_extraction_runs(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6941,7 +7167,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_proposals(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_proposals(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_proposals(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_proposals(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7105,7 +7332,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_nodes(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_nodes(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_nodes(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_nodes(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7231,7 +7459,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_node_relations(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_node_relations(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_node_relations(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_node_relations(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7586,7 +7815,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_evidence(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_evidence(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_evidence(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_evidence(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7841,7 +8071,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_claims(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_claims(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_claims(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_claims(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8017,7 +8248,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V18_SEED_ITEMS, KNOWLEDGE_V18_VERSION),
         *_published_batch_cards(V19_SEED_ITEMS, KNOWLEDGE_V19_VERSION),
         *_published_batch_cards(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
-        *_published_batch_cards(V21_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
+        *_published_batch_cards(V22_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8449,8 +8681,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v20_evidence = [evidence for evidence in seed_evidence() if evidence.version in v20_chain]
     v20_claims = [claim for claim in seed_claims() if claim.version in v20_chain]
     v20_cards = [card for card in seed_cards() if card.version in v20_chain]
-    latest_chain = {*v20_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v21_chain = {*v20_chain, KNOWLEDGE_V21_VERSION}
+    v21_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -8468,7 +8700,32 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V21_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v20_node_ids, *{item["node_id"] for item in V21_SEED_ITEMS}}
+    v21_node_ids = {*v20_node_ids, *{item["node_id"] for item in V21_SEED_ITEMS}}
+    v21_nodes = [node for node in seed_nodes() if node.id in v21_node_ids]
+    v21_evidence = [evidence for evidence in seed_evidence() if evidence.version in v21_chain]
+    v21_claims = [claim for claim in seed_claims() if claim.version in v21_chain]
+    v21_cards = [card for card in seed_cards() if card.version in v21_chain]
+    latest_chain = {*v21_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v21_node_ids, *{item["node_id"] for item in V22_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -8685,9 +8942,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v20_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V21_VERSION,
             status="published",
             published_at=KNOWLEDGE_V21_PUBLISHED_AT,
+            source_count=len(v21_sources),
+            node_count=len(v21_nodes),
+            evidence_count=len(v21_evidence),
+            claim_count=len(v21_claims),
+            card_count=len(v21_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V22_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -8979,6 +9246,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V18_VERSION,
             KNOWLEDGE_V19_VERSION,
             KNOWLEDGE_V20_VERSION,
+            KNOWLEDGE_V21_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
