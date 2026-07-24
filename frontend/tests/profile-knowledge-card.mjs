@@ -7,6 +7,8 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
+  await page.getByLabel("Version explorada").selectOption("knowledge-v1");
+  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v1" }).first().waitFor();
 
   const complementoClaim = page.locator(".traceClaim", {
     hasText: "El complemento directo funciona como participante seleccionado por el predicado verbal",
