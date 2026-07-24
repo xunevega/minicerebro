@@ -60,7 +60,8 @@ KNOWLEDGE_V24_VERSION = "knowledge-v24"
 KNOWLEDGE_V25_VERSION = "knowledge-v25"
 KNOWLEDGE_V26_VERSION = "knowledge-v26"
 KNOWLEDGE_V27_VERSION = "knowledge-v27"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v28"
+KNOWLEDGE_V28_VERSION = "knowledge-v28"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v29"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -90,6 +91,7 @@ KNOWLEDGE_V25_PUBLISHED_AT = "2026-07-24T00:00:00+00:00"
 KNOWLEDGE_V26_PUBLISHED_AT = "2026-07-24T01:00:00+00:00"
 KNOWLEDGE_V27_PUBLISHED_AT = "2026-07-24T02:00:00+00:00"
 KNOWLEDGE_V28_PUBLISHED_AT = "2026-07-24T03:00:00+00:00"
+KNOWLEDGE_V29_PUBLISHED_AT = "2026-07-24T04:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -4812,6 +4814,194 @@ V28_SEED_ITEMS = [
     },
 ]
 
+V29_SEED_ITEMS = [
+    {
+        "key": "coma-incidental",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:coma-incidental",
+        "index_title": "Coma incidental",
+        "index_locator": "Edicion 2015 > puntuacion > coma incidental",
+        "segment_id": "martinez-sousa-mele:edicion-2015:coma-incidental:seg-1",
+        "segment_title": "Incisos y delimitacion",
+        "segment_text": "Resumen editorial minimo: la coma incidental delimita aclaraciones o incisos que interrumpen la continuidad sintactica sin integrarse como argumento principal.",
+        "extraction_id": "ext-martinez-sousa-coma-incidental-1",
+        "node_id": "martinez-sousa-coma-incidental",
+        "canonical_name": "Coma incidental",
+        "node_type": "norma",
+        "primary_branch": "puntuacion",
+        "secondary_branch": "coma",
+        "node_summary": "Uso de la coma para delimitar incisos o aclaraciones internas.",
+        "short_definition": "Criterio para marcar incisos que interrumpen la continuidad de la frase.",
+        "aliases": ["coma de inciso", "coma explicativa"],
+        "relation_target": "rae-ole-coma",
+        "relation_type": "ejemplifica",
+        "card_id": "card-coma-incidental",
+        "card_type": "advanced_punctuation_rule",
+        "card_name": "Coma incidental",
+        "card_definition": "Criterio para revisar incisos delimitados por coma sin romper el sentido principal.",
+        "signals": ["inciso", "aclaracion", "interrupcion sintactica"],
+        "risks": ["confundir inciso con complemento necesario"],
+        "contexts": ["puntuacion", "correccion de estilo", "revision"],
+        "evidence_id": "ev-martinez-sousa-coma-incidental",
+        "evidence_section": "coma incidental",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-coma-incidental",
+        "statement": "La coma incidental delimita incisos que interrumpen la continuidad sintactica sin integrarse como argumento principal.",
+        "claim_type": "orthographic",
+        "domain": "orthography.punctuation.comma",
+        "related_node_ids": ["rae-ole-coma", "martinez-sousa-criterio-editorial"],
+    },
+    {
+        "key": "coma-enumerativa",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:coma-enumerativa",
+        "index_title": "Coma enumerativa",
+        "index_locator": "Edicion 2015 > puntuacion > coma enumerativa",
+        "segment_id": "martinez-sousa-mele:edicion-2015:coma-enumerativa:seg-1",
+        "segment_title": "Series y coordinacion",
+        "segment_text": "Resumen editorial minimo: la coma enumerativa separa elementos de una serie cuando la coordinacion no queda cerrada por una conjuncion equivalente.",
+        "extraction_id": "ext-martinez-sousa-coma-enumerativa-1",
+        "node_id": "martinez-sousa-coma-enumerativa",
+        "canonical_name": "Coma enumerativa",
+        "node_type": "norma",
+        "primary_branch": "puntuacion",
+        "secondary_branch": "coma",
+        "node_summary": "Uso de la coma para separar elementos coordinados de una serie.",
+        "short_definition": "Criterio para puntuar enumeraciones sin convertir la pausa en regla automatica.",
+        "aliases": ["coma en series", "coma de enumeracion"],
+        "relation_target": "rae-ole-coma",
+        "relation_type": "ejemplifica",
+        "card_id": "card-coma-enumerativa",
+        "card_type": "advanced_punctuation_rule",
+        "card_name": "Coma enumerativa",
+        "card_definition": "Criterio para separar elementos de una serie cuando la sintaxis lo exige.",
+        "signals": ["serie", "enumeracion", "coordinacion"],
+        "risks": ["separar mecanicamente todos los miembros aunque la conjuncion cierre la serie"],
+        "contexts": ["puntuacion", "enumeracion", "revision"],
+        "evidence_id": "ev-martinez-sousa-coma-enumerativa",
+        "evidence_section": "coma enumerativa",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-coma-enumerativa",
+        "statement": "La coma enumerativa separa elementos coordinados de una serie cuando no van unidos por una conjuncion equivalente.",
+        "claim_type": "orthographic",
+        "domain": "orthography.punctuation.comma",
+        "related_node_ids": ["rae-ole-coma", "martinez-sousa-coma-incidental"],
+    },
+    {
+        "key": "punto-y-coma-articulador",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:punto-y-coma-articulador",
+        "index_title": "Punto y coma articulador",
+        "index_locator": "Edicion 2015 > puntuacion > punto y coma",
+        "segment_id": "martinez-sousa-mele:edicion-2015:punto-y-coma-articulador:seg-1",
+        "segment_title": "Miembros complejos",
+        "segment_text": "Resumen editorial minimo: el punto y coma articula miembros complejos o enunciados relacionados cuando la coma resulta debil y el punto corta demasiado.",
+        "extraction_id": "ext-martinez-sousa-punto-y-coma-articulador-1",
+        "node_id": "martinez-sousa-punto-y-coma-articulador",
+        "canonical_name": "Punto y coma articulador",
+        "node_type": "norma",
+        "primary_branch": "puntuacion",
+        "secondary_branch": "punto y coma",
+        "node_summary": "Uso del punto y coma para articular unidades complejas relacionadas.",
+        "short_definition": "Criterio intermedio entre coma y punto para conservar relacion interna.",
+        "aliases": ["punto y coma en miembros complejos"],
+        "relation_target": "rae-ole-punto-y-coma",
+        "relation_type": "usa",
+        "card_id": "card-punto-y-coma-articulador",
+        "card_type": "advanced_punctuation_rule",
+        "card_name": "Punto y coma articulador",
+        "card_definition": "Criterio para unir unidades relacionadas sin aplastarlas con coma ni aislarlas con punto.",
+        "signals": ["miembros complejos", "continuidad conceptual", "pausa intermedia"],
+        "risks": ["convertirlo en adorno o sustituirlo siempre por punto"],
+        "contexts": ["puntuacion", "texto argumentativo", "revision"],
+        "evidence_id": "ev-martinez-sousa-punto-y-coma-articulador",
+        "evidence_section": "punto y coma articulador",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-punto-y-coma-articulador",
+        "statement": "El punto y coma articula miembros complejos de una enumeracion o enunciados relacionados que exigen una pausa mayor que la coma.",
+        "claim_type": "orthographic",
+        "domain": "orthography.punctuation.semicolon",
+        "related_node_ids": ["rae-ole-punto-y-coma", "rae-ole-coma"],
+    },
+    {
+        "key": "dos-puntos-explicativos",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:dos-puntos-explicativos",
+        "index_title": "Dos puntos explicativos",
+        "index_locator": "Edicion 2015 > puntuacion > dos puntos",
+        "segment_id": "martinez-sousa-mele:edicion-2015:dos-puntos-explicativos:seg-1",
+        "segment_title": "Anuncio y desarrollo",
+        "segment_text": "Resumen editorial minimo: los dos puntos preparan una explicacion, una consecuencia, una cita o un desarrollo directamente vinculado con el tramo anterior.",
+        "extraction_id": "ext-martinez-sousa-dos-puntos-explicativos-1",
+        "node_id": "martinez-sousa-dos-puntos-explicativos",
+        "canonical_name": "Dos puntos explicativos",
+        "node_type": "norma",
+        "primary_branch": "puntuacion",
+        "secondary_branch": "dos puntos",
+        "node_summary": "Uso explicativo de los dos puntos para anunciar desarrollo inmediato.",
+        "short_definition": "Criterio para introducir explicaciones o consecuencias ligadas a lo anterior.",
+        "aliases": ["dos puntos de explicacion", "dos puntos anunciadores"],
+        "relation_target": "rae-ole-dos-puntos",
+        "relation_type": "ejemplifica",
+        "card_id": "card-dos-puntos-explicativos",
+        "card_type": "advanced_punctuation_rule",
+        "card_name": "Dos puntos explicativos",
+        "card_definition": "Criterio para usar dos puntos cuando lo que sigue desarrolla lo ya anunciado.",
+        "signals": ["explicacion", "consecuencia", "desarrollo"],
+        "risks": ["poner dos puntos sin relacion directa entre los segmentos"],
+        "contexts": ["puntuacion", "explicacion", "revision"],
+        "evidence_id": "ev-martinez-sousa-dos-puntos-explicativos",
+        "evidence_section": "dos puntos explicativos",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-dos-puntos-explicativos",
+        "statement": "Los dos puntos anuncian una explicacion, consecuencia, cita o desarrollo que completa lo anterior.",
+        "claim_type": "orthographic",
+        "domain": "orthography.punctuation.colon",
+        "related_node_ids": ["rae-ole-dos-puntos", "martinez-sousa-criterio-editorial"],
+    },
+    {
+        "key": "correccion-estilo-fina",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:correccion-estilo-fina",
+        "index_title": "Correccion de estilo fina",
+        "index_locator": "Edicion 2015 > correccion de estilo > intervencion fina",
+        "segment_id": "martinez-sousa-mele:edicion-2015:correccion-estilo-fina:seg-1",
+        "segment_title": "Intervencion sin alterar voz",
+        "segment_text": "Resumen editorial minimo: la correccion de estilo fina interviene puntuacion, coherencia y uniformidad sin cambiar la voz ni el sentido del texto.",
+        "extraction_id": "ext-martinez-sousa-correccion-estilo-fina-1",
+        "node_id": "martinez-sousa-correccion-estilo-fina",
+        "canonical_name": "Correccion de estilo fina",
+        "node_type": "metodo",
+        "primary_branch": "correccion",
+        "secondary_branch": "estilo",
+        "node_summary": "Revision editorial local que mejora consistencia sin sustituir la voz del texto.",
+        "short_definition": "Metodo para pulir puntuacion, coherencia y uniformidad respetando el sentido.",
+        "aliases": ["pulido editorial", "correccion fina"],
+        "relation_target": "martinez-sousa-criterio-editorial",
+        "relation_type": "requiere",
+        "card_id": "card-correccion-estilo-fina",
+        "card_type": "advanced_style_correction",
+        "card_name": "Correccion de estilo fina",
+        "card_definition": "Criterio para intervenir solo lo necesario y conservar voz, sentido y coherencia.",
+        "signals": ["puntuacion", "uniformidad", "voz"],
+        "risks": ["reescribir de mas y sustituir la intencion del autor"],
+        "contexts": ["correccion de estilo", "revision", "edicion"],
+        "evidence_id": "ev-martinez-sousa-correccion-estilo-fina",
+        "evidence_section": "correccion de estilo fina",
+        "confidence": 0.61,
+        "claim_id": "claim-martinez-sousa-correccion-estilo-fina",
+        "statement": "La correccion de estilo fina debe intervenir puntuacion, coherencia y uniformidad sin alterar la voz ni el sentido del texto.",
+        "claim_type": "stylistic",
+        "domain": "style.correction",
+        "related_node_ids": ["martinez-sousa-criterio-editorial", "cassany-reescritura-global"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -6156,7 +6346,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V25_VERSION: "seed_zinsser_writing_batch",
     KNOWLEDGE_V26_VERSION: "seed_synonyms_antonyms_batch",
     KNOWLEDGE_V27_VERSION: "seed_ideological_dictionary_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_pragmatic_writing_batch",
+    KNOWLEDGE_V28_VERSION: "seed_pragmatic_writing_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_advanced_punctuation_style_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -6179,7 +6370,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V25_VERSION: KNOWLEDGE_V25_PUBLISHED_AT,
     KNOWLEDGE_V26_VERSION: KNOWLEDGE_V26_PUBLISHED_AT,
     KNOWLEDGE_V27_VERSION: KNOWLEDGE_V27_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V28_PUBLISHED_AT,
+    KNOWLEDGE_V28_VERSION: KNOWLEDGE_V28_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V29_PUBLISHED_AT,
 }
 
 
@@ -7623,6 +7815,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V26_SEED_ITEMS),
         *_published_batch_index_entries(V27_SEED_ITEMS),
         *_published_batch_index_entries(V28_SEED_ITEMS),
+        *_published_batch_index_entries(V29_SEED_ITEMS),
     ]
 
 
@@ -7746,6 +7939,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V26_SEED_ITEMS),
         *_published_batch_segments(V27_SEED_ITEMS),
         *_published_batch_segments(V28_SEED_ITEMS),
+        *_published_batch_segments(V29_SEED_ITEMS),
     ]
 
 
@@ -7888,7 +8082,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_extraction_runs(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_extraction_runs(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_extraction_runs(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_extraction_runs(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8560,7 +8755,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_proposals(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_proposals(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_proposals(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_proposals(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8731,7 +8927,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_nodes(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_nodes(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_nodes(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_nodes(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8864,7 +9061,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_node_relations(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_node_relations(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_node_relations(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_node_relations(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9226,7 +9424,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_evidence(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_evidence(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_evidence(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_evidence(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9488,7 +9687,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_claims(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_claims(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_claims(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_claims(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9671,7 +9871,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
         *_published_batch_cards(V26_SEED_ITEMS, KNOWLEDGE_V26_VERSION),
         *_published_batch_cards(V27_SEED_ITEMS, KNOWLEDGE_V27_VERSION),
-        *_published_batch_cards(V28_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
+        *_published_batch_cards(V29_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10292,8 +10493,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v27_evidence = [evidence for evidence in seed_evidence() if evidence.version in v27_chain]
     v27_claims = [claim for claim in seed_claims() if claim.version in v27_chain]
     v27_cards = [card for card in seed_cards() if card.version in v27_chain]
-    latest_chain = {*v27_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v28_chain = {*v27_chain, KNOWLEDGE_V28_VERSION}
+    v28_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -10318,7 +10519,39 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V28_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v27_node_ids, *{item["node_id"] for item in V28_SEED_ITEMS}}
+    v28_node_ids = {*v27_node_ids, *{item["node_id"] for item in V28_SEED_ITEMS}}
+    v28_nodes = [node for node in seed_nodes() if node.id in v28_node_ids]
+    v28_evidence = [evidence for evidence in seed_evidence() if evidence.version in v28_chain]
+    v28_claims = [claim for claim in seed_claims() if claim.version in v28_chain]
+    v28_cards = [card for card in seed_cards() if card.version in v28_chain]
+    latest_chain = {*v28_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+            *{item["source_id"] for item in V27_SEED_ITEMS},
+            *{item["source_id"] for item in V28_SEED_ITEMS},
+            *{item["source_id"] for item in V29_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v28_node_ids, *{item["node_id"] for item in V29_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -10605,9 +10838,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v27_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V28_VERSION,
             status="published",
             published_at=KNOWLEDGE_V28_PUBLISHED_AT,
+            source_count=len(v28_sources),
+            node_count=len(v28_nodes),
+            evidence_count=len(v28_evidence),
+            claim_count=len(v28_claims),
+            card_count=len(v28_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V29_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -10906,6 +11149,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V25_VERSION,
             KNOWLEDGE_V26_VERSION,
             KNOWLEDGE_V27_VERSION,
+            KNOWLEDGE_V28_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
