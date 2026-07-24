@@ -44,7 +44,8 @@ KNOWLEDGE_V8_VERSION = "knowledge-v8"
 KNOWLEDGE_V9_VERSION = "knowledge-v9"
 KNOWLEDGE_V10_VERSION = "knowledge-v10"
 KNOWLEDGE_V11_VERSION = "knowledge-v11"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v12"
+KNOWLEDGE_V12_VERSION = "knowledge-v12"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v13"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -58,6 +59,7 @@ KNOWLEDGE_V9_PUBLISHED_AT = "2026-07-23T08:00:00+00:00"
 KNOWLEDGE_V10_PUBLISHED_AT = "2026-07-23T09:00:00+00:00"
 KNOWLEDGE_V11_PUBLISHED_AT = "2026-07-23T10:00:00+00:00"
 KNOWLEDGE_V12_PUBLISHED_AT = "2026-07-23T11:00:00+00:00"
+KNOWLEDGE_V13_PUBLISHED_AT = "2026-07-23T12:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -1772,6 +1774,194 @@ V12_SEED_ITEMS = [
     },
 ]
 
+V13_SEED_ITEMS = [
+    {
+        "key": "tema-texto-literario",
+        "source_id": "lazaro-correa-comentario-texto",
+        "source_edition_id": "lazaro-correa-comentario-texto:edicion-1974",
+        "index_id": "lazaro-correa-comentario-texto:edicion-1974:tema-texto-literario",
+        "index_title": "Tema del texto literario",
+        "index_locator": "Edicion 1974 > comentario > tema",
+        "segment_id": "lazaro-correa-comentario-texto:edicion-1974:tema-texto-literario:seg-1",
+        "segment_title": "Determinacion del tema",
+        "segment_text": "Resumen editorial minimo: el tema de un texto literario sintetiza el nucleo de sentido que organiza sus motivos, tono y desarrollo.",
+        "extraction_id": "ext-lazaro-correa-1974-tema-texto-literario-1",
+        "node_id": "lazaro-correa-tema-texto-literario",
+        "canonical_name": "Tema del texto literario",
+        "node_type": "concepto",
+        "primary_branch": "literatura",
+        "secondary_branch": "comentario de texto",
+        "node_summary": "Nucleo de sentido que organiza motivos y desarrollo textual.",
+        "short_definition": "Idea central que articula los motivos y la interpretacion de un texto literario.",
+        "aliases": ["tema literario"],
+        "relation_target": "manual-rasgos-escritura",
+        "relation_type": "relacionado_con",
+        "card_id": "card-tema-texto-literario",
+        "card_type": "analysis_method",
+        "card_name": "Tema del texto literario",
+        "card_definition": "Criterio para formular el nucleo de sentido de un texto literario.",
+        "signals": ["nucleo de sentido", "motivos", "interpretacion"],
+        "risks": ["confundir tema con resumen argumental"],
+        "contexts": ["comentario de texto", "literatura", "lectura"],
+        "evidence_id": "ev-lazaro-correa-tema-texto-literario",
+        "evidence_section": "tema",
+        "confidence": 0.61,
+        "claim_id": "claim-lazaro-correa-tema-texto-literario",
+        "statement": "El tema sintetiza el nucleo de sentido que organiza motivos, tono y desarrollo del texto literario.",
+        "claim_type": "stylistic",
+        "domain": "literary_analysis.theme",
+        "related_node_ids": ["manual-rasgos-escritura", "reyes-coherencia-textual"],
+    },
+    {
+        "key": "estructura-externa",
+        "source_id": "lazaro-correa-comentario-texto",
+        "source_edition_id": "lazaro-correa-comentario-texto:edicion-1974",
+        "index_id": "lazaro-correa-comentario-texto:edicion-1974:estructura-externa",
+        "index_title": "Estructura externa",
+        "index_locator": "Edicion 1974 > comentario > estructura externa",
+        "segment_id": "lazaro-correa-comentario-texto:edicion-1974:estructura-externa:seg-1",
+        "segment_title": "Partes visibles del texto",
+        "segment_text": "Resumen editorial minimo: la estructura externa describe la division visible del texto en estrofas, parrafos, escenas o apartados.",
+        "extraction_id": "ext-lazaro-correa-1974-estructura-externa-1",
+        "node_id": "lazaro-correa-estructura-externa",
+        "canonical_name": "Estructura externa",
+        "node_type": "metodo",
+        "primary_branch": "literatura",
+        "secondary_branch": "comentario de texto",
+        "node_summary": "Descripcion de la organizacion visible del texto.",
+        "short_definition": "Division formal observable en partes, estrofas, parrafos, escenas o apartados.",
+        "aliases": ["division externa"],
+        "relation_target": "lazaro-correa-tema-texto-literario",
+        "relation_type": "describe",
+        "card_id": "card-estructura-externa",
+        "card_type": "analysis_method",
+        "card_name": "Estructura externa",
+        "card_definition": "Criterio para describir la division formal visible de un texto.",
+        "signals": ["estrofa", "parrafo", "escena", "apartado"],
+        "risks": ["deducir interpretacion antes de describir la forma visible"],
+        "contexts": ["comentario de texto", "literatura", "analisis"],
+        "evidence_id": "ev-lazaro-correa-estructura-externa",
+        "evidence_section": "estructura externa",
+        "confidence": 0.6,
+        "claim_id": "claim-lazaro-correa-estructura-externa",
+        "statement": "La estructura externa describe la division formal visible del texto antes de interpretar su funcion.",
+        "claim_type": "stylistic",
+        "domain": "literary_analysis.structure",
+        "related_node_ids": ["lazaro-correa-tema-texto-literario", "manual-rasgos-escritura"],
+    },
+    {
+        "key": "estructura-interna",
+        "source_id": "lazaro-correa-comentario-texto",
+        "source_edition_id": "lazaro-correa-comentario-texto:edicion-1974",
+        "index_id": "lazaro-correa-comentario-texto:edicion-1974:estructura-interna",
+        "index_title": "Estructura interna",
+        "index_locator": "Edicion 1974 > comentario > estructura interna",
+        "segment_id": "lazaro-correa-comentario-texto:edicion-1974:estructura-interna:seg-1",
+        "segment_title": "Organizacion del sentido",
+        "segment_text": "Resumen editorial minimo: la estructura interna explica como progresan las ideas, tensiones o motivos dentro del texto.",
+        "extraction_id": "ext-lazaro-correa-1974-estructura-interna-1",
+        "node_id": "lazaro-correa-estructura-interna",
+        "canonical_name": "Estructura interna",
+        "node_type": "metodo",
+        "primary_branch": "literatura",
+        "secondary_branch": "comentario de texto",
+        "node_summary": "Organizacion del sentido y progresion de motivos dentro del texto.",
+        "short_definition": "Distribucion interpretativa de ideas, tensiones o motivos en el desarrollo textual.",
+        "aliases": ["organizacion interna"],
+        "relation_target": "lazaro-correa-estructura-externa",
+        "relation_type": "compara_con",
+        "card_id": "card-estructura-interna",
+        "card_type": "analysis_method",
+        "card_name": "Estructura interna",
+        "card_definition": "Criterio para explicar la progresion de sentido dentro del texto.",
+        "signals": ["progresion", "motivos", "tension", "desarrollo"],
+        "risks": ["confundir partes visibles con desarrollo del sentido"],
+        "contexts": ["comentario de texto", "interpretacion", "literatura"],
+        "evidence_id": "ev-lazaro-correa-estructura-interna",
+        "evidence_section": "estructura interna",
+        "confidence": 0.61,
+        "claim_id": "claim-lazaro-correa-estructura-interna",
+        "statement": "La estructura interna explica la progresion de ideas, tensiones o motivos que construyen el sentido del texto.",
+        "claim_type": "stylistic",
+        "domain": "literary_analysis.structure",
+        "related_node_ids": ["lazaro-correa-estructura-externa", "reyes-progresion-informativa"],
+    },
+    {
+        "key": "forma-contenido",
+        "source_id": "lazaro-correa-comentario-texto",
+        "source_edition_id": "lazaro-correa-comentario-texto:edicion-1974",
+        "index_id": "lazaro-correa-comentario-texto:edicion-1974:forma-contenido",
+        "index_title": "Forma y contenido",
+        "index_locator": "Edicion 1974 > comentario > forma y contenido",
+        "segment_id": "lazaro-correa-comentario-texto:edicion-1974:forma-contenido:seg-1",
+        "segment_title": "Relacion entre expresion y sentido",
+        "segment_text": "Resumen editorial minimo: el comentario debe relacionar recursos formales con efectos de sentido, evitando separar forma y contenido como planos independientes.",
+        "extraction_id": "ext-lazaro-correa-1974-forma-contenido-1",
+        "node_id": "lazaro-correa-forma-contenido",
+        "canonical_name": "Forma y contenido",
+        "node_type": "metodo",
+        "primary_branch": "literatura",
+        "secondary_branch": "comentario de texto",
+        "node_summary": "Relacion entre recursos expresivos y efectos de sentido.",
+        "short_definition": "Metodo que vincula procedimientos formales con significado e interpretacion.",
+        "aliases": ["relacion forma contenido"],
+        "relation_target": "lazaro-correa-estructura-interna",
+        "relation_type": "depende_de",
+        "card_id": "card-forma-contenido",
+        "card_type": "analysis_method",
+        "card_name": "Forma y contenido",
+        "card_definition": "Criterio para vincular recursos formales con efectos de sentido.",
+        "signals": ["recurso formal", "efecto de sentido", "interpretacion"],
+        "risks": ["listar recursos sin explicar su funcion"],
+        "contexts": ["comentario de texto", "estilo", "literatura"],
+        "evidence_id": "ev-lazaro-correa-forma-contenido",
+        "evidence_section": "forma y contenido",
+        "confidence": 0.62,
+        "claim_id": "claim-lazaro-correa-forma-contenido",
+        "statement": "El comentario literario debe relacionar recursos formales con efectos de sentido, no separarlos como planos independientes.",
+        "claim_type": "stylistic",
+        "domain": "literary_analysis.style",
+        "related_node_ids": ["lazaro-correa-estructura-interna", "rae-lese-repeticion"],
+    },
+    {
+        "key": "comentario-critico",
+        "source_id": "lazaro-correa-comentario-texto",
+        "source_edition_id": "lazaro-correa-comentario-texto:edicion-1974",
+        "index_id": "lazaro-correa-comentario-texto:edicion-1974:comentario-critico",
+        "index_title": "Comentario critico",
+        "index_locator": "Edicion 1974 > comentario > valoracion",
+        "segment_id": "lazaro-correa-comentario-texto:edicion-1974:comentario-critico:seg-1",
+        "segment_title": "Valoracion argumentada",
+        "segment_text": "Resumen editorial minimo: el comentario critico formula una valoracion apoyada en observaciones del texto, no en impresiones sueltas.",
+        "extraction_id": "ext-lazaro-correa-1974-comentario-critico-1",
+        "node_id": "lazaro-correa-comentario-critico",
+        "canonical_name": "Comentario critico",
+        "node_type": "metodo",
+        "primary_branch": "literatura",
+        "secondary_branch": "comentario de texto",
+        "node_summary": "Valoracion argumentada a partir de observaciones textuales.",
+        "short_definition": "Cierre interpretativo que justifica una valoracion con evidencias del texto.",
+        "aliases": ["valoracion critica"],
+        "relation_target": "lazaro-correa-forma-contenido",
+        "relation_type": "requiere",
+        "card_id": "card-comentario-critico",
+        "card_type": "analysis_method",
+        "card_name": "Comentario critico",
+        "card_definition": "Criterio para formular una valoracion apoyada en observaciones textuales.",
+        "signals": ["valoracion", "argumento", "observacion textual"],
+        "risks": ["cerrar con opiniones no sustentadas por el texto"],
+        "contexts": ["comentario de texto", "critica", "literatura"],
+        "evidence_id": "ev-lazaro-correa-comentario-critico",
+        "evidence_section": "comentario critico",
+        "confidence": 0.61,
+        "claim_id": "claim-lazaro-correa-comentario-critico",
+        "statement": "El comentario critico debe apoyar su valoracion en observaciones textuales y no en impresiones aisladas.",
+        "claim_type": "stylistic",
+        "domain": "literary_analysis.commentary",
+        "related_node_ids": ["lazaro-correa-forma-contenido", "lazaro-correa-tema-texto-literario"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -3100,14 +3290,16 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V9_VERSION: "seed_orthography_punctuation_batch",
     KNOWLEDGE_V10_VERSION: "seed_editorial_style_batch",
     KNOWLEDGE_V11_VERSION: "seed_writing_practice_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_orthotypography_batch",
+    KNOWLEDGE_V12_VERSION: "seed_orthotypography_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_literary_commentary_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
     KNOWLEDGE_V9_VERSION: KNOWLEDGE_V9_PUBLISHED_AT,
     KNOWLEDGE_V10_VERSION: KNOWLEDGE_V10_PUBLISHED_AT,
     KNOWLEDGE_V11_VERSION: KNOWLEDGE_V11_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V12_PUBLISHED_AT,
+    KNOWLEDGE_V12_VERSION: KNOWLEDGE_V12_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V13_PUBLISHED_AT,
 }
 
 
@@ -3682,6 +3874,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["lectura", "analisis", "estructura", "tema", "forma", "comentario literario"],
             authority_level=4,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F023",
@@ -3926,6 +4121,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["capitulo", "criterio ortotipografico", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="lazaro-correa-comentario-texto:edicion-1974",
+            source_id="lazaro-correa-comentario-texto",
+            title="Como se comenta un texto literario",
+            edition_label="Edicion de referencia, 1974",
+            publication_year="1974",
+            publisher="Catedra",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso",
+            access_location="Madrid: Catedra, 1974",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de comentario de texto para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia, 1974",
+            publication_date="1974",
+            location="Madrid",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["capitulo", "fase de comentario", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -4009,6 +4232,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V10_SEED_ITEMS),
         *_published_batch_index_entries(V11_SEED_ITEMS),
         *_published_batch_index_entries(V12_SEED_ITEMS),
+        *_published_batch_index_entries(V13_SEED_ITEMS),
     ]
 
 
@@ -4116,6 +4340,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V10_SEED_ITEMS),
         *_published_batch_segments(V11_SEED_ITEMS),
         *_published_batch_segments(V12_SEED_ITEMS),
+        *_published_batch_segments(V13_SEED_ITEMS),
     ]
 
 
@@ -4242,7 +4467,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_extraction_runs(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_extraction_runs(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_extraction_runs(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_extraction_runs(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -4898,7 +5124,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_proposals(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_proposals(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_proposals(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_proposals(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5053,7 +5280,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_nodes(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_nodes(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_nodes(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_nodes(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5170,7 +5398,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_node_relations(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_node_relations(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_node_relations(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_node_relations(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5516,7 +5745,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_evidence(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_evidence(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_evidence(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_evidence(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5762,7 +5992,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_claims(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_claims(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_claims(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_claims(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5929,7 +6160,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V9_SEED_ITEMS, KNOWLEDGE_V9_VERSION),
         *_published_batch_cards(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_cards(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
-        *_published_batch_cards(V12_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
+        *_published_batch_cards(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6194,13 +6426,29 @@ def seed_versions() -> list[KnowledgeVersion]:
     v11_evidence = [evidence for evidence in seed_evidence() if evidence.version in v11_chain]
     v11_claims = [claim for claim in seed_claims() if claim.version in v11_chain]
     v11_cards = [card for card in seed_cards() if card.version in v11_chain]
-    latest_chain = {*v11_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v12_chain = {*v11_chain, KNOWLEDGE_V12_VERSION}
+    v12_sources = [
         source
         for source in seed_sources()
         if source.id in {*v7_source_ids, *{item["source_id"] for item in V11_SEED_ITEMS}, *{item["source_id"] for item in V12_SEED_ITEMS}}
     ]
-    latest_node_ids = {*v11_node_ids, *{item["node_id"] for item in V12_SEED_ITEMS}}
+    v12_node_ids = {*v11_node_ids, *{item["node_id"] for item in V12_SEED_ITEMS}}
+    v12_nodes = [node for node in seed_nodes() if node.id in v12_node_ids]
+    v12_evidence = [evidence for evidence in seed_evidence() if evidence.version in v12_chain]
+    v12_claims = [claim for claim in seed_claims() if claim.version in v12_chain]
+    v12_cards = [card for card in seed_cards() if card.version in v12_chain]
+    latest_chain = {*v12_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v12_node_ids, *{item["node_id"] for item in V13_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -6327,9 +6575,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v11_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V12_VERSION,
             status="published",
             published_at=KNOWLEDGE_V12_PUBLISHED_AT,
+            source_count=len(v12_sources),
+            node_count=len(v12_nodes),
+            evidence_count=len(v12_evidence),
+            claim_count=len(v12_claims),
+            card_count=len(v12_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V13_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -6612,6 +6870,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V9_VERSION,
             KNOWLEDGE_V10_VERSION,
             KNOWLEDGE_V11_VERSION,
+            KNOWLEDGE_V12_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
