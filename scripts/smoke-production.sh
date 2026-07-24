@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v17}"
-QUERY="${QUERY:-mimesis mythos-trama personaje-accion anagnorisis peripecia}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v18}"
+QUERY="${QUERY:-orden-narrativo duracion-narrativa frecuencia-narrativa modo-narrativo voz-narrativa}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"

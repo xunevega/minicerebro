@@ -49,7 +49,8 @@ KNOWLEDGE_V13_VERSION = "knowledge-v13"
 KNOWLEDGE_V14_VERSION = "knowledge-v14"
 KNOWLEDGE_V15_VERSION = "knowledge-v15"
 KNOWLEDGE_V16_VERSION = "knowledge-v16"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v17"
+KNOWLEDGE_V17_VERSION = "knowledge-v17"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v18"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -68,6 +69,7 @@ KNOWLEDGE_V14_PUBLISHED_AT = "2026-07-23T13:00:00+00:00"
 KNOWLEDGE_V15_PUBLISHED_AT = "2026-07-23T14:00:00+00:00"
 KNOWLEDGE_V16_PUBLISHED_AT = "2026-07-23T15:00:00+00:00"
 KNOWLEDGE_V17_PUBLISHED_AT = "2026-07-23T16:00:00+00:00"
+KNOWLEDGE_V18_PUBLISHED_AT = "2026-07-23T17:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -2722,6 +2724,194 @@ V17_SEED_ITEMS = [
     },
 ]
 
+V18_SEED_ITEMS = [
+    {
+        "key": "orden-narrativo",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:orden-narrativo",
+        "index_title": "Orden narrativo",
+        "index_locator": "Edicion de referencia > tiempo narrativo > orden",
+        "segment_id": "genette-discurso-relato:edicion-referencia:orden-narrativo:seg-1",
+        "segment_title": "Orden temporal del relato",
+        "segment_text": "Resumen editorial minimo: el orden narrativo compara la secuencia de los hechos con el modo en que el relato los presenta.",
+        "extraction_id": "ext-genette-discurso-relato-orden-narrativo-1",
+        "node_id": "genette-orden-narrativo",
+        "canonical_name": "Orden narrativo",
+        "node_type": "concepto",
+        "primary_branch": "narratologia",
+        "secondary_branch": "tiempo narrativo",
+        "node_summary": "Relacion entre cronologia de la historia y disposicion del relato.",
+        "short_definition": "Concepto para analizar alteraciones entre historia y relato.",
+        "aliases": ["orden temporal", "orden del relato"],
+        "relation_target": "aristoteles-poetica-mythos-trama",
+        "relation_type": "relacionado_con",
+        "card_id": "card-orden-narrativo",
+        "card_type": "narratology_concept",
+        "card_name": "Orden narrativo",
+        "card_definition": "Criterio para detectar como un relato reordena los acontecimientos de la historia.",
+        "signals": ["analepsis", "prolepsis", "cronologia"],
+        "risks": ["confundir el orden de lectura con el orden causal de la historia"],
+        "contexts": ["narratologia", "comentario literario", "estructura narrativa"],
+        "evidence_id": "ev-genette-orden-narrativo",
+        "evidence_section": "orden narrativo",
+        "confidence": 0.63,
+        "claim_id": "claim-genette-orden-narrativo",
+        "statement": "El orden narrativo permite contrastar la cronologia de los hechos con su disposicion en el relato.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["aristoteles-poetica-mythos-trama", "lazaro-correa-estructura-interna"],
+    },
+    {
+        "key": "duracion-narrativa",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:duracion-narrativa",
+        "index_title": "Duracion narrativa",
+        "index_locator": "Edicion de referencia > tiempo narrativo > duracion",
+        "segment_id": "genette-discurso-relato:edicion-referencia:duracion-narrativa:seg-1",
+        "segment_title": "Ritmo del relato",
+        "segment_text": "Resumen editorial minimo: la duracion observa la relacion entre tiempo de la historia y extension dedicada por el discurso narrativo.",
+        "extraction_id": "ext-genette-discurso-relato-duracion-narrativa-1",
+        "node_id": "genette-duracion-narrativa",
+        "canonical_name": "Duracion narrativa",
+        "node_type": "concepto",
+        "primary_branch": "narratologia",
+        "secondary_branch": "tiempo narrativo",
+        "node_summary": "Relacion entre tiempo narrado y espacio discursivo dedicado.",
+        "short_definition": "Concepto para analizar ritmo, escena, pausa, resumen o elipsis.",
+        "aliases": ["ritmo narrativo", "duracion del relato"],
+        "relation_target": "genette-orden-narrativo",
+        "relation_type": "relacionado_con",
+        "card_id": "card-duracion-narrativa",
+        "card_type": "narratology_concept",
+        "card_name": "Duracion narrativa",
+        "card_definition": "Criterio para revisar cuanto espacio concede el relato a distintos periodos de la historia.",
+        "signals": ["escena", "pausa", "elipsis"],
+        "risks": ["medir solo paginas sin atender a la funcion narrativa del ritmo"],
+        "contexts": ["narratologia", "comentario literario", "ritmo narrativo"],
+        "evidence_id": "ev-genette-duracion-narrativa",
+        "evidence_section": "duracion narrativa",
+        "confidence": 0.62,
+        "claim_id": "claim-genette-duracion-narrativa",
+        "statement": "La duracion narrativa ayuda a explicar el ritmo con que el discurso distribuye el tiempo de la historia.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["genette-orden-narrativo", "lazaro-correa-estructura-interna"],
+    },
+    {
+        "key": "frecuencia-narrativa",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:frecuencia-narrativa",
+        "index_title": "Frecuencia narrativa",
+        "index_locator": "Edicion de referencia > tiempo narrativo > frecuencia",
+        "segment_id": "genette-discurso-relato:edicion-referencia:frecuencia-narrativa:seg-1",
+        "segment_title": "Repeticion y relato",
+        "segment_text": "Resumen editorial minimo: la frecuencia compara cuantas veces ocurre un hecho con cuantas veces es contado por el relato.",
+        "extraction_id": "ext-genette-discurso-relato-frecuencia-narrativa-1",
+        "node_id": "genette-frecuencia-narrativa",
+        "canonical_name": "Frecuencia narrativa",
+        "node_type": "concepto",
+        "primary_branch": "narratologia",
+        "secondary_branch": "tiempo narrativo",
+        "node_summary": "Relacion entre ocurrencias de la historia y menciones del relato.",
+        "short_definition": "Concepto para analizar repeticion, iteracion y singularidad narrativa.",
+        "aliases": ["frecuencia del relato", "relato iterativo"],
+        "relation_target": "genette-duracion-narrativa",
+        "relation_type": "relacionado_con",
+        "card_id": "card-frecuencia-narrativa",
+        "card_type": "narratology_concept",
+        "card_name": "Frecuencia narrativa",
+        "card_definition": "Criterio para distinguir hechos contados una vez, varias veces o de forma iterativa.",
+        "signals": ["repeticion", "iteracion", "una vez"],
+        "risks": ["confundir repeticion tematica con frecuencia narrativa estructural"],
+        "contexts": ["narratologia", "comentario literario", "tiempo narrativo"],
+        "evidence_id": "ev-genette-frecuencia-narrativa",
+        "evidence_section": "frecuencia narrativa",
+        "confidence": 0.62,
+        "claim_id": "claim-genette-frecuencia-narrativa",
+        "statement": "La frecuencia narrativa compara la repeticion de hechos en la historia con su repeticion en el discurso.",
+        "claim_type": "literary",
+        "domain": "narratology.time",
+        "related_node_ids": ["genette-duracion-narrativa", "genette-orden-narrativo"],
+    },
+    {
+        "key": "modo-narrativo",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:modo-narrativo",
+        "index_title": "Modo narrativo",
+        "index_locator": "Edicion de referencia > regulacion de informacion > modo",
+        "segment_id": "genette-discurso-relato:edicion-referencia:modo-narrativo:seg-1",
+        "segment_title": "Distancia y perspectiva",
+        "segment_text": "Resumen editorial minimo: el modo narrativo describe como el relato regula distancia, informacion y perspectiva.",
+        "extraction_id": "ext-genette-discurso-relato-modo-narrativo-1",
+        "node_id": "genette-modo-narrativo",
+        "canonical_name": "Modo narrativo",
+        "node_type": "concepto",
+        "primary_branch": "narratologia",
+        "secondary_branch": "perspectiva narrativa",
+        "node_summary": "Regulacion de distancia, informacion y perspectiva del relato.",
+        "short_definition": "Concepto para analizar como se presenta la informacion narrativa.",
+        "aliases": ["perspectiva narrativa", "focalizacion"],
+        "relation_target": "lazaro-correa-forma-contenido",
+        "relation_type": "describe",
+        "card_id": "card-modo-narrativo",
+        "card_type": "narratology_concept",
+        "card_name": "Modo narrativo",
+        "card_definition": "Criterio para observar distancia y perspectiva en la informacion que ofrece el relato.",
+        "signals": ["perspectiva", "distancia", "focalizacion"],
+        "risks": ["confundir quien ve con quien habla sin separar modo y voz"],
+        "contexts": ["narratologia", "comentario literario", "perspectiva"],
+        "evidence_id": "ev-genette-modo-narrativo",
+        "evidence_section": "modo narrativo",
+        "confidence": 0.62,
+        "claim_id": "claim-genette-modo-narrativo",
+        "statement": "El modo narrativo permite analizar como el relato administra distancia e informacion.",
+        "claim_type": "literary",
+        "domain": "narratology.mode",
+        "related_node_ids": ["lazaro-correa-forma-contenido", "genette-voz-narrativa"],
+    },
+    {
+        "key": "voz-narrativa",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:voz-narrativa",
+        "index_title": "Voz narrativa",
+        "index_locator": "Edicion de referencia > instancia narrativa > voz",
+        "segment_id": "genette-discurso-relato:edicion-referencia:voz-narrativa:seg-1",
+        "segment_title": "Instancia de narracion",
+        "segment_text": "Resumen editorial minimo: la voz narrativa identifica la instancia que cuenta y su relacion con la historia narrada.",
+        "extraction_id": "ext-genette-discurso-relato-voz-narrativa-1",
+        "node_id": "genette-voz-narrativa",
+        "canonical_name": "Voz narrativa",
+        "node_type": "concepto",
+        "primary_branch": "narratologia",
+        "secondary_branch": "instancia narrativa",
+        "node_summary": "Instancia que narra y se situa respecto de la historia.",
+        "short_definition": "Concepto para analizar quien narra, desde donde y con que relacion con los hechos.",
+        "aliases": ["instancia narrativa", "narrador"],
+        "relation_target": "genette-modo-narrativo",
+        "relation_type": "relacionado_con",
+        "card_id": "card-voz-narrativa",
+        "card_type": "narratology_concept",
+        "card_name": "Voz narrativa",
+        "card_definition": "Criterio para separar la instancia que narra de la perspectiva que organiza la informacion.",
+        "signals": ["narrador", "instancia", "relato"],
+        "risks": ["identificar automaticamente narrador con autor empirico"],
+        "contexts": ["narratologia", "comentario literario", "narrador"],
+        "evidence_id": "ev-genette-voz-narrativa",
+        "evidence_section": "voz narrativa",
+        "confidence": 0.63,
+        "claim_id": "claim-genette-voz-narrativa",
+        "statement": "La voz narrativa permite identificar la instancia que cuenta y su posicion respecto de la historia.",
+        "claim_type": "literary",
+        "domain": "narratology.voice",
+        "related_node_ids": ["genette-modo-narrativo", "lazaro-correa-comentario-critico"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -4055,7 +4245,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V14_VERSION: "seed_rhetoric_argumentation_batch",
     KNOWLEDGE_V15_VERSION: "seed_quintilian_discourse_batch",
     KNOWLEDGE_V16_VERSION: "seed_oral_communication_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_poetics_batch",
+    KNOWLEDGE_V17_VERSION: "seed_poetics_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_narratology_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -4067,7 +4258,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V14_VERSION: KNOWLEDGE_V14_PUBLISHED_AT,
     KNOWLEDGE_V15_VERSION: KNOWLEDGE_V15_PUBLISHED_AT,
     KNOWLEDGE_V16_VERSION: KNOWLEDGE_V16_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V17_PUBLISHED_AT,
+    KNOWLEDGE_V17_VERSION: KNOWLEDGE_V17_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V18_PUBLISHED_AT,
 }
 
 
@@ -4604,6 +4796,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["estructura narrativa", "tiempo", "modo", "voz"],
             authority_level=5,
             priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F018",
@@ -5041,6 +5236,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "concepto poetico", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="genette-discurso-relato:edicion-referencia",
+            source_id="genette-discurso-relato",
+            title="Discurso del relato",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de narratologia para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "categoria narratologica", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -5129,6 +5352,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V15_SEED_ITEMS),
         *_published_batch_index_entries(V16_SEED_ITEMS),
         *_published_batch_index_entries(V17_SEED_ITEMS),
+        *_published_batch_index_entries(V18_SEED_ITEMS),
     ]
 
 
@@ -5241,6 +5465,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V15_SEED_ITEMS),
         *_published_batch_segments(V16_SEED_ITEMS),
         *_published_batch_segments(V17_SEED_ITEMS),
+        *_published_batch_segments(V18_SEED_ITEMS),
     ]
 
 
@@ -5372,7 +5597,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_extraction_runs(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_extraction_runs(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_extraction_runs(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_extraction_runs(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6033,7 +6259,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_proposals(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_proposals(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_proposals(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_proposals(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6193,7 +6420,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_nodes(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_nodes(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_nodes(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_nodes(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6315,7 +6543,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_node_relations(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_node_relations(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_node_relations(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_node_relations(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6666,7 +6895,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_evidence(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_evidence(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_evidence(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_evidence(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6917,7 +7147,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_claims(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_claims(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_claims(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_claims(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7089,7 +7320,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
         *_published_batch_cards(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
         *_published_batch_cards(V16_SEED_ITEMS, KNOWLEDGE_V16_VERSION),
-        *_published_batch_cards(V17_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V17_SEED_ITEMS, KNOWLEDGE_V17_VERSION),
+        *_published_batch_cards(V18_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7435,8 +7667,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v16_evidence = [evidence for evidence in seed_evidence() if evidence.version in v16_chain]
     v16_claims = [claim for claim in seed_claims() if claim.version in v16_chain]
     v16_cards = [card for card in seed_cards() if card.version in v16_chain]
-    latest_chain = {*v16_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v17_chain = {*v16_chain, KNOWLEDGE_V17_VERSION}
+    v17_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -7450,7 +7682,28 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V17_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v16_node_ids, *{item["node_id"] for item in V17_SEED_ITEMS}}
+    v17_node_ids = {*v16_node_ids, *{item["node_id"] for item in V17_SEED_ITEMS}}
+    v17_nodes = [node for node in seed_nodes() if node.id in v17_node_ids]
+    v17_evidence = [evidence for evidence in seed_evidence() if evidence.version in v17_chain]
+    v17_claims = [claim for claim in seed_claims() if claim.version in v17_chain]
+    v17_cards = [card for card in seed_cards() if card.version in v17_chain]
+    latest_chain = {*v17_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v17_node_ids, *{item["node_id"] for item in V18_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -7627,9 +7880,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v16_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V17_VERSION,
             status="published",
             published_at=KNOWLEDGE_V17_PUBLISHED_AT,
+            source_count=len(v17_sources),
+            node_count=len(v17_nodes),
+            evidence_count=len(v17_evidence),
+            claim_count=len(v17_claims),
+            card_count=len(v17_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V18_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -7917,6 +8180,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V14_VERSION,
             KNOWLEDGE_V15_VERSION,
             KNOWLEDGE_V16_VERSION,
+            KNOWLEDGE_V17_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
