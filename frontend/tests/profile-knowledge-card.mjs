@@ -6,7 +6,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 
 try {
-  await page.goto(frontendUrl, { waitUntil: "networkidle" });
+  await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
   const complementoClaim = page.locator(".traceClaim", {
     hasText: "El complemento directo funciona como participante seleccionado por el predicado verbal",

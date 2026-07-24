@@ -7,13 +7,13 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 
 try {
-  await page.goto(frontendUrl, { waitUntil: "networkidle" });
+  await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
   const panel = page.locator(".proposalBox", { hasText: "Candidato y publicacion" });
   await panel.getByText("Crear candidato congela un snapshot revisable.").waitFor();
 
   await page.getByLabel("ID de candidate").fill(candidateId);
-  await page.getByLabel("Version base de candidate").selectOption("knowledge-v25");
+  await page.getByLabel("Version base de candidate").selectOption("knowledge-v26");
   await page.getByLabel("Autor de candidate").fill("smoke-ui");
   await page.getByLabel("Motivo").fill("Smoke UI de candidate y publicacion.");
 

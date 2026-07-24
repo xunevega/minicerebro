@@ -6,7 +6,7 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 
 try {
-  await page.goto(frontendUrl, { waitUntil: "networkidle" });
+  await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Escribir" }).click();
   await page.getByRole("button", { name: "Probar cambios" }).click();
 

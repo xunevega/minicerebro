@@ -57,7 +57,8 @@ KNOWLEDGE_V21_VERSION = "knowledge-v21"
 KNOWLEDGE_V22_VERSION = "knowledge-v22"
 KNOWLEDGE_V23_VERSION = "knowledge-v23"
 KNOWLEDGE_V24_VERSION = "knowledge-v24"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v25"
+KNOWLEDGE_V25_VERSION = "knowledge-v25"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v26"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -84,6 +85,7 @@ KNOWLEDGE_V22_PUBLISHED_AT = "2026-07-23T21:00:00+00:00"
 KNOWLEDGE_V23_PUBLISHED_AT = "2026-07-23T22:00:00+00:00"
 KNOWLEDGE_V24_PUBLISHED_AT = "2026-07-23T23:00:00+00:00"
 KNOWLEDGE_V25_PUBLISHED_AT = "2026-07-24T00:00:00+00:00"
+KNOWLEDGE_V26_PUBLISHED_AT = "2026-07-24T01:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -4242,6 +4244,194 @@ V25_SEED_ITEMS = [
     },
 ]
 
+V26_SEED_ITEMS = [
+    {
+        "key": "sinonimia-contextual",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:sinonimia-contextual",
+        "index_title": "Sinonimia contextual",
+        "index_locator": "Edicion de referencia > relaciones lexicas > sinonimia",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:sinonimia-contextual:seg-1",
+        "segment_title": "Sinonimos segun contexto",
+        "segment_text": "Resumen editorial minimo: la sinonimia contextual exige comprobar sentido, registro y construccion antes de sustituir una palabra por otra.",
+        "extraction_id": "ext-diccionario-sinonimos-sinonimia-contextual-1",
+        "node_id": "diccionario-sinonimos-sinonimia-contextual",
+        "canonical_name": "Sinonimia contextual",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "relaciones semanticas",
+        "node_summary": "Relacion entre palabras sustituibles solo cuando el contexto conserva sentido y registro.",
+        "short_definition": "Criterio para valorar si dos palabras funcionan como sinonimos en un contexto concreto.",
+        "aliases": ["sinonimia", "sinonimo contextual"],
+        "relation_target": "rae-dle-precision-lexica",
+        "relation_type": "relacionado_con",
+        "card_id": "card-sinonimia-contextual",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Sinonimia contextual",
+        "card_definition": "Criterio para sustituir palabras solo cuando contexto, sentido y registro se mantienen.",
+        "signals": ["sinonimo", "sustitucion", "contexto"],
+        "risks": ["tratar sinonimos parciales como equivalencias absolutas"],
+        "contexts": ["lexico", "revision", "precision"],
+        "evidence_id": "ev-diccionario-sinonimos-sinonimia-contextual",
+        "evidence_section": "sinonimia contextual",
+        "confidence": 0.6,
+        "claim_id": "claim-diccionario-sinonimos-sinonimia-contextual",
+        "statement": "Una sustitucion sinonimica es segura solo si conserva significado contextual, registro y construccion sintactica.",
+        "claim_type": "lexical",
+        "domain": "lexicon.semantics",
+        "related_node_ids": ["rae-dle-precision-lexica", "rae-lese-registro"],
+    },
+    {
+        "key": "antonimia-gradual",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimia-gradual",
+        "index_title": "Antonimia gradual",
+        "index_locator": "Edicion de referencia > relaciones lexicas > antonimia gradual",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimia-gradual:seg-1",
+        "segment_title": "Oposiciones con escala",
+        "segment_text": "Resumen editorial minimo: la antonimia gradual opone palabras sobre una escala, por lo que admite grados intermedios y matices.",
+        "extraction_id": "ext-diccionario-sinonimos-antonimia-gradual-1",
+        "node_id": "diccionario-sinonimos-antonimia-gradual",
+        "canonical_name": "Antonimia gradual",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "relaciones semanticas",
+        "node_summary": "Oposicion lexica graduable que permite puntos intermedios.",
+        "short_definition": "Tipo de antonimia en la que los terminos se oponen dentro de una escala.",
+        "aliases": ["antonimos graduales", "oposicion gradual"],
+        "relation_target": "diccionario-sinonimos-sinonimia-contextual",
+        "relation_type": "relacionado_con",
+        "card_id": "card-antonimia-gradual",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Antonimia gradual",
+        "card_definition": "Criterio para reconocer oposiciones con escala y evitar contrastes demasiado bruscos.",
+        "signals": ["opuesto", "escala", "grado"],
+        "risks": ["presentar como incompatibles terminos que admiten intensidades intermedias"],
+        "contexts": ["lexico", "argumentacion", "revision"],
+        "evidence_id": "ev-diccionario-sinonimos-antonimia-gradual",
+        "evidence_section": "antonimia gradual",
+        "confidence": 0.6,
+        "claim_id": "claim-diccionario-sinonimos-antonimia-gradual",
+        "statement": "La antonimia gradual debe tratarse como oposicion escalar cuando el contraste admite grados intermedios.",
+        "claim_type": "lexical",
+        "domain": "lexicon.semantics",
+        "related_node_ids": ["diccionario-sinonimos-sinonimia-contextual", "rae-lese-claridad"],
+    },
+    {
+        "key": "antonimia-complementaria",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimia-complementaria",
+        "index_title": "Antonimia complementaria",
+        "index_locator": "Edicion de referencia > relaciones lexicas > antonimia complementaria",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimia-complementaria:seg-1",
+        "segment_title": "Oposiciones excluyentes",
+        "segment_text": "Resumen editorial minimo: la antonimia complementaria presenta oposiciones en las que afirmar un termino suele excluir el otro.",
+        "extraction_id": "ext-diccionario-sinonimos-antonimia-complementaria-1",
+        "node_id": "diccionario-sinonimos-antonimia-complementaria",
+        "canonical_name": "Antonimia complementaria",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "relaciones semanticas",
+        "node_summary": "Oposicion lexica excluyente sin escala intermedia relevante.",
+        "short_definition": "Tipo de antonimia donde un termino excluye normalmente al otro.",
+        "aliases": ["antonimos complementarios", "oposicion complementaria"],
+        "relation_target": "diccionario-sinonimos-antonimia-gradual",
+        "relation_type": "compara_con",
+        "card_id": "card-antonimia-complementaria",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Antonimia complementaria",
+        "card_definition": "Criterio para distinguir oposiciones excluyentes de oposiciones graduables.",
+        "signals": ["exclusion", "incompatibilidad", "oposicion binaria"],
+        "risks": ["forzar oposicion binaria cuando el uso admite escala o contexto"],
+        "contexts": ["lexico", "argumentacion", "precision"],
+        "evidence_id": "ev-diccionario-sinonimos-antonimia-complementaria",
+        "evidence_section": "antonimia complementaria",
+        "confidence": 0.6,
+        "claim_id": "claim-diccionario-sinonimos-antonimia-complementaria",
+        "statement": "La antonimia complementaria exige comprobar si la oposicion excluye realmente una alternativa o si depende del contexto.",
+        "claim_type": "lexical",
+        "domain": "lexicon.semantics",
+        "related_node_ids": ["diccionario-sinonimos-antonimia-gradual", "rae-dle-precision-lexica"],
+    },
+    {
+        "key": "falsos-sinonimos",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:falsos-sinonimos",
+        "index_title": "Falsos sinonimos",
+        "index_locator": "Edicion de referencia > relaciones lexicas > sinonimia parcial",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:falsos-sinonimos:seg-1",
+        "segment_title": "Equivalencias aparentes",
+        "segment_text": "Resumen editorial minimo: los falsos sinonimos comparten zona de significado, pero cambian matiz, intensidad, registro o construccion.",
+        "extraction_id": "ext-diccionario-sinonimos-falsos-sinonimos-1",
+        "node_id": "diccionario-sinonimos-falsos-sinonimos",
+        "canonical_name": "Falsos sinonimos",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "precision",
+        "node_summary": "Palabras cercanas que no son intercambiables sin perdida o desplazamiento de sentido.",
+        "short_definition": "Criterio para detectar equivalencias aparentes que cambian matiz o registro.",
+        "aliases": ["sinonimos parciales", "equivalencias aparentes"],
+        "relation_target": "diccionario-sinonimos-sinonimia-contextual",
+        "relation_type": "depende_de",
+        "card_id": "card-falsos-sinonimos",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Falsos sinonimos",
+        "card_definition": "Criterio para evitar sustituciones que parecen equivalentes pero cambian el sentido.",
+        "signals": ["matiz", "registro", "intensidad"],
+        "risks": ["empobrecer o alterar el texto por sustitucion automatica"],
+        "contexts": ["lexico", "revision", "estilo"],
+        "evidence_id": "ev-diccionario-sinonimos-falsos-sinonimos",
+        "evidence_section": "falsos sinonimos",
+        "confidence": 0.6,
+        "claim_id": "claim-diccionario-sinonimos-falsos-sinonimos",
+        "statement": "Los falsos sinonimos deben rechazarse cuando la sustitucion altera matiz, intensidad, registro o regimen de la frase.",
+        "claim_type": "lexical",
+        "domain": "lexicon.precision",
+        "related_node_ids": ["diccionario-sinonimos-sinonimia-contextual", "rae-dle-precision-lexica"],
+    },
+    {
+        "key": "matiz-semantico",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:matiz-semantico",
+        "index_title": "Matiz semantico",
+        "index_locator": "Edicion de referencia > relaciones lexicas > matiz",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:matiz-semantico:seg-1",
+        "segment_title": "Diferencia fina de sentido",
+        "segment_text": "Resumen editorial minimo: el matiz semantico permite elegir entre palabras cercanas segun intensidad, valoracion, registro y contexto.",
+        "extraction_id": "ext-diccionario-sinonimos-matiz-semantico-1",
+        "node_id": "diccionario-sinonimos-matiz-semantico",
+        "canonical_name": "Matiz semantico",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "precision",
+        "node_summary": "Diferencia fina que separa palabras proximas por intensidad, valoracion o uso.",
+        "short_definition": "Criterio para elegir la palabra que conserva mejor la intencion exacta.",
+        "aliases": ["matiz lexico", "diferencia semantica"],
+        "relation_target": "diccionario-sinonimos-falsos-sinonimos",
+        "relation_type": "define",
+        "card_id": "card-matiz-semantico",
+        "card_type": "lexical_revision_concept",
+        "card_name": "Matiz semantico",
+        "card_definition": "Criterio para elegir entre palabras cercanas por intensidad, valoracion y registro.",
+        "signals": ["precision", "intensidad", "valoracion"],
+        "risks": ["sustituir una palabra correcta por otra mas vistosa pero menos exacta"],
+        "contexts": ["lexico", "estilo", "revision"],
+        "evidence_id": "ev-diccionario-sinonimos-matiz-semantico",
+        "evidence_section": "matiz semantico",
+        "confidence": 0.6,
+        "claim_id": "claim-diccionario-sinonimos-matiz-semantico",
+        "statement": "El matiz semantico debe guiar la eleccion lexica cuando varias palabras cercanas no expresan la misma intensidad o valoracion.",
+        "claim_type": "lexical",
+        "domain": "lexicon.precision",
+        "related_node_ids": ["diccionario-sinonimos-falsos-sinonimos", "rae-dle-precision-lexica"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -5583,7 +5773,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V22_VERSION: "seed_corpus_usage_batch",
     KNOWLEDGE_V23_VERSION: "seed_generative_syntax_batch",
     KNOWLEDGE_V24_VERSION: "seed_style_elements_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_zinsser_writing_batch",
+    KNOWLEDGE_V25_VERSION: "seed_zinsser_writing_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_synonyms_antonyms_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -5603,7 +5794,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V22_VERSION: KNOWLEDGE_V22_PUBLISHED_AT,
     KNOWLEDGE_V23_VERSION: KNOWLEDGE_V23_PUBLISHED_AT,
     KNOWLEDGE_V24_VERSION: KNOWLEDGE_V24_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V25_PUBLISHED_AT,
+    KNOWLEDGE_V25_VERSION: KNOWLEDGE_V25_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V26_PUBLISHED_AT,
 }
 
 
@@ -6231,6 +6423,19 @@ def seed_sources() -> list[KnowledgeSource]:
             validation_status="validated",
             rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
+        _source(
+            catalog_id="F024",
+            source_id="diccionario-sinonimos-antonimos",
+            name="Diccionario de sinonimos y antonimos",
+            responsible="pendiente de normalizacion bibliografica",
+            source_type="diccionario lexico",
+            domains=["sinonimia", "antonimia", "matiz", "precision lexica", "revision"],
+            authority_level=3,
+            priority=2,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+        ),
     ]
 
 
@@ -6825,6 +7030,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "principio de escritura", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="diccionario-sinonimos-antonimos:edicion-referencia",
+            source_id="diccionario-sinonimos-antonimos",
+            title="Diccionario de sinonimos y antonimos",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="diccionario impreso o digital de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote lexico para usar sinonimos y antonimos como criterios de revision, "
+                "no como sustituciones automaticas."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["diccionario", "relacion lexica", "segmento"],
+            locator_system=["edicion", "entrada", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -6921,6 +7154,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V23_SEED_ITEMS),
         *_published_batch_index_entries(V24_SEED_ITEMS),
         *_published_batch_index_entries(V25_SEED_ITEMS),
+        *_published_batch_index_entries(V26_SEED_ITEMS),
     ]
 
 
@@ -7041,6 +7275,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V23_SEED_ITEMS),
         *_published_batch_segments(V24_SEED_ITEMS),
         *_published_batch_segments(V25_SEED_ITEMS),
+        *_published_batch_segments(V26_SEED_ITEMS),
     ]
 
 
@@ -7180,7 +7415,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_extraction_runs(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_extraction_runs(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_extraction_runs(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_extraction_runs(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7849,7 +8085,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_proposals(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_proposals(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_proposals(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_proposals(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8017,7 +8254,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_nodes(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_nodes(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_nodes(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_nodes(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8147,7 +8385,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_node_relations(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_node_relations(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_node_relations(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_node_relations(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8506,7 +8745,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_evidence(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_evidence(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_evidence(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_evidence(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8765,7 +9005,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_claims(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_claims(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_claims(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_claims(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8945,7 +9186,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
         *_published_batch_cards(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
         *_published_batch_cards(V24_SEED_ITEMS, KNOWLEDGE_V24_VERSION),
-        *_published_batch_cards(V25_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V25_SEED_ITEMS, KNOWLEDGE_V25_VERSION),
+        *_published_batch_cards(V26_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9479,8 +9721,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v24_evidence = [evidence for evidence in seed_evidence() if evidence.version in v24_chain]
     v24_claims = [claim for claim in seed_claims() if claim.version in v24_chain]
     v24_cards = [card for card in seed_cards() if card.version in v24_chain]
-    latest_chain = {*v24_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v25_chain = {*v24_chain, KNOWLEDGE_V25_VERSION}
+    v25_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -9502,7 +9744,36 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V25_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v24_node_ids, *{item["node_id"] for item in V25_SEED_ITEMS}}
+    v25_node_ids = {*v24_node_ids, *{item["node_id"] for item in V25_SEED_ITEMS}}
+    v25_nodes = [node for node in seed_nodes() if node.id in v25_node_ids]
+    v25_evidence = [evidence for evidence in seed_evidence() if evidence.version in v25_chain]
+    v25_claims = [claim for claim in seed_claims() if claim.version in v25_chain]
+    v25_cards = [card for card in seed_cards() if card.version in v25_chain]
+    latest_chain = {*v25_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v25_node_ids, *{item["node_id"] for item in V26_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -9759,9 +10030,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v24_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V25_VERSION,
             status="published",
             published_at=KNOWLEDGE_V25_PUBLISHED_AT,
+            source_count=len(v25_sources),
+            node_count=len(v25_nodes),
+            evidence_count=len(v25_evidence),
+            claim_count=len(v25_claims),
+            card_count=len(v25_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V26_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -10057,6 +10338,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V22_VERSION,
             KNOWLEDGE_V23_VERSION,
             KNOWLEDGE_V24_VERSION,
+            KNOWLEDGE_V25_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

@@ -6,12 +6,13 @@ const browser = await chromium.launch();
 const page = await browser.newPage();
 
 try {
-  await page.goto(frontendUrl, { waitUntil: "networkidle" });
+  await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
   const panel = page.locator(".proposalBox", { hasText: "Ingestion manual minima" });
   await panel.getByText("Solo una candidate real permite aprobar propuestas").waitFor();
 
   const sourceSelect = page.getByLabel("Fuente para ingestion manual");
+  await sourceSelect.locator("option").first().waitFor({ state: "attached" });
   const optionValue = await sourceSelect.evaluate((select) => {
     const options = Array.from(select.options);
     return (
