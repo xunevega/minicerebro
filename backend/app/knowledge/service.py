@@ -45,7 +45,8 @@ KNOWLEDGE_V9_VERSION = "knowledge-v9"
 KNOWLEDGE_V10_VERSION = "knowledge-v10"
 KNOWLEDGE_V11_VERSION = "knowledge-v11"
 KNOWLEDGE_V12_VERSION = "knowledge-v12"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v13"
+KNOWLEDGE_V13_VERSION = "knowledge-v13"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v14"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -60,6 +61,7 @@ KNOWLEDGE_V10_PUBLISHED_AT = "2026-07-23T09:00:00+00:00"
 KNOWLEDGE_V11_PUBLISHED_AT = "2026-07-23T10:00:00+00:00"
 KNOWLEDGE_V12_PUBLISHED_AT = "2026-07-23T11:00:00+00:00"
 KNOWLEDGE_V13_PUBLISHED_AT = "2026-07-23T12:00:00+00:00"
+KNOWLEDGE_V14_PUBLISHED_AT = "2026-07-23T13:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -1962,6 +1964,194 @@ V13_SEED_ITEMS = [
     },
 ]
 
+V14_SEED_ITEMS = [
+    {
+        "key": "ethos",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:ethos",
+        "index_title": "Ethos",
+        "index_locator": "Edicion de referencia > persuadibilidad > ethos",
+        "segment_id": "aristoteles-retorica:edicion-referencia:ethos:seg-1",
+        "segment_title": "Credibilidad del hablante",
+        "segment_text": "Resumen editorial minimo: el ethos es la credibilidad que el discurso construye sobre quien habla o escribe.",
+        "extraction_id": "ext-aristoteles-retorica-ethos-1",
+        "node_id": "aristoteles-ethos",
+        "canonical_name": "Ethos",
+        "node_type": "concepto",
+        "primary_branch": "retorica",
+        "secondary_branch": "persuasion",
+        "node_summary": "Credibilidad discursiva de quien argumenta.",
+        "short_definition": "Confianza que el texto construye sobre la voz que persuade.",
+        "aliases": ["credibilidad retorica"],
+        "relation_target": "reyes-enfoque-lector",
+        "relation_type": "relacionado_con",
+        "card_id": "card-ethos",
+        "card_type": "rhetoric_concept",
+        "card_name": "Ethos",
+        "card_definition": "Criterio para revisar la credibilidad que proyecta un texto argumentativo.",
+        "signals": ["autoridad", "prudencia", "confianza"],
+        "risks": ["declarar autoridad sin construirla en el discurso"],
+        "contexts": ["argumentacion", "ensayo", "discurso"],
+        "evidence_id": "ev-aristoteles-ethos",
+        "evidence_section": "ethos",
+        "confidence": 0.62,
+        "claim_id": "claim-aristoteles-ethos",
+        "statement": "Un texto persuasivo debe construir credibilidad discursiva, no limitarse a afirmar autoridad.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.persuasion",
+        "related_node_ids": ["reyes-enfoque-lector", "manual-tono"],
+    },
+    {
+        "key": "pathos",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:pathos",
+        "index_title": "Pathos",
+        "index_locator": "Edicion de referencia > persuadibilidad > pathos",
+        "segment_id": "aristoteles-retorica:edicion-referencia:pathos:seg-1",
+        "segment_title": "Disposicion emocional del receptor",
+        "segment_text": "Resumen editorial minimo: el pathos atiende a la disposicion emocional del receptor y a su efecto en la persuasion.",
+        "extraction_id": "ext-aristoteles-retorica-pathos-1",
+        "node_id": "aristoteles-pathos",
+        "canonical_name": "Pathos",
+        "node_type": "concepto",
+        "primary_branch": "retorica",
+        "secondary_branch": "persuasion",
+        "node_summary": "Dimension emocional de la persuasion.",
+        "short_definition": "Uso discursivo de la emocion y la disposicion del receptor.",
+        "aliases": ["apelacion emocional"],
+        "relation_target": "aristoteles-ethos",
+        "relation_type": "compara_con",
+        "card_id": "card-pathos",
+        "card_type": "rhetoric_concept",
+        "card_name": "Pathos",
+        "card_definition": "Criterio para revisar la apelacion emocional de un argumento.",
+        "signals": ["emocion", "receptor", "tono"],
+        "risks": ["sustituir razones por manipulacion emocional"],
+        "contexts": ["argumentacion", "discurso", "revision de tono"],
+        "evidence_id": "ev-aristoteles-pathos",
+        "evidence_section": "pathos",
+        "confidence": 0.61,
+        "claim_id": "claim-aristoteles-pathos",
+        "statement": "La apelacion emocional puede orientar la persuasion, pero debe estar controlada por el proposito argumentativo.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.persuasion",
+        "related_node_ids": ["aristoteles-ethos", "reyes-adecuacion-lector"],
+    },
+    {
+        "key": "logos",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:logos",
+        "index_title": "Logos",
+        "index_locator": "Edicion de referencia > persuadibilidad > logos",
+        "segment_id": "aristoteles-retorica:edicion-referencia:logos:seg-1",
+        "segment_title": "Prueba racional del discurso",
+        "segment_text": "Resumen editorial minimo: el logos organiza la persuasion mediante razones, pruebas y encadenamiento argumentativo.",
+        "extraction_id": "ext-aristoteles-retorica-logos-1",
+        "node_id": "aristoteles-logos",
+        "canonical_name": "Logos",
+        "node_type": "concepto",
+        "primary_branch": "retorica",
+        "secondary_branch": "argumentacion",
+        "node_summary": "Prueba racional y encadenamiento argumentativo.",
+        "short_definition": "Dimension racional del discurso persuasivo.",
+        "aliases": ["argumento racional"],
+        "relation_target": "aristoteles-pathos",
+        "relation_type": "compara_con",
+        "card_id": "card-logos",
+        "card_type": "rhetoric_concept",
+        "card_name": "Logos",
+        "card_definition": "Criterio para revisar la solidez racional de un argumento.",
+        "signals": ["razon", "prueba", "conclusion"],
+        "risks": ["acumular afirmaciones sin encadenamiento"],
+        "contexts": ["argumentacion", "ensayo", "explicacion"],
+        "evidence_id": "ev-aristoteles-logos",
+        "evidence_section": "logos",
+        "confidence": 0.63,
+        "claim_id": "claim-aristoteles-logos",
+        "statement": "La persuasion racional exige razones y pruebas conectadas con la conclusion del discurso.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.argumentation",
+        "related_node_ids": ["aristoteles-pathos", "reyes-coherencia-textual"],
+    },
+    {
+        "key": "entimema",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:entimema",
+        "index_title": "Entimema",
+        "index_locator": "Edicion de referencia > pruebas retoricas > entimema",
+        "segment_id": "aristoteles-retorica:edicion-referencia:entimema:seg-1",
+        "segment_title": "Razonamiento retorico",
+        "segment_text": "Resumen editorial minimo: el entimema funciona como razonamiento persuasivo abreviado que se apoya en premisas compartidas.",
+        "extraction_id": "ext-aristoteles-retorica-entimema-1",
+        "node_id": "aristoteles-entimema",
+        "canonical_name": "Entimema",
+        "node_type": "concepto",
+        "primary_branch": "retorica",
+        "secondary_branch": "argumentacion",
+        "node_summary": "Razonamiento persuasivo apoyado en premisas compartidas.",
+        "short_definition": "Inferencia retorica que omite o presupone parte de sus premisas.",
+        "aliases": ["silogismo retorico"],
+        "relation_target": "aristoteles-logos",
+        "relation_type": "depende_de",
+        "card_id": "card-entimema",
+        "card_type": "rhetoric_concept",
+        "card_name": "Entimema",
+        "card_definition": "Criterio para detectar premisas implicitas en un argumento.",
+        "signals": ["premisa implicita", "inferencia", "conclusion"],
+        "risks": ["dejar sin revisar supuestos discutibles"],
+        "contexts": ["argumentacion", "debate", "ensayo"],
+        "evidence_id": "ev-aristoteles-entimema",
+        "evidence_section": "entimema",
+        "confidence": 0.62,
+        "claim_id": "claim-aristoteles-entimema",
+        "statement": "El entimema permite persuadir con premisas compartidas, pero sus supuestos deben poder hacerse visibles.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.argumentation",
+        "related_node_ids": ["aristoteles-logos", "reyes-conectores"],
+    },
+    {
+        "key": "generos-retoricos",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:generos-retoricos",
+        "index_title": "Generos retoricos",
+        "index_locator": "Edicion de referencia > generos retoricos",
+        "segment_id": "aristoteles-retorica:edicion-referencia:generos-retoricos:seg-1",
+        "segment_title": "Deliberativo, judicial y demostrativo",
+        "segment_text": "Resumen editorial minimo: los generos retoricos orientan el discurso segun finalidad, auditorio y tiempo de referencia.",
+        "extraction_id": "ext-aristoteles-retorica-generos-retoricos-1",
+        "node_id": "aristoteles-generos-retoricos",
+        "canonical_name": "Generos retoricos",
+        "node_type": "categoria",
+        "primary_branch": "retorica",
+        "secondary_branch": "generos discursivos",
+        "node_summary": "Clasificacion de discursos segun finalidad persuasiva.",
+        "short_definition": "Marco para distinguir discursos deliberativos, judiciales y demostrativos.",
+        "aliases": ["clases de discurso retorico"],
+        "relation_target": "aristoteles-entimema",
+        "relation_type": "usa",
+        "card_id": "card-generos-retoricos",
+        "card_type": "rhetoric_concept",
+        "card_name": "Generos retoricos",
+        "card_definition": "Criterio para ajustar un argumento a finalidad, auditorio y tiempo.",
+        "signals": ["finalidad", "auditorio", "tiempo"],
+        "risks": ["mezclar objetivos discursivos incompatibles"],
+        "contexts": ["argumentacion", "discurso publico", "ensayo"],
+        "evidence_id": "ev-aristoteles-generos-retoricos",
+        "evidence_section": "generos retoricos",
+        "confidence": 0.61,
+        "claim_id": "claim-aristoteles-generos-retoricos",
+        "statement": "El genero retorico condiciona la finalidad del argumento, el auditorio previsto y el tiempo al que se orienta.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.genres",
+        "related_node_ids": ["aristoteles-entimema", "reyes-enfoque-lector"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -3291,7 +3481,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V10_VERSION: "seed_editorial_style_batch",
     KNOWLEDGE_V11_VERSION: "seed_writing_practice_batch",
     KNOWLEDGE_V12_VERSION: "seed_orthotypography_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_literary_commentary_batch",
+    KNOWLEDGE_V13_VERSION: "seed_literary_commentary_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_rhetoric_argumentation_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -3299,7 +3490,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V10_VERSION: KNOWLEDGE_V10_PUBLISHED_AT,
     KNOWLEDGE_V11_VERSION: KNOWLEDGE_V11_PUBLISHED_AT,
     KNOWLEDGE_V12_VERSION: KNOWLEDGE_V12_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V13_PUBLISHED_AT,
+    KNOWLEDGE_V13_VERSION: KNOWLEDGE_V13_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V14_PUBLISHED_AT,
 }
 
 
@@ -3764,6 +3956,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["persuasion", "argumentacion", "generos retoricos", "ethos", "pathos", "logos"],
             authority_level=5,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F012",
@@ -4149,6 +4344,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["capitulo", "fase de comentario", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="aristoteles-retorica:edicion-referencia",
+            source_id="aristoteles-retorica",
+            title="Retorica",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de retorica clasica para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "concepto retorico", "segmento"],
+            locator_system=["edicion", "libro", "capitulo", "apartado"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -4233,6 +4456,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V11_SEED_ITEMS),
         *_published_batch_index_entries(V12_SEED_ITEMS),
         *_published_batch_index_entries(V13_SEED_ITEMS),
+        *_published_batch_index_entries(V14_SEED_ITEMS),
     ]
 
 
@@ -4341,6 +4565,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V11_SEED_ITEMS),
         *_published_batch_segments(V12_SEED_ITEMS),
         *_published_batch_segments(V13_SEED_ITEMS),
+        *_published_batch_segments(V14_SEED_ITEMS),
     ]
 
 
@@ -4468,7 +4693,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_extraction_runs(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_extraction_runs(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_extraction_runs(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_extraction_runs(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5125,7 +5351,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_proposals(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_proposals(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_proposals(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_proposals(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5281,7 +5508,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_nodes(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_nodes(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_nodes(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_nodes(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5399,7 +5627,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_node_relations(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_node_relations(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_node_relations(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_node_relations(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5746,7 +5975,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_evidence(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_evidence(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_evidence(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_evidence(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5993,7 +6223,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_claims(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_claims(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_claims(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_claims(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6161,7 +6392,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V10_SEED_ITEMS, KNOWLEDGE_V10_VERSION),
         *_published_batch_cards(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_cards(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
-        *_published_batch_cards(V13_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
+        *_published_batch_cards(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6437,8 +6669,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v12_evidence = [evidence for evidence in seed_evidence() if evidence.version in v12_chain]
     v12_claims = [claim for claim in seed_claims() if claim.version in v12_chain]
     v12_cards = [card for card in seed_cards() if card.version in v12_chain]
-    latest_chain = {*v12_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v13_chain = {*v12_chain, KNOWLEDGE_V13_VERSION}
+    v13_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -6448,7 +6680,24 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V13_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v12_node_ids, *{item["node_id"] for item in V13_SEED_ITEMS}}
+    v13_node_ids = {*v12_node_ids, *{item["node_id"] for item in V13_SEED_ITEMS}}
+    v13_nodes = [node for node in seed_nodes() if node.id in v13_node_ids]
+    v13_evidence = [evidence for evidence in seed_evidence() if evidence.version in v13_chain]
+    v13_claims = [claim for claim in seed_claims() if claim.version in v13_chain]
+    v13_cards = [card for card in seed_cards() if card.version in v13_chain]
+    latest_chain = {*v13_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v13_node_ids, *{item["node_id"] for item in V14_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -6585,9 +6834,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v12_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V13_VERSION,
             status="published",
             published_at=KNOWLEDGE_V13_PUBLISHED_AT,
+            source_count=len(v13_sources),
+            node_count=len(v13_nodes),
+            evidence_count=len(v13_evidence),
+            claim_count=len(v13_claims),
+            card_count=len(v13_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V14_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -6871,6 +7130,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V10_VERSION,
             KNOWLEDGE_V11_VERSION,
             KNOWLEDGE_V12_VERSION,
+            KNOWLEDGE_V13_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

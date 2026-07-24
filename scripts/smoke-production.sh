@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v13}"
-QUERY="${QUERY:-tema estructura externa interna forma contenido comentario critico texto literario}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v14}"
+QUERY="${QUERY:-ethos pathos logos entimema generos retoricos argumentacion persuasion}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"
