@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v15}"
-QUERY="${QUERY:-inventio dispositio elocutio memoria actio pronuntiatio discurso}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v16}"
+QUERY="${QUERY:-preparacion-discurso-oral interes-auditorio ejemplos-concretos claridad-oral cierre-accion}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"

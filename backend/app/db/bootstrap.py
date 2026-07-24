@@ -317,6 +317,14 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 published_at="2026-07-23T14:00:00+00:00",
             )
         )
+    if session.get(KnowledgeVersionRecord, "knowledge-v16") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v16",
+                status="published",
+                published_at="2026-07-23T15:00:00+00:00",
+            )
+        )
     for source in seed_sources():
         source_record = session.get(KnowledgeSourceRecord, source.id)
         values = {
@@ -916,6 +924,7 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "knowledge-v13",
             "knowledge-v14",
             "knowledge-v15",
+            "knowledge-v16",
         }
         candidate_object_ids.update(
             node.id for node in seed_nodes() if node.version in published_versions
@@ -1484,6 +1493,29 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "knowledge-v15",
         },
         timestamp="2026-07-23T14:00:00+00:00",
+    )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v16",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+            "knowledge-v10",
+            "knowledge-v11",
+            "knowledge-v12",
+            "knowledge-v13",
+            "knowledge-v14",
+            "knowledge-v15",
+            "knowledge-v16",
+        },
+        timestamp="2026-07-23T15:00:00+00:00",
     )
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v1") is None:
         source_ids = ["rae-ngle"]

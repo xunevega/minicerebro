@@ -47,7 +47,8 @@ KNOWLEDGE_V11_VERSION = "knowledge-v11"
 KNOWLEDGE_V12_VERSION = "knowledge-v12"
 KNOWLEDGE_V13_VERSION = "knowledge-v13"
 KNOWLEDGE_V14_VERSION = "knowledge-v14"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v15"
+KNOWLEDGE_V15_VERSION = "knowledge-v15"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v16"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -64,6 +65,7 @@ KNOWLEDGE_V12_PUBLISHED_AT = "2026-07-23T11:00:00+00:00"
 KNOWLEDGE_V13_PUBLISHED_AT = "2026-07-23T12:00:00+00:00"
 KNOWLEDGE_V14_PUBLISHED_AT = "2026-07-23T13:00:00+00:00"
 KNOWLEDGE_V15_PUBLISHED_AT = "2026-07-23T14:00:00+00:00"
+KNOWLEDGE_V16_PUBLISHED_AT = "2026-07-23T15:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -2342,6 +2344,194 @@ V15_SEED_ITEMS = [
     },
 ]
 
+V16_SEED_ITEMS = [
+    {
+        "key": "preparacion-discurso-oral",
+        "source_id": "carnegie-hablar-publico",
+        "source_edition_id": "carnegie-hablar-publico:edicion-referencia",
+        "index_id": "carnegie-hablar-publico:edicion-referencia:preparacion-discurso-oral",
+        "index_title": "Preparacion del discurso oral",
+        "index_locator": "Edicion de referencia > preparacion > discurso oral",
+        "segment_id": "carnegie-hablar-publico:edicion-referencia:preparacion-discurso-oral:seg-1",
+        "segment_title": "Preparar antes de hablar",
+        "segment_text": "Resumen editorial minimo: la preparacion del discurso oral selecciona un proposito claro, ordena materiales y evita depender de improvisacion pura.",
+        "extraction_id": "ext-carnegie-hablar-publico-preparacion-discurso-oral-1",
+        "node_id": "carnegie-preparacion-discurso-oral",
+        "canonical_name": "Preparacion del discurso oral",
+        "node_type": "metodo",
+        "primary_branch": "comunicacion oral",
+        "secondary_branch": "preparacion",
+        "node_summary": "Preparacion deliberada del proposito y materiales antes de hablar.",
+        "short_definition": "Metodo para definir finalidad, materiales y recorrido antes de una exposicion oral.",
+        "aliases": ["preparacion de charla"],
+        "relation_target": "quintiliano-inventio",
+        "relation_type": "usa",
+        "card_id": "card-preparacion-discurso-oral",
+        "card_type": "oral_communication_method",
+        "card_name": "Preparacion del discurso oral",
+        "card_definition": "Criterio para revisar si una intervencion oral tiene proposito y recorrido preparados.",
+        "signals": ["proposito", "materiales", "recorrido"],
+        "risks": ["confiar en improvisacion sin estructura ni objetivo"],
+        "contexts": ["presentacion", "charla", "discurso oral"],
+        "evidence_id": "ev-carnegie-preparacion-discurso-oral",
+        "evidence_section": "preparacion del discurso oral",
+        "confidence": 0.61,
+        "claim_id": "claim-carnegie-preparacion-discurso-oral",
+        "statement": "Una intervencion oral gana claridad cuando se prepara con proposito, materiales y recorrido reconocibles.",
+        "claim_type": "rhetorical",
+        "domain": "speech.preparation",
+        "related_node_ids": ["quintiliano-inventio", "quintiliano-dispositio"],
+    },
+    {
+        "key": "interes-auditorio",
+        "source_id": "carnegie-hablar-publico",
+        "source_edition_id": "carnegie-hablar-publico:edicion-referencia",
+        "index_id": "carnegie-hablar-publico:edicion-referencia:interes-auditorio",
+        "index_title": "Interes del auditorio",
+        "index_locator": "Edicion de referencia > auditorio > interes",
+        "segment_id": "carnegie-hablar-publico:edicion-referencia:interes-auditorio:seg-1",
+        "segment_title": "Hablar para quien escucha",
+        "segment_text": "Resumen editorial minimo: la comunicacion oral eficaz adapta ejemplos, enfoque y enfasis al interes real del auditorio.",
+        "extraction_id": "ext-carnegie-hablar-publico-interes-auditorio-1",
+        "node_id": "carnegie-interes-auditorio",
+        "canonical_name": "Interes del auditorio",
+        "node_type": "concepto",
+        "primary_branch": "comunicacion oral",
+        "secondary_branch": "auditorio",
+        "node_summary": "Adecuacion del discurso al interes de quien escucha.",
+        "short_definition": "Criterio para orientar una exposicion segun necesidades y atencion del auditorio.",
+        "aliases": ["interes de la audiencia"],
+        "relation_target": "reyes-enfoque-lector",
+        "relation_type": "relacionado_con",
+        "card_id": "card-interes-auditorio",
+        "card_type": "oral_communication_method",
+        "card_name": "Interes del auditorio",
+        "card_definition": "Criterio para revisar si una exposicion se orienta a quien escucha.",
+        "signals": ["auditorio", "interes", "enfoque"],
+        "risks": ["hablar desde el emisor sin conectar con quien escucha"],
+        "contexts": ["presentacion", "persuasion", "divulgacion"],
+        "evidence_id": "ev-carnegie-interes-auditorio",
+        "evidence_section": "interes del auditorio",
+        "confidence": 0.6,
+        "claim_id": "claim-carnegie-interes-auditorio",
+        "statement": "La exposicion oral debe adaptar enfoque y ejemplos al interes de su auditorio.",
+        "claim_type": "rhetorical",
+        "domain": "speech.audience",
+        "related_node_ids": ["reyes-enfoque-lector", "aristoteles-pathos"],
+    },
+    {
+        "key": "ejemplos-concretos",
+        "source_id": "carnegie-hablar-publico",
+        "source_edition_id": "carnegie-hablar-publico:edicion-referencia",
+        "index_id": "carnegie-hablar-publico:edicion-referencia:ejemplos-concretos",
+        "index_title": "Ejemplos concretos",
+        "index_locator": "Edicion de referencia > claridad oral > ejemplos concretos",
+        "segment_id": "carnegie-hablar-publico:edicion-referencia:ejemplos-concretos:seg-1",
+        "segment_title": "Concretar ideas abstractas",
+        "segment_text": "Resumen editorial minimo: los ejemplos concretos ayudan a que una idea oral resulte comprensible, memorable y verificable por el oyente.",
+        "extraction_id": "ext-carnegie-hablar-publico-ejemplos-concretos-1",
+        "node_id": "carnegie-ejemplos-concretos",
+        "canonical_name": "Ejemplos concretos",
+        "node_type": "recurso",
+        "primary_branch": "comunicacion oral",
+        "secondary_branch": "claridad",
+        "node_summary": "Uso de casos y escenas concretas para hacer comprensible una idea.",
+        "short_definition": "Recurso que convierte una afirmacion abstracta en imagen o caso reconocible.",
+        "aliases": ["casos concretos"],
+        "relation_target": "aristoteles-logos",
+        "relation_type": "ejemplifica",
+        "card_id": "card-ejemplos-concretos",
+        "card_type": "oral_communication_method",
+        "card_name": "Ejemplos concretos",
+        "card_definition": "Criterio para revisar si una exposicion baja las ideas a casos comprensibles.",
+        "signals": ["ejemplo", "caso", "escena"],
+        "risks": ["quedarse en abstracciones dificiles de retener"],
+        "contexts": ["explicacion", "presentacion", "ensayo oral"],
+        "evidence_id": "ev-carnegie-ejemplos-concretos",
+        "evidence_section": "ejemplos concretos",
+        "confidence": 0.61,
+        "claim_id": "claim-carnegie-ejemplos-concretos",
+        "statement": "Los ejemplos concretos hacen mas comprensible y recordable una idea expuesta oralmente.",
+        "claim_type": "rhetorical",
+        "domain": "speech.clarity",
+        "related_node_ids": ["aristoteles-logos", "rae-lese-claridad"],
+    },
+    {
+        "key": "claridad-oral",
+        "source_id": "carnegie-hablar-publico",
+        "source_edition_id": "carnegie-hablar-publico:edicion-referencia",
+        "index_id": "carnegie-hablar-publico:edicion-referencia:claridad-oral",
+        "index_title": "Claridad oral",
+        "index_locator": "Edicion de referencia > expresion > claridad oral",
+        "segment_id": "carnegie-hablar-publico:edicion-referencia:claridad-oral:seg-1",
+        "segment_title": "Decir con claridad",
+        "segment_text": "Resumen editorial minimo: la claridad oral exige frases comprensibles, progresion visible y eliminacion de rodeos que distraen al oyente.",
+        "extraction_id": "ext-carnegie-hablar-publico-claridad-oral-1",
+        "node_id": "carnegie-claridad-oral",
+        "canonical_name": "Claridad oral",
+        "node_type": "norma",
+        "primary_branch": "comunicacion oral",
+        "secondary_branch": "expresion",
+        "node_summary": "Claridad expresiva aplicada a exposiciones orales.",
+        "short_definition": "Norma practica para hablar con frases comprensibles y progresion visible.",
+        "aliases": ["claridad al hablar"],
+        "relation_target": "quintiliano-elocutio",
+        "relation_type": "depende_de",
+        "card_id": "card-claridad-oral",
+        "card_type": "oral_communication_method",
+        "card_name": "Claridad oral",
+        "card_definition": "Criterio para revisar comprensibilidad y progresion en una exposicion oral.",
+        "signals": ["frases claras", "progresion", "comprension"],
+        "risks": ["perder al oyente por rodeos o saltos de idea"],
+        "contexts": ["discurso oral", "presentacion", "clase"],
+        "evidence_id": "ev-carnegie-claridad-oral",
+        "evidence_section": "claridad oral",
+        "confidence": 0.61,
+        "claim_id": "claim-carnegie-claridad-oral",
+        "statement": "La claridad oral requiere frases comprensibles y una progresion que el oyente pueda seguir.",
+        "claim_type": "rhetorical",
+        "domain": "speech.clarity",
+        "related_node_ids": ["quintiliano-elocutio", "rae-lese-claridad"],
+    },
+    {
+        "key": "cierre-accion",
+        "source_id": "carnegie-hablar-publico",
+        "source_edition_id": "carnegie-hablar-publico:edicion-referencia",
+        "index_id": "carnegie-hablar-publico:edicion-referencia:cierre-accion",
+        "index_title": "Cierre orientado a la accion",
+        "index_locator": "Edicion de referencia > cierre > accion",
+        "segment_id": "carnegie-hablar-publico:edicion-referencia:cierre-accion:seg-1",
+        "segment_title": "Cerrar con direccion",
+        "segment_text": "Resumen editorial minimo: el cierre de una intervencion oral debe dejar una direccion reconocible: decision, recuerdo, accion o siguiente paso.",
+        "extraction_id": "ext-carnegie-hablar-publico-cierre-accion-1",
+        "node_id": "carnegie-cierre-accion",
+        "canonical_name": "Cierre orientado a la accion",
+        "node_type": "metodo",
+        "primary_branch": "comunicacion oral",
+        "secondary_branch": "cierre",
+        "node_summary": "Cierre que deja al auditorio una direccion practica reconocible.",
+        "short_definition": "Metodo para terminar una intervencion con decision, recuerdo o siguiente paso.",
+        "aliases": ["llamada a la accion", "cierre practico"],
+        "relation_target": "aristoteles-generos-retoricos",
+        "relation_type": "usa",
+        "card_id": "card-cierre-accion",
+        "card_type": "oral_communication_method",
+        "card_name": "Cierre orientado a la accion",
+        "card_definition": "Criterio para revisar si el final de una exposicion deja una direccion clara.",
+        "signals": ["cierre", "accion", "siguiente paso"],
+        "risks": ["terminar sin decision ni recuerdo operativo"],
+        "contexts": ["presentacion", "persuasion", "discurso publico"],
+        "evidence_id": "ev-carnegie-cierre-accion",
+        "evidence_section": "cierre orientado a la accion",
+        "confidence": 0.61,
+        "claim_id": "claim-carnegie-cierre-accion",
+        "statement": "Un cierre oral eficaz deja al auditorio una direccion reconocible para recordar, decidir o actuar.",
+        "claim_type": "rhetorical",
+        "domain": "speech.delivery",
+        "related_node_ids": ["aristoteles-generos-retoricos", "quintiliano-actio-pronuntiatio"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -3673,7 +3863,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V12_VERSION: "seed_orthotypography_batch",
     KNOWLEDGE_V13_VERSION: "seed_literary_commentary_batch",
     KNOWLEDGE_V14_VERSION: "seed_rhetoric_argumentation_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_quintilian_discourse_batch",
+    KNOWLEDGE_V15_VERSION: "seed_quintilian_discourse_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_oral_communication_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -3683,7 +3874,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V12_VERSION: KNOWLEDGE_V12_PUBLISHED_AT,
     KNOWLEDGE_V13_VERSION: KNOWLEDGE_V13_PUBLISHED_AT,
     KNOWLEDGE_V14_VERSION: KNOWLEDGE_V14_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V15_PUBLISHED_AT,
+    KNOWLEDGE_V15_VERSION: KNOWLEDGE_V15_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V16_PUBLISHED_AT,
 }
 
 
@@ -4174,6 +4366,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["discurso oral", "exposicion", "audiencia", "comunicacion practica"],
             authority_level=3,
             priority=4,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F014",
@@ -4595,6 +4790,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "fase retorica", "segmento"],
             locator_system=["edicion", "libro", "capitulo", "apartado"],
         ),
+        KnowledgeSourceEdition(
+            id="carnegie-hablar-publico:edicion-referencia",
+            source_id="carnegie-hablar-publico",
+            title="Como hablar bien en publico e influir en los hombres de negocios",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de comunicacion oral practica para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["capitulo", "criterio de comunicacion oral", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -4681,6 +4904,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V13_SEED_ITEMS),
         *_published_batch_index_entries(V14_SEED_ITEMS),
         *_published_batch_index_entries(V15_SEED_ITEMS),
+        *_published_batch_index_entries(V16_SEED_ITEMS),
     ]
 
 
@@ -4791,6 +5015,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V13_SEED_ITEMS),
         *_published_batch_segments(V14_SEED_ITEMS),
         *_published_batch_segments(V15_SEED_ITEMS),
+        *_published_batch_segments(V16_SEED_ITEMS),
     ]
 
 
@@ -4920,7 +5145,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_extraction_runs(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_extraction_runs(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_extraction_runs(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_extraction_runs(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5579,7 +5805,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_proposals(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_proposals(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_proposals(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_proposals(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5737,7 +5964,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_nodes(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_nodes(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_nodes(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_nodes(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5857,7 +6085,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_node_relations(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_node_relations(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_node_relations(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_node_relations(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6206,7 +6435,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_evidence(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_evidence(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_evidence(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_evidence(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6455,7 +6685,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_claims(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_claims(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_claims(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_claims(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6625,7 +6856,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_cards(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
         *_published_batch_cards(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
-        *_published_batch_cards(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V15_SEED_ITEMS, KNOWLEDGE_V15_VERSION),
+        *_published_batch_cards(V16_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6934,8 +7166,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v14_evidence = [evidence for evidence in seed_evidence() if evidence.version in v14_chain]
     v14_claims = [claim for claim in seed_claims() if claim.version in v14_chain]
     v14_cards = [card for card in seed_cards() if card.version in v14_chain]
-    latest_chain = {*v14_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v15_chain = {*v14_chain, KNOWLEDGE_V15_VERSION}
+    v15_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -6947,7 +7179,26 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V15_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v14_node_ids, *{item["node_id"] for item in V15_SEED_ITEMS}}
+    v15_node_ids = {*v14_node_ids, *{item["node_id"] for item in V15_SEED_ITEMS}}
+    v15_nodes = [node for node in seed_nodes() if node.id in v15_node_ids]
+    v15_evidence = [evidence for evidence in seed_evidence() if evidence.version in v15_chain]
+    v15_claims = [claim for claim in seed_claims() if claim.version in v15_chain]
+    v15_cards = [card for card in seed_cards() if card.version in v15_chain]
+    latest_chain = {*v15_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v15_node_ids, *{item["node_id"] for item in V16_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -7104,9 +7355,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v14_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V15_VERSION,
             status="published",
             published_at=KNOWLEDGE_V15_PUBLISHED_AT,
+            source_count=len(v15_sources),
+            node_count=len(v15_nodes),
+            evidence_count=len(v15_evidence),
+            claim_count=len(v15_claims),
+            card_count=len(v15_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V16_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -7392,6 +7653,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V12_VERSION,
             KNOWLEDGE_V13_VERSION,
             KNOWLEDGE_V14_VERSION,
+            KNOWLEDGE_V15_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
