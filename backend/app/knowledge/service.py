@@ -11507,8 +11507,16 @@ QUERY_TYPE_KEYWORDS = {
     "definition": ["que es", "define", "definicion", "significa"],
     "normative_correction": ["correct", "coma", "debe", "norma", "lleva"],
     "descriptive_explanation": ["por que", "ambigua", "explica"],
-    "writing_recommendation": ["claro", "mejor", "escritura", "parrafo", "estilo"],
-    "literary_analysis": ["narrador", "focalizacion", "metafora", "literario"],
+    "writing_recommendation": ["claro", "mejor", "escritura", "parrafo", "estilo", "revision"],
+    "literary_analysis": [
+        "narrador",
+        "focalizacion",
+        "metafora",
+        "literario",
+        "escena",
+        "personaje",
+        "dialogo",
+    ],
     "terminological": ["termino", "mismo", "alias", "equivale"],
     "historical": ["histor", "cambio", "version", "antes"],
     "evidence": ["fuente", "evidencia", "sostiene", "justifica"],
@@ -11518,7 +11526,17 @@ QUERY_TYPE_KEYWORDS = {
 DOMAIN_KEYWORDS = {
     "LENGUA": ["lengua", "norma", "coma", "gramatica", "lexica", "lexico"],
     "ESCRITURA": ["escritura", "estilo", "claro", "sobriedad", "dinamismo", "parrafo"],
-    "TEORIA LITERARIA": ["narrador", "focalizacion", "metafora", "comparacion"],
+    "TEORIA LITERARIA": [
+        "narrador",
+        "focalizacion",
+        "metafora",
+        "comparacion",
+        "escena",
+        "trama",
+        "personaje",
+        "dialogo",
+        "tension",
+    ],
     "GLOSARIO": ["termino", "definicion", "significa"],
 }
 
@@ -11528,6 +11546,61 @@ QUERY_TYPE_RELATION_PRIORITIES = {
     "writing_recommendation": ["usa", "ejemplifica", "relacionado_con", "depende_de"],
     "literary_analysis": ["aparece_en", "estudiado_por", "usa"],
     "comparative": ["compara_con", "contradice", "equivale_a", "relacionado_con"],
+}
+
+QUERY_STOPWORDS = {
+    "algo",
+    "ante",
+    "aqui",
+    "cada",
+    "como",
+    "con",
+    "contra",
+    "cual",
+    "cuando",
+    "desde",
+    "donde",
+    "dos",
+    "entre",
+    "esta",
+    "este",
+    "esto",
+    "hacer",
+    "hacia",
+    "las",
+    "los",
+    "mas",
+    "menos",
+    "mis",
+    "muy",
+    "para",
+    "pero",
+    "por",
+    "que",
+    "sea",
+    "sin",
+    "sobre",
+    "una",
+    "uno",
+}
+
+QUERY_TERM_EXPANSIONS = {
+    "charla": {"dialogo", "conversacion"},
+    "conversacion": {"dialogo", "voz", "personaje"},
+    "conversaciones": {"dialogo", "voz", "personaje"},
+    "decirlo": {"declarar", "explicitar", "subtexto"},
+    "dialogos": {"dialogo"},
+    "explicarlo": {"declarar", "explicitar", "subtexto"},
+    "insinuar": {"sugerir", "subtexto", "inferencia"},
+    "ocultar": {"ocultacion", "subtexto", "focalizacion"},
+    "personajes": {"personaje"},
+    "puente": {"transicion", "estructura"},
+    "relleno": {"decorativa", "funcion", "transicion"},
+    "rellenar": {"decorativa", "funcion"},
+    "sirva": {"funcion", "cambio", "decision"},
+    "servir": {"funcion", "cambio", "decision"},
+    "sugerir": {"subtexto", "inferencia"},
+    "transicion": {"puente", "estructura"},
 }
 
 
@@ -11544,7 +11617,22 @@ def _normalize_query(query: str) -> str:
 
 
 def _query_terms(normalized_query: str) -> set[str]:
-    return {term for term in normalized_query.split() if len(term) > 2}
+    raw_terms = {
+        term
+        for term in normalized_query.split()
+        if len(term) > 2 and term not in QUERY_STOPWORDS
+    }
+    tokenized = normalized_query.replace("-", " ").replace("/", " ")
+    split_terms = {
+        term
+        for term in tokenized.split()
+        if len(term) > 2 and term not in QUERY_STOPWORDS
+    }
+    return raw_terms | split_terms
+
+
+def _expanded_query_terms(terms: set[str]) -> dict[str, set[str]]:
+    return {term: {term, *QUERY_TERM_EXPANSIONS.get(term, set())} for term in terms}
 
 
 def _detect_query_types(normalized_query: str) -> list[str]:
@@ -11575,7 +11663,21 @@ def _text_match_score(terms: set[str], haystack: str) -> float:
     if not terms:
         return 0.0
     normalized_haystack = _normalize_query(haystack)
-    return sum(1 for term in terms if term in normalized_haystack) / len(terms)
+    tokenized_haystack = normalized_haystack.replace("-", " ").replace("/", " ")
+    haystack_terms = set(tokenized_haystack.split())
+    expanded_terms = _expanded_query_terms(terms)
+    matches = 0.0
+    for term, alternatives in expanded_terms.items():
+        if term in normalized_haystack:
+            matches += 1.0
+            continue
+        expanded_alternatives = alternatives - {term}
+        if expanded_alternatives & haystack_terms:
+            matches += 0.55
+            continue
+        if any(alternative in normalized_haystack for alternative in expanded_alternatives):
+            matches += 0.45
+    return matches / len(terms)
 
 
 def query_contract() -> KnowledgeQueryContract:
@@ -11823,8 +11925,47 @@ def query_knowledge(
                 ),
             ]
         )
+        core_haystack = " ".join(
+            [
+                card.id,
+                card.name,
+                card.definition,
+                " ".join(
+                    " ".join(
+                        [
+                            node.title,
+                            node.canonical_name,
+                            node.primary_branch,
+                            node.secondary_branch,
+                            node.short_definition,
+                            " ".join(node.aliases),
+                        ]
+                    )
+                    for node in linked_nodes
+                ),
+            ]
+        )
         concept_match = _text_match_score(terms, haystack)
+        core_match = _text_match_score(terms, core_haystack)
         domain_match = 1.0 if any(term in haystack.lower() for term in ("lexic", "estilo", "escrit")) else 0.5
+        if "TEORIA LITERARIA" in _detect_domains(normalized_query, []):
+            literary_haystack = _normalize_query(
+                " ".join(
+                    [
+                        card.card_type,
+                        " ".join(claim.domain for claim in linked_claims),
+                        " ".join(
+                            f"{node.primary_branch} {node.secondary_branch} {node.node_type}"
+                            for node in linked_nodes
+                        ),
+                    ]
+                )
+            )
+            if not any(
+                marker in literary_haystack
+                for marker in ("liter", "narrat", "retoric", "poetic", "personaje")
+            ):
+                domain_match = 0.1
         scope_match = 1.0 if any(claim.scope.get("language") == "es" for claim in linked_claims) else 0.0
         context_match = 1.0 if any("general" in item.context for item in linked_evidence) else 0.5
         authority_score = (
@@ -11844,6 +11985,7 @@ def query_knowledge(
         version_score = 1.0
         factors = {
             "concept_match": round(concept_match, 3),
+            "core_match": round(core_match, 3),
             "domain_match": round(domain_match, 3),
             "scope_match": round(scope_match, 3),
             "context_match": round(context_match, 3),
@@ -11855,15 +11997,17 @@ def query_knowledge(
             "status_score": round(status_score, 3),
         }
         score = round(
-            concept_match
-            + domain_match
-            + scope_match
-            + authority_score
-            + evidence_score
-            + context_match
-            + relation_score
-            + version_score
-            + status_score,
+            (concept_match * 3)
+            + (core_match * 5)
+            + (domain_match * 0.5)
+            + (scope_match * 0.25)
+            + (authority_score * 0.35)
+            + (evidence_score * 0.5)
+            + (claim_confidence * 0.5)
+            + (context_match * 0.25)
+            + (relation_score * 0.35)
+            + (version_score * 0.25)
+            + (status_score * 0.25),
             3,
         )
         reasons = []
@@ -12005,7 +12149,14 @@ def query_knowledge(
             "selected_evidence": [item.id for item in matched_evidence],
             "discarded_claims": discarded_claims,
             "relations_followed": [relation.id for relation in relations_followed],
-            "ranking_factors": [item["factors"] for item in ranking[: payload.limit]],
+            "ranking_factors": [
+                item["factors"]
+                for item in sorted(
+                    ranking,
+                    key=lambda ranking_item: ranking_item["final_score"],
+                    reverse=True,
+                )[: payload.limit]
+            ],
             "thresholds": {
                 "supporting_claim_min_confidence": 0.4,
                 "published_claim_min_confidence": 0.6,

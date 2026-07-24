@@ -5264,6 +5264,57 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     assert empty_payload["retrieval_trace"]["selected_claims"] == []
 
 
+def test_knowledge_query_understands_natural_editorial_terms_without_slugs():
+    dialogue_response = client.post(
+        "/knowledge/query",
+        json={
+            "query": "una conversacion entre personajes que sirva y no sea relleno",
+            "version": "latest",
+            "limit": 3,
+        },
+    )
+    assert dialogue_response.status_code == 200
+    dialogue_payload = dialogue_response.json()
+    assert dialogue_payload["resolved_version"] == "knowledge-v31"
+    assert dialogue_payload["status"] == "ok"
+    assert dialogue_payload["retrieval_trace"]["normalized_query"] == (
+        "una conversacion entre personajes que sirva y no sea relleno"
+    )
+    assert "TEORIA LITERARIA" in dialogue_payload["domain"]
+    assert "card-dialogo-con-funcion" in {card["id"] for card in dialogue_payload["cards"]}
+    assert "card-complemento-directo" not in {card["id"] for card in dialogue_payload["cards"]}
+
+    subtext_response = client.post(
+        "/knowledge/query",
+        json={
+            "query": "quiero sugerir la tension sin explicarlo todo",
+            "version": "latest",
+            "limit": 3,
+        },
+    )
+    assert subtext_response.status_code == 200
+    subtext_payload = subtext_response.json()
+    assert subtext_payload["resolved_version"] == "knowledge-v31"
+    assert subtext_payload["status"] == "ok"
+    assert "card-subtexto-narrativo" in {card["id"] for card in subtext_payload["cards"]}
+
+    transition_response = client.post(
+        "/knowledge/query",
+        json={
+            "query": "escena puente entre dos momentos que no parezca relleno",
+            "version": "latest",
+            "limit": 3,
+        },
+    )
+    assert transition_response.status_code == 200
+    transition_payload = transition_response.json()
+    assert transition_payload["resolved_version"] == "knowledge-v31"
+    assert transition_payload["status"] == "ok"
+    assert "card-escena-de-transicion" in {
+        card["id"] for card in transition_payload["cards"]
+    }
+
+
 def test_knowledge_query_records_audit_event_without_raw_query():
     query = "precision lexica verificable"
     response = client.post(
