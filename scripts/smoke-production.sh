@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v30}"
-QUERY="${QUERY:-conflicto-narrativo-aplicado escena-narrativa-funcional punto-vista-operativo ritmo-escena arco-personaje-accion}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v31}"
+QUERY="${QUERY:-dialogo-con-funcion subtexto-narrativo tension-de-escena escena-de-transicion cierre-de-escena}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"
