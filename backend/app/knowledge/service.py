@@ -55,7 +55,8 @@ KNOWLEDGE_V19_VERSION = "knowledge-v19"
 KNOWLEDGE_V20_VERSION = "knowledge-v20"
 KNOWLEDGE_V21_VERSION = "knowledge-v21"
 KNOWLEDGE_V22_VERSION = "knowledge-v22"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v23"
+KNOWLEDGE_V23_VERSION = "knowledge-v23"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v24"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -80,6 +81,7 @@ KNOWLEDGE_V20_PUBLISHED_AT = "2026-07-23T19:00:00+00:00"
 KNOWLEDGE_V21_PUBLISHED_AT = "2026-07-23T20:00:00+00:00"
 KNOWLEDGE_V22_PUBLISHED_AT = "2026-07-23T21:00:00+00:00"
 KNOWLEDGE_V23_PUBLISHED_AT = "2026-07-23T22:00:00+00:00"
+KNOWLEDGE_V24_PUBLISHED_AT = "2026-07-23T23:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -3862,6 +3864,194 @@ V23_SEED_ITEMS = [
     },
 ]
 
+V24_SEED_ITEMS = [
+    {
+        "key": "concision-estilo",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:concision-estilo",
+        "index_title": "Concision de estilo",
+        "index_locator": "Edicion de referencia > principios de estilo > concision",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:concision-estilo:seg-1",
+        "segment_title": "Economia expresiva",
+        "segment_text": "Resumen editorial minimo: la concision de estilo busca reducir palabras prescindibles para que la frase conserve fuerza, claridad y avance.",
+        "extraction_id": "ext-strunk-white-concision-estilo-1",
+        "node_id": "strunk-white-concision-estilo",
+        "canonical_name": "Concision de estilo",
+        "node_type": "recurso",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "claridad",
+        "node_summary": "Economia expresiva orientada a eliminar relleno y mantener fuerza.",
+        "short_definition": "Criterio de revision para quitar palabras que no aportan sentido ni ritmo.",
+        "aliases": ["concision", "brevedad eficaz"],
+        "relation_target": "rae-lese-concision",
+        "relation_type": "relacionado_con",
+        "card_id": "card-strunk-concision-estilo",
+        "card_type": "style_revision_concept",
+        "card_name": "Concision de estilo",
+        "card_definition": "Criterio para hacer una frase mas clara eliminando lo accesorio.",
+        "signals": ["relleno", "repeticion", "palabras prescindibles"],
+        "risks": ["confundir concision con sequedad o perdida de matiz"],
+        "contexts": ["estilo", "revision", "edicion"],
+        "evidence_id": "ev-strunk-white-concision-estilo",
+        "evidence_section": "concision de estilo",
+        "confidence": 0.6,
+        "claim_id": "claim-strunk-white-concision-estilo",
+        "statement": "La concision de estilo mejora la claridad cuando elimina palabras prescindibles sin borrar informacion necesaria.",
+        "claim_type": "stylistic",
+        "domain": "style.revision",
+        "related_node_ids": ["rae-lese-concision", "rae-lese-claridad"],
+    },
+    {
+        "key": "voz-activa",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:voz-activa",
+        "index_title": "Voz activa",
+        "index_locator": "Edicion de referencia > principios de estilo > voz activa",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:voz-activa:seg-1",
+        "segment_title": "Agente y accion",
+        "segment_text": "Resumen editorial minimo: la voz activa favorece frases con agente y accion visibles cuando el objetivo es claridad, energia y lectura directa.",
+        "extraction_id": "ext-strunk-white-voz-activa-1",
+        "node_id": "strunk-white-voz-activa",
+        "canonical_name": "Voz activa",
+        "node_type": "recurso",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "dinamismo",
+        "node_summary": "Construccion que hace visible quien actua y que ocurre.",
+        "short_definition": "Criterio estilisticamente util para preferir agente y accion claros cuando conviene.",
+        "aliases": ["activa", "frase activa"],
+        "relation_target": "rae-lese-dinamismo-frase",
+        "relation_type": "usa",
+        "card_id": "card-strunk-voz-activa",
+        "card_type": "style_revision_concept",
+        "card_name": "Voz activa",
+        "card_definition": "Criterio para dar energia y claridad a una frase cuando el agente importa.",
+        "signals": ["agente visible", "verbo fuerte", "accion directa"],
+        "risks": ["aplicar voz activa como regla absoluta aunque la pasiva tenga funcion textual"],
+        "contexts": ["estilo", "dinamismo", "revision"],
+        "evidence_id": "ev-strunk-white-voz-activa",
+        "evidence_section": "voz activa",
+        "confidence": 0.6,
+        "claim_id": "claim-strunk-white-voz-activa",
+        "statement": "La voz activa puede aumentar claridad y energia cuando hace explicitos agente y accion sin alterar el foco del texto.",
+        "claim_type": "stylistic",
+        "domain": "style.syntax",
+        "related_node_ids": ["rae-lese-dinamismo-frase", "rae-ngle-predicado"],
+    },
+    {
+        "key": "palabras-concretas",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:palabras-concretas",
+        "index_title": "Palabras concretas",
+        "index_locator": "Edicion de referencia > principios de estilo > palabras concretas",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:palabras-concretas:seg-1",
+        "segment_title": "Precision visible",
+        "segment_text": "Resumen editorial minimo: las palabras concretas ayudan a sustituir vaguedad por imagen, accion o dato verificable cuando el texto necesita precision.",
+        "extraction_id": "ext-strunk-white-palabras-concretas-1",
+        "node_id": "strunk-white-palabras-concretas",
+        "canonical_name": "Palabras concretas",
+        "node_type": "recurso",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "precision",
+        "node_summary": "Seleccion lexica que reduce vaguedad mediante terminos verificables o imaginables.",
+        "short_definition": "Criterio de estilo para preferir palabras especificas cuando una formulacion resulta abstracta.",
+        "aliases": ["lenguaje concreto", "precision concreta"],
+        "relation_target": "rae-dle-precision-lexica",
+        "relation_type": "relacionado_con",
+        "card_id": "card-strunk-palabras-concretas",
+        "card_type": "style_revision_concept",
+        "card_name": "Palabras concretas",
+        "card_definition": "Criterio para reemplazar vaguedad por terminos observables, precisos o imaginables.",
+        "signals": ["abstraccion", "vaguedad", "termino generico"],
+        "risks": ["forzar concrecion donde el concepto abstracto es necesario"],
+        "contexts": ["estilo", "lexico", "revision"],
+        "evidence_id": "ev-strunk-white-palabras-concretas",
+        "evidence_section": "palabras concretas",
+        "confidence": 0.6,
+        "claim_id": "claim-strunk-white-palabras-concretas",
+        "statement": "Las palabras concretas ayudan a precisar un texto cuando sustituyen formulaciones vagas por referentes observables o verificables.",
+        "claim_type": "stylistic",
+        "domain": "style.lexicon",
+        "related_node_ids": ["rae-dle-precision-lexica", "rae-lese-claridad"],
+    },
+    {
+        "key": "unidad-parrafo",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:unidad-parrafo",
+        "index_title": "Unidad de parrafo",
+        "index_locator": "Edicion de referencia > principios de composicion > unidad de parrafo",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:unidad-parrafo:seg-1",
+        "segment_title": "Idea dominante",
+        "segment_text": "Resumen editorial minimo: la unidad de parrafo organiza oraciones alrededor de una idea dominante para facilitar continuidad, foco y progresion.",
+        "extraction_id": "ext-strunk-white-unidad-parrafo-1",
+        "node_id": "strunk-white-unidad-parrafo",
+        "canonical_name": "Unidad de parrafo",
+        "node_type": "recurso",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "composicion",
+        "node_summary": "Organizacion de un parrafo alrededor de una idea dominante.",
+        "short_definition": "Criterio de composicion para mantener foco y continuidad dentro de un parrafo.",
+        "aliases": ["unidad del parrafo", "idea dominante"],
+        "relation_target": "reyes-coherencia-textual",
+        "relation_type": "relacionado_con",
+        "card_id": "card-strunk-unidad-parrafo",
+        "card_type": "style_revision_concept",
+        "card_name": "Unidad de parrafo",
+        "card_definition": "Criterio para revisar si un parrafo mantiene una idea central reconocible.",
+        "signals": ["idea central", "oraciones dispersas", "cambio de foco"],
+        "risks": ["fragmentar en exceso un parrafo que necesita desarrollo gradual"],
+        "contexts": ["estilo", "composicion", "coherencia"],
+        "evidence_id": "ev-strunk-white-unidad-parrafo",
+        "evidence_section": "unidad de parrafo",
+        "confidence": 0.6,
+        "claim_id": "claim-strunk-white-unidad-parrafo",
+        "statement": "La unidad de parrafo mejora la legibilidad cuando las oraciones desarrollan una idea dominante reconocible.",
+        "claim_type": "stylistic",
+        "domain": "style.composition",
+        "related_node_ids": ["reyes-coherencia-textual", "reyes-progresion-informativa"],
+    },
+    {
+        "key": "revision-frases",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:revision-frases",
+        "index_title": "Revision de frases",
+        "index_locator": "Edicion de referencia > principios de estilo > revision de frases",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:revision-frases:seg-1",
+        "segment_title": "Reescritura deliberada",
+        "segment_text": "Resumen editorial minimo: la revision de frases compara alternativas para mejorar claridad, orden, ritmo y proporcion sin perder la intencion del texto.",
+        "extraction_id": "ext-strunk-white-revision-frases-1",
+        "node_id": "strunk-white-revision-frases",
+        "canonical_name": "Revision de frases",
+        "node_type": "metodo",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "revision",
+        "node_summary": "Metodo de reescritura deliberada para mejorar claridad, orden y ritmo.",
+        "short_definition": "Proceso de comparar formulaciones y elegir la que conserva mejor sentido y eficacia.",
+        "aliases": ["reescritura", "revision estilistica"],
+        "relation_target": "reyes-revision-borrador",
+        "relation_type": "usa",
+        "card_id": "card-strunk-revision-frases",
+        "card_type": "style_revision_concept",
+        "card_name": "Revision de frases",
+        "card_definition": "Criterio para reescribir comparando claridad, orden, ritmo e intencion.",
+        "signals": ["frase pesada", "orden confuso", "ritmo irregular"],
+        "risks": ["pulir la frase hasta borrar voz, matiz o prioridad informativa"],
+        "contexts": ["estilo", "revision", "reescritura"],
+        "evidence_id": "ev-strunk-white-revision-frases",
+        "evidence_section": "revision de frases",
+        "confidence": 0.6,
+        "claim_id": "claim-strunk-white-revision-frases",
+        "statement": "La revision de frases permite comparar alternativas para mejorar claridad y ritmo sin perder la intencion comunicativa.",
+        "claim_type": "editing",
+        "domain": "style.revision",
+        "related_node_ids": ["reyes-revision-borrador", "rae-lese-claridad"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -5201,7 +5391,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V20_VERSION: "seed_figures_narratology_batch",
     KNOWLEDGE_V21_VERSION: "seed_general_linguistics_batch",
     KNOWLEDGE_V22_VERSION: "seed_corpus_usage_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_generative_syntax_batch",
+    KNOWLEDGE_V23_VERSION: "seed_generative_syntax_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_style_elements_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -5219,7 +5410,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V20_VERSION: KNOWLEDGE_V20_PUBLISHED_AT,
     KNOWLEDGE_V21_VERSION: KNOWLEDGE_V21_PUBLISHED_AT,
     KNOWLEDGE_V22_VERSION: KNOWLEDGE_V22_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V23_PUBLISHED_AT,
+    KNOWLEDGE_V23_VERSION: KNOWLEDGE_V23_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V24_PUBLISHED_AT,
 }
 
 
@@ -5804,6 +5996,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["concision", "claridad", "edicion", "revision"],
             authority_level=3,
             priority=4,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F021",
@@ -6379,6 +6574,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "concepto sintactico", "segmento"],
             locator_system=["edicion", "capitulo", "apartado", "pagina"],
         ),
+        KnowledgeSourceEdition(
+            id="strunk-white-elements-style:edicion-referencia",
+            source_id="strunk-white-elements-style",
+            title="The Elements of Style",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="en",
+            format="libro impreso o edicion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de estilo editorial para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "principio de estilo", "segmento"],
+            locator_system=["edicion", "capitulo", "apartado", "pagina"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -6473,6 +6696,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V21_SEED_ITEMS),
         *_published_batch_index_entries(V22_SEED_ITEMS),
         *_published_batch_index_entries(V23_SEED_ITEMS),
+        *_published_batch_index_entries(V24_SEED_ITEMS),
     ]
 
 
@@ -6591,6 +6815,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V21_SEED_ITEMS),
         *_published_batch_segments(V22_SEED_ITEMS),
         *_published_batch_segments(V23_SEED_ITEMS),
+        *_published_batch_segments(V24_SEED_ITEMS),
     ]
 
 
@@ -6728,7 +6953,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_extraction_runs(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_extraction_runs(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_extraction_runs(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_extraction_runs(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7395,7 +7621,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_proposals(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_proposals(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_proposals(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_proposals(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7561,7 +7788,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_nodes(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_nodes(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_nodes(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_nodes(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -7689,7 +7917,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_node_relations(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_node_relations(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_node_relations(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_node_relations(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8046,7 +8275,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_evidence(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_evidence(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_evidence(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_evidence(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8303,7 +8533,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_claims(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_claims(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_claims(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_claims(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8481,7 +8712,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V20_SEED_ITEMS, KNOWLEDGE_V20_VERSION),
         *_published_batch_cards(V21_SEED_ITEMS, KNOWLEDGE_V21_VERSION),
         *_published_batch_cards(V22_SEED_ITEMS, KNOWLEDGE_V22_VERSION),
-        *_published_batch_cards(V23_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V23_SEED_ITEMS, KNOWLEDGE_V23_VERSION),
+        *_published_batch_cards(V24_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -8962,8 +9194,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v22_evidence = [evidence for evidence in seed_evidence() if evidence.version in v22_chain]
     v22_claims = [claim for claim in seed_claims() if claim.version in v22_chain]
     v22_cards = [card for card in seed_cards() if card.version in v22_chain]
-    latest_chain = {*v22_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v23_chain = {*v22_chain, KNOWLEDGE_V23_VERSION}
+    v23_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -8983,7 +9215,34 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V23_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v22_node_ids, *{item["node_id"] for item in V23_SEED_ITEMS}}
+    v23_node_ids = {*v22_node_ids, *{item["node_id"] for item in V23_SEED_ITEMS}}
+    v23_nodes = [node for node in seed_nodes() if node.id in v23_node_ids]
+    v23_evidence = [evidence for evidence in seed_evidence() if evidence.version in v23_chain]
+    v23_claims = [claim for claim in seed_claims() if claim.version in v23_chain]
+    v23_cards = [card for card in seed_cards() if card.version in v23_chain]
+    latest_chain = {*v23_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v23_node_ids, *{item["node_id"] for item in V24_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -9220,9 +9479,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v22_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V23_VERSION,
             status="published",
             published_at=KNOWLEDGE_V23_PUBLISHED_AT,
+            source_count=len(v23_sources),
+            node_count=len(v23_nodes),
+            evidence_count=len(v23_evidence),
+            claim_count=len(v23_claims),
+            card_count=len(v23_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V24_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -9516,6 +9785,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V20_VERSION,
             KNOWLEDGE_V21_VERSION,
             KNOWLEDGE_V22_VERSION,
+            KNOWLEDGE_V23_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
