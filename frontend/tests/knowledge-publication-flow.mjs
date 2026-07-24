@@ -13,7 +13,7 @@ try {
   await panel.getByText("Crear candidato congela un snapshot revisable.").waitFor();
 
   await page.getByLabel("ID de candidate").fill(candidateId);
-  await page.getByLabel("Version base de candidate").selectOption("knowledge-v14");
+  await page.getByLabel("Version base de candidate").selectOption("knowledge-v15");
   await page.getByLabel("Autor de candidate").fill("smoke-ui");
   await page.getByLabel("Motivo").fill("Smoke UI de candidate y publicacion.");
 

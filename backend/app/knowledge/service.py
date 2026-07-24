@@ -46,7 +46,8 @@ KNOWLEDGE_V10_VERSION = "knowledge-v10"
 KNOWLEDGE_V11_VERSION = "knowledge-v11"
 KNOWLEDGE_V12_VERSION = "knowledge-v12"
 KNOWLEDGE_V13_VERSION = "knowledge-v13"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v14"
+KNOWLEDGE_V14_VERSION = "knowledge-v14"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v15"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -62,6 +63,7 @@ KNOWLEDGE_V11_PUBLISHED_AT = "2026-07-23T10:00:00+00:00"
 KNOWLEDGE_V12_PUBLISHED_AT = "2026-07-23T11:00:00+00:00"
 KNOWLEDGE_V13_PUBLISHED_AT = "2026-07-23T12:00:00+00:00"
 KNOWLEDGE_V14_PUBLISHED_AT = "2026-07-23T13:00:00+00:00"
+KNOWLEDGE_V15_PUBLISHED_AT = "2026-07-23T14:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -2152,6 +2154,194 @@ V14_SEED_ITEMS = [
     },
 ]
 
+V15_SEED_ITEMS = [
+    {
+        "key": "inventio",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:inventio",
+        "index_title": "Inventio",
+        "index_locator": "Edicion de referencia > construccion del discurso > inventio",
+        "segment_id": "quintiliano-institutio:edicion-referencia:inventio:seg-1",
+        "segment_title": "Busqueda de argumentos",
+        "segment_text": "Resumen editorial minimo: la inventio organiza la busqueda de argumentos pertinentes antes de ordenar o adornar el discurso.",
+        "extraction_id": "ext-quintiliano-institutio-inventio-1",
+        "node_id": "quintiliano-inventio",
+        "canonical_name": "Inventio",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "construccion del discurso",
+        "node_summary": "Busqueda y seleccion inicial de argumentos pertinentes.",
+        "short_definition": "Metodo para encontrar materiales argumentativos antes de componer el discurso.",
+        "aliases": ["busqueda de argumentos"],
+        "relation_target": "aristoteles-logos",
+        "relation_type": "depende_de",
+        "card_id": "card-inventio",
+        "card_type": "rhetoric_method",
+        "card_name": "Inventio",
+        "card_definition": "Criterio para revisar si un texto ha encontrado argumentos pertinentes.",
+        "signals": ["argumentos", "material", "pertinencia"],
+        "risks": ["ordenar bien ideas pobres o poco pertinentes"],
+        "contexts": ["argumentacion", "ensayo", "discurso"],
+        "evidence_id": "ev-quintiliano-inventio",
+        "evidence_section": "inventio",
+        "confidence": 0.62,
+        "claim_id": "claim-quintiliano-inventio",
+        "statement": "Antes de ordenar un discurso conviene seleccionar argumentos pertinentes y suficientes para su finalidad.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.composition",
+        "related_node_ids": ["aristoteles-logos", "reyes-enfoque-lector"],
+    },
+    {
+        "key": "dispositio",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:dispositio",
+        "index_title": "Dispositio",
+        "index_locator": "Edicion de referencia > construccion del discurso > dispositio",
+        "segment_id": "quintiliano-institutio:edicion-referencia:dispositio:seg-1",
+        "segment_title": "Orden del discurso",
+        "segment_text": "Resumen editorial minimo: la dispositio decide el orden de las partes para que el razonamiento avance con claridad.",
+        "extraction_id": "ext-quintiliano-institutio-dispositio-1",
+        "node_id": "quintiliano-dispositio",
+        "canonical_name": "Dispositio",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "construccion del discurso",
+        "node_summary": "Ordenacion de partes y argumentos del discurso.",
+        "short_definition": "Metodo para disponer argumentos y secciones con progresion clara.",
+        "aliases": ["orden retorico"],
+        "relation_target": "quintiliano-inventio",
+        "relation_type": "requiere",
+        "card_id": "card-dispositio",
+        "card_type": "rhetoric_method",
+        "card_name": "Dispositio",
+        "card_definition": "Criterio para revisar la organizacion progresiva de un discurso.",
+        "signals": ["orden", "partes", "progresion"],
+        "risks": ["acumular argumentos sin recorrido reconocible"],
+        "contexts": ["argumentacion", "estructura", "discurso"],
+        "evidence_id": "ev-quintiliano-dispositio",
+        "evidence_section": "dispositio",
+        "confidence": 0.62,
+        "claim_id": "claim-quintiliano-dispositio",
+        "statement": "La eficacia argumentativa depende tambien del orden en que se presentan las partes del discurso.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.composition",
+        "related_node_ids": ["quintiliano-inventio", "reyes-progresion-informativa"],
+    },
+    {
+        "key": "elocutio",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:elocutio",
+        "index_title": "Elocutio",
+        "index_locator": "Edicion de referencia > estilo > elocutio",
+        "segment_id": "quintiliano-institutio:edicion-referencia:elocutio:seg-1",
+        "segment_title": "Expresion verbal del argumento",
+        "segment_text": "Resumen editorial minimo: la elocutio convierte el material argumentativo en expresion verbal adecuada, clara y eficaz.",
+        "extraction_id": "ext-quintiliano-institutio-elocutio-1",
+        "node_id": "quintiliano-elocutio",
+        "canonical_name": "Elocutio",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "estilo",
+        "node_summary": "Expresion verbal adecuada de los argumentos.",
+        "short_definition": "Metodo para formular el discurso con claridad, adecuacion y fuerza expresiva.",
+        "aliases": ["elocucion", "expresion retorica"],
+        "relation_target": "quintiliano-dispositio",
+        "relation_type": "depende_de",
+        "card_id": "card-elocutio",
+        "card_type": "rhetoric_method",
+        "card_name": "Elocutio",
+        "card_definition": "Criterio para revisar claridad, adecuacion y fuerza expresiva.",
+        "signals": ["claridad", "adecuacion", "expresion"],
+        "risks": ["embellecer sin mejorar la comprension o la fuerza del argumento"],
+        "contexts": ["estilo", "argumentacion", "revision"],
+        "evidence_id": "ev-quintiliano-elocutio",
+        "evidence_section": "elocutio",
+        "confidence": 0.63,
+        "claim_id": "claim-quintiliano-elocutio",
+        "statement": "La expresion verbal debe servir al argumento mediante claridad, adecuacion y eficacia.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.style",
+        "related_node_ids": ["quintiliano-dispositio", "rae-lese-claridad"],
+    },
+    {
+        "key": "memoria",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:memoria",
+        "index_title": "Memoria",
+        "index_locator": "Edicion de referencia > preparacion del discurso > memoria",
+        "segment_id": "quintiliano-institutio:edicion-referencia:memoria:seg-1",
+        "segment_title": "Dominio del discurso",
+        "segment_text": "Resumen editorial minimo: la memoria permite dominar el recorrido del discurso para sostener su continuidad ante el auditorio.",
+        "extraction_id": "ext-quintiliano-institutio-memoria-1",
+        "node_id": "quintiliano-memoria",
+        "canonical_name": "Memoria",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "preparacion del discurso",
+        "node_summary": "Dominio del recorrido argumentativo antes de la exposicion.",
+        "short_definition": "Preparacion que conserva continuidad y control del discurso.",
+        "aliases": ["preparacion memoristica"],
+        "relation_target": "quintiliano-elocutio",
+        "relation_type": "usa",
+        "card_id": "card-memoria-retorica",
+        "card_type": "rhetoric_method",
+        "card_name": "Memoria retorica",
+        "card_definition": "Criterio para revisar si el discurso conserva continuidad y dominio.",
+        "signals": ["recorrido", "continuidad", "preparacion"],
+        "risks": ["depender de frases sueltas sin dominar la estructura"],
+        "contexts": ["discurso oral", "presentacion", "argumentacion"],
+        "evidence_id": "ev-quintiliano-memoria",
+        "evidence_section": "memoria",
+        "confidence": 0.6,
+        "claim_id": "claim-quintiliano-memoria",
+        "statement": "El dominio del recorrido discursivo ayuda a sostener continuidad y coherencia ante el receptor.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.delivery",
+        "related_node_ids": ["quintiliano-elocutio", "reyes-coherencia-textual"],
+    },
+    {
+        "key": "actio-pronuntiatio",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:actio-pronuntiatio",
+        "index_title": "Actio y pronuntiatio",
+        "index_locator": "Edicion de referencia > ejecucion del discurso > actio y pronuntiatio",
+        "segment_id": "quintiliano-institutio:edicion-referencia:actio-pronuntiatio:seg-1",
+        "segment_title": "Ejecucion oral del discurso",
+        "segment_text": "Resumen editorial minimo: la actio o pronuntiatio atiende a la ejecucion del discurso y a su adecuacion ante el auditorio.",
+        "extraction_id": "ext-quintiliano-institutio-actio-pronuntiatio-1",
+        "node_id": "quintiliano-actio-pronuntiatio",
+        "canonical_name": "Actio y pronuntiatio",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "ejecucion del discurso",
+        "node_summary": "Ejecucion oral y adecuacion performativa del discurso.",
+        "short_definition": "Metodo para ajustar voz, presencia y ejecucion al auditorio.",
+        "aliases": ["pronunciacion retorica", "ejecucion retorica"],
+        "relation_target": "quintiliano-memoria",
+        "relation_type": "requiere",
+        "card_id": "card-actio-pronuntiatio",
+        "card_type": "rhetoric_method",
+        "card_name": "Actio y pronuntiatio",
+        "card_definition": "Criterio para revisar la ejecucion oral y la adecuacion ante el auditorio.",
+        "signals": ["voz", "presencia", "auditorio"],
+        "risks": ["separar ejecucion oral de finalidad y estructura del discurso"],
+        "contexts": ["discurso oral", "presentacion", "persuasion"],
+        "evidence_id": "ev-quintiliano-actio-pronuntiatio",
+        "evidence_section": "actio y pronuntiatio",
+        "confidence": 0.6,
+        "claim_id": "claim-quintiliano-actio-pronuntiatio",
+        "statement": "La ejecucion oral debe ajustarse al auditorio y reforzar la finalidad del discurso.",
+        "claim_type": "rhetorical",
+        "domain": "rhetoric.delivery",
+        "related_node_ids": ["quintiliano-memoria", "aristoteles-ethos"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -3482,7 +3672,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V11_VERSION: "seed_writing_practice_batch",
     KNOWLEDGE_V12_VERSION: "seed_orthotypography_batch",
     KNOWLEDGE_V13_VERSION: "seed_literary_commentary_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_rhetoric_argumentation_batch",
+    KNOWLEDGE_V14_VERSION: "seed_rhetoric_argumentation_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_quintilian_discourse_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -3491,7 +3682,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V11_VERSION: KNOWLEDGE_V11_PUBLISHED_AT,
     KNOWLEDGE_V12_VERSION: KNOWLEDGE_V12_PUBLISHED_AT,
     KNOWLEDGE_V13_VERSION: KNOWLEDGE_V13_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V14_PUBLISHED_AT,
+    KNOWLEDGE_V14_VERSION: KNOWLEDGE_V14_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V15_PUBLISHED_AT,
 }
 
 
@@ -3969,6 +4161,9 @@ def seed_sources() -> list[KnowledgeSource]:
             domains=["formacion del orador", "construccion del discurso", "estilo", "elocucion"],
             authority_level=5,
             priority=3,
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
         ),
         _source(
             catalog_id="F013",
@@ -4372,6 +4567,34 @@ def seed_source_editions() -> list[KnowledgeSourceEdition]:
             structure=["libro", "concepto retorico", "segmento"],
             locator_system=["edicion", "libro", "capitulo", "apartado"],
         ),
+        KnowledgeSourceEdition(
+            id="quintiliano-institutio:edicion-referencia",
+            source_id="quintiliano-institutio",
+            title="Institutio oratoria",
+            edition_label="Edicion de referencia",
+            publication_year="pendiente de normalizacion",
+            publisher="pendiente de normalizacion",
+            isbn="pendiente de identificacion",
+            language="es",
+            format="libro impreso o traduccion de referencia",
+            access_location="pendiente de normalizacion bibliografica",
+            rights_status="referencia bibliografica registrada; fragmento editorial propio",
+            status="available",
+            notes=(
+                "Lote de construccion del discurso para ampliar conocimiento estable "
+                "sin incorporar texto literal extenso de la obra."
+            ),
+            created_at="2026-07-24",
+            updated_at="2026-07-24",
+            label="Edicion de referencia",
+            publication_date="pendiente de normalizacion",
+            location="pendiente de normalizacion",
+            acquisition_status="available",
+            validation_status="validated",
+            rights="referencia bibliografica registrada; contenido no citado extensamente",
+            structure=["libro", "fase retorica", "segmento"],
+            locator_system=["edicion", "libro", "capitulo", "apartado"],
+        ),
         *_v6_source_editions(),
     ]
 
@@ -4457,6 +4680,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V12_SEED_ITEMS),
         *_published_batch_index_entries(V13_SEED_ITEMS),
         *_published_batch_index_entries(V14_SEED_ITEMS),
+        *_published_batch_index_entries(V15_SEED_ITEMS),
     ]
 
 
@@ -4566,6 +4790,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V12_SEED_ITEMS),
         *_published_batch_segments(V13_SEED_ITEMS),
         *_published_batch_segments(V14_SEED_ITEMS),
+        *_published_batch_segments(V15_SEED_ITEMS),
     ]
 
 
@@ -4694,7 +4919,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_extraction_runs(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_extraction_runs(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_extraction_runs(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_extraction_runs(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5352,7 +5578,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_proposals(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_proposals(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_proposals(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_proposals(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5509,7 +5736,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_nodes(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_nodes(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_nodes(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_nodes(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5628,7 +5856,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_node_relations(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_node_relations(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_node_relations(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_node_relations(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -5976,7 +6205,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_evidence(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_evidence(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_evidence(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_evidence(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6224,7 +6454,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_claims(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_claims(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_claims(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_claims(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6393,7 +6624,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V11_SEED_ITEMS, KNOWLEDGE_V11_VERSION),
         *_published_batch_cards(V12_SEED_ITEMS, KNOWLEDGE_V12_VERSION),
         *_published_batch_cards(V13_SEED_ITEMS, KNOWLEDGE_V13_VERSION),
-        *_published_batch_cards(V14_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V14_SEED_ITEMS, KNOWLEDGE_V14_VERSION),
+        *_published_batch_cards(V15_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -6685,8 +6917,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v13_evidence = [evidence for evidence in seed_evidence() if evidence.version in v13_chain]
     v13_claims = [claim for claim in seed_claims() if claim.version in v13_chain]
     v13_cards = [card for card in seed_cards() if card.version in v13_chain]
-    latest_chain = {*v13_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v14_chain = {*v13_chain, KNOWLEDGE_V14_VERSION}
+    v14_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -6697,7 +6929,25 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V14_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v13_node_ids, *{item["node_id"] for item in V14_SEED_ITEMS}}
+    v14_node_ids = {*v13_node_ids, *{item["node_id"] for item in V14_SEED_ITEMS}}
+    v14_nodes = [node for node in seed_nodes() if node.id in v14_node_ids]
+    v14_evidence = [evidence for evidence in seed_evidence() if evidence.version in v14_chain]
+    v14_claims = [claim for claim in seed_claims() if claim.version in v14_chain]
+    v14_cards = [card for card in seed_cards() if card.version in v14_chain]
+    latest_chain = {*v14_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v14_node_ids, *{item["node_id"] for item in V15_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -6844,9 +7094,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v13_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V14_VERSION,
             status="published",
             published_at=KNOWLEDGE_V14_PUBLISHED_AT,
+            source_count=len(v14_sources),
+            node_count=len(v14_nodes),
+            evidence_count=len(v14_evidence),
+            claim_count=len(v14_claims),
+            card_count=len(v14_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V15_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -7131,6 +7391,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V11_VERSION,
             KNOWLEDGE_V12_VERSION,
             KNOWLEDGE_V13_VERSION,
+            KNOWLEDGE_V14_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
