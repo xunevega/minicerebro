@@ -132,15 +132,15 @@ import type {
 } from "./types/api";
 
 const tabs = [
-  { id: "knowledge", label: "Fuentes", icon: BookOpen },
-  { id: "preferences", label: "Preferencias", icon: PenLine },
-  { id: "profile", label: "Ficha usuario", icon: Brain },
-  { id: "scoring", label: "Puntuacion", icon: SlidersHorizontal },
+  { id: "knowledge", label: "Biblioteca", icon: BookOpen },
+  { id: "preferences", label: "Gustos", icon: PenLine },
+  { id: "profile", label: "Ficha", icon: Brain },
+  { id: "scoring", label: "Ajustes", icon: SlidersHorizontal },
   { id: "editor", label: "Escribir", icon: FilePenLine },
   { id: "lab", label: "Probar cambios", icon: FlaskConical },
   { id: "compare", label: "Comparar", icon: GitCompare },
   { id: "rules", label: "Criterios", icon: ShieldCheck },
-  { id: "persistence", label: "Datos", icon: Database },
+  { id: "persistence", label: "Datos guardados", icon: Database },
   { id: "cerebro", label: "Cerebro", icon: Search },
   { id: "acceptance", label: "Aceptacion", icon: ClipboardCheck },
   { id: "closure", label: "Cierre", icon: Flag },
@@ -157,7 +157,7 @@ const auditEventFilters = [
     eventType: "knowledge.query.executed",
     entityType: "knowledge_version",
   },
-  { label: "Preferencias", eventType: "preference.created", entityType: "preference" },
+  { label: "Gustos", eventType: "preference.created", entityType: "preference" },
   { label: "Textos generados", eventType: "text.generated", entityType: "generated_text" },
 ] as const;
 
@@ -183,31 +183,31 @@ const mainSections: Array<{
   {
     id: "write",
     label: "Escribir",
-    description: "Crear, corregir, comparar y probar textos.",
+    description: "Redacta, corrige y compara sin perder tu criterio.",
     icon: FilePenLine,
     defaultTab: "editor",
     tabs: ["editor", "compare", "lab"],
   },
   {
     id: "profile",
-    label: "Mi perfil",
-    description: "Preferencias, puntuacion y ficha personal.",
+    label: "Aprender de mi",
+    description: "Gustos, ajustes y ficha personal.",
     icon: Brain,
     defaultTab: "preferences",
     tabs: ["preferences", "scoring", "profile"],
   },
   {
     id: "knowledge",
-    label: "Fuentes",
-    description: "Base de escritura, consulta y fuentes publicadas.",
+    label: "Biblioteca",
+    description: "Fuentes publicadas y consulta de la base.",
     icon: BookOpen,
     defaultTab: "knowledge",
     tabs: ["knowledge"],
   },
   {
     id: "system",
-    label: "Actividad",
-    description: "Historial y datos guardados.",
+    label: "Historial",
+    description: "Historial, datos guardados y panel tecnico.",
     icon: Database,
     defaultTab: "audit",
     tabs: ["audit", "persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
@@ -827,7 +827,7 @@ export function App() {
             secondary_branch: "ingestion manual",
             short_definition: "Concepto candidato pendiente de revision editorial.",
             long_definition:
-              "Concepto candidato generado por el flujo manual de ingestion de Minicerebro.",
+              "Concepto candidato generado por el flujo manual de ingestion de Editados.",
             aliases: [],
             version: manualProposalTargetVersion,
           },
@@ -1134,7 +1134,7 @@ export function App() {
     try {
       const applied = await applyScoreProposal(
         scoreProposal.preference_id,
-        "Aplicar propuesta revisada desde Preferencias.",
+        "Aplicar ajuste revisado desde Gustos.",
       );
       setScores((current) =>
         current.map(
@@ -1308,10 +1308,10 @@ export function App() {
     <main className="appShell">
       <aside className="sidebar" aria-label="Navegacion principal">
         <div className="brand">
-          <span className="brandMark">M</span>
+          <img className="brandLogo" src="/editados-logo.png" alt="Editados" />
           <div>
-            <strong>Minicerebro</strong>
-            <span>V1 escritura</span>
+            <strong>Editados</strong>
+            <span>Editor personal</span>
           </div>
         </div>
         <nav>
@@ -2003,16 +2003,16 @@ export function App() {
                     })}
                   </div>
                   <div className="userCardPanel">
-                    <h3>Ficha de usuario</h3>
+                    <h3>Tu ficha sobre esta idea</h3>
                     <div className="metricGrid">
                       <Metric
                         label="Estado"
                         value={profileKnowledgeCardSaved?.stance ?? "sin guardar"}
                       />
-                      <Metric label="Score usuario" value={profileKnowledgeCardScore} />
+                      <Metric label="Afinidad" value={profileKnowledgeCardScore} />
                       <Metric label="Contexto" value={activeContext} />
                     </div>
-                    <div className="buttonRow" role="group" aria-label="Estado de ficha de usuario">
+                    <div className="buttonRow" role="group" aria-label="Estado de tu ficha">
                       {userKnowledgeCardStances.map((stance) => (
                         <button
                           className={
@@ -2029,7 +2029,7 @@ export function App() {
                       ))}
                     </div>
                     <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
-                      Score personal
+                      Afinidad personal
                     </label>
                     <input
                       id="profileKnowledgeCardScore"
@@ -2040,7 +2040,7 @@ export function App() {
                       value={profileKnowledgeCardScore}
                     />
                     <label className="fieldLabel" htmlFor="profileKnowledgeCardFeedback">
-                      Feedback de usuario
+                      Tu comentario
                     </label>
                     <textarea
                       id="profileKnowledgeCardFeedback"
@@ -2086,12 +2086,12 @@ export function App() {
                         onClick={handleProfileKnowledgeCardScoreProposal}
                         type="button"
                       >
-                        Calcular puntuacion sugerida
+                        Calcular ajuste sugerido
                       </button>
                     </div>
                     {profileKnowledgeCardProposal ? (
                       <div className="proposalBox">
-                        <h3>Propuesta de scoring</h3>
+                        <h3>Ajuste sugerido</h3>
                         <div className="metricGrid">
                           <Metric label="Estado" value={profileKnowledgeCardProposal.status} />
                           <Metric label="Ajustes" value={profileKnowledgeCardProposal.items.length} />
@@ -2118,7 +2118,7 @@ export function App() {
                           onClick={handleApplyProfileKnowledgeCardScoreProposal}
                           type="button"
                         >
-                        Aplicar a la puntuacion
+                        Aplicar ajuste
                         </button>
                       </div>
                     ) : null}
@@ -2261,15 +2261,15 @@ export function App() {
         {active === "preferences" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Anadir preferencia</h2>
+              <h2>Decirle un gusto</h2>
               <textarea value={preferenceText} onChange={(event) => setPreferenceText(event.target.value)} />
               <button className="primaryButton" onClick={handlePreference} type="button">
-                Guardar como propuesta
+                Guardar gusto
               </button>
               <div className="preferenceList">
-                <h2>Revision pendiente</h2>
+                <h2>Pendiente de revisar</h2>
                 {preferences.length === 0 ? (
-                  <p className="note">Todavia no hay preferencias registradas.</p>
+                  <p className="note">Todavia no hay gustos guardados.</p>
                 ) : (
                   preferences.map((item) => (
                     <article className="preferenceItem" key={item.id}>
@@ -2320,17 +2320,17 @@ export function App() {
               {preference ? (
                 <>
                   <p>{preference.interpreted_as}</p>
-                  <List title="Variables afectadas" items={preference.affected_variables} />
+                  <List title="Aspectos afectados" items={preference.affected_variables} />
                   <span className="statusPill">{preference.status}</span>
                 </>
               ) : (
-                <p className="note">La entrada se registra como propuesta; no consolida aprendizaje sola.</p>
+                <p className="note">El gusto queda pendiente hasta que lo aceptes.</p>
               )}
               {scoreProposal ? (
                 <div className="proposalBox">
-                  <h3>Propuesta de scoring</h3>
+                  <h3>Ajuste sugerido</h3>
                   {scoreProposal.items.length === 0 ? (
-                    <p className="note">Esta preferencia todavia no genera cambios aplicables.</p>
+                    <p className="note">Este gusto todavia no genera cambios aplicables.</p>
                   ) : (
                     <>
                       {scoreProposal.items.map((item) => (
@@ -2343,7 +2343,7 @@ export function App() {
                         </div>
                       ))}
                       <button className="primaryButton" onClick={handleApplyScoreProposal} type="button">
-                        Aplicar a la puntuacion
+                        Aplicar ajuste
                       </button>
                     </>
                   )}
@@ -2404,7 +2404,7 @@ export function App() {
                   <textarea readOnly value={generation.output} />
                   <p className="note">{generation.explanation}</p>
                   <span className="statusPill">{generation.provider}</span>
-                  <List title="Variables usadas" items={generation.used_profile_variables} />
+                  <List title="Aspectos usados" items={generation.used_profile_variables} />
                 </>
               ) : (
                 <p className="note">El editor usa el perfil del contexto activo sin aplicar aprendizaje.</p>
@@ -2493,7 +2493,7 @@ export function App() {
                   <Metric label="Modificacion" value={labResult.comparison.modification_score} />
                   <Metric label="Adecuacion" value={labResult.comparison.adequacy_score} />
                   <List
-                    title="Variables simuladas"
+                    title="Aspectos simulados"
                     items={labResult.simulated_variables.map(
                       (score) => `${score.key}: ${score.effective_value}`,
                     )}
@@ -2522,34 +2522,34 @@ export function App() {
 
         {active === "profile" && (
           <section className="panel">
-            <h2>Resumen humano</h2>
+            <h2>Ficha personal</h2>
             <p>{summary?.summary}</p>
             <div className="metricGrid">
-              <Metric label="Preferencias" value={summary?.preference_count ?? 0} />
+              <Metric label="Gustos" value={summary?.preference_count ?? 0} />
               <Metric label="Confianza media" value={`${Math.round(averageConfidence * 100)}%`} />
               <Metric label="Cobertura" value={`${Math.round((statistics?.coverage ?? 0) * 100)}%`} />
             </div>
             <p className="note">{summary?.confidence_note}</p>
             <button className="primaryButton editorButton" onClick={handleProfileExport} type="button">
-              Ver datos del perfil
+              Ver ficha completa
             </button>
             {profileExport ? (
               <div className="proposalBox">
-                <h2>Export del perfil</h2>
+                <h2>Ficha completa</h2>
                 <div className="metricGrid">
                   <Metric label="Formato" value={profileExport.export_version} />
                   <Metric
                     label="Contextos"
                     value={Object.keys(profileExport.variables_by_context).length}
                   />
-                  <Metric label="Preferencias" value={profileExport.preferences.length} />
-                  <Metric label="Fichas usuario" value={profileExport.knowledge_cards.length} />
+                  <Metric label="Gustos" value={profileExport.preferences.length} />
+                  <Metric label="Fichas guardadas" value={profileExport.knowledge_cards.length} />
                 </div>
                 <p className="note">{profileExport.knowledge_policy}</p>
                 <List
-                  title="Contextos exportados"
+                  title="Contextos guardados"
                   items={Object.entries(profileExport.variables_by_context).map(
-                    ([context, variables]) => `${context}: ${variables.length} variables`,
+                    ([context, variables]) => `${context}: ${variables.length} aspectos`,
                   )}
                 />
                 <List
@@ -2565,7 +2565,7 @@ export function App() {
                 />
               </div>
             ) : null}
-            <List title="Variables con baja confianza" items={statistics?.low_confidence_variables ?? []} />
+            <List title="Aspectos con poca confianza" items={statistics?.low_confidence_variables ?? []} />
             <List
               title="Contradicciones"
               items={
@@ -2579,9 +2579,9 @@ export function App() {
 
         {active === "scoring" && (
           <section className="panel">
-            <h2>Variables</h2>
+            <h2>Ajustes de estilo</h2>
             <label className="fieldLabel" htmlFor="scoreReason">
-              Por que cambias la puntuacion
+              Por que cambias este ajuste
             </label>
             <input
               className="textInput"
@@ -2596,7 +2596,7 @@ export function App() {
                     <strong>{score.label}</strong>
                     <span>{score.category}</span>
                   </div>
-                  <Meter label="Calculado" value={score.calculated_value} />
+                  <Meter label="Base" value={score.calculated_value} />
                   <div className="adjustControl">
                     <label htmlFor={`adjust-${score.key}`}>Ajuste: {score.manual_adjustment}</label>
                     <input
@@ -2619,7 +2619,7 @@ export function App() {
                       Restablecer
                     </button>
                   </div>
-                  <Meter label="Efectivo" value={score.effective_value} />
+                  <Meter label="Resultado" value={score.effective_value} />
                 </article>
               ))}
             </div>

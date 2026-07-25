@@ -8,8 +8,8 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("button", { name: "Actividad" }).click();
-  await page.getByRole("button", { name: "Datos" }).click();
+  await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
+  await page.getByRole("button", { name: "Datos guardados" }).click();
   const persistencePanel = page.locator(".panel", { hasText: "Datos guardados" });
   await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();
   await persistencePanel.getByText("Todavia no hay textos generados en este contexto.").waitFor();

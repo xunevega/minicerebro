@@ -1,6 +1,6 @@
 :root {
-  color: #18201d;
-  background: #f4f1ea;
+  color: #191714;
+  background: #faf9f6;
   font-family:
     Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
@@ -11,6 +11,7 @@
 
 body {
   margin: 0;
+  min-width: 320px;
 }
 
 button,
@@ -22,33 +23,32 @@ textarea {
 
 .appShell {
   display: grid;
-  grid-template-columns: 260px 1fr;
+  grid-template-columns: 248px minmax(0, 1fr);
   min-height: 100vh;
 }
 
 .sidebar {
-  background: #14211d;
-  color: #eef5ef;
-  padding: 24px 18px;
+  background: #ffffff;
+  border-right: 1px solid #e6e0d7;
+  color: #191714;
+  padding: 26px 18px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
 }
 
 .brand {
-  align-items: center;
-  display: flex;
-  gap: 12px;
-  margin-bottom: 28px;
+  display: grid;
+  gap: 8px;
+  margin-bottom: 34px;
 }
 
-.brandMark {
-  align-items: center;
-  background: #d5f06f;
-  border-radius: 8px;
-  color: #14211d;
-  display: inline-flex;
-  font-weight: 800;
-  height: 40px;
-  justify-content: center;
-  width: 40px;
+.brandLogo {
+  display: block;
+  height: 46px;
+  object-fit: contain;
+  object-position: left center;
+  width: 190px;
 }
 
 .brand strong,
@@ -56,8 +56,14 @@ textarea {
   display: block;
 }
 
+.brand strong {
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 22px;
+  letter-spacing: 0;
+}
+
 .brand span {
-  color: #aebcb5;
+  color: #716a60;
   font-size: 13px;
   margin-top: 2px;
 }
@@ -72,7 +78,7 @@ nav {
   background: transparent;
   border: 0;
   border-radius: 8px;
-  color: #cbd8d1;
+  color: #5e574f;
   cursor: pointer;
   display: flex;
   gap: 10px;
@@ -83,8 +89,12 @@ nav {
 
 .tab.active,
 .tab:hover {
-  background: #243630;
-  color: #ffffff;
+  background: #f3eee6;
+  color: #191714;
+}
+
+.tab.active {
+  box-shadow: inset 3px 0 0 #e11919;
 }
 
 .subnav {
@@ -97,9 +107,9 @@ nav {
 .subtab {
   align-items: center;
   background: #ffffff;
-  border: 1px solid #dce2db;
+  border: 1px solid #e2dcd4;
   border-radius: 8px;
-  color: #52615a;
+  color: #625b52;
   cursor: pointer;
   display: inline-flex;
   gap: 8px;
@@ -109,13 +119,13 @@ nav {
 
 .subtab.active,
 .subtab:hover {
-  background: #eaf3d2;
-  border-color: #9eb86f;
-  color: #18201d;
+  background: #191714;
+  border-color: #191714;
+  color: #ffffff;
 }
 
 .workspace {
-  padding: 30px;
+  padding: 34px min(4vw, 56px);
 }
 
 .topbar {
@@ -123,7 +133,9 @@ nav {
   display: flex;
   gap: 18px;
   justify-content: space-between;
-  margin-bottom: 22px;
+  border-bottom: 1px solid #e6e0d7;
+  margin-bottom: 20px;
+  padding-bottom: 22px;
 }
 
 h1,
@@ -134,7 +146,8 @@ p {
 }
 
 h1 {
-  font-size: 30px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 4vw, 54px);
   line-height: 1.1;
   margin-bottom: 6px;
 }
@@ -151,14 +164,15 @@ h3 {
 
 .topbar p,
 .note {
-  color: #68746e;
+  color: #716a60;
 }
 
 .panel {
   background: #ffffff;
-  border: 1px solid #dce2db;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
-  padding: 22px;
+  box-shadow: 0 18px 45px rgba(33, 28, 21, 0.05);
+  padding: 24px;
 }
 
 .metricGrid {
@@ -169,8 +183,8 @@ h3 {
 }
 
 .metric {
-  background: #f8faf5;
-  border: 1px solid #e3e8df;
+  background: #fbfaf7;
+  border: 1px solid #e9e3db;
   border-radius: 8px;
   padding: 14px;
 }
@@ -178,7 +192,7 @@ h3 {
 .metric span,
 .scoreRow span,
 .meter span {
-  color: #69756f;
+  color: #716a60;
   display: block;
   font-size: 13px;
 }
@@ -209,7 +223,8 @@ li {
 }
 
 textarea {
-  border: 1px solid #ccd6cf;
+  background: #fffefd;
+  border: 1px solid #d8d0c6;
   border-radius: 8px;
   display: block;
   min-height: 150px;
@@ -224,7 +239,7 @@ textarea + .primaryButton {
 }
 
 .primaryButton {
-  background: #1f6f5b;
+  background: #191714;
   border: 0;
   border-radius: 8px;
   color: #ffffff;
@@ -234,7 +249,7 @@ textarea + .primaryButton {
 }
 
 .inspector {
-  border-left: 1px solid #e0e5df;
+  border-left: 1px solid #e6e0d7;
   padding-left: 22px;
 }
 
@@ -270,7 +285,7 @@ textarea + .primaryButton {
 
 .scoreRow {
   align-items: center;
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   display: grid;
   gap: 18px;
@@ -279,7 +294,7 @@ textarea + .primaryButton {
 }
 
 .fieldLabel {
-  color: #52615a;
+  color: #625b52;
   display: block;
   font-size: 13px;
   font-weight: 700;
@@ -287,7 +302,7 @@ textarea + .primaryButton {
 }
 
 .textInput {
-  border: 1px solid #ccd6cf;
+  border: 1px solid #d8d0c6;
   border-radius: 8px;
   min-height: 40px;
   padding: 9px 12px;
@@ -303,7 +318,7 @@ textarea + .primaryButton {
 
 .contextControl label,
 .editorControls label {
-  color: #52615a;
+  color: #625b52;
   font-size: 13px;
   font-weight: 700;
 }
@@ -311,7 +326,7 @@ textarea + .primaryButton {
 .contextControl select,
 .editorControls select {
   background: #ffffff;
-  border: 1px solid #ccd6cf;
+  border: 1px solid #d8d0c6;
   border-radius: 8px;
   min-height: 40px;
   padding: 8px 10px;
@@ -330,7 +345,7 @@ textarea + .primaryButton {
 }
 
 .editorControls input[type="range"] {
-  accent-color: #1f6f5b;
+  accent-color: #191714;
 }
 
 .labControls {
@@ -341,7 +356,7 @@ textarea + .primaryButton {
 }
 
 .labControls label {
-  color: #52615a;
+  color: #625b52;
   display: grid;
   font-size: 13px;
   font-weight: 700;
@@ -350,14 +365,14 @@ textarea + .primaryButton {
 
 .labControls select {
   background: #ffffff;
-  border: 1px solid #ccd6cf;
+  border: 1px solid #d8d0c6;
   border-radius: 8px;
   min-height: 40px;
   padding: 8px 10px;
 }
 
 .labControls input[type="range"] {
-  accent-color: #1f6f5b;
+  accent-color: #191714;
 }
 
 .editorButton {
@@ -370,20 +385,20 @@ textarea + .primaryButton {
 }
 
 .adjustControl label {
-  color: #69756f;
+  color: #716a60;
   font-size: 13px;
 }
 
 .adjustControl input[type="range"] {
-  accent-color: #1f6f5b;
+  accent-color: #191714;
   width: 100%;
 }
 
 .ghostButton {
   background: transparent;
-  border: 1px solid #ccd6cf;
+  border: 1px solid #d8d0c6;
   border-radius: 8px;
-  color: #1f6f5b;
+  color: #191714;
   cursor: pointer;
   min-height: 34px;
   padding: 0 10px;
@@ -401,7 +416,7 @@ textarea + .primaryButton {
 
 .activeGhostButton {
   background: #eaf3d2;
-  border-color: #1f6f5b;
+  border-color: #191714;
 }
 
 .buttonRow {
@@ -412,7 +427,7 @@ textarea + .primaryButton {
 }
 
 .userCardPanel {
-  border-top: 1px solid #e0e5df;
+  border-top: 1px solid #e6e0d7;
   display: grid;
   gap: 12px;
   margin-top: 18px;
@@ -420,7 +435,7 @@ textarea + .primaryButton {
 }
 
 .userCardPanel input[type="range"] {
-  accent-color: #1f6f5b;
+  accent-color: #191714;
   width: min(620px, 100%);
 }
 
@@ -433,7 +448,7 @@ textarea + .primaryButton {
 }
 
 .preferenceItem {
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   display: grid;
   gap: 12px;
@@ -443,7 +458,7 @@ textarea + .primaryButton {
 }
 
 .proposalBox {
-  border-top: 1px solid #e0e5df;
+  border-top: 1px solid #e6e0d7;
   margin-top: 20px;
   padding-top: 18px;
 }
@@ -457,13 +472,13 @@ textarea + .primaryButton {
 }
 
 .versionToolbar label {
-  color: #69756f;
+  color: #716a60;
   font-size: 13px;
   font-weight: 700;
 }
 
 .proposalItem {
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   margin-bottom: 10px;
   padding: 12px;
@@ -475,7 +490,7 @@ textarea + .primaryButton {
 }
 
 .proposalItem span {
-  color: #69756f;
+  color: #716a60;
   font-size: 13px;
   margin-top: 6px;
 }
@@ -488,7 +503,7 @@ textarea + .primaryButton {
 }
 
 .knowledgeItem {
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   padding: 12px;
 }
@@ -499,7 +514,7 @@ textarea + .primaryButton {
 }
 
 .knowledgeItem span {
-  color: #69756f;
+  color: #716a60;
   font-size: 13px;
   margin-top: 6px;
 }
@@ -532,7 +547,7 @@ textarea + .primaryButton {
 .sourceGroup,
 .pipelineCard,
 .queryTraceBox {
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   padding: 12px;
 }
@@ -563,7 +578,7 @@ textarea + .primaryButton {
 
 .versionHeader span,
 .sourceMiniCard span {
-  color: #69756f;
+  color: #716a60;
   font-size: 12px;
   margin-top: 4px;
 }
@@ -608,7 +623,7 @@ textarea + .primaryButton {
 }
 
 .ingestionItem {
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   padding: 12px;
 }
@@ -628,7 +643,7 @@ textarea + .primaryButton {
 
 .ingestionHeader span,
 .blockerLine {
-  color: #69756f;
+  color: #716a60;
   font-size: 12px;
 }
 
@@ -660,7 +675,7 @@ textarea + .primaryButton {
 
 .gymCheck {
   background: #fbfcf9;
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   padding: 12px;
 }
@@ -722,7 +737,7 @@ textarea + .primaryButton {
 }
 
 .preferenceItem span {
-  color: #69756f;
+  color: #716a60;
   font-size: 13px;
   margin-top: 4px;
 }
@@ -740,13 +755,13 @@ textarea + .primaryButton {
 }
 
 .auditSection + .auditSection {
-  border-top: 1px solid #e0e5df;
+  border-top: 1px solid #e6e0d7;
   margin-top: 28px;
   padding-top: 22px;
 }
 
 .auditItem {
-  border: 1px solid #e0e6df;
+  border: 1px solid #e6e0d7;
   border-radius: 8px;
   display: grid;
   gap: 10px;
@@ -761,7 +776,7 @@ textarea + .primaryButton {
 
 .auditItem span,
 .auditItem time {
-  color: #69756f;
+  color: #716a60;
   font-size: 13px;
 }
 
@@ -772,8 +787,8 @@ textarea + .primaryButton {
 }
 
 .auditItem pre {
-  background: #f8faf5;
-  border: 1px solid #e3e8df;
+  background: #fbfaf7;
+  border: 1px solid #e9e3db;
   border-radius: 8px;
   color: #34413b;
   grid-column: 1 / -1;
@@ -784,8 +799,8 @@ textarea + .primaryButton {
 }
 
 .auditDetail {
-  background: #f8faf5;
-  border: 1px solid #e3e8df;
+  background: #fbfaf7;
+  border: 1px solid #e9e3db;
   border-radius: 8px;
   display: grid;
   gap: 10px;
@@ -800,12 +815,12 @@ textarea + .primaryButton {
 }
 
 .auditDetail dt {
-  color: #69756f;
+  color: #716a60;
   font-size: 12px;
 }
 
 .auditDetail dd {
-  color: #243630;
+  color: #191714;
   font-weight: 700;
   margin: 3px 0 0;
 }
@@ -819,7 +834,7 @@ textarea + .primaryButton {
 }
 
 .meter i {
-  background: #1f6f5b;
+  background: #191714;
   display: block;
   height: 100%;
 }
@@ -831,7 +846,11 @@ textarea + .primaryButton {
   }
 
   .sidebar {
+    border-bottom: 1px solid #e6e0d7;
+    border-right: 0;
+    height: auto;
     padding: 16px;
+    position: static;
   }
 
   nav {
@@ -904,7 +923,7 @@ textarea + .primaryButton {
 
   .inspector {
     border-left: 0;
-    border-top: 1px solid #e0e5df;
+    border-top: 1px solid #e6e0d7;
     padding-left: 0;
     padding-top: 18px;
   }

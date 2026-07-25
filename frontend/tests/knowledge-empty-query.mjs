@@ -9,7 +9,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Fuentes" }).click();
+  await page.getByRole("button", { name: "Biblioteca" }).click();
   await page.getByLabel("Base activa").selectOption("latest");
   await page.locator(".metric", { hasText: "Base cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor({
     timeout: 90000,
@@ -223,8 +223,7 @@ try {
     await metrics.filter({ hasText: new RegExp(`^${label}\\s*${value}$`) }).waitFor();
   }
 
-  await page.getByRole("button", { name: "Actividad" }).click();
-  await page.getByRole("button", { name: "Historial" }).click();
+  await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
   const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de base" });
   await page.getByText("Historial de consultas de base").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();

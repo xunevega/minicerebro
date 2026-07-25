@@ -11,7 +11,7 @@ try {
   await page
     .getByRole("button", {
       name: "Escribir",
-      description: "Crear, corregir, comparar y probar textos.",
+      description: "Redacta, corrige y compara sin perder tu criterio.",
     })
     .click();
 

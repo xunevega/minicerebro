@@ -8,7 +8,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("button", { name: "Actividad" }).click();
+  await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
   await page.getByRole("button", { name: "Mostrar tecnico" }).click();
   await page.getByRole("button", { name: "Cerebro" }).click();
   const cerebroPanel = page.locator(".panel", { hasText: "Revision de cantera" });

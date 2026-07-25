@@ -1,10 +1,10 @@
-# Minicerebro
+# Editados
 
 Aplicacion especializada en escritura en lengua espanola. La V1 implementa el contrato funcional con conocimiento estable separado del perfil de preferencias, scoring editable, preferencias trazables, editor, comparador, laboratorio, feedback controlado, auditoria y cierre tecnico verificable.
 
 ## Limite de seguridad V1
 
-Minicerebro V1 es una aplicacion local-first para desarrollo y uso en localhost. No debe exponerse a internet, dominios publicos ni redes abiertas sin anadir antes:
+Editados V1 es una aplicacion local-first para desarrollo y uso en localhost. No debe exponerse a internet, dominios publicos ni redes abiertas sin anadir antes:
 
 - autenticacion;
 - secretos propios fuera de los valores de desarrollo;

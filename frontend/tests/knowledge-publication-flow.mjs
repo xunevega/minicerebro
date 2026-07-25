@@ -7,7 +7,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Fuentes" }).click();
+  await page.getByRole("button", { name: "Biblioteca" }).click();
   await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();
 
   const panel = page.locator(".proposalBox", {

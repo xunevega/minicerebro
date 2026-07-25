@@ -7,8 +7,8 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Mi perfil" }).click();
-  await page.getByRole("button", { name: "Ficha usuario" }).click();
+  await page.getByRole("button", { name: "Aprender de mi" }).click();
+  await page.getByRole("button", { name: "Ficha" }).click();
 
   const exportResponse = page.waitForResponse(
     (response) => {
@@ -17,17 +17,17 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Ver datos del perfil" }).click();
+  await page.getByRole("button", { name: "Ver ficha completa" }).click();
   await exportResponse;
 
-  const exportBox = page.locator(".proposalBox", { hasText: "Export del perfil" });
+  const exportBox = page.locator(".proposalBox", { hasText: "Ficha completa" });
   await exportBox.getByText("profile-export-v1").waitFor();
   await exportBox.locator(".metric", { hasText: "Contextos" }).waitFor();
-  await exportBox.locator(".metric", { hasText: "Preferencias" }).waitFor();
+  await exportBox.locator(".metric", { hasText: "Gustos" }).waitFor();
   await exportBox
     .getByText("La exportacion del perfil no incluye ni modifica la base de conocimiento.")
     .waitFor();
-  await exportBox.getByText("Contextos exportados").waitFor();
+  await exportBox.getByText("Contextos guardados").waitFor();
 } finally {
   await browser.close();
 }

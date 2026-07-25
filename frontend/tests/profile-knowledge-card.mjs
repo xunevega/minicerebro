@@ -7,11 +7,11 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Mi perfil" }).click();
-  await page.getByRole("button", { name: "Ficha usuario" }).click();
+  await page.getByRole("button", { name: "Aprender de mi" }).click();
+  await page.getByRole("button", { name: "Ficha" }).click();
 
-  await page.getByRole("heading", { name: "Ficha usuario" }).waitFor();
-  await page.getByText("Preferencias, puntuacion y ficha personal.").waitFor();
+  await page.getByRole("heading", { name: "Ficha personal" }).waitFor();
+  await page.getByText("Gustos, ajustes y ficha personal.").waitFor();
 } finally {
   await browser.close();
 }
