@@ -367,10 +367,14 @@ export function App() {
     );
   });
   const latestPublishedKnowledgeVersion =
-    [...knowledgeVersions]
-      .filter((version) => version.status === "published")
-      .sort((left, right) => knowledgeVersionRank(right.id) - knowledgeVersionRank(left.id))[0]?.id ??
     knowledge?.version ??
+    [...knowledgeVersions]
+      .filter(
+        (version) =>
+          version.status === "published" &&
+          knowledgeVersionRank(version.id) !== Number.MAX_SAFE_INTEGER,
+      )
+      .sort((left, right) => knowledgeVersionRank(right.id) - knowledgeVersionRank(left.id))[0]?.id ??
     "knowledge-v0";
   const effectiveKnowledgeVersion =
     selectedKnowledgeVersion === "latest" ? latestPublishedKnowledgeVersion : selectedKnowledgeVersion;
@@ -422,7 +426,7 @@ export function App() {
   }, [activeContext]);
 
   useEffect(() => {
-    if (active !== "knowledge") return;
+    if (activeSection.id !== "knowledge") return;
     getKnowledgeVersions()
       .then(setKnowledgeVersions)
       .catch((nextError: Error) => setError(nextError.message));
@@ -432,10 +436,10 @@ export function App() {
     getKnowledgeSourceIngestionStatuses()
       .then(setKnowledgeSourceIngestionStatuses)
       .catch((nextError: Error) => setError(nextError.message));
-  }, [active]);
+  }, [activeSection.id]);
 
   useEffect(() => {
-    if (!knowledge || !["knowledge", "audit"].includes(active)) return;
+    if (!knowledge || !(activeSection.id === "knowledge" || active === "audit")) return;
     setError(null);
     getKnowledgeGym(effectiveKnowledgeVersion)
       .then(setKnowledgeGym)
@@ -473,7 +477,7 @@ export function App() {
         },
       )
       .catch((nextError: Error) => setError(nextError.message));
-  }, [active, effectiveKnowledgeVersion, knowledge, selectedKnowledgeCardId]);
+  }, [active, activeSection.id, effectiveKnowledgeVersion, knowledge, selectedKnowledgeCardId]);
 
   useEffect(() => {
     if (!["history", "technical"].includes(activeSection.id)) return;

@@ -74,12 +74,16 @@ import type {
   V1Screen,
 } from "../types/api";
 
-const API_BASE = import.meta.env.VITE_API_BASE ?? "http://localhost:8000";
+const API_BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
+  const headers = new Headers(init?.headers);
+  if (init?.body && !headers.has("Content-Type")) {
+    headers.set("Content-Type", "application/json");
+  }
   const response = await fetch(`${API_BASE}${path}`, {
-    headers: { "Content-Type": "application/json" },
     ...init,
+    headers,
   });
 
   if (!response.ok) {

@@ -1297,7 +1297,7 @@ class Repository:
             query = query.where(KnowledgeObjectRevisionRecord.object_type == object_type)
         if object_id:
             query = query.where(KnowledgeObjectRevisionRecord.object_id == object_id)
-        if knowledge_version and snapshot is None:
+        if knowledge_version:
             query = query.where(
                 KnowledgeObjectRevisionRecord.knowledge_version == knowledge_version
             )

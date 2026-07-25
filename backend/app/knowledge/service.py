@@ -66,7 +66,8 @@ KNOWLEDGE_V28_VERSION = "knowledge-v28"
 KNOWLEDGE_V29_VERSION = "knowledge-v29"
 KNOWLEDGE_V30_VERSION = "knowledge-v30"
 KNOWLEDGE_V31_VERSION = "knowledge-v31"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v32"
+KNOWLEDGE_V32_VERSION = "knowledge-v32"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v33"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -100,6 +101,7 @@ KNOWLEDGE_V29_PUBLISHED_AT = "2026-07-24T04:00:00+00:00"
 KNOWLEDGE_V30_PUBLISHED_AT = "2026-07-24T05:00:00+00:00"
 KNOWLEDGE_V31_PUBLISHED_AT = "2026-07-24T06:00:00+00:00"
 KNOWLEDGE_V32_PUBLISHED_AT = "2026-07-24T07:00:00+00:00"
+KNOWLEDGE_V33_PUBLISHED_AT = "2026-07-25T08:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -5574,6 +5576,194 @@ V32_SEED_ITEMS = [
     },
 ]
 
+V33_SEED_ITEMS = [
+    {
+        "key": "matiz-lexico",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:matiz-lexico",
+        "index_title": "Matiz lexico",
+        "index_locator": "Edicion de referencia > relaciones de ideas > matiz lexico",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:matiz-lexico:seg-1",
+        "segment_title": "Diferencia fina entre palabras proximas",
+        "segment_text": "Resumen editorial minimo: el matiz lexico distingue palabras cercanas por intensidad, valoracion, registro, campo de uso o implicacion contextual.",
+        "extraction_id": "ext-casares-diccionario-ideologico-matiz-lexico-1",
+        "node_id": "casares-matiz-lexico",
+        "canonical_name": "Matiz lexico",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "precision",
+        "node_summary": "Criterio para elegir entre palabras cercanas sin tratarlas como equivalentes.",
+        "short_definition": "Diferencia de intensidad, registro o implicacion entre voces proximas.",
+        "aliases": ["diferencia de matiz", "distincion lexica"],
+        "relation_target": "rae-dle-precision-lexica",
+        "relation_type": "depende_de",
+        "card_id": "card-matiz-lexico",
+        "card_type": "lexical_precision_tool",
+        "card_name": "Matiz lexico",
+        "card_definition": "Criterio para elegir la palabra que expresa el sentido exacto y no solo una palabra parecida.",
+        "signals": ["intensidad", "registro", "campo de uso"],
+        "risks": ["tratar sinonimos aproximados como equivalentes absolutos"],
+        "contexts": ["revision lexica", "reescritura", "estilo"],
+        "evidence_id": "ev-casares-matiz-lexico",
+        "evidence_section": "matiz lexico",
+        "confidence": 0.61,
+        "claim_id": "claim-casares-matiz-lexico",
+        "statement": "El matiz lexico obliga a elegir entre voces cercanas segun intensidad, registro, campo de uso e implicacion contextual.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.precision",
+        "related_node_ids": ["rae-dle-precision-lexica", "diccionario-sinonimos-sinonimia-contextual"],
+    },
+    {
+        "key": "registro-lexico",
+        "source_id": "rae-dle",
+        "source_edition_id": "rae-dle:edicion-23-digital",
+        "index_id": "rae-dle:edicion-23-digital:registro-lexico",
+        "index_title": "Registro lexico",
+        "index_locator": "23.a edicion digital > marcas de uso > registro lexico",
+        "segment_id": "rae-dle:edicion-23-digital:registro-lexico:seg-1",
+        "segment_title": "Uso adecuado al contexto",
+        "segment_text": "Resumen editorial minimo: el registro lexico ajusta la palabra a la situacion comunicativa, al genero textual y a la relacion con el lector.",
+        "extraction_id": "ext-rae-dle-registro-lexico-1",
+        "node_id": "rae-dle-registro-lexico",
+        "canonical_name": "Registro lexico",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "uso",
+        "node_summary": "Criterio para adecuar vocabulario a situacion, genero y lector.",
+        "short_definition": "Ajuste de la palabra al grado de formalidad y al contexto de uso.",
+        "aliases": ["adecuacion lexica", "nivel de lengua"],
+        "relation_target": "casares-matiz-lexico",
+        "relation_type": "relacionado_con",
+        "card_id": "card-registro-lexico",
+        "card_type": "lexical_precision_tool",
+        "card_name": "Registro lexico",
+        "card_definition": "Criterio para evitar palabras demasiado solemnes, coloquiales o tecnicas para el texto.",
+        "signals": ["formalidad", "genero textual", "lector"],
+        "risks": ["mezclar registros y producir una voz inestable"],
+        "contexts": ["revision de tono", "edicion", "redaccion"],
+        "evidence_id": "ev-rae-dle-registro-lexico",
+        "evidence_section": "registro lexico",
+        "confidence": 0.61,
+        "claim_id": "claim-rae-dle-registro-lexico",
+        "statement": "El registro lexico debe ajustarse a la situacion comunicativa, el genero textual y la relacion con el lector.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.register",
+        "related_node_ids": ["casares-matiz-lexico", "rae-lese-adecuacion-lector"],
+    },
+    {
+        "key": "repeticion-lexica-funcional",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:repeticion-lexica-funcional",
+        "index_title": "Repeticion lexica funcional",
+        "index_locator": "Edicion de referencia > cohesion > repeticion lexica",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:repeticion-lexica-funcional:seg-1",
+        "segment_title": "Repetir con funcion o variar con criterio",
+        "segment_text": "Resumen editorial minimo: la repeticion lexica puede sostener cohesion y enfasis, pero conviene sustituirla cuando solo empobrece ritmo o precision.",
+        "extraction_id": "ext-cassany-cocina-escritura-repeticion-lexica-funcional-1",
+        "node_id": "cassany-repeticion-lexica-funcional",
+        "canonical_name": "Repeticion lexica funcional",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "cohesion",
+        "node_summary": "Criterio para decidir cuando repetir una palabra y cuando variarla.",
+        "short_definition": "Uso deliberado de repeticion o sustitucion para cohesion, enfasis y ritmo.",
+        "aliases": ["repeticion controlada", "variacion lexica"],
+        "relation_target": "rae-lese-claridad",
+        "relation_type": "usa",
+        "card_id": "card-repeticion-lexica-funcional",
+        "card_type": "lexical_revision_tool",
+        "card_name": "Repeticion lexica funcional",
+        "card_definition": "Criterio para distinguir repeticion util de pobreza lexica.",
+        "signals": ["cohesion", "enfasis", "ritmo"],
+        "risks": ["variar por variar y perder continuidad conceptual"],
+        "contexts": ["reescritura", "cohesion", "revision"],
+        "evidence_id": "ev-cassany-repeticion-lexica-funcional",
+        "evidence_section": "repeticion lexica funcional",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-repeticion-lexica-funcional",
+        "statement": "La repeticion lexica debe mantenerse si aporta cohesion o enfasis y variarse si empobrece ritmo o precision.",
+        "claim_type": "stylistic",
+        "domain": "writing.lexicon.cohesion",
+        "related_node_ids": ["rae-lese-claridad", "casares-matiz-lexico"],
+    },
+    {
+        "key": "palabra-inflada",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:palabra-inflada",
+        "index_title": "Palabra inflada",
+        "index_locator": "Edicion de referencia > clutter > palabra inflada",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:palabra-inflada:seg-1",
+        "segment_title": "Abstraccion y solemnidad innecesarias",
+        "segment_text": "Resumen editorial minimo: una palabra inflada aumenta solemnidad o abstraccion sin aportar precision, imagen, accion ni informacion nueva.",
+        "extraction_id": "ext-zinsser-on-writing-well-palabra-inflada-1",
+        "node_id": "zinsser-palabra-inflada",
+        "canonical_name": "Palabra inflada",
+        "node_type": "recurso",
+        "primary_branch": "lexico",
+        "secondary_branch": "limpieza",
+        "node_summary": "Riesgo de vocabulario abstracto o solemne sin ganancia expresiva.",
+        "short_definition": "Palabra que parece elevar el texto pero no anade precision ni energia.",
+        "aliases": ["palabra grandilocuente", "lexico hinchado"],
+        "relation_target": "zinsser-claridad-no-ficcion",
+        "relation_type": "es_parte_de",
+        "card_id": "card-palabra-inflada",
+        "card_type": "lexical_revision_tool",
+        "card_name": "Palabra inflada",
+        "card_definition": "Criterio para sustituir solemnidad vacia por una palabra concreta, activa o necesaria.",
+        "signals": ["abstraccion", "solemnidad", "relleno"],
+        "risks": ["confundir elegancia con palabras largas o vagas"],
+        "contexts": ["limpieza de estilo", "no ficcion", "revision"],
+        "evidence_id": "ev-zinsser-palabra-inflada",
+        "evidence_section": "palabra inflada",
+        "confidence": 0.6,
+        "claim_id": "claim-zinsser-palabra-inflada",
+        "statement": "Una palabra inflada debe revisarse cuando aumenta solemnidad o abstraccion sin aportar precision, imagen, accion ni informacion.",
+        "claim_type": "stylistic",
+        "domain": "writing.lexicon.clarity",
+        "related_node_ids": ["zinsser-claridad-no-ficcion", "rae-dle-precision-lexica"],
+    },
+    {
+        "key": "verbo-preciso",
+        "source_id": "rae-dle",
+        "source_edition_id": "rae-dle:edicion-23-digital",
+        "index_id": "rae-dle:edicion-23-digital:verbo-preciso",
+        "index_title": "Verbo preciso",
+        "index_locator": "23.a edicion digital > seleccion lexica > verbo preciso",
+        "segment_id": "rae-dle:edicion-23-digital:verbo-preciso:seg-1",
+        "segment_title": "Accion exacta frente a verbo generico",
+        "segment_text": "Resumen editorial minimo: el verbo preciso nombra la accion o el proceso con mayor exactitud que un verbo generico apoyado en complementos vagos.",
+        "extraction_id": "ext-rae-dle-verbo-preciso-1",
+        "node_id": "rae-dle-verbo-preciso",
+        "canonical_name": "Verbo preciso",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "seleccion verbal",
+        "node_summary": "Criterio para sustituir verbos generales por acciones mas exactas.",
+        "short_definition": "Verbo que expresa la accion concreta sin apoyarse en rodeos vagos.",
+        "aliases": ["accion precisa", "verbo especifico"],
+        "relation_target": "rae-dle-precision-lexica",
+        "relation_type": "ejemplifica",
+        "card_id": "card-verbo-preciso",
+        "card_type": "lexical_revision_tool",
+        "card_name": "Verbo preciso",
+        "card_definition": "Criterio para ganar energia sustituyendo verbos genericos por acciones exactas.",
+        "signals": ["accion concreta", "verbo generico", "energia"],
+        "risks": ["forzar verbos raros cuando el verbo simple ya funciona"],
+        "contexts": ["reescritura", "estilo", "revision lexica"],
+        "evidence_id": "ev-rae-dle-verbo-preciso",
+        "evidence_section": "verbo preciso",
+        "confidence": 0.61,
+        "claim_id": "claim-rae-dle-verbo-preciso",
+        "statement": "El verbo preciso mejora energia y claridad cuando nombra la accion con mas exactitud que un verbo generico apoyado en complementos vagos.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.verbs",
+        "related_node_ids": ["rae-dle-precision-lexica", "zinsser-palabra-inflada"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -6922,7 +7112,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V29_VERSION: "seed_advanced_punctuation_style_batch",
     KNOWLEDGE_V30_VERSION: "seed_applied_creative_narratology_batch",
     KNOWLEDGE_V31_VERSION: "seed_creative_scene_practice_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_creative_revision_practice_batch",
+    KNOWLEDGE_V32_VERSION: "seed_creative_revision_practice_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_applied_lexical_precision_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -6949,7 +7140,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V29_VERSION: KNOWLEDGE_V29_PUBLISHED_AT,
     KNOWLEDGE_V30_VERSION: KNOWLEDGE_V30_PUBLISHED_AT,
     KNOWLEDGE_V31_VERSION: KNOWLEDGE_V31_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V32_PUBLISHED_AT,
+    KNOWLEDGE_V32_VERSION: KNOWLEDGE_V32_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V33_PUBLISHED_AT,
 }
 
 
@@ -8397,6 +8589,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V30_SEED_ITEMS),
         *_published_batch_index_entries(V31_SEED_ITEMS),
         *_published_batch_index_entries(V32_SEED_ITEMS),
+        *_published_batch_index_entries(V33_SEED_ITEMS),
     ]
 
 
@@ -8524,6 +8717,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V30_SEED_ITEMS),
         *_published_batch_segments(V31_SEED_ITEMS),
         *_published_batch_segments(V32_SEED_ITEMS),
+        *_published_batch_segments(V33_SEED_ITEMS),
     ]
 
 
@@ -8670,7 +8864,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_extraction_runs(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_extraction_runs(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_extraction_runs(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_extraction_runs(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9346,7 +9541,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_proposals(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_proposals(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_proposals(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_proposals(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9521,7 +9717,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_nodes(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_nodes(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_nodes(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_nodes(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9658,7 +9855,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_node_relations(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_node_relations(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_node_relations(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_node_relations(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10024,7 +10222,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_evidence(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_evidence(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_evidence(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_evidence(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10290,7 +10489,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_claims(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_claims(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_claims(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_claims(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10477,7 +10677,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_cards(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_cards(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
-        *_published_batch_cards(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
+        *_published_batch_cards(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11228,8 +11429,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v31_evidence = [evidence for evidence in seed_evidence() if evidence.version in v31_chain]
     v31_claims = [claim for claim in seed_claims() if claim.version in v31_chain]
     v31_cards = [card for card in seed_cards() if card.version in v31_chain]
-    latest_chain = {*v31_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v32_chain = {*v31_chain, KNOWLEDGE_V32_VERSION}
+    v32_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -11258,7 +11459,43 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V32_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v31_node_ids, *{item["node_id"] for item in V32_SEED_ITEMS}}
+    v32_node_ids = {*v31_node_ids, *{item["node_id"] for item in V32_SEED_ITEMS}}
+    v32_nodes = [node for node in seed_nodes() if node.id in v32_node_ids]
+    v32_evidence = [evidence for evidence in seed_evidence() if evidence.version in v32_chain]
+    v32_claims = [claim for claim in seed_claims() if claim.version in v32_chain]
+    v32_cards = [card for card in seed_cards() if card.version in v32_chain]
+    latest_chain = {*v32_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+            *{item["source_id"] for item in V27_SEED_ITEMS},
+            *{item["source_id"] for item in V28_SEED_ITEMS},
+            *{item["source_id"] for item in V29_SEED_ITEMS},
+            *{item["source_id"] for item in V30_SEED_ITEMS},
+            *{item["source_id"] for item in V31_SEED_ITEMS},
+            *{item["source_id"] for item in V32_SEED_ITEMS},
+            *{item["source_id"] for item in V33_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v32_node_ids, *{item["node_id"] for item in V33_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -11585,9 +11822,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v31_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V32_VERSION,
             status="published",
             published_at=KNOWLEDGE_V32_PUBLISHED_AT,
+            source_count=len(v32_sources),
+            node_count=len(v32_nodes),
+            evidence_count=len(v32_evidence),
+            claim_count=len(v32_claims),
+            card_count=len(v32_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V33_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
