@@ -35,4 +35,14 @@ python3 -c 'import json, sys; payload=json.load(open(sys.argv[1])); expected=sys
 curl -fsSI "$FRONTEND_URL/" -o "$TMP_DIR/frontend.headers"
 python3 -c 'import sys; headers=open(sys.argv[1]).read().lower(); assert "200" in headers.splitlines()[0]; assert "content-type: text/html" in headers; print("frontend ok")' "$TMP_DIR/frontend.headers"
 
+curl -fsS "$FRONTEND_URL/" -o "$TMP_DIR/frontend.html"
+FRONTEND_ASSET="$(python3 -c 'import re, sys; html=open(sys.argv[1]).read(); match=re.search(r"<script[^>]+type=[\"'"'"']module[\"'"'"'][^>]+src=[\"'"'"']([^\"'"'"']+)[\"'"'"']", html); assert match, html[:500]; print(match.group(1))' "$TMP_DIR/frontend.html")"
+case "$FRONTEND_ASSET" in
+  http*) FRONTEND_ASSET_URL="$FRONTEND_ASSET" ;;
+  /*) FRONTEND_ASSET_URL="$FRONTEND_URL$FRONTEND_ASSET" ;;
+  *) FRONTEND_ASSET_URL="$FRONTEND_URL/$FRONTEND_ASSET" ;;
+esac
+curl --retry 3 --retry-delay 2 --retry-connrefused -fsS "$FRONTEND_ASSET_URL" -o "$TMP_DIR/frontend.js"
+python3 -c 'import sys; js=open(sys.argv[1]).read(); required=["Base publicada actual", "Ficha editorial", "Sistema", "No hay ficha para esa busqueda"]; missing=[item for item in required if item not in js]; assert not missing, "frontend bundle stale or incomplete: missing " + ", ".join(missing); print("frontend bundle ok")' "$TMP_DIR/frontend.js"
+
 echo "production smoke ok"
