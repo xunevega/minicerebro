@@ -2130,7 +2130,7 @@ export function App() {
             ) : null}
             <div className="proposalBox">
               <h3>Consultar la base</h3>
-              <p className="note">Usa la base activa: {loadedKnowledgeVersion}.</p>
+              <p className="note">Busca una idea en la base publicada.</p>
               <div className="rowActions">
                 <input
                   className="textInput"
@@ -2138,13 +2138,13 @@ export function App() {
                   value={knowledgeQuery}
                 />
                 <select
-                  aria-label="Limite de fichas"
+                  aria-label="Limite de resultados"
                   onChange={(event) => setKnowledgeQueryLimit(Number.parseInt(event.target.value, 10))}
                   value={knowledgeQueryLimit}
                 >
                   {[3, 5, 10, 20].map((limit) => (
                     <option key={limit} value={limit}>
-                      {limit} fichas
+                      {limit} resultados
                     </option>
                   ))}
                 </select>
@@ -2155,13 +2155,12 @@ export function App() {
               {knowledgeResult ? (
                 <>
                   <p className="note">
-                    Resultado para "{knowledgeResult.query}" en base resuelta{" "}
-                    {knowledgeResult.resolved_version}.
+                    Resultado para "{knowledgeResult.query}" en la base publicada.
                   </p>
                   <div className="metricGrid">
-                    <Metric label="Fichas" value={knowledgeResult.card_count} />
-                    <Metric label="Claims" value={knowledgeResult.claim_count} />
-                    <Metric label="Evidencias" value={knowledgeResult.evidence_count} />
+                    <Metric label="Resultados" value={knowledgeResult.card_count} />
+                    <Metric label="Ideas" value={knowledgeResult.claim_count} />
+                    <Metric label="Apoyos" value={knowledgeResult.evidence_count} />
                     <Metric
                       label="Revision"
                       value={`${
@@ -2175,10 +2174,10 @@ export function App() {
                       } pendientes`}
                     />
                   </div>
-                  <div className="queryTraceBox">
-                    <h3>Trazabilidad de consulta</h3>
+                  <details className="queryTraceBox">
+                    <summary>Ver detalle tecnico</summary>
                     <div className="metricGrid">
-                      <Metric label="Version recuperada" value={knowledgeResult.resolved_version} />
+                      <Metric label="Base recuperada" value={knowledgeResult.resolved_version} />
                       <Metric label="Fuentes" value={knowledgeResult.sources.length} />
                       <Metric label="Caminos" value={queryRelationPaths(knowledgeResult).length} />
                     </div>
@@ -2190,13 +2189,13 @@ export function App() {
                       ))}
                     </div>
                     <List
-                      title="Evidencias usadas"
+                      title="Apoyos usados"
                       items={knowledgeResult.evidence.map(
                         (item) => `${item.id} · ${item.source_edition_id} · ${item.reference}`,
                       )}
                     />
                     <List title="Relaciones seguidas" items={queryRelationPaths(knowledgeResult)} />
-                  </div>
+                  </details>
                   {knowledgeResult.cards.length > 0 ? (
                     <div className="knowledgeGrid">
                       {knowledgeResult.cards.map((card) => {
@@ -2216,14 +2215,14 @@ export function App() {
                             <span>{card.definition}</span>
                             <ValidationPill confidence={card.confidence} />
                             <List
-                              title="Claims"
+                              title="Ideas que usa"
                               items={cardClaims.map(
                                 (claim) =>
                                   `${claim.statement} · ${validationLabel(claim.confidence)}`,
                               )}
                             />
                             <List
-                              title="Evidencia"
+                              title="Apoyos"
                               items={cardEvidence.map(
                                 (item) =>
                                   `${item.reference}: ${item.excerpt} · ${validationLabel(
@@ -2244,10 +2243,8 @@ export function App() {
                     </div>
                   ) : (
                     <article className="knowledgeItem">
-                      <strong>Consulta valida sin resultados</strong>
-                      <span>
-                        0 fichas, 0 claims y 0 evidencias en version {knowledgeResult.version}.
-                      </span>
+                      <strong>Sin resultados</strong>
+                      <span>No he encontrado una ficha util para esa busqueda.</span>
                     </article>
                   )}
                 </>
@@ -2500,7 +2497,7 @@ export function App() {
                   />
                 </>
               ) : (
-                <p className="note">El laboratorio no escribe en preferencias, scoring ni evidencias.</p>
+                <p className="note">El laboratorio no cambia tus gustos, ajustes ni apoyos guardados.</p>
               )}
               {labComparison ? (
                 <>
@@ -2942,7 +2939,7 @@ export function App() {
         {active === "audit" && (
           <section className="panel">
             <div className="auditSection">
-              <h2>Historial de consultas de base</h2>
+              <h2>Historial de busquedas</h2>
               <div className="metricGrid">
                 <Metric label="Consultas" value={knowledgeQuerySummary?.total_count ?? 0} />
                 <Metric label="Con resultado" value={knowledgeQuerySummary?.hit_count ?? 0} />
@@ -2970,13 +2967,13 @@ export function App() {
                 </select>
               </div>
               {knowledgeQueryHistory.length === 0 ? (
-                <p className="note">Todavia no hay consultas de base registradas.</p>
+                <p className="note">Todavia no hay busquedas registradas.</p>
               ) : (
                 <div className="auditList">
                   {knowledgeQueryHistory.map((item) => (
                     <article className="auditItem" key={item.event_id}>
                       <div>
-                        <strong>{item.version} -&gt; consulta</strong>
+                        <strong>Consulta en la base publicada</strong>
                         <span>
                           {item.has_results ? "con resultado" : "sin resultado"} ·{" "}
                           {item.query_length} caracteres · limite {item.limit}
@@ -3000,11 +2997,13 @@ export function App() {
                           onClick={() => handleExploreKnowledgeVersion(item.version)}
                           type="button"
                         >
-                          Ver version consultada
+                          Ver base consultada
                         </button>
                       </div>
                       <pre>
-                        {`${item.card_count} fichas · ${item.claim_count} claims · ${item.evidence_count} evidencias · ${item.pending_validation_count} validaciones pendientes`}
+                        {item.has_results
+                          ? `${item.card_count} resultados encontrados.`
+                          : "Sin resultados para esa busqueda."}
                       </pre>
                       {selectedKnowledgeQueryEventId === item.event_id && (
                         <dl className="auditDetail">
@@ -3013,7 +3012,7 @@ export function App() {
                             <dd>{item.event_id}</dd>
                           </div>
                           <div>
-                            <dt>Version</dt>
+                            <dt>Base</dt>
                             <dd>{item.version}</dd>
                           </div>
                           <div>
@@ -3029,7 +3028,7 @@ export function App() {
                             <dd>{item.query_length} caracteres</dd>
                           </div>
                           <div>
-                            <dt>Recorrido</dt>
+                            <dt>Detalle tecnico</dt>
                             <dd>
                               {item.card_count} fichas · {item.claim_count} claims ·{" "}
                               {item.evidence_count} evidencias
@@ -3119,13 +3118,10 @@ function KnowledgeAuditTrace({ event }: { event: AuditEvent }) {
   }
 
   const cardCount = numberPayloadValue(event.payload.card_count);
-  const claimCount = numberPayloadValue(event.payload.claim_count);
-  const evidenceCount = numberPayloadValue(event.payload.evidence_count);
 
   return (
     <span className="auditTrace">
-      {event.entity_id} -&gt; consulta · {cardCount} fichas · {claimCount} claims ·{" "}
-      {evidenceCount} evidencias
+      Consulta en la base publicada · {cardCount} resultados encontrados
     </span>
   );
 }

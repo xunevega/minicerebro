@@ -186,7 +186,7 @@ try {
     has: page.getByRole("heading", { name: /^Consultar la base$/ }),
   });
   await queryPanel.locator("input").fill("complemento directo");
-  await page.getByLabel("Limite de fichas").selectOption("3");
+  await page.getByLabel("Limite de resultados").selectOption("3");
   const firstQueryResponse = page.waitForResponse((response) => {
     const url = new URL(response.url());
     return url.pathname === "/knowledge/query" && response.request().method() === "POST";
@@ -194,8 +194,9 @@ try {
   await queryPanel.getByRole("button", { name: "Consultar" }).click();
   await firstQueryResponse;
   await queryPanel.getByText("Resultado para \"complemento directo\"").waitFor({ timeout: queryTimeout });
-  await queryPanel.getByText("Trazabilidad de consulta").waitFor();
-  await queryPanel.locator(".metric", { hasText: "Version recuperada" }).filter({ hasText: "knowledge-v32" }).waitFor();
+  await queryPanel.getByText("Ver detalle tecnico").waitFor();
+  await queryPanel.getByText("Ver detalle tecnico").click();
+  await queryPanel.locator(".metric", { hasText: "Base recuperada" }).filter({ hasText: "knowledge-v32" }).waitFor();
   await queryPanel.getByText("Nueva gramatica de la lengua espanola").first().waitFor();
   await queryPanel.getByText("ev-rae-ngle-complemento-directo-candidata").first().waitFor();
   await queryPanel.locator("article.knowledgeItem > strong", { hasText: /^Complemento directo$/ }).waitFor();
@@ -207,16 +208,14 @@ try {
   }, { timeout: queryTimeout });
   await queryPanel.getByRole("button", { name: "Consultar" }).click();
   await emptyQueryResponse;
-  await page.getByText("Consulta valida sin resultados").waitFor({ timeout: queryTimeout });
-  await page
-    .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v32.")
-    .waitFor();
+  await page.getByText("Sin resultados").waitFor({ timeout: queryTimeout });
+  await page.getByText("No he encontrado una ficha util para esa busqueda.").waitFor();
 
   const metrics = queryPanel.locator(".metric");
   const expectedMetrics = [
-    ["Fichas", "0"],
-    ["Claims", "0"],
-    ["Evidencias", "0"],
+    ["Resultados", "0"],
+    ["Ideas", "0"],
+    ["Apoyos", "0"],
   ];
 
   for (const [label, value] of expectedMetrics) {
@@ -224,21 +223,21 @@ try {
   }
 
   await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
-  const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de base" });
-  await page.getByText("Historial de consultas de base").waitFor();
+  const auditPanel = page.locator(".panel", { hasText: "Historial de busquedas" });
+  await page.getByText("Historial de busquedas").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
   await auditPanel.getByText("sin resultado").first().waitFor();
-  await page.getByText("knowledge-v32 -> consulta").first().waitFor({ timeout: 90000 });
+  await page.getByText("Consulta en la base publicada").first().waitFor({ timeout: 90000 });
   const historyItem = auditPanel.locator(".auditItem", {
-    hasText: "0 validaciones pendientes",
+    hasText: "Sin resultados para esa busqueda.",
   }).first();
-  await historyItem.getByText("0 validaciones pendientes").waitFor();
+  await historyItem.getByText("Sin resultados para esa busqueda.").waitFor();
   await historyItem.getByRole("button", { name: "Detalle" }).click();
   await historyItem.locator("dt", { hasText: "Evento" }).waitFor();
-  await historyItem.locator("dt", { hasText: "Version" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Base" }).waitFor();
   await historyItem.locator("dt", { hasText: "Longitud" }).waitFor();
-  await historyItem.locator("dt", { hasText: "Recorrido" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Detalle tecnico" }).waitFor();
   await historyItem.locator("dt", { hasText: "Validacion" }).waitFor();
   await historyItem.getByText("0 pendientes").waitFor();
 } finally {

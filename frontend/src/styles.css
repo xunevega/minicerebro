@@ -557,6 +557,16 @@ textarea + .primaryButton {
   margin: 14px 0;
 }
 
+.queryTraceBox summary {
+  color: #191714;
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.queryTraceBox[open] summary {
+  margin-bottom: 12px;
+}
+
 .versionItem.active {
   border-color: #9bc89f;
   box-shadow: inset 0 0 0 1px #9bc89f;
