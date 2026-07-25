@@ -619,6 +619,77 @@ textarea + .primaryButton {
   overflow: auto;
 }
 
+.libraryShelfGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 14px 0;
+}
+
+.libraryShelf {
+  background: #fbfaf7;
+  border: 1px solid #e6e0d7;
+  border-radius: 8px;
+  color: #191714;
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+  min-height: 128px;
+  padding: 14px;
+  text-align: left;
+}
+
+.libraryShelf.active,
+.libraryShelf:hover {
+  border-color: #191714;
+  box-shadow: inset 3px 0 0 #e11919;
+}
+
+.libraryShelf strong,
+.libraryShelf span,
+.libraryShelf em {
+  display: block;
+}
+
+.libraryShelf span {
+  color: #716a60;
+  font-size: 13px;
+}
+
+.libraryShelf em {
+  align-self: end;
+  color: #e11919;
+  font-size: 22px;
+  font-style: normal;
+  font-weight: 800;
+}
+
+.libraryCardList {
+  display: grid;
+  gap: 10px;
+}
+
+.libraryCard {
+  align-items: start;
+  border: 1px solid #e6e0d7;
+  border-radius: 8px;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr) auto;
+  padding: 12px;
+}
+
+.libraryCard strong,
+.libraryCard span {
+  display: block;
+}
+
+.libraryCard span {
+  color: #716a60;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
 .sourceMiniCard {
   background: #fbfcf9;
   border: 1px solid #e7ece5;
@@ -902,6 +973,8 @@ textarea + .primaryButton {
   .ingestionHeader,
   .ingestionMetrics,
   .gymCheckGrid,
+  .libraryShelfGrid,
+  .libraryCard,
   .knowledgeGymPanel .metricGrid,
   .versionList,
   .sourceExplorer,

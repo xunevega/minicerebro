@@ -168,6 +168,25 @@ const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label
   { value: "dismissed", label: "Descartar" },
 ];
 
+const libraryAreas = [
+  { id: "all", label: "Todo", description: "Todas las fichas publicadas." },
+  { id: "gramatica", label: "Gramatica", description: "Sintaxis, concordancia y estructura de frase." },
+  { id: "ortografia", label: "Ortografia", description: "Tildes, signos, mayusculas y puntuacion." },
+  { id: "lexico", label: "Lexico", description: "Palabra precisa, sinonimia, registro y uso." },
+  { id: "estilo", label: "Estilo", description: "Claridad, ritmo, tono y parrafo." },
+  { id: "retorica", label: "Retorica", description: "Argumentacion, ethos, pathos, logos y discurso." },
+  { id: "narrativa", label: "Narrativa", description: "Escena, voz, personaje, trama y punto de vista." },
+  { id: "revision", label: "Revision", description: "Correccion, reescritura y taller de borrador." },
+] as const;
+
+type LibraryAreaId = (typeof libraryAreas)[number]["id"];
+
+type LibraryClassification = {
+  area: Exclude<LibraryAreaId, "all">;
+  use: string;
+  level: string;
+};
+
 type TabId = (typeof tabs)[number]["id"];
 const systemDefaultTabs: TabId[] = ["audit", "persistence"];
 const systemTechnicalTabs: TabId[] = ["screens", "rules", "closure", "roadmap", "cerebro", "acceptance"];
@@ -259,6 +278,7 @@ export function App() {
   const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(20);
   const [showKnowledgeTechnical, setShowKnowledgeTechnical] = useState(false);
   const [showSystemTechnical, setShowSystemTechnical] = useState(false);
+  const [selectedLibraryArea, setSelectedLibraryArea] = useState<LibraryAreaId>("all");
   const [selectedKnowledgeQueryEventId, setSelectedKnowledgeQueryEventId] = useState<number | null>(
     null,
   );
@@ -561,6 +581,44 @@ export function App() {
         (item) => validationLabel(item.confidence) === "Validacion pendiente",
       ).length,
     [knowledgeCards, knowledgeClaims, knowledgeEvidence],
+  );
+  const classifiedKnowledgeCards = useMemo(
+    () =>
+      knowledgeCards
+        .map((card) => ({
+          card,
+          classification: classifyKnowledgeCard(card),
+        }))
+        .sort(
+          (left, right) =>
+            libraryAreaRank(left.classification.area) -
+              libraryAreaRank(right.classification.area) ||
+            left.card.name.localeCompare(right.card.name),
+        ),
+    [knowledgeCards],
+  );
+  const selectedLibraryCards = useMemo(
+    () =>
+      selectedLibraryArea === "all"
+        ? classifiedKnowledgeCards
+        : classifiedKnowledgeCards.filter(
+            (item) => item.classification.area === selectedLibraryArea,
+          ),
+    [classifiedKnowledgeCards, selectedLibraryArea],
+  );
+  const libraryAreaCounts = useMemo(
+    () =>
+      new Map<LibraryAreaId, number>(
+        libraryAreas.map((area) => [
+          area.id,
+          area.id === "all"
+            ? classifiedKnowledgeCards.length
+            : classifiedKnowledgeCards.filter(
+                (item) => item.classification.area === area.id,
+              ).length,
+        ]),
+      ),
+    [classifiedKnowledgeCards],
   );
   const registeredOnlySourceCount = useMemo(
     () => knowledgeSourceIngestionStatuses.filter((item) => !item.is_ingested).length,
@@ -1423,6 +1481,64 @@ export function App() {
               <Metric label="Pendientes" value={registeredOnlySourceCount} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
+            <div className="proposalBox">
+              <div className="versionHeader">
+                <div>
+                  <h3>Estanterias</h3>
+                  <p className="note">
+                    Orden bibliotecario por materia, uso y nivel. No cambia la base: solo
+                    organiza las fichas publicadas para encontrarlas mejor.
+                  </p>
+                </div>
+                <span className="statusPill">{classifiedKnowledgeCards.length} fichas</span>
+              </div>
+              <div className="libraryShelfGrid" aria-label="Estanterias de Biblioteca">
+                {libraryAreas.map((area) => (
+                  <button
+                    className={
+                      selectedLibraryArea === area.id ? "libraryShelf active" : "libraryShelf"
+                    }
+                    key={area.id}
+                    onClick={() => setSelectedLibraryArea(area.id)}
+                    type="button"
+                  >
+                    <strong>{area.label}</strong>
+                    <span>{area.description}</span>
+                    <em>{libraryAreaCounts.get(area.id) ?? 0}</em>
+                  </button>
+                ))}
+              </div>
+              <div className="libraryCardList">
+                {selectedLibraryCards.slice(0, 24).map(({ card, classification }) => (
+                  <article className="libraryCard" key={card.id}>
+                    <div>
+                      <strong>{card.name}</strong>
+                      <span>{card.definition}</span>
+                    </div>
+                    <div className="phaseSummary">
+                      <span className="phaseBadge">
+                        {libraryAreaLabel(classification.area)}
+                      </span>
+                      <span className="phaseBadge">uso: {classification.use}</span>
+                      <span className="phaseBadge">nivel: {classification.level}</span>
+                    </div>
+                    <button
+                      className="ghostButton"
+                      onClick={() => setSelectedKnowledgeCardId(card.id)}
+                      type="button"
+                    >
+                      Ver ficha
+                    </button>
+                  </article>
+                ))}
+              </div>
+              {selectedLibraryCards.length > 24 ? (
+                <p className="note">
+                  Mostrando 24 de {selectedLibraryCards.length}. Usa la consulta para ir a una
+                  ficha concreta.
+                </p>
+              ) : null}
+            </div>
             <div className="proposalBox knowledgeGymPanel">
               <div className="versionHeader">
                 <div>
@@ -3225,6 +3341,211 @@ function ingestionPhaseLabel(phase: string) {
 
 function ingestionBlockerLabel(blocker: string) {
   return INGESTION_BLOCKER_LABELS[blocker] ?? blocker;
+}
+
+function classifyKnowledgeCard(card: KnowledgeCard): LibraryClassification {
+  const text = normalizeLibraryText(`${card.name} ${card.definition} ${card.card_type}`);
+  const payloadText = normalizeLibraryText(JSON.stringify(card.payload ?? {}));
+  const searchableText = `${text} ${payloadText}`;
+
+  let area: LibraryClassification["area"] = "estilo";
+  if (
+    containsAny(searchableText, [
+      "coma",
+      "punto",
+      "tilde",
+      "acentuacion",
+      "mayuscula",
+      "comillas",
+      "raya",
+      "cursiva",
+      "sigla",
+      "abreviatura",
+      "versalita",
+      "ortografia",
+      "puntuacion",
+    ])
+  ) {
+    area = "ortografia";
+  } else if (
+    containsAny(searchableText, [
+      "complemento",
+      "subordinada",
+      "sujeto",
+      "predicado",
+      "atributo",
+      "concordancia",
+      "dequeismo",
+      "queismo",
+      "gramatica",
+      "sintaxis",
+      "lengua",
+      "habla",
+      "competencia linguistica",
+    ])
+  ) {
+    area = "gramatica";
+  } else if (
+    containsAny(searchableText, [
+      "sinon",
+      "anton",
+      "lexic",
+      "palabra",
+      "registro",
+      "campo semantico",
+      "familia lexica",
+      "colocacion",
+      "extranjerismo",
+      "corpus",
+      "terminologia",
+      "significante",
+      "significado",
+    ])
+  ) {
+    area = "lexico";
+  } else if (
+    containsAny(searchableText, [
+      "retorica",
+      "ethos",
+      "pathos",
+      "logos",
+      "inventio",
+      "dispositio",
+      "elocutio",
+      "actio",
+      "memoria",
+      "entimema",
+      "auditorio",
+      "argument",
+    ])
+  ) {
+    area = "retorica";
+  } else if (
+    containsAny(searchableText, [
+      "narr",
+      "escena",
+      "personaje",
+      "trama",
+      "analepsis",
+      "prolepsis",
+      "focalizacion",
+      "mimesis",
+      "mythos",
+      "punto de vista",
+      "voz narrativa",
+      "dialogo",
+      "subtexto",
+      "tension",
+      "conflicto",
+      "arco",
+      "revelacion",
+      "promesa",
+    ])
+  ) {
+    area = "narrativa";
+  } else if (
+    containsAny(searchableText, [
+      "revision",
+      "reescritura",
+      "correccion",
+      "borrador",
+      "taller",
+      "cierre",
+      "entrada y salida",
+    ])
+  ) {
+    area = "revision";
+  }
+
+  return {
+    area,
+    use: classifyLibraryUse(searchableText, area),
+    level: classifyLibraryLevel(searchableText, area),
+  };
+}
+
+function classifyLibraryUse(text: string, area: LibraryClassification["area"]) {
+  if (containsAny(text, ["correccion", "coma", "tilde", "concordancia", "dequeismo", "queismo"])) {
+    return "corregir";
+  }
+  if (containsAny(text, ["sinon", "anton", "palabra", "lexic", "matiz", "precision"])) {
+    return "precisar";
+  }
+  if (containsAny(text, ["escena", "personaje", "trama", "narr", "dialogo"])) {
+    return "narrar";
+  }
+  if (containsAny(text, ["retorica", "argument", "ethos", "pathos", "logos"])) {
+    return "argumentar";
+  }
+  if (containsAny(text, ["revision", "reescritura", "borrador", "correccion de estilo"])) {
+    return "revisar";
+  }
+  if (area === "ortografia" || area === "gramatica") {
+    return "corregir";
+  }
+  return "aclarar";
+}
+
+function classifyLibraryLevel(text: string, area: LibraryClassification["area"]) {
+  if (
+    containsAny(text, [
+      "generativa",
+      "narratologia",
+      "ortotipografia",
+      "retorica",
+      "formalismo",
+      "estructuralismo",
+      "diacronia",
+      "sincronia",
+    ])
+  ) {
+    return "avanzado";
+  }
+  if (
+    containsAny(text, [
+      "escena",
+      "revision",
+      "reescritura",
+      "voz del autor",
+      "no ficcion",
+      "taller",
+    ])
+  ) {
+    return "taller";
+  }
+  if (
+    containsAny(text, [
+      "coma",
+      "sujeto",
+      "predicado",
+      "complemento",
+      "tilde",
+      "mayuscula",
+      "claridad",
+    ])
+  ) {
+    return "basico";
+  }
+  return area === "retorica" || area === "narrativa" ? "avanzado" : "medio";
+}
+
+function libraryAreaRank(area: LibraryAreaId) {
+  return libraryAreas.findIndex((item) => item.id === area);
+}
+
+function libraryAreaLabel(area: LibraryClassification["area"]) {
+  return libraryAreas.find((item) => item.id === area)?.label ?? area;
+}
+
+function normalizeLibraryText(value: string) {
+  return value
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase();
+}
+
+function containsAny(value: string, needles: string[]) {
+  return needles.some((needle) => value.includes(needle));
 }
 
 function knowledgeVersionRank(versionId: string) {
