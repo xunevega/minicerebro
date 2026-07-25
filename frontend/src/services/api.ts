@@ -21,6 +21,7 @@ import type {
   KnowledgeEvidenceItem,
   KnowledgeExtractionRun,
   KnowledgeExtractionRunCreate,
+  KnowledgeGymReport,
   KnowledgeIngestionBatch,
   KnowledgeIngestionBatchExport,
   KnowledgeIngestionPolicy,
@@ -355,6 +356,10 @@ export function getKnowledgeClaims(cardId?: string, version?: string) {
   return request<KnowledgeClaim[]>(
     withParams("/knowledge/claims", { card_id: cardId, version }),
   );
+}
+
+export function getKnowledgeGym(version = "latest") {
+  return request<KnowledgeGymReport>(withParams("/knowledge/gym", { version }));
 }
 
 export function queryKnowledge(query: string, version = "knowledge-v0", limit = 5) {

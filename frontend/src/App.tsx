@@ -42,6 +42,7 @@ import {
   getKnowledgeCards,
   getKnowledgeClaims,
   getKnowledgeEvidence,
+  getKnowledgeGym,
   getKnowledgeNodes,
   getKnowledgeProposals,
   getKnowledgePublicationReadiness,
@@ -98,6 +99,7 @@ import type {
   KnowledgeClaim,
   KnowledgeEvidenceItem,
   KnowledgeExtractionRun,
+  KnowledgeGymReport,
   KnowledgeIndexEntry,
   KnowledgeNode,
   KnowledgePublicationReadiness,
@@ -223,6 +225,7 @@ export function App() {
   const [knowledgeNodes, setKnowledgeNodes] = useState<KnowledgeNode[]>([]);
   const [knowledgeEvidence, setKnowledgeEvidence] = useState<KnowledgeEvidenceItem[]>([]);
   const [knowledgeClaims, setKnowledgeClaims] = useState<KnowledgeClaim[]>([]);
+  const [knowledgeGym, setKnowledgeGym] = useState<KnowledgeGymReport | null>(null);
   const [knowledgeVersions, setKnowledgeVersions] = useState<KnowledgeVersion[]>([]);
   const [selectedKnowledgeVersion, setSelectedKnowledgeVersion] = useState("latest");
   const [loadedKnowledgeVersion, setLoadedKnowledgeVersion] = useState("knowledge-v4");
@@ -431,6 +434,7 @@ export function App() {
       getKnowledgeNodes(undefined, effectiveKnowledgeVersion),
       getKnowledgeEvidence(undefined, effectiveKnowledgeVersion),
       getKnowledgeClaims(undefined, effectiveKnowledgeVersion),
+      getKnowledgeGym(effectiveKnowledgeVersion),
       getKnowledgeQueryHistory(effectiveKnowledgeVersion),
       getKnowledgeQuerySummary(effectiveKnowledgeVersion),
     ])
@@ -441,6 +445,7 @@ export function App() {
           nodeData,
           evidenceData,
           claimData,
+          gymData,
           queryHistoryData,
           querySummaryData,
         ]) => {
@@ -449,6 +454,7 @@ export function App() {
           setKnowledgeNodes(nodeData);
           setKnowledgeEvidence(evidenceData);
           setKnowledgeClaims(claimData);
+          setKnowledgeGym(gymData);
           setKnowledgeQueryHistory(queryHistoryData);
           setKnowledgeQuerySummary(querySummaryData);
           setLoadedKnowledgeVersion(effectiveKnowledgeVersion);
@@ -1364,6 +1370,54 @@ export function App() {
               <Metric label="No ingeridas" value={registeredOnlySourceCount} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
+            <div className="proposalBox knowledgeGymPanel">
+              <div className="versionHeader">
+                <div>
+                  <h3>Gimnasio de conocimiento</h3>
+                  <p className="note">
+                    Diagnostico de lectura sobre la version publicada. No crea propuestas ni cambia
+                    el perfil.
+                  </p>
+                </div>
+                {knowledgeGym ? (
+                  <span className={gymStatusClass(knowledgeGym.status)}>
+                    {gymStatusLabel(knowledgeGym.status)}
+                  </span>
+                ) : null}
+              </div>
+              {knowledgeGym ? (
+                <>
+                  <div className="metricGrid">
+                    <Metric label="Version" value={knowledgeGym.version} />
+                    <Metric label="Score" value={`${Math.round(knowledgeGym.score * 100)}%`} />
+                    <Metric label="Fichas revisadas" value={knowledgeGym.checked_card_count} />
+                    <Metric label="Claims revisados" value={knowledgeGym.checked_claim_count} />
+                    <Metric label="Evidencias revisadas" value={knowledgeGym.checked_evidence_count} />
+                  </div>
+                  <div className="gymCheckGrid">
+                    {knowledgeGym.checks.map((check) => (
+                      <article className="gymCheck" key={check.id}>
+                        <div className="ingestionHeader">
+                          <div>
+                            <strong>{gymCheckLabel(check.id)}</strong>
+                            <span>{check.summary}</span>
+                          </div>
+                          <span className={gymStatusClass(check.status)}>
+                            {gymStatusLabel(check.status)}
+                          </span>
+                        </div>
+                        <div className="phaseSummary">
+                          <span className="phaseBadge">score {Math.round(check.score * 100)}%</span>
+                          <span className="phaseBadge">{check.id}</span>
+                        </div>
+                      </article>
+                    ))}
+                  </div>
+                </>
+              ) : (
+                <p className="note">Cargando diagnostico de conocimiento.</p>
+              )}
+            </div>
             <div className="proposalBox">
               <h3>Versiones de conocimiento</h3>
               <div className="versionList">
@@ -3031,6 +3085,43 @@ function payloadList(value: unknown) {
 
 function validationLabel(confidence: number) {
   return confidence >= 0.7 ? "Validado" : "Validacion pendiente";
+}
+
+const GYM_CHECK_LABELS: Record<string, string> = {
+  retrieval_precision: "Precision",
+  retrieval_diversity: "Diversidad",
+  traceability: "Trazabilidad",
+  utility_payload: "Utilidad",
+  redundancy: "Redundancia",
+  query_granularity: "Granularidad",
+  knowledge_diet: "Dieta general",
+};
+
+const GYM_STATUS_LABELS: Record<string, string> = {
+  pass: "sano",
+  warning: "revisar",
+  fail: "bloqueado",
+};
+
+function gymCheckLabel(checkId: string) {
+  return GYM_CHECK_LABELS[checkId] ?? checkId;
+}
+
+function gymStatusLabel(status: string) {
+  return GYM_STATUS_LABELS[status] ?? status;
+}
+
+function gymStatusClass(status: string) {
+  if (status === "pass") {
+    return "statusPill done";
+  }
+  if (status === "warning") {
+    return "statusPill warning";
+  }
+  if (status === "fail") {
+    return "statusPill danger";
+  }
+  return "statusPill";
 }
 
 const INGESTION_PHASE_ORDER = [

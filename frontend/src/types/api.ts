@@ -637,6 +637,25 @@ export type KnowledgeQueryResult = {
   generated_at: string;
 };
 
+export type KnowledgeGymCheck = {
+  id: string;
+  status: string;
+  score: number;
+  summary: string;
+  details: Record<string, unknown>;
+};
+
+export type KnowledgeGymReport = {
+  version: string;
+  status: string;
+  score: number;
+  checked_card_count: number;
+  checked_claim_count: number;
+  checked_evidence_count: number;
+  checks: KnowledgeGymCheck[];
+  generated_at: string;
+};
+
 export type KnowledgeQueryContract = {
   meaning: string;
   query_unit: string;

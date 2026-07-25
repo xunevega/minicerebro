@@ -638,6 +638,33 @@ textarea + .primaryButton {
   color: #2f5f38;
 }
 
+.statusPill.warning {
+  background: #fff6df;
+  color: #76530c;
+}
+
+.statusPill.danger {
+  background: #fff0ee;
+  color: #913b30;
+}
+
+.knowledgeGymPanel .metricGrid {
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+}
+
+.gymCheckGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.gymCheck {
+  background: #fbfcf9;
+  border: 1px solid #e0e6df;
+  border-radius: 8px;
+  padding: 12px;
+}
+
 .ingestionMetrics {
   display: grid;
   gap: 8px;
@@ -845,6 +872,8 @@ textarea + .primaryButton {
   .ingestionList,
   .ingestionHeader,
   .ingestionMetrics,
+  .gymCheckGrid,
+  .knowledgeGymPanel .metricGrid,
   .versionList,
   .sourceExplorer,
   .pipelineExplorer,

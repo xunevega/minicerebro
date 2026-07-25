@@ -12,6 +12,11 @@ try {
   await page.getByLabel("Version explorada").selectOption("latest");
   await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor();
   await page.locator(".metric", { hasText: "Validacion" }).first().waitFor();
+  const gymPanel = page.locator(".proposalBox", { hasText: "Gimnasio de conocimiento" });
+  await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor();
+  await gymPanel.locator(".metric", { hasText: "Fichas revisadas" }).filter({ hasText: "147" }).waitFor();
+  await gymPanel.locator("strong", { hasText: /^Precision$/ }).waitFor();
+  await gymPanel.locator("strong", { hasText: /^Trazabilidad$/ }).waitFor();
   await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
   const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de conocimiento" });
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
