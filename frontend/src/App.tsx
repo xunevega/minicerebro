@@ -1499,9 +1499,26 @@ export function App() {
                   )
                 }
               />
-              <Metric label="Materias" value={`${knowledge?.coverage.length ?? 0} areas`} />
-              <Metric label="Por revisar" value={`${pendingKnowledgeValidationCount} pendientes`} />
-              <Metric label="Fuentes pendientes" value={registeredOnlySourceCount} />
+              <Metric
+                label="Materias"
+                value={
+                  knowledge?.coverage.length
+                    ? `${knowledge.coverage.length} areas`
+                    : "Sin materias cargadas"
+                }
+              />
+              <Metric
+                label="Por revisar"
+                value={
+                  pendingKnowledgeValidationCount
+                    ? `${pendingKnowledgeValidationCount} pendientes`
+                    : "Todo revisado"
+                }
+              />
+              <Metric
+                label="Fuentes pendientes"
+                value={registeredOnlySourceCount ? registeredOnlySourceCount : "Ninguna"}
+              />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
             <div className="proposalBox">
@@ -1559,6 +1576,10 @@ export function App() {
                 <p className="note">
                   Mostrando 24 de {selectedLibraryCards.length}. Usa la consulta para ir a una
                   ficha concreta.
+                </p>
+              ) : selectedLibraryCards.length === 0 ? (
+                <p className="note">
+                  No hay fichas en esta estanteria. Prueba otra materia o vuelve a Todo.
                 </p>
               ) : null}
             </div>
@@ -2084,8 +2105,8 @@ export function App() {
               </div>
               {manualIngestionExtraction ? (
                 <div className="metricGrid">
-                  <Metric label="Edicion" value={manualIngestionEdition?.id ?? "..."} />
-                  <Metric label="Segmento" value={manualIngestionSegment?.id ?? "..."} />
+                  <Metric label="Edicion" value={manualIngestionEdition?.id ?? "Pendiente"} />
+                  <Metric label="Segmento" value={manualIngestionSegment?.id ?? "Pendiente"} />
                   <Metric label="Extraccion" value={manualIngestionExtraction.status} />
                   <Metric label="Proposals" value={manualIngestionProposals.length} />
                   <Metric label="Destino" value={manualProposalTargetVersion} />
@@ -2457,8 +2478,10 @@ export function App() {
                     </div>
                   ) : (
                     <article className="knowledgeItem">
-                      <strong>Sin resultados</strong>
-                      <span>No he encontrado una ficha util para esa busqueda.</span>
+                      <strong>No hay ficha para esa busqueda</strong>
+                      <span>
+                        Prueba con otra palabra, una materia mas amplia o revisa las estanterias.
+                      </span>
                     </article>
                   )}
                 </>
@@ -3238,7 +3261,7 @@ export function App() {
                       <pre>
                         {item.has_results
                           ? `${item.card_count} resultados encontrados.`
-                          : "Sin resultados para esa busqueda."}
+                          : "No hubo ficha util para esa busqueda."}
                       </pre>
                       {selectedKnowledgeQueryEventId === item.event_id && (
                         <dl className="auditDetail">
@@ -3747,7 +3770,7 @@ function knowledgeStatePublicLabel(state?: string) {
     deprecated: "Retirada",
     archived: "Archivada",
   };
-  return state ? (labels[state] ?? state) : "...";
+  return state ? (labels[state] ?? state) : "Pendiente";
 }
 
 function versionChangeBadges(version: KnowledgeVersion, previousVersion: KnowledgeVersion | null) {

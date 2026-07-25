@@ -219,8 +219,8 @@ try {
   }, { timeout: queryTimeout });
   await queryPanel.getByRole("button", { name: "Consultar" }).click();
   await emptyQueryResponse;
-  await page.getByText("Sin resultados").waitFor({ timeout: queryTimeout });
-  await page.getByText("No he encontrado una ficha util para esa busqueda.").waitFor();
+  await page.getByText("No hay ficha para esa busqueda").waitFor({ timeout: queryTimeout });
+  await page.getByText("Prueba con otra palabra, una materia mas amplia o revisa las estanterias.").waitFor();
 
   const metrics = queryPanel.locator(".metric");
   const expectedMetrics = [
@@ -241,9 +241,9 @@ try {
   await auditPanel.getByText("sin resultado").first().waitFor();
   await page.getByText("Consulta en la base publicada").first().waitFor({ timeout: 90000 });
   const historyItem = auditPanel.locator(".auditItem", {
-    hasText: "Sin resultados para esa busqueda.",
+    hasText: "No hubo ficha util para esa busqueda.",
   }).first();
-  await historyItem.getByText("Sin resultados para esa busqueda.").waitFor();
+  await historyItem.getByText("No hubo ficha util para esa busqueda.").waitFor();
   await historyItem.getByRole("button", { name: "Detalle" }).click();
   await historyItem.locator("dt", { hasText: "Evento" }).waitFor();
   await historyItem.locator("dt", { hasText: "Base" }).waitFor();
