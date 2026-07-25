@@ -20,7 +20,7 @@ try {
 
   await page
     .getByLabel("Version base de candidate")
-    .locator("option", { hasText: "knowledge-v34" })
+    .locator("option", { hasText: "knowledge-v36" })
     .waitFor({ state: "attached", timeout: 90000 });
   await page.getByLabel("ID de candidate").fill(`knowledge-ui-candidate-${Date.now().toString(36)}`);
   await page.getByLabel("Autor de candidate").fill("smoke-ui");
