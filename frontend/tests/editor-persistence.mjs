@@ -1,6 +1,7 @@
 import { chromium } from "playwright";
 
 const frontendUrl = process.env.FRONTEND_URL ?? "http://127.0.0.1:5173";
+const apiBase = process.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -13,10 +14,13 @@ try {
   const inputText = `Smoke editor persistencia ${Date.now()}. Frase para guardar.`;
   await editorPanel.locator("textarea").first().fill(inputText);
 
-  const generationResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return url.pathname === "/generation" && response.request().method() === "POST";
-  });
+  const generationResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/generation" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
   await page.getByRole("button", { name: "Generar texto" }).click();
   await generationResponse;
 
@@ -28,13 +32,16 @@ try {
     throw new Error("La generacion no devolvio un texto persistible.");
   }
 
-  await page.getByRole("button", { name: "Sistema" }).click();
-  await page.getByRole("button", { name: "Datos guardados" }).click();
-
-  const persistencePanel = page.locator(".panel", { hasText: "Dominios persistidos" });
-  await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();
-  await persistencePanel.getByText("rewrite · deterministic").first().waitFor();
-  await persistencePanel.locator("pre", { hasText: output.slice(0, 40) }).first().waitFor();
+  const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
+    timeout: 90000,
+  });
+  if (!textsResponse.ok()) {
+    throw new Error(`No se pudieron leer los textos persistidos: ${textsResponse.status()}`);
+  }
+  const texts = await textsResponse.json();
+  if (!texts.some((text) => text.output_text === output)) {
+    throw new Error("La generacion no quedo persistida en /texts.");
+  }
 } finally {
   await browser.close();
 }

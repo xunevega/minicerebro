@@ -10,10 +10,13 @@ try {
   await page.getByRole("button", { name: "Mi perfil" }).click();
   await page.getByRole("button", { name: "Ficha usuario" }).click();
 
-  const exportResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return url.pathname === "/profiles/default/export" && response.request().method() === "GET";
-  });
+  const exportResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/profiles/default/export" && response.request().method() === "GET";
+    },
+    { timeout: 90000 },
+  );
   await page.getByRole("button", { name: "Ver datos del perfil" }).click();
   await exportResponse;
 

@@ -63,7 +63,8 @@ KNOWLEDGE_V27_VERSION = "knowledge-v27"
 KNOWLEDGE_V28_VERSION = "knowledge-v28"
 KNOWLEDGE_V29_VERSION = "knowledge-v29"
 KNOWLEDGE_V30_VERSION = "knowledge-v30"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v31"
+KNOWLEDGE_V31_VERSION = "knowledge-v31"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v32"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -96,6 +97,7 @@ KNOWLEDGE_V28_PUBLISHED_AT = "2026-07-24T03:00:00+00:00"
 KNOWLEDGE_V29_PUBLISHED_AT = "2026-07-24T04:00:00+00:00"
 KNOWLEDGE_V30_PUBLISHED_AT = "2026-07-24T05:00:00+00:00"
 KNOWLEDGE_V31_PUBLISHED_AT = "2026-07-24T06:00:00+00:00"
+KNOWLEDGE_V32_PUBLISHED_AT = "2026-07-24T07:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -5382,6 +5384,194 @@ V31_SEED_ITEMS = [
     },
 ]
 
+V32_SEED_ITEMS = [
+    {
+        "key": "escena-inicial-operativa",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:escena-inicial-operativa",
+        "index_title": "Escena inicial operativa",
+        "index_locator": "Edicion de referencia > composicion > escena inicial",
+        "segment_id": "aristoteles-poetica:edicion-referencia:escena-inicial-operativa:seg-1",
+        "segment_title": "Inicio con situacion y movimiento",
+        "segment_text": "Resumen editorial minimo: una escena inicial operativa presenta una situacion comprensible, una tension activa y una direccion de lectura sin convertir el arranque en explicacion previa.",
+        "extraction_id": "ext-aristoteles-poetica-escena-inicial-operativa-1",
+        "node_id": "aristoteles-escena-inicial-operativa",
+        "canonical_name": "Escena inicial operativa",
+        "node_type": "metodo",
+        "primary_branch": "narratologia aplicada",
+        "secondary_branch": "arranque",
+        "node_summary": "Criterio para abrir una narracion con situacion, tension y direccion.",
+        "short_definition": "Metodo para iniciar una escena sin bloquearla con explicacion previa.",
+        "aliases": ["arranque narrativo", "escena de apertura"],
+        "relation_target": "aristoteles-escena-narrativa-funcional",
+        "relation_type": "requiere",
+        "card_id": "card-escena-inicial-operativa",
+        "card_type": "creative_narratology_tool",
+        "card_name": "Escena inicial operativa",
+        "card_definition": "Criterio para abrir con una situacion legible, tension activa y direccion de lectura.",
+        "signals": ["situacion", "tension inicial", "direccion"],
+        "risks": ["empezar con contexto explicativo antes de que exista movimiento"],
+        "contexts": ["narrativa", "arranque", "revision de escena"],
+        "evidence_id": "ev-aristoteles-escena-inicial-operativa",
+        "evidence_section": "escena inicial operativa",
+        "confidence": 0.6,
+        "claim_id": "claim-aristoteles-escena-inicial-operativa",
+        "statement": "Una escena inicial operativa presenta situacion, tension activa y direccion de lectura sin depender de explicacion previa.",
+        "claim_type": "literary",
+        "domain": "creative_narratology.opening",
+        "related_node_ids": ["aristoteles-escena-narrativa-funcional", "aristoteles-tension-de-escena"],
+    },
+    {
+        "key": "promesa-narrativa",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:promesa-narrativa",
+        "index_title": "Promesa narrativa",
+        "index_locator": "Edicion de referencia > trama > promesa narrativa",
+        "segment_id": "aristoteles-poetica:edicion-referencia:promesa-narrativa:seg-1",
+        "segment_title": "Expectativa que organiza la lectura",
+        "segment_text": "Resumen editorial minimo: la promesa narrativa orienta que tipo de cambio, conflicto o descubrimiento espera el lector y debe sostenerse con senales coherentes.",
+        "extraction_id": "ext-aristoteles-poetica-promesa-narrativa-1",
+        "node_id": "aristoteles-promesa-narrativa",
+        "canonical_name": "Promesa narrativa",
+        "node_type": "concepto",
+        "primary_branch": "narratologia aplicada",
+        "secondary_branch": "trama",
+        "node_summary": "Expectativa de cambio o descubrimiento que organiza la lectura.",
+        "short_definition": "Expectativa narrativa que el texto abre y debe sostener.",
+        "aliases": ["expectativa narrativa", "contrato de lectura"],
+        "relation_target": "aristoteles-conflicto-narrativo-aplicado",
+        "relation_type": "depende_de",
+        "card_id": "card-promesa-narrativa",
+        "card_type": "creative_narratology_tool",
+        "card_name": "Promesa narrativa",
+        "card_definition": "Criterio para revisar si el texto abre una expectativa clara y la sostiene.",
+        "signals": ["expectativa", "conflicto", "descubrimiento"],
+        "risks": ["abrir preguntas que el texto abandona sin resolucion ni desplazamiento"],
+        "contexts": ["narrativa", "trama", "revision estructural"],
+        "evidence_id": "ev-aristoteles-promesa-narrativa",
+        "evidence_section": "promesa narrativa",
+        "confidence": 0.6,
+        "claim_id": "claim-aristoteles-promesa-narrativa",
+        "statement": "La promesa narrativa orienta el tipo de cambio, conflicto o descubrimiento que el lector espera seguir.",
+        "claim_type": "literary",
+        "domain": "creative_narratology.plot",
+        "related_node_ids": ["aristoteles-conflicto-narrativo-aplicado", "aristoteles-poetica-mythos-trama"],
+    },
+    {
+        "key": "gancho-sin-truco",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:gancho-sin-truco",
+        "index_title": "Gancho narrativo sin truco",
+        "index_locator": "Edicion de referencia > orden > apertura y retencion",
+        "segment_id": "genette-discurso-relato:edicion-referencia:gancho-sin-truco:seg-1",
+        "segment_title": "Retencion de interes con informacion pertinente",
+        "segment_text": "Resumen editorial minimo: el gancho narrativo funciona cuando retiene interes mediante informacion pertinente o tension real, no mediante ocultaciones arbitrarias.",
+        "extraction_id": "ext-genette-discurso-relato-gancho-sin-truco-1",
+        "node_id": "genette-gancho-sin-truco",
+        "canonical_name": "Gancho narrativo sin truco",
+        "node_type": "metodo",
+        "primary_branch": "narratologia aplicada",
+        "secondary_branch": "arranque",
+        "node_summary": "Criterio para captar interes sin ocultacion artificial.",
+        "short_definition": "Metodo para retener interes con tension o informacion pertinente.",
+        "aliases": ["gancho narrativo", "apertura con interes"],
+        "relation_target": "genette-punto-vista-operativo",
+        "relation_type": "usa",
+        "card_id": "card-gancho-sin-truco",
+        "card_type": "creative_narratology_tool",
+        "card_name": "Gancho narrativo sin truco",
+        "card_definition": "Criterio para captar interes con tension real y no con misterio artificial.",
+        "signals": ["interes", "informacion pertinente", "tension real"],
+        "risks": ["confundir intriga con ocultacion arbitraria de datos necesarios"],
+        "contexts": ["narrativa", "arranque", "revision"],
+        "evidence_id": "ev-genette-gancho-sin-truco",
+        "evidence_section": "gancho narrativo sin truco",
+        "confidence": 0.6,
+        "claim_id": "claim-genette-gancho-sin-truco",
+        "statement": "El gancho narrativo debe retener interes mediante informacion pertinente o tension real, no por ocultacion arbitraria.",
+        "claim_type": "literary",
+        "domain": "creative_narratology.opening",
+        "related_node_ids": ["genette-punto-vista-operativo", "genette-subtexto-narrativo"],
+    },
+    {
+        "key": "revelacion-controlada",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:revelacion-controlada",
+        "index_title": "Revelacion controlada",
+        "index_locator": "Edicion de referencia > modo > gestion de informacion",
+        "segment_id": "genette-figuras-iii:edicion-referencia:revelacion-controlada:seg-1",
+        "segment_title": "Dosificacion de informacion",
+        "segment_text": "Resumen editorial minimo: la revelacion controlada dosifica informacion para que cada descubrimiento modifique la interpretacion o la tension de la escena.",
+        "extraction_id": "ext-genette-figuras-iii-revelacion-controlada-1",
+        "node_id": "genette-revelacion-controlada",
+        "canonical_name": "Revelacion controlada",
+        "node_type": "metodo",
+        "primary_branch": "narratologia aplicada",
+        "secondary_branch": "informacion",
+        "node_summary": "Criterio para dosificar descubrimientos con efecto narrativo.",
+        "short_definition": "Metodo para revelar informacion cuando cambia tension o interpretacion.",
+        "aliases": ["dosificacion de informacion", "revelacion narrativa"],
+        "relation_target": "genette-punto-vista-operativo",
+        "relation_type": "depende_de",
+        "card_id": "card-revelacion-controlada",
+        "card_type": "creative_narratology_tool",
+        "card_name": "Revelacion controlada",
+        "card_definition": "Criterio para revelar datos cuando producen cambio interpretativo o tensional.",
+        "signals": ["descubrimiento", "dosificacion", "cambio de interpretacion"],
+        "risks": ["volcar informacion sin efecto sobre la escena"],
+        "contexts": ["narrativa", "informacion", "revision"],
+        "evidence_id": "ev-genette-revelacion-controlada",
+        "evidence_section": "revelacion controlada",
+        "confidence": 0.6,
+        "claim_id": "claim-genette-revelacion-controlada",
+        "statement": "La revelacion controlada dosifica informacion para que cada descubrimiento modifique interpretacion o tension.",
+        "claim_type": "literary",
+        "domain": "creative_narratology.information",
+        "related_node_ids": ["genette-punto-vista-operativo", "genette-subtexto-narrativo"],
+    },
+    {
+        "key": "reescritura-de-escena",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:reescritura-de-escena",
+        "index_title": "Reescritura de escena",
+        "index_locator": "Edicion de referencia > revision > escena narrativa",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:reescritura-de-escena:seg-1",
+        "segment_title": "Revisar funcion, corte y enfasis",
+        "segment_text": "Resumen editorial minimo: la reescritura de escena revisa funcion, corte, orden y enfasis para conservar lo que produce cambio y retirar lo decorativo.",
+        "extraction_id": "ext-cassany-cocina-escritura-reescritura-de-escena-1",
+        "node_id": "cassany-reescritura-de-escena",
+        "canonical_name": "Reescritura de escena",
+        "node_type": "metodo",
+        "primary_branch": "narratologia aplicada",
+        "secondary_branch": "revision",
+        "node_summary": "Metodo de revision para ajustar funcion, corte, orden y enfasis de una escena.",
+        "short_definition": "Revision de escena para conservar cambio narrativo y retirar decoracion.",
+        "aliases": ["revision de escena", "reescritura narrativa"],
+        "relation_target": "cassany-reescritura-global",
+        "relation_type": "usa",
+        "card_id": "card-reescritura-de-escena",
+        "card_type": "creative_narratology_tool",
+        "card_name": "Reescritura de escena",
+        "card_definition": "Criterio para revisar funcion, corte, orden y enfasis en una escena.",
+        "signals": ["funcion", "corte", "enfasis"],
+        "risks": ["pulir frases sin revisar si la escena cumple una funcion"],
+        "contexts": ["narrativa", "reescritura", "revision de escena"],
+        "evidence_id": "ev-cassany-reescritura-de-escena",
+        "evidence_section": "reescritura de escena",
+        "confidence": 0.6,
+        "claim_id": "claim-cassany-reescritura-de-escena",
+        "statement": "La reescritura de escena debe revisar funcion, corte, orden y enfasis para conservar cambio y retirar decoracion.",
+        "claim_type": "stylistic",
+        "domain": "creative_narratology.revision",
+        "related_node_ids": ["cassany-reescritura-global", "aristoteles-escena-narrativa-funcional"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -6729,7 +6919,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V28_VERSION: "seed_pragmatic_writing_batch",
     KNOWLEDGE_V29_VERSION: "seed_advanced_punctuation_style_batch",
     KNOWLEDGE_V30_VERSION: "seed_applied_creative_narratology_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_creative_scene_practice_batch",
+    KNOWLEDGE_V31_VERSION: "seed_creative_scene_practice_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_creative_revision_practice_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -6755,7 +6946,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V28_VERSION: KNOWLEDGE_V28_PUBLISHED_AT,
     KNOWLEDGE_V29_VERSION: KNOWLEDGE_V29_PUBLISHED_AT,
     KNOWLEDGE_V30_VERSION: KNOWLEDGE_V30_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V31_PUBLISHED_AT,
+    KNOWLEDGE_V31_VERSION: KNOWLEDGE_V31_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V32_PUBLISHED_AT,
 }
 
 
@@ -8202,6 +8394,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V29_SEED_ITEMS),
         *_published_batch_index_entries(V30_SEED_ITEMS),
         *_published_batch_index_entries(V31_SEED_ITEMS),
+        *_published_batch_index_entries(V32_SEED_ITEMS),
     ]
 
 
@@ -8328,6 +8521,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V29_SEED_ITEMS),
         *_published_batch_segments(V30_SEED_ITEMS),
         *_published_batch_segments(V31_SEED_ITEMS),
+        *_published_batch_segments(V32_SEED_ITEMS),
     ]
 
 
@@ -8473,7 +8667,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_extraction_runs(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_extraction_runs(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_extraction_runs(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_extraction_runs(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9148,7 +9343,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_proposals(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_proposals(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_proposals(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_proposals(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9322,7 +9518,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_nodes(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_nodes(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_nodes(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_nodes(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9458,7 +9655,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_node_relations(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_node_relations(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_node_relations(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_node_relations(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9823,7 +10021,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_evidence(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_evidence(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_evidence(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_evidence(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10088,7 +10287,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_claims(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_claims(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_claims(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_claims(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10274,7 +10474,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V28_SEED_ITEMS, KNOWLEDGE_V28_VERSION),
         *_published_batch_cards(V29_SEED_ITEMS, KNOWLEDGE_V29_VERSION),
         *_published_batch_cards(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
-        *_published_batch_cards(V31_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
+        *_published_batch_cards(V32_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10991,8 +11192,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v30_evidence = [evidence for evidence in seed_evidence() if evidence.version in v30_chain]
     v30_claims = [claim for claim in seed_claims() if claim.version in v30_chain]
     v30_cards = [card for card in seed_cards() if card.version in v30_chain]
-    latest_chain = {*v30_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v31_chain = {*v30_chain, KNOWLEDGE_V31_VERSION}
+    v31_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -11020,7 +11221,42 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V31_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v30_node_ids, *{item["node_id"] for item in V31_SEED_ITEMS}}
+    v31_node_ids = {*v30_node_ids, *{item["node_id"] for item in V31_SEED_ITEMS}}
+    v31_nodes = [node for node in seed_nodes() if node.id in v31_node_ids]
+    v31_evidence = [evidence for evidence in seed_evidence() if evidence.version in v31_chain]
+    v31_claims = [claim for claim in seed_claims() if claim.version in v31_chain]
+    v31_cards = [card for card in seed_cards() if card.version in v31_chain]
+    latest_chain = {*v31_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+            *{item["source_id"] for item in V27_SEED_ITEMS},
+            *{item["source_id"] for item in V28_SEED_ITEMS},
+            *{item["source_id"] for item in V29_SEED_ITEMS},
+            *{item["source_id"] for item in V30_SEED_ITEMS},
+            *{item["source_id"] for item in V31_SEED_ITEMS},
+            *{item["source_id"] for item in V32_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v31_node_ids, *{item["node_id"] for item in V32_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -11337,9 +11573,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v30_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V31_VERSION,
             status="published",
             published_at=KNOWLEDGE_V31_PUBLISHED_AT,
+            source_count=len(v31_sources),
+            node_count=len(v31_nodes),
+            evidence_count=len(v31_evidence),
+            claim_count=len(v31_claims),
+            card_count=len(v31_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V32_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -11743,6 +11989,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V28_VERSION,
             KNOWLEDGE_V29_VERSION,
             KNOWLEDGE_V30_VERSION,
+            KNOWLEDGE_V31_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],

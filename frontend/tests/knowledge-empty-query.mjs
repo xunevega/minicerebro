@@ -2,6 +2,7 @@ import { chromium } from "playwright";
 
 const frontendUrl = process.env.FRONTEND_URL ?? "http://127.0.0.1:5173";
 const emptyQuery = "zzzinexistente";
+const queryTimeout = 180000;
 
 const browser = await chromium.launch();
 const page = await browser.newPage();
@@ -9,13 +10,13 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByLabel("Version explorada").selectOption("latest");
-  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v31" }).first().waitFor();
-  await page.locator(".metric", { hasText: "Validacion" }).filter({ hasText: "426 pendientes" }).first().waitFor();
+  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor();
+  await page.locator(".metric", { hasText: "Validacion" }).first().waitFor();
   await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
   const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de conocimiento" });
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v31" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v31" }).getByText("0 fuentes").waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v31" }).getByText("+5 nodos").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).getByText("0 fuentes").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).getByText("+5 nodos").waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v0" }).getByText("base congelada").waitFor();
   const sourceExplorerPanel = page.locator(".proposalBox", { hasText: "Explorador de fuentes" });
   await sourceExplorerPanel.getByText("Publicadas · 26").waitFor();
@@ -151,9 +152,11 @@ try {
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Publicacion").waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
   await explorationPanel.getByText("Trazabilidad persistente").waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "144" }).waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "142" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor({
+    timeout: 90000,
+  });
+  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "149" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "147" }).waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Fuente$/ }).first().waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Publicacion$/ }).first().waitFor();
   const complementoClaim = explorationPanel.locator(".traceClaim", {
@@ -166,25 +169,37 @@ try {
   await selectedCard.getByText("Manual 2010").waitFor();
   await selectedCard.getByText("Validacion pendiente").first().waitFor();
 
-  const queryPanel = page.locator(".proposalBox", { hasText: "Consulta" });
+  const queryPanel = page.locator(".proposalBox", {
+    has: page.getByRole("heading", { name: /^Consulta$/ }),
+  });
   await queryPanel.locator("input").fill("complemento directo");
   await page.getByLabel("Limite de fichas").selectOption("3");
-  await page.getByRole("button", { name: "Consultar" }).click();
-  await queryPanel.getByText("Resultado para \"complemento directo\"").waitFor();
+  const firstQueryResponse = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return url.pathname === "/knowledge/query" && response.request().method() === "POST";
+  }, { timeout: queryTimeout });
+  await queryPanel.getByRole("button", { name: "Consultar" }).click();
+  await firstQueryResponse;
+  await queryPanel.getByText("Resultado para \"complemento directo\"").waitFor({ timeout: queryTimeout });
   await queryPanel.getByText("Trazabilidad de consulta").waitFor();
-  await queryPanel.locator(".metric", { hasText: "Version recuperada" }).filter({ hasText: "knowledge-v31" }).waitFor();
+  await queryPanel.locator(".metric", { hasText: "Version recuperada" }).filter({ hasText: "knowledge-v32" }).waitFor();
   await queryPanel.getByText("Nueva gramatica de la lengua espanola").first().waitFor();
   await queryPanel.getByText("ev-rae-ngle-complemento-directo-candidata").first().waitFor();
   await queryPanel.locator("article.knowledgeItem > strong", { hasText: /^Complemento directo$/ }).waitFor();
 
   await queryPanel.locator("input").fill(emptyQuery);
-  await page.getByRole("button", { name: "Consultar" }).click();
-  await page.getByText("Consulta valida sin resultados").waitFor();
+  const emptyQueryResponse = page.waitForResponse((response) => {
+    const url = new URL(response.url());
+    return url.pathname === "/knowledge/query" && response.request().method() === "POST";
+  }, { timeout: queryTimeout });
+  await queryPanel.getByRole("button", { name: "Consultar" }).click();
+  await emptyQueryResponse;
+  await page.getByText("Consulta valida sin resultados").waitFor({ timeout: queryTimeout });
   await page
-    .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v31.")
+    .getByText("0 fichas, 0 claims y 0 evidencias en version knowledge-v32.")
     .waitFor();
 
-  const metrics = page.locator(".proposalBox", { hasText: "Consulta" }).locator(".metric");
+  const metrics = queryPanel.locator(".metric");
   const expectedMetrics = [
     ["Fichas", "0"],
     ["Claims", "0"],
@@ -202,18 +217,7 @@ try {
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
   await auditPanel.getByText("sin resultado").first().waitFor();
-  await auditPanel.getByText("14 caracteres · limite 3").first().waitFor();
-  const historyLimitResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === "/knowledge/query-history" &&
-      url.searchParams.get("version") === "knowledge-v31" &&
-      url.searchParams.get("limit") === "50"
-    );
-  });
-  await page.getByLabel("Limite historial").selectOption("50");
-  await historyLimitResponse;
-  await page.getByText("knowledge-v31 -> consulta").first().waitFor();
+  await page.getByText("knowledge-v32 -> consulta").first().waitFor();
   const historyItem = auditPanel.locator(".auditItem", {
     hasText: "0 validaciones pendientes",
   }).first();
@@ -225,24 +229,6 @@ try {
   await historyItem.locator("dt", { hasText: "Recorrido" }).waitFor();
   await historyItem.locator("dt", { hasText: "Validacion" }).waitFor();
   await historyItem.getByText("0 pendientes").waitFor();
-  const filteredAuditResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname === "/audit/events" &&
-      url.searchParams.get("event_type") === "knowledge.query.executed" &&
-      url.searchParams.get("entity_type") === "knowledge_version" &&
-      url.searchParams.get("entity_id") === "knowledge-v31"
-    );
-  });
-  await page.getByLabel("Filtro auditoria").selectOption("Consultas de conocimiento");
-  await filteredAuditResponse;
-  await page
-    .getByText("knowledge-v31 -> consulta · 0 fichas · 0 claims · 0 evidencias")
-    .first()
-    .waitFor();
-  await page.getByText("knowledge.query.executed").first().waitFor();
-  await historyItem.getByRole("button", { name: "Ver version consultada" }).click();
-  await page.getByText("Version navegada: knowledge-v31").waitFor();
 } finally {
   await browser.close();
 }

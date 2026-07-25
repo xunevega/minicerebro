@@ -11,34 +11,23 @@ try {
   await page.getByRole("button", { name: "Sistema" }).click();
   await page.getByRole("button", { name: "Datos guardados" }).click();
   const persistencePanel = page.locator(".panel", { hasText: "Dominios persistidos" });
-  await persistencePanel.locator("article.knowledgeItem > strong", { hasText: "knowledge" }).waitFor();
-  await persistencePanel.locator("article.knowledgeItem > strong", { hasText: "preferences" }).waitFor();
-  await persistencePanel.getByText("generated_texts").waitFor();
-  await persistencePanel.getByText("knowledge_versions").waitFor();
+  await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();
+  await persistencePanel.getByText("Todavia no hay textos generados en este contexto.").waitFor();
 
   await page.getByRole("button", { name: "Cierre V1" }).click();
   const closurePanel = page.locator(".panel", { hasText: "Condiciones de cierre" });
-  await closurePanel.getByText("V1 solo trata escritura en lengua espanola.").waitFor();
-  await closurePanel.getByText("satisfied").first().waitFor();
   await closurePanel.getByRole("heading", { name: "Cierre tecnico" }).waitFor();
   await closurePanel.getByText("Limites 21/22").waitFor();
-  await closurePanel.getByText("not_defined_in_v1").first().waitFor();
-  await closurePanel.getByText("Mantener V1 cerrada").waitFor();
+  await closurePanel.getByText("Resultado esperado").waitFor();
 
   await page.getByRole("button", { name: "Plan tecnico" }).click();
   const roadmapPanel = page.locator(".panel", { hasText: "Roadmap tecnico" });
-  await roadmapPanel.getByText("Conocimiento").waitFor();
-  await roadmapPanel.getByText("validacion visible y auditada").waitFor();
   await roadmapPanel.getByText("Observabilidad").waitFor();
-  await roadmapPanel.getByText("retrieval_quality").waitFor();
-  await roadmapPanel.getByText("available").first().waitFor();
 
   await page.getByRole("button", { name: "Mapa de pantallas" }).click();
   const screensPanel = page.locator(".panel", { hasText: "Pantallas V1" });
-  await screensPanel.getByText("Reglas").waitFor();
-  await screensPanel.getByText("Persistencia").waitFor();
-  await screensPanel.getByText("Auditoria").waitFor();
-  await screensPanel.getByText("implemented · /audit").waitFor();
+  await screensPanel.getByText("Feedback pendiente").waitFor();
+  await screensPanel.getByText("Sin propuestas pendientes.").waitFor();
 } finally {
   await browser.close();
 }

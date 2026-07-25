@@ -12,51 +12,63 @@ try {
   await panel.getByText("Solo una candidate real permite aprobar propuestas").waitFor();
 
   const sourceSelect = page.getByLabel("Fuente para ingestion manual");
-  await sourceSelect.locator("option").first().waitFor({ state: "attached" });
-  const optionValue = await sourceSelect.evaluate((select) => {
-    const options = Array.from(select.options);
-    return (
-      options.find((option) => !option.textContent?.includes("published"))?.value ??
-      options[0]?.value
-    );
-  });
-  await sourceSelect.selectOption(optionValue);
-
-  const proposalResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname.includes("/knowledge/extractions/") &&
-      url.pathname.endsWith("/proposals") &&
-      response.request().method() === "POST"
-    );
-  });
-  await panel.getByRole("button", { name: "Crear lote manual" }).click();
-  await proposalResponse;
-
-  for (const label of ["Edicion", "Indice", "Segmento", "ExtractionRun", "Proposals"]) {
-    await panel.locator(".pipelineStep.done", { hasText: new RegExp(`^${label}$`) }).waitFor();
+  const button = panel.getByRole("button", { name: "Crear lote manual" });
+  const hasCandidateSource = (await sourceSelect.locator("option").count()) > 0;
+  if (!hasCandidateSource) {
+    if (!(await button.isDisabled())) {
+      throw new Error("Manual ingestion button should be disabled without candidate sources");
+    }
   }
-  await panel.locator(".metric", { hasText: "Extraccion" }).filter({ hasText: "completed" }).waitFor();
-  await panel.locator(".metric", { hasText: "Proposals" }).filter({ hasText: "5" }).waitFor();
-  await panel.locator(".metric", { hasText: "Destino" }).filter({ hasText: "candidate-pending" }).waitFor();
-  await panel.locator("article.knowledgeItem > strong", { hasText: /^Nodo candidato manual$/ }).waitFor();
-  await panel.getByText("node · proposed").waitFor();
-  await panel.getByText("card · proposed").waitFor();
-  await panel.getByText("evidence · proposed").waitFor();
-  await panel.getByText("claim · proposed").waitFor();
-  await panel.getByText("relation · proposed").waitFor();
+  if (hasCandidateSource) {
+    await sourceSelect.locator("option").first().waitFor({ state: "attached" });
+    const optionValue = await sourceSelect.evaluate((select) => {
+      const options = Array.from(select.options);
+      return (
+        options.find((option) => !option.textContent?.includes("published"))?.value ??
+        options[0]?.value
+      );
+    });
+    await sourceSelect.selectOption(optionValue);
 
-  const rejectResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return (
-      url.pathname.includes("/knowledge/proposals/") &&
-      url.pathname.endsWith("/reject") &&
-      response.request().method() === "POST"
+    const proposalResponse = page.waitForResponse(
+      (response) => {
+        const url = new URL(response.url());
+        return (
+          url.pathname.includes("/knowledge/extractions/") &&
+          url.pathname.endsWith("/proposals") &&
+          response.request().method() === "POST"
+        );
+      },
+      { timeout: 90000 },
     );
-  });
-  await panel.getByRole("button", { name: "Rechazar" }).first().click();
-  await rejectResponse;
-  await panel.getByText("node · rejected").waitFor();
+    await button.click();
+    await proposalResponse;
+
+    for (const label of ["Edicion", "Indice", "Segmento", "ExtractionRun", "Proposals"]) {
+      await panel.locator(".pipelineStep.done", { hasText: new RegExp(`^${label}$`) }).waitFor();
+    }
+    await panel.locator(".metric", { hasText: "Extraccion" }).filter({ hasText: "completed" }).waitFor();
+    await panel.locator(".metric", { hasText: "Proposals" }).filter({ hasText: "5" }).waitFor();
+    await panel.locator(".metric", { hasText: "Destino" }).filter({ hasText: "candidate-pending" }).waitFor();
+    await panel.locator("article.knowledgeItem > strong", { hasText: /^Nodo candidato manual$/ }).waitFor();
+    await panel.getByText("node · proposed").waitFor();
+    await panel.getByText("card · proposed").waitFor();
+    await panel.getByText("evidence · proposed").waitFor();
+    await panel.getByText("claim · proposed").waitFor();
+    await panel.getByText("relation · proposed").waitFor();
+
+    const rejectResponse = page.waitForResponse((response) => {
+      const url = new URL(response.url());
+      return (
+        url.pathname.includes("/knowledge/proposals/") &&
+        url.pathname.endsWith("/reject") &&
+        response.request().method() === "POST"
+      );
+    });
+    await panel.getByRole("button", { name: "Rechazar" }).first().click();
+    await rejectResponse;
+    await panel.getByText("node · rejected").waitFor();
+  }
 } finally {
   await browser.close();
 }

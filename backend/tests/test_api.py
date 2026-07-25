@@ -621,7 +621,7 @@ def test_knowledge_cards_and_statistics_are_exposed():
 
     status = client.get("/knowledge/status")
     assert status.status_code == 200
-    assert status.json()["version"] == "knowledge-v31"
+    assert status.json()["version"] == "knowledge-v32"
     assert status.json()["state"] == "published"
     assert all(item.startswith("fuera de alcance V1:") for item in status.json()["gaps"])
 
@@ -1642,6 +1642,25 @@ def test_published_seed_batches_close_v8_to_v11():
             "ev-genette-dialogo-con-funcion",
             "claim-genette-dialogo-con-funcion",
             "card-dialogo-con-funcion",
+        ),
+        (
+            "knowledge-v32",
+            "knowledge-v31",
+            "seed_creative_revision_practice_batch",
+            "aristoteles-poetica:edicion-referencia:escena-inicial-operativa",
+            "aristoteles-poetica:edicion-referencia:escena-inicial-operativa:seg-1",
+            "ext-aristoteles-poetica-escena-inicial-operativa-1",
+            {
+                "card-escena-inicial-operativa",
+                "card-promesa-narrativa",
+                "card-gancho-sin-truco",
+                "card-revelacion-controlada",
+                "card-reescritura-de-escena",
+            },
+            "aristoteles-escena-inicial-operativa",
+            "ev-aristoteles-escena-inicial-operativa",
+            "claim-aristoteles-escena-inicial-operativa",
+            "card-escena-inicial-operativa",
         ),
     ]
 
@@ -3275,6 +3294,7 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
             "seed_advanced_punctuation_style_batch",
             "seed_applied_creative_narratology_batch",
             "seed_creative_scene_practice_batch",
+            "seed_creative_revision_practice_batch",
         }
         for item in evidence_payload
     )
@@ -3347,10 +3367,11 @@ def test_knowledge_evidence_and_claims_link_nodes_to_cards():
                 "2026-07-24T01:00:00+00:00",
                 "2026-07-24T02:00:00+00:00",
                     "2026-07-24T03:00:00+00:00",
-                    "2026-07-24T04:00:00+00:00",
-                    "2026-07-24T05:00:00+00:00",
-                    "2026-07-24T06:00:00+00:00",
-                }
+                        "2026-07-24T04:00:00+00:00",
+                        "2026-07-24T05:00:00+00:00",
+                        "2026-07-24T06:00:00+00:00",
+                        "2026-07-24T07:00:00+00:00",
+                    }
     assert all(len(claim["evidence_links"]) >= 1 for claim in claim_payload)
     assert {
         link["role"]
@@ -3445,6 +3466,7 @@ def test_knowledge_versions_include_chain_counts():
         "knowledge-v29",
         "knowledge-v30",
         "knowledge-v31",
+        "knowledge-v32",
     }
     assert versions_by_id["knowledge-v0"]["status"] == "seed"
     assert versions_by_id["knowledge-v0"]["source_count"] == len(version_sources)
@@ -3664,6 +3686,13 @@ def test_knowledge_versions_include_chain_counts():
     assert versions_by_id["knowledge-v31"]["evidence_count"] == 142
     assert versions_by_id["knowledge-v31"]["claim_count"] == 142
     assert versions_by_id["knowledge-v31"]["card_count"] == 142
+    assert versions_by_id["knowledge-v32"]["status"] == "published"
+    assert versions_by_id["knowledge-v32"]["published_at"] == "2026-07-24T07:00:00+00:00"
+    assert versions_by_id["knowledge-v32"]["source_count"] == 26
+    assert versions_by_id["knowledge-v32"]["node_count"] == 149
+    assert versions_by_id["knowledge-v32"]["evidence_count"] == 147
+    assert versions_by_id["knowledge-v32"]["claim_count"] == 147
+    assert versions_by_id["knowledge-v32"]["card_count"] == 147
 
 
 def test_knowledge_versioning_policy_separates_stable_knowledge_from_profile_state():
@@ -4668,6 +4697,7 @@ def test_knowledge_query_contract_separates_query_from_retrieval_and_generation(
         "knowledge-v29",
         "knowledge-v30",
         "knowledge-v31",
+        "knowledge-v32",
         "latest",
     ]
     assert "presentacion" in payload["profile_boundary"]
@@ -4687,7 +4717,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["query"] == query
     assert payload["normalized_query"] == "precision lexica verificable"
     assert payload["requested_version"] == "latest"
-    assert payload["resolved_version"] == "knowledge-v31"
+    assert payload["resolved_version"] == "knowledge-v32"
     assert payload["query_type"] == ["writing_recommendation"]
     assert "LENGUA" in payload["domain"]
     assert payload["restrictions"]["max_cards"] == 3
@@ -4697,7 +4727,7 @@ def test_knowledge_query_interpretation_builds_restrictions_context_and_audit():
     assert payload["context"]["profile_influence"] == "presentation_only"
     assert payload["context"]["retrieval_unit"] == "knowledge_card"
     assert payload["retrieval_request"]["required"] is True
-    assert payload["retrieval_request"]["version"] == "knowledge-v31"
+    assert payload["retrieval_request"]["version"] == "knowledge-v32"
     assert payload["retrieval_request"]["query_terms"] == [
         "lexica",
         "precision",
@@ -4722,8 +4752,8 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     assert latest_response.status_code == 200
     latest_payload = latest_response.json()
     assert latest_payload["requested_version"] == "latest"
-    assert latest_payload["resolved_version"] == "knowledge-v31"
-    assert latest_payload["version"] == "knowledge-v31"
+    assert latest_payload["resolved_version"] == "knowledge-v32"
+    assert latest_payload["version"] == "knowledge-v32"
     assert latest_payload["status"] == "ok"
     assert latest_payload["card_count"] >= 1
     assert "card-complemento-directo" in {card["id"] for card in latest_payload["cards"]}
@@ -4734,7 +4764,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert orthography_response.status_code == 200
     orthography_payload = orthography_response.json()
-    assert orthography_payload["resolved_version"] == "knowledge-v31"
+    assert orthography_payload["resolved_version"] == "knowledge-v32"
     assert orthography_payload["status"] == "ok"
     assert orthography_payload["card_count"] >= 1
     assert "card-acentuacion-grafica" in {card["id"] for card in orthography_payload["cards"]}
@@ -4745,7 +4775,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert terminology_response.status_code == 200
     terminology_payload = terminology_response.json()
-    assert terminology_payload["resolved_version"] == "knowledge-v31"
+    assert terminology_payload["resolved_version"] == "knowledge-v32"
     assert terminology_payload["status"] == "ok"
     assert terminology_payload["card_count"] >= 1
     assert "card-terminologia-gramatical" in {card["id"] for card in terminology_payload["cards"]}
@@ -4756,7 +4786,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert lexicon_response.status_code == 200
     lexicon_payload = lexicon_response.json()
-    assert lexicon_payload["resolved_version"] == "knowledge-v31"
+    assert lexicon_payload["resolved_version"] == "knowledge-v32"
     assert lexicon_payload["status"] == "ok"
     assert lexicon_payload["card_count"] >= 1
     assert "card-precision-lexica" in {card["id"] for card in lexicon_payload["cards"]}
@@ -4767,7 +4797,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert usage_response.status_code == 200
     usage_payload = usage_response.json()
-    assert usage_payload["resolved_version"] == "knowledge-v31"
+    assert usage_payload["resolved_version"] == "knowledge-v32"
     assert usage_payload["status"] == "ok"
     assert "card-dequeismo-queismo" in {card["id"] for card in usage_payload["cards"]}
 
@@ -4781,7 +4811,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert grammar_response.status_code == 200
     grammar_payload = grammar_response.json()
-    assert grammar_payload["resolved_version"] == "knowledge-v31"
+    assert grammar_payload["resolved_version"] == "knowledge-v32"
     assert grammar_payload["status"] == "ok"
     assert {
         "card-sujeto",
@@ -4797,7 +4827,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert grammar_part_2_response.status_code == 200
     grammar_part_2_payload = grammar_part_2_response.json()
-    assert grammar_part_2_payload["resolved_version"] == "knowledge-v31"
+    assert grammar_part_2_payload["resolved_version"] == "knowledge-v32"
     assert grammar_part_2_payload["status"] == "ok"
     assert {
         "card-concordancia",
@@ -4810,7 +4840,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert punctuation_response.status_code == 200
     punctuation_payload = punctuation_response.json()
-    assert punctuation_payload["resolved_version"] == "knowledge-v31"
+    assert punctuation_payload["resolved_version"] == "knowledge-v32"
     assert punctuation_payload["status"] == "ok"
     assert {
         "card-coma",
@@ -4824,7 +4854,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert style_response.status_code == 200
     style_payload = style_response.json()
-    assert style_payload["resolved_version"] == "knowledge-v31"
+    assert style_payload["resolved_version"] == "knowledge-v32"
     assert style_payload["status"] == "ok"
     assert {
         "card-claridad",
@@ -4842,7 +4872,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert writing_practice_response.status_code == 200
     writing_practice_payload = writing_practice_response.json()
-    assert writing_practice_payload["resolved_version"] == "knowledge-v31"
+    assert writing_practice_payload["resolved_version"] == "knowledge-v32"
     assert writing_practice_payload["status"] == "ok"
     assert {
         "card-coherencia-textual",
@@ -4862,7 +4892,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert orthotypography_response.status_code == 200
     orthotypography_payload = orthotypography_response.json()
-    assert orthotypography_payload["resolved_version"] == "knowledge-v31"
+    assert orthotypography_payload["resolved_version"] == "knowledge-v32"
     assert orthotypography_payload["status"] == "ok"
     assert {
         "card-versalitas",
@@ -4882,7 +4912,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert literary_commentary_response.status_code == 200
     literary_commentary_payload = literary_commentary_response.json()
-    assert literary_commentary_payload["resolved_version"] == "knowledge-v31"
+    assert literary_commentary_payload["resolved_version"] == "knowledge-v32"
     assert literary_commentary_payload["status"] == "ok"
     assert {
         "card-tema-texto-literario",
@@ -4902,7 +4932,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert rhetoric_response.status_code == 200
     rhetoric_payload = rhetoric_response.json()
-    assert rhetoric_payload["resolved_version"] == "knowledge-v31"
+    assert rhetoric_payload["resolved_version"] == "knowledge-v32"
     assert rhetoric_payload["status"] == "ok"
     assert {
         "card-ethos",
@@ -4922,7 +4952,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert quintilian_response.status_code == 200
     quintilian_payload = quintilian_response.json()
-    assert quintilian_payload["resolved_version"] == "knowledge-v31"
+    assert quintilian_payload["resolved_version"] == "knowledge-v32"
     assert quintilian_payload["status"] == "ok"
     assert {
         "card-inventio",
@@ -4942,7 +4972,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert oral_response.status_code == 200
     oral_payload = oral_response.json()
-    assert oral_payload["resolved_version"] == "knowledge-v31"
+    assert oral_payload["resolved_version"] == "knowledge-v32"
     assert oral_payload["status"] == "ok"
     assert {
         "card-preparacion-discurso-oral",
@@ -4962,7 +4992,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert poetics_response.status_code == 200
     poetics_payload = poetics_response.json()
-    assert poetics_payload["resolved_version"] == "knowledge-v31"
+    assert poetics_payload["resolved_version"] == "knowledge-v32"
     assert poetics_payload["status"] == "ok"
     assert {
         "card-mimesis",
@@ -4982,7 +5012,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert narratology_response.status_code == 200
     narratology_payload = narratology_response.json()
-    assert narratology_payload["resolved_version"] == "knowledge-v31"
+    assert narratology_payload["resolved_version"] == "knowledge-v32"
     assert narratology_payload["status"] == "ok"
     assert {
         "card-orden-narrativo",
@@ -5002,7 +5032,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert general_theory_response.status_code == 200
     general_theory_payload = general_theory_response.json()
-    assert general_theory_payload["resolved_version"] == "knowledge-v31"
+    assert general_theory_payload["resolved_version"] == "knowledge-v32"
     assert general_theory_payload["status"] == "ok"
     assert {
         "card-literariedad",
@@ -5022,7 +5052,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert figures_response.status_code == 200
     figures_payload = figures_response.json()
-    assert figures_payload["resolved_version"] == "knowledge-v31"
+    assert figures_payload["resolved_version"] == "knowledge-v32"
     assert figures_payload["status"] == "ok"
     assert {
         "card-focalizacion",
@@ -5042,7 +5072,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert general_linguistics_response.status_code == 200
     general_linguistics_payload = general_linguistics_response.json()
-    assert general_linguistics_payload["resolved_version"] == "knowledge-v31"
+    assert general_linguistics_payload["resolved_version"] == "knowledge-v32"
     assert general_linguistics_payload["status"] == "ok"
     assert {
         "card-lengua",
@@ -5062,7 +5092,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert corpus_response.status_code == 200
     corpus_payload = corpus_response.json()
-    assert corpus_payload["resolved_version"] == "knowledge-v31"
+    assert corpus_payload["resolved_version"] == "knowledge-v32"
     assert corpus_payload["status"] == "ok"
     assert {
         "card-corpus-linguistico",
@@ -5082,7 +5112,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert generative_syntax_response.status_code == 200
     generative_syntax_payload = generative_syntax_response.json()
-    assert generative_syntax_payload["resolved_version"] == "knowledge-v31"
+    assert generative_syntax_payload["resolved_version"] == "knowledge-v32"
     assert generative_syntax_payload["status"] == "ok"
     assert {
         "card-competencia-linguistica",
@@ -5102,7 +5132,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert style_elements_response.status_code == 200
     style_elements_payload = style_elements_response.json()
-    assert style_elements_payload["resolved_version"] == "knowledge-v31"
+    assert style_elements_payload["resolved_version"] == "knowledge-v32"
     assert style_elements_payload["status"] == "ok"
     assert {
         "card-strunk-concision-estilo",
@@ -5122,7 +5152,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert zinsser_response.status_code == 200
     zinsser_payload = zinsser_response.json()
-    assert zinsser_payload["resolved_version"] == "knowledge-v31"
+    assert zinsser_payload["resolved_version"] == "knowledge-v32"
     assert zinsser_payload["status"] == "ok"
     assert {
         "card-zinsser-claridad-no-ficcion",
@@ -5142,7 +5172,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert synonyms_response.status_code == 200
     synonyms_payload = synonyms_response.json()
-    assert synonyms_payload["resolved_version"] == "knowledge-v31"
+    assert synonyms_payload["resolved_version"] == "knowledge-v32"
     assert synonyms_payload["status"] == "ok"
     assert {
         "card-sinonimia-contextual",
@@ -5162,7 +5192,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert ideological_response.status_code == 200
     ideological_payload = ideological_response.json()
-    assert ideological_payload["resolved_version"] == "knowledge-v31"
+    assert ideological_payload["resolved_version"] == "knowledge-v32"
     assert ideological_payload["status"] == "ok"
     assert {
         "card-idea-dada",
@@ -5182,7 +5212,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert pragmatic_writing_response.status_code == 200
     pragmatic_writing_payload = pragmatic_writing_response.json()
-    assert pragmatic_writing_payload["resolved_version"] == "knowledge-v31"
+    assert pragmatic_writing_payload["resolved_version"] == "knowledge-v32"
     assert pragmatic_writing_payload["status"] == "ok"
     assert {
         "card-parrafo-eficaz",
@@ -5202,7 +5232,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert advanced_punctuation_response.status_code == 200
     advanced_punctuation_payload = advanced_punctuation_response.json()
-    assert advanced_punctuation_payload["resolved_version"] == "knowledge-v31"
+    assert advanced_punctuation_payload["resolved_version"] == "knowledge-v32"
     assert advanced_punctuation_payload["status"] == "ok"
     assert {
         "card-coma-incidental",
@@ -5222,7 +5252,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert applied_narratology_response.status_code == 200
     applied_narratology_payload = applied_narratology_response.json()
-    assert applied_narratology_payload["resolved_version"] == "knowledge-v31"
+    assert applied_narratology_payload["resolved_version"] == "knowledge-v32"
     assert applied_narratology_payload["status"] == "ok"
     assert {
         "card-conflicto-narrativo-aplicado",
@@ -5242,7 +5272,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     )
     assert creative_scene_response.status_code == 200
     creative_scene_payload = creative_scene_response.json()
-    assert creative_scene_payload["resolved_version"] == "knowledge-v31"
+    assert creative_scene_payload["resolved_version"] == "knowledge-v32"
     assert creative_scene_payload["status"] == "ok"
     assert {
         "card-dialogo-con-funcion",
@@ -5251,6 +5281,86 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
         "card-escena-de-transicion",
         "card-cierre-de-escena",
     } & {card["id"] for card in creative_scene_payload["cards"]}
+
+    creative_revision_response = client.post(
+        "/knowledge/query",
+        json={
+            "query": "escena-inicial-operativa promesa-narrativa gancho-sin-truco revelacion-controlada reescritura-de-escena",
+            "version": "latest",
+            "limit": 5,
+        },
+    )
+    assert creative_revision_response.status_code == 200
+    creative_revision_payload = creative_revision_response.json()
+    assert creative_revision_payload["resolved_version"] == "knowledge-v32"
+    assert creative_revision_payload["status"] == "ok"
+    assert {
+        "card-escena-inicial-operativa",
+        "card-promesa-narrativa",
+        "card-gancho-sin-truco",
+        "card-revelacion-controlada",
+        "card-reescritura-de-escena",
+    } & {card["id"] for card in creative_revision_payload["cards"]}
+
+    with SessionLocal() as session:
+        card = session.get(KnowledgeCardRecord, "card-complemento-directo")
+        claim = session.get(KnowledgeClaimRecord, "claim-rae-ngle-complemento-directo")
+        evidence = session.get(
+            KnowledgeEvidenceItemRecord, "ev-rae-ngle-complemento-directo-candidata"
+        )
+        original_versions = {
+            "card": card.version if card is not None else None,
+            "claim": claim.version if claim is not None else None,
+            "evidence": evidence.version if evidence is not None else None,
+        }
+        if card is not None:
+            card.version = "knowledge-ui-candidate-regression"
+        if claim is not None:
+            claim.version = "knowledge-ui-candidate-regression"
+        if evidence is not None:
+            evidence.version = "knowledge-ui-candidate-regression"
+        session.commit()
+
+    try:
+        snapshot_response = client.post(
+            "/knowledge/query",
+            json={"query": "complemento directo", "version": "knowledge-v32", "limit": 3},
+        )
+        assert snapshot_response.status_code == 200
+        snapshot_payload = snapshot_response.json()
+        assert snapshot_payload["resolved_version"] == "knowledge-v32"
+        snapshot_card = next(
+            card
+            for card in snapshot_payload["cards"]
+            if card["id"] == "card-complemento-directo"
+        )
+        snapshot_claim = next(
+            claim
+            for claim in snapshot_payload["claims"]
+            if claim["id"] == "claim-rae-ngle-complemento-directo"
+        )
+        snapshot_evidence = next(
+            evidence
+            for evidence in snapshot_payload["evidence"]
+            if evidence["id"] == "ev-rae-ngle-complemento-directo-candidata"
+        )
+        assert snapshot_card["version"] == "knowledge-v32"
+        assert snapshot_claim["version"] == "knowledge-v32"
+        assert snapshot_evidence["version"] == "knowledge-v32"
+    finally:
+        with SessionLocal() as session:
+            card = session.get(KnowledgeCardRecord, "card-complemento-directo")
+            claim = session.get(KnowledgeClaimRecord, "claim-rae-ngle-complemento-directo")
+            evidence = session.get(
+                KnowledgeEvidenceItemRecord, "ev-rae-ngle-complemento-directo-candidata"
+            )
+            if card is not None and original_versions["card"] is not None:
+                card.version = original_versions["card"]
+            if claim is not None and original_versions["claim"] is not None:
+                claim.version = original_versions["claim"]
+            if evidence is not None and original_versions["evidence"] is not None:
+                evidence.version = original_versions["evidence"]
+            session.commit()
 
     empty_response = client.post(
         "/knowledge/query",
@@ -5275,7 +5385,7 @@ def test_knowledge_query_understands_natural_editorial_terms_without_slugs():
     )
     assert dialogue_response.status_code == 200
     dialogue_payload = dialogue_response.json()
-    assert dialogue_payload["resolved_version"] == "knowledge-v31"
+    assert dialogue_payload["resolved_version"] == "knowledge-v32"
     assert dialogue_payload["status"] == "ok"
     assert dialogue_payload["retrieval_trace"]["normalized_query"] == (
         "una conversacion entre personajes que sirva y no sea relleno"
@@ -5294,7 +5404,7 @@ def test_knowledge_query_understands_natural_editorial_terms_without_slugs():
     )
     assert subtext_response.status_code == 200
     subtext_payload = subtext_response.json()
-    assert subtext_payload["resolved_version"] == "knowledge-v31"
+    assert subtext_payload["resolved_version"] == "knowledge-v32"
     assert subtext_payload["status"] == "ok"
     assert "card-subtexto-narrativo" in {card["id"] for card in subtext_payload["cards"]}
 
@@ -5308,7 +5418,7 @@ def test_knowledge_query_understands_natural_editorial_terms_without_slugs():
     )
     assert transition_response.status_code == 200
     transition_payload = transition_response.json()
-    assert transition_payload["resolved_version"] == "knowledge-v31"
+    assert transition_payload["resolved_version"] == "knowledge-v32"
     assert transition_payload["status"] == "ok"
     assert "card-escena-de-transicion" in {
         card["id"] for card in transition_payload["cards"]
@@ -5620,6 +5730,7 @@ def test_knowledge_pipeline_is_persisted():
         "knowledge-v29",
         "knowledge-v30",
         "knowledge-v31",
+        "knowledge-v32",
     }
     candidate_object_ids.update(
         node.id for node in seed_nodes() if node.version in published_versions
@@ -5710,6 +5821,7 @@ def test_knowledge_pipeline_is_persisted():
         "knowledge-v29",
         "knowledge-v30",
         "knowledge-v31",
+        "knowledge-v32",
     }
     assert len(object_revisions) >= len(sources) + len(source_editions) + len(nodes)
     assert {

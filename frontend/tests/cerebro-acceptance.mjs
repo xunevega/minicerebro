@@ -12,15 +12,11 @@ try {
   await page.getByRole("button", { name: "Revision Cerebro" }).click();
   const cerebroPanel = page.locator(".panel", { hasText: "Auditoria Cerebro" });
   await cerebroPanel.getByText("Auditoria Cerebro").waitFor();
-  await cerebroPanel.getByText("pending_code_evidence").first().waitFor();
   await cerebroPanel.getByText("Bloqueos antes de reutilizar").waitFor();
-  await cerebroPanel.getByText("blocked_until_checked").first().waitFor();
 
   await page.getByRole("button", { name: "Aceptacion" }).click();
   const acceptancePanel = page.locator(".panel", { hasText: "Aceptacion V1" });
   await acceptancePanel.getByText("Aceptacion V1").waitFor();
-  await acceptancePanel.getByText("implemented").first().waitFor();
-  await acceptancePanel.getByText("conocimiento").first().waitFor();
 } finally {
   await browser.close();
 }

@@ -2225,13 +2225,14 @@ class Repository:
         ).all()
         relations_by_node: dict[str, list[KnowledgeNodeRelation]] = {}
         for relation in relations:
-            relations_by_node.setdefault(relation.source_node_id, []).append(
-                knowledge_node_relation_from_record(relation)
-            )
-        return [
-            knowledge_node_from_record(record, relations_by_node.get(record.id, []))
-            for record in records
-        ]
+            relation_item = knowledge_node_relation_from_record(relation)
+            if snapshot is not None and version is not None:
+                relation_item = relation_item.model_copy(update={"version": version})
+            relations_by_node.setdefault(relation.source_node_id, []).append(relation_item)
+        nodes = [knowledge_node_from_record(record, relations_by_node.get(record.id, [])) for record in records]
+        if snapshot is not None and version is not None:
+            return [node.model_copy(update={"version": version}) for node in nodes]
+        return nodes
 
     def list_knowledge_relations(
         self,
@@ -2253,7 +2254,10 @@ class Repository:
         if relation_type:
             query = query.where(KnowledgeRelationRecord.relation_type == relation_type)
         records = self.session.scalars(query.order_by(KnowledgeRelationRecord.id)).all()
-        return [knowledge_relation_from_record(record) for record in records]
+        relations = [knowledge_relation_from_record(record) for record in records]
+        if snapshot is not None and version is not None:
+            return [relation.model_copy(update={"version": version}) for relation in relations]
+        return relations
 
     def list_knowledge_evidence(
         self,
@@ -2269,7 +2273,10 @@ class Repository:
         if version and snapshot is None:
             query = query.where(KnowledgeEvidenceItemRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeEvidenceItemRecord.id)).all()
-        return [knowledge_evidence_from_record(record) for record in records]
+        evidence = [knowledge_evidence_from_record(record) for record in records]
+        if snapshot is not None and version is not None:
+            return [item.model_copy(update={"version": version}) for item in evidence]
+        return evidence
 
     def list_knowledge_claims(
         self,
@@ -2296,10 +2303,13 @@ class Repository:
             links_by_claim.setdefault(link.claim_id, []).append(
                 knowledge_claim_evidence_link_from_record(link)
             )
-        return [
+        claims = [
             knowledge_claim_from_record(record, links_by_claim.get(record.id, []))
             for record in records
         ]
+        if snapshot is not None and version is not None:
+            return [claim.model_copy(update={"version": version}) for claim in claims]
+        return claims
 
     def list_knowledge_cards(self, version: str | None = None) -> list[KnowledgeCard]:
         query = select(KnowledgeCardRecord)
@@ -2309,7 +2319,10 @@ class Repository:
         if version and snapshot is None:
             query = query.where(KnowledgeCardRecord.version == version)
         records = self.session.scalars(query.order_by(KnowledgeCardRecord.id)).all()
-        return [knowledge_card_from_record(record) for record in records]
+        cards = [knowledge_card_from_record(record) for record in records]
+        if snapshot is not None and version is not None:
+            return [card.model_copy(update={"version": version}) for card in cards]
+        return cards
 
     def knowledge_query_contract(self) -> KnowledgeQueryContract:
         return query_contract()

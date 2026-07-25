@@ -334,12 +334,18 @@ export function App() {
 
   useEffect(() => {
     getKnowledgeStatus()
-      .then((knowledgeData) =>
-        Promise.all([
-          Promise.resolve(knowledgeData),
+      .then(async (knowledgeData) => {
+        setKnowledge(knowledgeData);
+        setLoadedKnowledgeVersion(knowledgeData.version);
+        const [versionData, allSourceData, sourceIngestionStatusData] = await Promise.all([
           getKnowledgeVersions(),
           getKnowledgeSources(),
           getKnowledgeSourceIngestionStatuses(),
+        ]);
+        setKnowledgeVersions(versionData);
+        setAllKnowledgeSources(allSourceData);
+        setKnowledgeSourceIngestionStatuses(sourceIngestionStatusData);
+        return Promise.all([
           getProfileSummary(),
           getProfileStatistics(activeContext),
           getContradictions(activeContext),
@@ -362,14 +368,10 @@ export function App() {
           getContractBoundaries(),
           getObservabilityStatus(),
           getTechnicalRoadmap(),
-        ]),
-      )
+        ]);
+      })
       .then(
         ([
-          knowledgeData,
-          versionData,
-          allSourceData,
-          sourceIngestionStatusData,
           summaryData,
           statisticsData,
           contradictionData,
@@ -393,10 +395,6 @@ export function App() {
           observabilityData,
           roadmapData,
         ]) => {
-        setKnowledge(knowledgeData);
-        setKnowledgeVersions(versionData);
-        setAllKnowledgeSources(allSourceData);
-        setKnowledgeSourceIngestionStatuses(sourceIngestionStatusData);
         setSummary(summaryData);
         setStatistics(statisticsData);
         setContradictions(contradictionData);
