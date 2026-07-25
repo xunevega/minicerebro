@@ -9,21 +9,25 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByLabel("Version explorada").selectOption("latest");
-  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor();
-  await page.locator(".metric", { hasText: "Validacion" }).first().waitFor();
-  const gymPanel = page.locator(".proposalBox", { hasText: "Gimnasio de conocimiento" });
-  await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor();
+  await page.getByRole("button", { name: "Fuentes" }).click();
+  await page.getByLabel("Base activa").selectOption("latest");
+  await page.locator(".metric", { hasText: "Base cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor();
+  await page.locator(".metric", { hasText: "Revision" }).first().waitFor();
+  const gymPanel = page.locator(".proposalBox", { hasText: "Calidad de la base" });
+  await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor({ timeout: 90000 });
   await gymPanel.locator(".metric", { hasText: "Fichas revisadas" }).filter({ hasText: "147" }).waitFor();
   await gymPanel.locator("strong", { hasText: /^Precision$/ }).waitFor();
   await gymPanel.locator("strong", { hasText: /^Trazabilidad$/ }).waitFor();
-  await page.getByRole("heading", { name: "Todavia no incluido en V1" }).waitFor();
-  const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de conocimiento" });
+  await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();
+  await page.getByRole("heading", { name: "Limites actuales" }).waitFor();
+  const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de la base" });
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).getByText("0 fuentes").waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v32" }).getByText("+5 nodos").waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v0" }).getByText("base congelada").waitFor();
-  const sourceExplorerPanel = page.locator(".proposalBox", { hasText: "Explorador de fuentes" });
+  const sourceExplorerPanel = page.locator(".proposalBox", {
+    has: page.getByRole("heading", { name: /^Fuentes$/ }),
+  });
   await sourceExplorerPanel.getByText("Publicadas · 26").waitFor();
   await sourceExplorerPanel.getByText("Ingeridas sin publicar · 0").waitFor();
   await sourceExplorerPanel.getByText("Disponibles sin ingerir · 0").waitFor();
@@ -89,10 +93,10 @@ try {
     .locator(".sourceMiniCard", { has: page.locator("strong", { hasText: /^La cocina de la escritura$/ }) })
     .getByText("available · publicada")
     .waitFor();
-  const ingestionPanel = page.locator(".proposalBox", { hasText: "Registro frente a ingestion" });
+  const ingestionPanel = page.locator(".proposalBox", { hasText: "Estado de fuentes" });
   await ingestionPanel.locator(".metric", { hasText: "Publicadas" }).filter({ hasText: "26" }).waitFor();
   await ingestionPanel.locator(".metric", { hasText: "Ingeridas" }).filter({ hasText: "26" }).waitFor();
-  await ingestionPanel.locator(".metric", { hasText: "No ingeridas" }).filter({ hasText: "0" }).waitFor();
+  await ingestionPanel.locator(".metric", { hasText: "Pendientes" }).filter({ hasText: "0" }).waitFor();
   await ingestionPanel.getByText("publicada: 26").waitFor();
   await ingestionPanel.locator(".ingestionItem", { hasText: "Ortografia de la lengua espanola" }).getByText("publicada").waitFor();
   await ingestionPanel.locator(".ingestionItem", { hasText: "Glosario de terminos gramaticales" }).getByText("publicada").waitFor();
@@ -151,12 +155,12 @@ try {
     .locator(".ingestionItem", { has: page.locator("strong", { hasText: /^Diccionario ideologico de la lengua espanola$/ }) })
     .getByText("publicada")
     .waitFor();
-  const pipelinePanel = page.locator(".proposalBox", { hasText: "Explorador de pipeline" });
+  const pipelinePanel = page.locator(".proposalBox", { hasText: "Recorrido de fuentes" });
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Fuente").waitFor();
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("ExtractionRun").waitFor();
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Publicacion").waitFor();
-  const explorationPanel = page.locator(".proposalBox", { hasText: "Exploracion persistente" });
-  await explorationPanel.getByText("Trazabilidad persistente").waitFor();
+  const explorationPanel = page.locator(".proposalBox", { hasText: "Recorrido completo" });
+  await explorationPanel.getByText("Trazabilidad").waitFor();
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor({
     timeout: 90000,
   });
@@ -168,14 +172,16 @@ try {
     hasText: "El complemento directo funciona como participante seleccionado por el predicado verbal",
   });
   await complementoClaim.getByRole("button", { name: "Ver ficha" }).click();
-  const selectedCard = page.locator(".proposalBox", { hasText: "Ficha seleccionada" });
+  const selectedCard = page.locator(".proposalBox", {
+    has: page.getByRole("heading", { name: /^Ficha$/ }),
+  });
   await selectedCard.locator("article.knowledgeItem > strong", { hasText: "Complemento directo" }).waitFor();
   await selectedCard.getByText("Nueva gramatica de la lengua espanola").waitFor();
   await selectedCard.getByText("Manual 2010").waitFor();
   await selectedCard.getByText("Validacion pendiente").first().waitFor();
 
   const queryPanel = page.locator(".proposalBox", {
-    has: page.getByRole("heading", { name: /^Consulta$/ }),
+    has: page.getByRole("heading", { name: /^Consultar la base$/ }),
   });
   await queryPanel.locator("input").fill("complemento directo");
   await page.getByLabel("Limite de fichas").selectOption("3");
@@ -217,8 +223,8 @@ try {
 
   await page.getByRole("button", { name: "Sistema" }).click();
   await page.getByRole("button", { name: "Historial" }).click();
-  const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de conocimiento" });
-  await page.getByText("Historial de consultas de conocimiento").waitFor();
+  const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de base" });
+  await page.getByText("Historial de consultas de base").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
   await auditPanel.getByText("sin resultado").first().waitFor();

@@ -7,8 +7,12 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Fuentes" }).click();
+  await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();
 
-  const panel = page.locator(".proposalBox", { hasText: "Ingestion manual minima" });
+  const panel = page.locator(".proposalBox", {
+    has: page.getByRole("heading", { name: /^Crear lote tecnico$/ }),
+  });
   await panel.getByText("Solo una candidate real permite aprobar propuestas").waitFor();
 
   const sourceSelect = page.getByLabel("Fuente para ingestion manual");

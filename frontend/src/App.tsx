@@ -132,7 +132,7 @@ import type {
 } from "./types/api";
 
 const tabs = [
-  { id: "knowledge", label: "Lo que sabe la app", icon: BookOpen },
+  { id: "knowledge", label: "Fuentes", icon: BookOpen },
   { id: "preferences", label: "Preferencias", icon: PenLine },
   { id: "profile", label: "Ficha usuario", icon: Brain },
   { id: "scoring", label: "Puntuacion", icon: SlidersHorizontal },
@@ -153,7 +153,7 @@ const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "n
 const auditEventFilters = [
   { label: "Todos", eventType: "", entityType: "" },
   {
-    label: "Consultas de conocimiento",
+    label: "Consultas de base",
     eventType: "knowledge.query.executed",
     entityType: "knowledge_version",
   },
@@ -196,8 +196,8 @@ const mainSections: Array<{
   },
   {
     id: "knowledge",
-    label: "Conocimiento",
-    description: "Fuentes, fichas, consulta y estado de ingestion.",
+    label: "Fuentes",
+    description: "Base de escritura, consulta y fuentes publicadas.",
     icon: BookOpen,
     defaultTab: "knowledge",
     tabs: ["knowledge"],
@@ -213,7 +213,7 @@ const mainSections: Array<{
 ];
 
 export function App() {
-  const [active, setActive] = useState<TabId>("knowledge");
+  const [active, setActive] = useState<TabId>("editor");
   const [activeContext, setActiveContext] = useState("general");
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
@@ -255,6 +255,7 @@ export function App() {
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
   const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
   const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(20);
+  const [showKnowledgeTechnical, setShowKnowledgeTechnical] = useState(false);
   const [selectedKnowledgeQueryEventId, setSelectedKnowledgeQueryEventId] = useState<number | null>(
     null,
   );
@@ -914,7 +915,7 @@ export function App() {
         reason:
           action === "approve"
             ? "Revision manual desde la interfaz; no publica conocimiento."
-            : "Rechazo manual desde la interfaz; no modifica conocimiento estable.",
+            : "Rechazo manual desde la interfaz; no modifica la base publicada.",
       });
       setManualIngestionProposals((current) =>
         current.map((item) => (item.id === updated.id ? updated : item)),
@@ -1340,9 +1341,9 @@ export function App() {
 
         {active === "knowledge" && (
           <section className="panel">
-            <h2>Estado de conocimiento</h2>
+            <h2>Base de escritura</h2>
             <div className="versionToolbar">
-              <label htmlFor="knowledgeVersionSelect">Version explorada</label>
+              <label htmlFor="knowledgeVersionSelect">Base activa</label>
               <select
                 id="knowledgeVersionSelect"
                 onChange={(event) => setSelectedKnowledgeVersion(event.target.value)}
@@ -1357,26 +1358,25 @@ export function App() {
               </select>
             </div>
             <div className="metricGrid">
-              <Metric label="Version cargada" value={loadedKnowledgeVersion} />
+              <Metric label="Base cargada" value={loadedKnowledgeVersion} />
               <Metric
-                label="Publicacion"
+                label="Estado"
                 value={
                   knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
                     ?.status ?? knowledge?.state ?? "..."
                 }
               />
-              <Metric label="Cobertura" value={`${knowledge?.coverage.length ?? 0} areas`} />
-              <Metric label="Validacion" value={`${pendingKnowledgeValidationCount} pendientes`} />
-              <Metric label="No ingeridas" value={registeredOnlySourceCount} />
+              <Metric label="Areas" value={`${knowledge?.coverage.length ?? 0} areas`} />
+              <Metric label="Revision" value={`${pendingKnowledgeValidationCount} pendientes`} />
+              <Metric label="Pendientes" value={registeredOnlySourceCount} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
             <div className="proposalBox knowledgeGymPanel">
               <div className="versionHeader">
                 <div>
-                  <h3>Gimnasio de conocimiento</h3>
+                  <h3>Calidad de la base</h3>
                   <p className="note">
-                    Diagnostico de lectura sobre la version publicada. No crea propuestas ni cambia
-                    el perfil.
+                    Revision de la base publicada. No cambia tus preferencias ni genera contenido.
                   </p>
                 </div>
                 {knowledgeGym ? (
@@ -1415,11 +1415,22 @@ export function App() {
                   </div>
                 </>
               ) : (
-                <p className="note">Cargando diagnostico de conocimiento.</p>
+                <p className="note">Cargando revision de la base.</p>
               )}
             </div>
+            <div className="buttonRow">
+              <button
+                className="ghostButton"
+                onClick={() => setShowKnowledgeTechnical((current) => !current)}
+                type="button"
+              >
+                {showKnowledgeTechnical ? "Ocultar panel tecnico" : "Mostrar panel tecnico"}
+              </button>
+            </div>
+            {showKnowledgeTechnical ? (
+              <>
             <div className="proposalBox">
-              <h3>Versiones de conocimiento</h3>
+              <h3>Versiones de la base</h3>
               <div className="versionList">
                 {orderedKnowledgeVersions.map((version, index) => {
                   const previousVersion = orderedKnowledgeVersions[index - 1] ?? null;
@@ -1461,7 +1472,7 @@ export function App() {
               </div>
             </div>
             <div className="proposalBox">
-              <h3>Explorador de fuentes</h3>
+              <h3>Fuentes</h3>
               <div className="sourceExplorer">
                 {sourceExplorerGroups.map((group) => (
                   <section className="sourceGroup" key={group.id}>
@@ -1492,7 +1503,7 @@ export function App() {
               </div>
             </div>
             <div className="proposalBox">
-              <h3>Explorador de pipeline</h3>
+              <h3>Recorrido de fuentes</h3>
               <div className="pipelineExplorer">
                 {orderedIngestionStatuses.map((status) => (
                   <article className="pipelineCard" key={status.source_id}>
@@ -1533,11 +1544,11 @@ export function App() {
               </div>
             </div>
             <div className="proposalBox">
-              <h3>Registro frente a ingestion</h3>
+              <h3>Estado de fuentes</h3>
               <div className="metricGrid">
                 <Metric label="Publicadas" value={publishedSourceCount} />
                 <Metric label="Ingeridas" value={ingestedSourceCount} />
-                <Metric label="No ingeridas" value={registeredOnlySourceCount} />
+                <Metric label="Pendientes" value={registeredOnlySourceCount} />
               </div>
               <div className="phaseSummary">
                 {ingestionPhaseCounts.map((item) => (
@@ -1591,10 +1602,10 @@ export function App() {
               </div>
             </div>
             <div className="proposalBox">
-              <h3>Ingestion manual minima</h3>
+              <h3>Crear lote tecnico</h3>
               <p className="note">
-                Crea fuente-edicion-indice-segmento-extraction run-proposals. Solo una candidate
-                real permite aprobar propuestas; publicar sigue separado.
+                Crea el recorrido interno fuente-edicion-indice-segmento-extraction run-proposals.
+                Solo una candidate real permite aprobar propuestas; publicar sigue separado.
               </p>
               <div className="rowActions">
                 <select
@@ -1695,8 +1706,8 @@ export function App() {
                       {!canApproveProposal(proposal, knowledgeVersions) &&
                       proposal.status === "proposed" ? (
                         <p className="note">
-                          Aprobar requiere una version candidata real; rechazar no modifica
-                          conocimiento estable.
+                          Aprobar requiere una version candidata real; rechazar no modifica la base
+                          publicada.
                         </p>
                       ) : null}
                     </article>
@@ -1705,10 +1716,10 @@ export function App() {
               ) : null}
             </div>
             <div className="proposalBox">
-              <h3>Candidato y publicacion</h3>
+              <h3>Publicacion tecnica</h3>
               <p className="note">
-                Crear candidato congela un snapshot revisable. Publicar solo activa una version si
-                readiness pasa todos los gates.
+                Crear candidato congela una version revisable. Publicar solo activa una version si
+                la revision pasa todos los controles.
               </p>
               <div className="rowActions">
                 <input
@@ -1834,12 +1845,12 @@ export function App() {
               ))}
             </div>
             <div className="proposalBox">
-              <h3>Exploracion persistente</h3>
+              <h3>Recorrido completo</h3>
               <p className="note">
-                Version navegada: {loadedKnowledgeVersion}. knowledge-v0 queda congelada; latest
-                resuelve a la ultima version publicada.
+                Base navegada: {loadedKnowledgeVersion}. latest resuelve a la ultima version
+                publicada.
               </p>
-              <h3>Trazabilidad persistente</h3>
+              <h3>Trazabilidad</h3>
               <div className="metricGrid">
                 <Metric label="Fuentes" value={knowledgeSources.length} />
                 <Metric label="Nodos" value={knowledgeNodes.length} />
@@ -1899,7 +1910,7 @@ export function App() {
             </div>
             {selectedKnowledgeCard ? (
               <div className="proposalBox">
-                <h3>Ficha seleccionada</h3>
+                <h3>Ficha</h3>
                 <article className="knowledgeItem">
                   <strong>{selectedKnowledgeCard.name}</strong>
                   <span>{selectedKnowledgeCard.definition}</span>
@@ -2063,9 +2074,11 @@ export function App() {
                 </article>
               </div>
             ) : null}
+              </>
+            ) : null}
             <div className="proposalBox">
-              <h3>Consulta</h3>
-              <p className="note">La consulta usa la version explorada: {loadedKnowledgeVersion}.</p>
+              <h3>Consultar la base</h3>
+              <p className="note">Usa la base activa: {loadedKnowledgeVersion}.</p>
               <div className="rowActions">
                 <input
                   className="textInput"
@@ -2090,7 +2103,7 @@ export function App() {
               {knowledgeResult ? (
                 <>
                   <p className="note">
-                    Resultado para "{knowledgeResult.query}" en version resuelta{" "}
+                    Resultado para "{knowledgeResult.query}" en base resuelta{" "}
                     {knowledgeResult.resolved_version}.
                   </p>
                   <div className="metricGrid">
@@ -2098,7 +2111,7 @@ export function App() {
                     <Metric label="Claims" value={knowledgeResult.claim_count} />
                     <Metric label="Evidencias" value={knowledgeResult.evidence_count} />
                     <Metric
-                      label="Validacion"
+                      label="Revision"
                       value={`${
                         [
                           ...knowledgeResult.cards,
@@ -2188,8 +2201,8 @@ export function App() {
                 </>
               ) : null}
             </div>
-            <List title="Cobertura" items={knowledge?.coverage ?? []} />
-            <List title="Todavia no incluido en V1" items={knowledge?.gaps ?? []} />
+            <List title="Areas cubiertas" items={knowledge?.coverage ?? []} />
+            <List title="Limites actuales" items={knowledge?.gaps ?? []} />
           </section>
         )}
 
@@ -2877,7 +2890,7 @@ export function App() {
         {active === "audit" && (
           <section className="panel">
             <div className="auditSection">
-              <h2>Historial de consultas de conocimiento</h2>
+              <h2>Historial de consultas de base</h2>
               <div className="metricGrid">
                 <Metric label="Consultas" value={knowledgeQuerySummary?.total_count ?? 0} />
                 <Metric label="Con resultado" value={knowledgeQuerySummary?.hit_count ?? 0} />
@@ -2905,7 +2918,7 @@ export function App() {
                 </select>
               </div>
               {knowledgeQueryHistory.length === 0 ? (
-                <p className="note">Todavia no hay consultas de conocimiento registradas.</p>
+                <p className="note">Todavia no hay consultas de base registradas.</p>
               ) : (
                 <div className="auditList">
                   {knowledgeQueryHistory.map((item) => (
@@ -3200,7 +3213,7 @@ function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
     { label: "Segmento", done: status?.has_segments ?? false },
     { label: "ExtractionRun", done: status?.has_extractions ?? false },
     { label: "Proposals", done: status?.has_proposals ?? false },
-    { label: "Conocimiento", done: status?.has_materialized_knowledge ?? false },
+    { label: "Objetos", done: status?.has_materialized_knowledge ?? false },
     { label: "Publicacion", done: status?.is_published ?? false },
   ];
 }

@@ -7,7 +7,12 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Escribir" }).click();
+  await page
+    .getByRole("button", {
+      name: "Escribir",
+      description: "Crear, corregir, comparar y probar textos.",
+    })
+    .click();
   await page.getByRole("button", { name: "Comparar" }).click();
 
   const compareEditor = page.locator(".panel", { hasText: "Textos" });

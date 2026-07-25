@@ -7,10 +7,14 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
+  await page.getByRole("button", { name: "Fuentes" }).click();
+  await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();
 
-  const panel = page.locator(".proposalBox", { hasText: "Candidato y publicacion" });
-  await panel.getByText("Crear candidato congela un snapshot revisable.").waitFor();
-  await page.locator(".metric", { hasText: "Version cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor({
+  const panel = page.locator(".proposalBox", {
+    has: page.getByRole("heading", { name: /^Publicacion tecnica$/ }),
+  });
+  await panel.getByText("Crear candidato congela una version revisable.").waitFor();
+  await page.locator(".metric", { hasText: "Base cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor({
     timeout: 90000,
   });
 
