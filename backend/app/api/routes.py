@@ -31,6 +31,7 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeExtractionRun,
     KnowledgeExtractionRunCreate,
+    KnowledgeGymReport,
     KnowledgeIngestionBatch,
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
@@ -610,6 +611,14 @@ def knowledge_query_interpretation(
 def knowledge_query(payload: KnowledgeQueryInput, repository: RepositoryDep) -> KnowledgeQueryResult:
     try:
         return repository.query_knowledge(payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
+
+
+@router.get("/knowledge/gym")
+def knowledge_gym(repository: RepositoryDep, version: str = "latest") -> KnowledgeGymReport:
+    try:
+        return repository.knowledge_gym_report(version)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 

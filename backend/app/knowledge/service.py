@@ -8,6 +8,8 @@ from app.core.models import (
     KnowledgeClaimEvidenceLink,
     KnowledgeEvidenceItem,
     KnowledgeExtractionRun,
+    KnowledgeGymCheck,
+    KnowledgeGymReport,
     KnowledgeIngestionBatch,
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
@@ -12422,5 +12424,267 @@ def query_knowledge(
             "max_total_tokens": 0,
             "timeout": 0,
         },
+        generated_at=datetime.now(UTC).isoformat(),
+    )
+
+
+def _gym_status(score: float) -> str:
+    if score >= 0.9:
+        return "pass"
+    if score >= 0.7:
+        return "warning"
+    return "fail"
+
+
+def _gym_check(
+    check_id: str,
+    score: float,
+    summary: str,
+    details: dict | None = None,
+) -> KnowledgeGymCheck:
+    bounded_score = max(0.0, min(1.0, round(score, 3)))
+    return KnowledgeGymCheck(
+        id=check_id,
+        status=_gym_status(bounded_score),
+        score=bounded_score,
+        summary=summary,
+        details=details or {},
+    )
+
+
+def _gym_terms(text: str) -> set[str]:
+    return {term for term in _query_terms(_normalize_query(text)) if len(term) > 3}
+
+
+def _gym_similarity(left: KnowledgeCard, right: KnowledgeCard) -> float:
+    left_terms = _gym_terms(f"{left.name} {left.definition}")
+    right_terms = _gym_terms(f"{right.name} {right.definition}")
+    if not left_terms or not right_terms:
+        return 0.0
+    return len(left_terms & right_terms) / len(left_terms | right_terms)
+
+
+def knowledge_gym_report(
+    version: str,
+    sources: list[KnowledgeSource],
+    nodes: list[KnowledgeNode],
+    cards: list[KnowledgeCard],
+    claims: list[KnowledgeClaim],
+    evidence: list[KnowledgeEvidenceItem],
+) -> KnowledgeGymReport:
+    checks: list[KnowledgeGymCheck] = []
+    published_claims = [claim for claim in claims if claim.status == "published"]
+    published_evidence = [item for item in evidence if item.status == "published"]
+    source_ids = {source.id for source in sources}
+    evidence_by_id = {item.id: item for item in published_evidence}
+
+    precision_cases = [
+        ("complemento directo", "card-complemento-directo"),
+        ("coma incidental", "card-coma-incidental"),
+        ("sinonimia contextual", "card-sinonimia-contextual"),
+        ("subtexto narrativo", "card-subtexto-narrativo"),
+        ("gancho sin truco", "card-gancho-sin-truco"),
+    ]
+    precision_details = []
+    selected_cards: list[str] = []
+    precision_hits = 0
+    for query, expected_card_id in precision_cases:
+        result = query_knowledge(
+            KnowledgeQueryInput(query=query, version=version, limit=5),
+            sources=sources,
+            nodes=nodes,
+            cards=cards,
+            claims=claims,
+            evidence=evidence,
+        )
+        returned_ids = [card.id for card in result.cards]
+        selected_cards.extend(returned_ids[:1])
+        hit = expected_card_id in returned_ids
+        precision_hits += 1 if hit else 0
+        precision_details.append(
+            {
+                "query": query,
+                "expected_card_id": expected_card_id,
+                "returned_card_ids": returned_ids,
+                "hit": hit,
+            }
+        )
+    checks.append(
+        _gym_check(
+            "retrieval_precision",
+            precision_hits / len(precision_cases),
+            "Consultas controladas recuperan sus fichas esperadas.",
+            {"cases": precision_details},
+        )
+    )
+
+    unique_selected = len(set(selected_cards))
+    diversity_score = unique_selected / max(1, len(selected_cards))
+    checks.append(
+        _gym_check(
+            "retrieval_diversity",
+            diversity_score,
+            "Consultas distintas no deben devolver siempre la misma ficha principal.",
+            {
+                "top_card_ids": selected_cards,
+                "unique_top_card_count": unique_selected,
+            },
+        )
+    )
+
+    broken_traceability: list[dict] = []
+    for card in cards:
+        card_claims = [claim for claim in published_claims if claim.card_id == card.id]
+        if not card_claims:
+            broken_traceability.append({"card_id": card.id, "issue": "missing_claim"})
+            continue
+        for claim in card_claims:
+            supporting_evidence = evidence_by_id.get(claim.evidence_id)
+            if supporting_evidence is None:
+                broken_traceability.append(
+                    {"card_id": card.id, "claim_id": claim.id, "issue": "missing_evidence"}
+                )
+                continue
+            if supporting_evidence.source_id not in source_ids:
+                broken_traceability.append(
+                    {
+                        "card_id": card.id,
+                        "claim_id": claim.id,
+                        "evidence_id": supporting_evidence.id,
+                        "issue": "missing_source",
+                    }
+                )
+    traceability_score = 1.0 - (len(broken_traceability) / max(1, len(cards)))
+    checks.append(
+        _gym_check(
+            "traceability",
+            traceability_score,
+            "Cada ficha publicada conserva claim, evidencia y fuente.",
+            {"issues": broken_traceability[:20], "issue_count": len(broken_traceability)},
+        )
+    )
+
+    weak_payloads = []
+    for card in cards:
+        signals = card.payload.get("signals", [])
+        risks = card.payload.get("risks", [])
+        contexts = card.payload.get("contexts", [])
+        if not signals or not risks or not contexts:
+            weak_payloads.append(
+                {
+                    "card_id": card.id,
+                    "missing": [
+                        name
+                        for name, value in (
+                            ("signals", signals),
+                            ("risks", risks),
+                            ("contexts", contexts),
+                        )
+                        if not value
+                    ],
+                }
+            )
+    utility_score = 1.0 - (len(weak_payloads) / max(1, len(cards)))
+    checks.append(
+        _gym_check(
+            "utility_payload",
+            utility_score,
+            "Las fichas deben tener senales, riesgos y contextos de uso.",
+            {"weak_cards": weak_payloads[:20], "weak_card_count": len(weak_payloads)},
+        )
+    )
+
+    redundant_pairs = []
+    for index, left in enumerate(cards):
+        for right in cards[index + 1 :]:
+            similarity = _gym_similarity(left, right)
+            if similarity >= 0.82:
+                redundant_pairs.append(
+                    {
+                        "left_card_id": left.id,
+                        "right_card_id": right.id,
+                        "similarity": round(similarity, 3),
+                    }
+                )
+    redundancy_score = 1.0 - (len(redundant_pairs) / max(1, len(cards)))
+    checks.append(
+        _gym_check(
+            "redundancy",
+            redundancy_score,
+            "Detecta fichas que parecen demasiado solapadas.",
+            {
+                "pairs": redundant_pairs[:20],
+                "pair_count": len(redundant_pairs),
+            },
+        )
+    )
+
+    broad_result = query_knowledge(
+        KnowledgeQueryInput(query="estilo", version=version, limit=5),
+        sources=sources,
+        nodes=nodes,
+        cards=cards,
+        claims=claims,
+        evidence=evidence,
+    )
+    specific_result = query_knowledge(
+        KnowledgeQueryInput(query="coma incidental", version=version, limit=5),
+        sources=sources,
+        nodes=nodes,
+        cards=cards,
+        claims=claims,
+        evidence=evidence,
+    )
+    broad_ids = {card.id for card in broad_result.cards}
+    specific_ids = {card.id for card in specific_result.cards}
+    hierarchy_score = 1.0 if broad_ids and specific_ids and broad_ids != specific_ids else 0.0
+    checks.append(
+        _gym_check(
+            "query_granularity",
+            hierarchy_score,
+            "Una consulta amplia y una concreta deben producir recorridos distintos.",
+            {
+                "broad_query": "estilo",
+                "broad_card_ids": sorted(broad_ids),
+                "specific_query": "coma incidental",
+                "specific_card_ids": sorted(specific_ids),
+            },
+        )
+    )
+
+    weak_count = (
+        len(broken_traceability)
+        + len(weak_payloads)
+        + len(redundant_pairs)
+        + (len(precision_cases) - precision_hits)
+    )
+    diet_score = 1.0 - (weak_count / max(1, len(cards) + len(precision_cases)))
+    checks.append(
+        _gym_check(
+            "knowledge_diet",
+            diet_score,
+            "Resume si el conocimiento publicado esta util, variado y trazable.",
+            {
+                "healthy_card_count_estimate": max(0, len(cards) - len(weak_payloads)),
+                "review_signal_count": weak_count,
+                "note": "No elimina ni modifica conocimiento; solo senala revision.",
+            },
+        )
+    )
+
+    report_score = round(sum(check.score for check in checks) / len(checks), 3)
+    report_status = "pass"
+    if any(check.status == "fail" for check in checks):
+        report_status = "fail"
+    elif any(check.status == "warning" for check in checks):
+        report_status = "warning"
+    return KnowledgeGymReport(
+        version=version,
+        status=report_status,
+        score=report_score,
+        checked_card_count=len(cards),
+        checked_claim_count=len(published_claims),
+        checked_evidence_count=len(published_evidence),
+        checks=checks,
         generated_at=datetime.now(UTC).isoformat(),
     )

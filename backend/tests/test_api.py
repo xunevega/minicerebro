@@ -5613,6 +5613,60 @@ def test_knowledge_query_rejects_missing_version():
     assert after == before
 
 
+def test_knowledge_gym_reports_current_published_knowledge_without_mutation():
+    assert client.get("/knowledge/versions").status_code == 200
+
+    with SessionLocal() as session:
+        before_counts = {
+            "cards": len(session.scalars(select(KnowledgeCardRecord)).all()),
+            "claims": len(session.scalars(select(KnowledgeClaimRecord)).all()),
+            "evidence": len(session.scalars(select(KnowledgeEvidenceItemRecord)).all()),
+            "proposals": len(session.scalars(select(KnowledgeProposalRecord)).all()),
+            "audit_events": len(session.scalars(select(AuditEventRecord)).all()),
+        }
+
+    response = client.get("/knowledge/gym?version=latest")
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["version"] == "knowledge-v32"
+    assert payload["checked_card_count"] > 0
+    assert payload["checked_claim_count"] > 0
+    assert payload["checked_evidence_count"] > 0
+    assert 0 <= payload["score"] <= 1
+    checks = {check["id"]: check for check in payload["checks"]}
+    assert {
+        "retrieval_precision",
+        "retrieval_diversity",
+        "traceability",
+        "utility_payload",
+        "redundancy",
+        "query_granularity",
+        "knowledge_diet",
+    } <= set(checks)
+    assert checks["retrieval_precision"]["status"] == "pass"
+    assert checks["traceability"]["status"] == "pass"
+    assert checks["retrieval_precision"]["details"]["cases"][0]["hit"] is True
+    assert "note" in checks["knowledge_diet"]["details"]
+
+    with SessionLocal() as session:
+        after_counts = {
+            "cards": len(session.scalars(select(KnowledgeCardRecord)).all()),
+            "claims": len(session.scalars(select(KnowledgeClaimRecord)).all()),
+            "evidence": len(session.scalars(select(KnowledgeEvidenceItemRecord)).all()),
+            "proposals": len(session.scalars(select(KnowledgeProposalRecord)).all()),
+            "audit_events": len(session.scalars(select(AuditEventRecord)).all()),
+        }
+    assert after_counts == before_counts
+
+
+def test_knowledge_gym_rejects_missing_version():
+    response = client.get("/knowledge/gym?version=missing-version")
+
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Knowledge version not found"
+
+
 def test_knowledge_pipeline_is_persisted():
     response = client.get("/knowledge/versions")
     assert response.status_code == 200

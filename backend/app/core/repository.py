@@ -24,6 +24,7 @@ from app.core.models import (
     KnowledgeEvidenceItem,
     KnowledgeExtractionRun,
     KnowledgeExtractionRunCreate,
+    KnowledgeGymReport,
     KnowledgeIndexEntry,
     KnowledgeIndexEntryCreate,
     KnowledgeIngestionBatch,
@@ -105,6 +106,7 @@ from app.knowledge.service import (
     export_ingestion_batch,
     ingestion_policy,
     interpret_knowledge_query as build_knowledge_query_interpretation,
+    knowledge_gym_report as build_knowledge_gym_report,
     publication_policy,
     query_contract,
     query_knowledge,
@@ -2405,6 +2407,19 @@ class Repository:
         )
         self.session.commit()
         return result
+
+    def knowledge_gym_report(self, version: str = "latest") -> KnowledgeGymReport:
+        resolved_version = self._resolve_knowledge_version(version)
+        if self.session.get(KnowledgeVersionRecord, resolved_version) is None:
+            raise KeyError(resolved_version)
+        return build_knowledge_gym_report(
+            resolved_version,
+            sources=self.list_knowledge_sources(version=resolved_version),
+            nodes=self.list_knowledge_nodes(version=resolved_version),
+            cards=self.list_knowledge_cards(version=resolved_version),
+            claims=self.list_knowledge_claims(version=resolved_version),
+            evidence=self.list_knowledge_evidence(version=resolved_version),
+        )
 
     def list_knowledge_query_history(
         self,

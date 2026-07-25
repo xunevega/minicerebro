@@ -761,6 +761,25 @@ class KnowledgeQueryResult(BaseModel):
     generated_at: str
 
 
+class KnowledgeGymCheck(BaseModel):
+    id: str
+    status: str
+    score: float = Field(ge=0, le=1)
+    summary: str
+    details: dict = Field(default_factory=dict)
+
+
+class KnowledgeGymReport(BaseModel):
+    version: str
+    status: str
+    score: float = Field(ge=0, le=1)
+    checked_card_count: int
+    checked_claim_count: int
+    checked_evidence_count: int
+    checks: list[KnowledgeGymCheck]
+    generated_at: str
+
+
 class KnowledgeQueryHistoryItem(BaseModel):
     event_id: int
     version: str
