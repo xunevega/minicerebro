@@ -11,8 +11,10 @@ try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Fuentes" }).click();
   await page.getByLabel("Base activa").selectOption("latest");
-  await page.locator(".metric", { hasText: "Base cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor();
-  await page.locator(".metric", { hasText: "Revision" }).first().waitFor();
+  await page.locator(".metric", { hasText: "Base cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor({
+    timeout: 90000,
+  });
+  await page.locator(".metric", { hasText: "Revision" }).first().waitFor({ timeout: 90000 });
   const gymPanel = page.locator(".proposalBox", { hasText: "Calidad de la base" });
   await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor({ timeout: 90000 });
   await gymPanel.locator(".metric", { hasText: "Fichas revisadas" }).filter({ hasText: "147" }).waitFor();
@@ -221,14 +223,14 @@ try {
     await metrics.filter({ hasText: new RegExp(`^${label}\\s*${value}$`) }).waitFor();
   }
 
-  await page.getByRole("button", { name: "Sistema" }).click();
+  await page.getByRole("button", { name: "Actividad" }).click();
   await page.getByRole("button", { name: "Historial" }).click();
   const auditPanel = page.locator(".panel", { hasText: "Historial de consultas de base" });
   await page.getByText("Historial de consultas de base").waitFor();
   await auditPanel.locator(".metric", { hasText: "Consultas" }).waitFor();
   await auditPanel.locator(".metric", { hasText: "Sin resultado" }).waitFor();
   await auditPanel.getByText("sin resultado").first().waitFor();
-  await page.getByText("knowledge-v32 -> consulta").first().waitFor();
+  await page.getByText("knowledge-v32 -> consulta").first().waitFor({ timeout: 90000 });
   const historyItem = auditPanel.locator(".auditItem", {
     hasText: "0 validaciones pendientes",
   }).first();

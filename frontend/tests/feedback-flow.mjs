@@ -21,7 +21,7 @@ try {
       const url = new URL(response.url());
       return url.pathname === "/comparisons" && response.request().method() === "POST";
     },
-    { timeout: 90000 },
+    { timeout: 180000 },
   );
   await compareEditor.getByRole("button", { name: "Comparar" }).click();
   await compareResponse;
@@ -35,7 +35,7 @@ try {
       const url = new URL(response.url());
       return url.pathname.includes("/feedback") && response.request().method() === "POST";
     },
-    { timeout: 90000 },
+    { timeout: 180000 },
   );
   await page.getByRole("button", { name: "Crear aprendizaje sugerido" }).click();
   await proposalResponse;

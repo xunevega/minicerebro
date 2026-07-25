@@ -8,15 +8,16 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
-  await page.getByRole("button", { name: "Sistema" }).click();
-  await page.getByRole("button", { name: "Revision Cerebro" }).click();
-  const cerebroPanel = page.locator(".panel", { hasText: "Auditoria Cerebro" });
-  await cerebroPanel.getByText("Auditoria Cerebro").waitFor();
+  await page.getByRole("button", { name: "Actividad" }).click();
+  await page.getByRole("button", { name: "Mostrar tecnico" }).click();
+  await page.getByRole("button", { name: "Cerebro" }).click();
+  const cerebroPanel = page.locator(".panel", { hasText: "Revision de cantera" });
+  await cerebroPanel.getByText("Revision de cantera").waitFor();
   await cerebroPanel.getByText("Bloqueos antes de reutilizar").waitFor();
 
   await page.getByRole("button", { name: "Aceptacion" }).click();
-  const acceptancePanel = page.locator(".panel", { hasText: "Aceptacion V1" });
-  await acceptancePanel.getByText("Aceptacion V1").waitFor();
+  const acceptancePanel = page.locator(".panel", { hasText: "Aceptacion interna" });
+  await acceptancePanel.getByText("Aceptacion interna").waitFor();
 } finally {
   await browser.close();
 }

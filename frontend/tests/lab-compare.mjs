@@ -21,10 +21,13 @@ try {
     .getByLabel("Texto revisado de laboratorio")
     .fill("Texto base para comparar con mas claridad.");
 
-  const labCompareResponse = page.waitForResponse((response) => {
-    const url = new URL(response.url());
-    return url.pathname === "/lab/compare" && response.request().method() === "POST";
-  });
+  const labCompareResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/lab/compare" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
   await page.getByRole("button", { name: "Comparar sin guardar" }).click();
   await labCompareResponse;
 

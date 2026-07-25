@@ -139,13 +139,13 @@ const tabs = [
   { id: "editor", label: "Escribir", icon: FilePenLine },
   { id: "lab", label: "Probar cambios", icon: FlaskConical },
   { id: "compare", label: "Comparar", icon: GitCompare },
-  { id: "rules", label: "Reglas de decision", icon: ShieldCheck },
-  { id: "persistence", label: "Datos guardados", icon: Database },
-  { id: "cerebro", label: "Revision Cerebro", icon: Search },
+  { id: "rules", label: "Criterios", icon: ShieldCheck },
+  { id: "persistence", label: "Datos", icon: Database },
+  { id: "cerebro", label: "Cerebro", icon: Search },
   { id: "acceptance", label: "Aceptacion", icon: ClipboardCheck },
-  { id: "closure", label: "Cierre V1", icon: Flag },
-  { id: "roadmap", label: "Plan tecnico", icon: Route },
-  { id: "screens", label: "Mapa de pantallas", icon: LayoutDashboard },
+  { id: "closure", label: "Cierre", icon: Flag },
+  { id: "roadmap", label: "Plan interno", icon: Route },
+  { id: "screens", label: "Pantallas", icon: LayoutDashboard },
   { id: "audit", label: "Historial", icon: History },
 ] as const;
 
@@ -169,6 +169,8 @@ const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label
 ];
 
 type TabId = (typeof tabs)[number]["id"];
+const systemDefaultTabs: TabId[] = ["audit", "persistence"];
+const systemTechnicalTabs: TabId[] = ["screens", "rules", "closure", "roadmap", "cerebro", "acceptance"];
 
 const mainSections: Array<{
   id: string;
@@ -204,8 +206,8 @@ const mainSections: Array<{
   },
   {
     id: "system",
-    label: "Sistema",
-    description: "Diagnostico, historial, cierre y contrato tecnico.",
+    label: "Actividad",
+    description: "Historial y datos guardados.",
     icon: Database,
     defaultTab: "audit",
     tabs: ["audit", "persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
@@ -256,6 +258,7 @@ export function App() {
   const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
   const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(20);
   const [showKnowledgeTechnical, setShowKnowledgeTechnical] = useState(false);
+  const [showSystemTechnical, setShowSystemTechnical] = useState(false);
   const [selectedKnowledgeQueryEventId, setSelectedKnowledgeQueryEventId] = useState<number | null>(
     null,
   );
@@ -326,7 +329,15 @@ export function App() {
   const activeTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
   const activeSection =
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
-  const activeSectionTabs = tabs.filter((tab) => activeSection.tabs.includes(tab.id));
+  const activeSectionTabs = tabs.filter((tab) => {
+    if (!activeSection.tabs.includes(tab.id)) return false;
+    if (activeSection.id !== "system") return true;
+    return (
+      showSystemTechnical ||
+      systemDefaultTabs.includes(tab.id) ||
+      tab.id === active
+    );
+  });
   const latestPublishedKnowledgeVersion =
     [...knowledgeVersions]
       .filter((version) => version.status === "published")
@@ -338,42 +349,24 @@ export function App() {
 
   useEffect(() => {
     getKnowledgeStatus()
-      .then(async (knowledgeData) => {
+      .then((knowledgeData) => {
         setKnowledge(knowledgeData);
         setLoadedKnowledgeVersion(knowledgeData.version);
-        const [versionData, allSourceData, sourceIngestionStatusData] = await Promise.all([
-          getKnowledgeVersions(),
-          getKnowledgeSources(),
-          getKnowledgeSourceIngestionStatuses(),
-        ]);
-        setKnowledgeVersions(versionData);
-        setAllKnowledgeSources(allSourceData);
-        setKnowledgeSourceIngestionStatuses(sourceIngestionStatusData);
-        return Promise.all([
-          getProfileSummary(),
-          getProfileStatistics(activeContext),
-          getContradictions(activeContext),
-          getScores(activeContext),
-          getProfileKnowledgeCards(),
-          getPreferences(activeContext),
-          getAuditEvents(),
-          getFeedbackProposals(),
-          getV1Screens(),
-          getDecisionRules(),
-          evaluateDecision(activeContext),
-          getPersistenceStatus(),
-          getGeneratedTexts(activeContext),
-          getCerebroAuditCandidates(),
-          getAcceptanceCriteria(),
-          getCerebroAuditGates(),
-          getClosureConditions(),
-          getExpectedResult(),
-          getTechnicalClosure(),
-          getContractBoundaries(),
-          getObservabilityStatus(),
-          getTechnicalRoadmap(),
-        ]);
+        setCandidateBaseVersion((current) => (current === "knowledge-v4" ? knowledgeData.version : current));
       })
+      .catch((nextError: Error) => setError(nextError.message));
+  }, []);
+
+  useEffect(() => {
+    Promise.all([
+      getProfileSummary(),
+      getProfileStatistics(activeContext),
+      getContradictions(activeContext),
+      getScores(activeContext),
+      getProfileKnowledgeCards(),
+      getPreferences(activeContext),
+      getGeneratedTexts(activeContext),
+    ])
       .then(
         ([
           summaryData,
@@ -382,13 +375,101 @@ export function App() {
           scoreData,
           profileKnowledgeCardData,
           preferenceData,
+          textData,
+        ]) => {
+        setSummary(summaryData);
+        setStatistics(statisticsData);
+        setContradictions(contradictionData);
+        setScores(scoreData);
+        setProfileKnowledgeCards(profileKnowledgeCardData);
+        setPreferences(preferenceData);
+        setGeneratedTexts(textData);
+        },
+      )
+      .catch((nextError: Error) => setError(nextError.message));
+  }, [activeContext]);
+
+  useEffect(() => {
+    if (active !== "knowledge") return;
+    getKnowledgeVersions()
+      .then(setKnowledgeVersions)
+      .catch((nextError: Error) => setError(nextError.message));
+    getKnowledgeSources()
+      .then(setAllKnowledgeSources)
+      .catch((nextError: Error) => setError(nextError.message));
+    getKnowledgeSourceIngestionStatuses()
+      .then(setKnowledgeSourceIngestionStatuses)
+      .catch((nextError: Error) => setError(nextError.message));
+  }, [active]);
+
+  useEffect(() => {
+    if (!knowledge || !["knowledge", "audit"].includes(active)) return;
+    setError(null);
+    getKnowledgeGym(effectiveKnowledgeVersion)
+      .then(setKnowledgeGym)
+      .catch((nextError: Error) => setError(nextError.message));
+    getKnowledgeQueryHistory(effectiveKnowledgeVersion)
+      .then(setKnowledgeQueryHistory)
+      .catch((nextError: Error) => setError(nextError.message));
+    getKnowledgeQuerySummary(effectiveKnowledgeVersion)
+      .then(setKnowledgeQuerySummary)
+      .catch((nextError: Error) => setError(nextError.message));
+    Promise.all([
+      getKnowledgeCards(effectiveKnowledgeVersion),
+      getKnowledgeSources(effectiveKnowledgeVersion),
+      getKnowledgeNodes(undefined, effectiveKnowledgeVersion),
+      getKnowledgeEvidence(undefined, effectiveKnowledgeVersion),
+      getKnowledgeClaims(undefined, effectiveKnowledgeVersion),
+    ])
+      .then(
+        ([
+          cardData,
+          sourceData,
+          nodeData,
+          evidenceData,
+          claimData,
+        ]) => {
+          setKnowledgeCards(cardData);
+          setKnowledgeSources(sourceData);
+          setKnowledgeNodes(nodeData);
+          setKnowledgeEvidence(evidenceData);
+          setKnowledgeClaims(claimData);
+          setLoadedKnowledgeVersion(effectiveKnowledgeVersion);
+          if (selectedKnowledgeCardId && !cardData.some((card) => card.id === selectedKnowledgeCardId)) {
+            setSelectedKnowledgeCardId(null);
+          }
+        },
+      )
+      .catch((nextError: Error) => setError(nextError.message));
+  }, [active, effectiveKnowledgeVersion, knowledge, selectedKnowledgeCardId]);
+
+  useEffect(() => {
+    if (activeSection.id !== "system") return;
+    Promise.all([
+      getAuditEvents(),
+      getFeedbackProposals(),
+      getPersistenceStatus(),
+      getV1Screens(),
+      getDecisionRules(),
+      evaluateDecision(activeContext),
+      getCerebroAuditCandidates(),
+      getAcceptanceCriteria(),
+      getCerebroAuditGates(),
+      getClosureConditions(),
+      getExpectedResult(),
+      getTechnicalClosure(),
+      getContractBoundaries(),
+      getObservabilityStatus(),
+      getTechnicalRoadmap(),
+    ])
+      .then(
+        ([
           auditData,
           feedbackData,
+          persistenceData,
           screenData,
           rulesData,
           decisionData,
-          persistenceData,
-          textData,
           cerebroData,
           acceptanceData,
           gateData,
@@ -399,73 +480,25 @@ export function App() {
           observabilityData,
           roadmapData,
         ]) => {
-        setSummary(summaryData);
-        setStatistics(statisticsData);
-        setContradictions(contradictionData);
-        setScores(scoreData);
-        setProfileKnowledgeCards(profileKnowledgeCardData);
-        setPreferences(preferenceData);
-        setAuditEvents(auditData);
-        setFeedbackProposals(feedbackData);
-        setScreens(screenData);
-        setDecisionRules(rulesData);
-        setDecisionEvaluation(decisionData);
-        setPersistenceDomains(persistenceData);
-        setGeneratedTexts(textData);
-        setCerebroCandidates(cerebroData);
-        setAcceptanceCriteria(acceptanceData);
-        setCerebroGates(gateData);
-        setClosureConditions(closureData);
-        setExpectedResult(expectedData);
-        setTechnicalClosure(technicalClosureData);
-        setContractBoundaries(boundaryData);
-        setObservability(observabilityData);
-        setRoadmap(roadmapData);
+          setAuditEvents(auditData);
+          setFeedbackProposals(feedbackData);
+          setPersistenceDomains(persistenceData);
+          setScreens(screenData);
+          setDecisionRules(rulesData);
+          setDecisionEvaluation(decisionData);
+          setCerebroCandidates(cerebroData);
+          setAcceptanceCriteria(acceptanceData);
+          setCerebroGates(gateData);
+          setClosureConditions(closureData);
+          setExpectedResult(expectedData);
+          setTechnicalClosure(technicalClosureData);
+          setContractBoundaries(boundaryData);
+          setObservability(observabilityData);
+          setRoadmap(roadmapData);
         },
       )
       .catch((nextError: Error) => setError(nextError.message));
-  }, [activeContext]);
-
-  useEffect(() => {
-    if (!knowledge) return;
-    setError(null);
-    Promise.all([
-      getKnowledgeCards(effectiveKnowledgeVersion),
-      getKnowledgeSources(effectiveKnowledgeVersion),
-      getKnowledgeNodes(undefined, effectiveKnowledgeVersion),
-      getKnowledgeEvidence(undefined, effectiveKnowledgeVersion),
-      getKnowledgeClaims(undefined, effectiveKnowledgeVersion),
-      getKnowledgeGym(effectiveKnowledgeVersion),
-      getKnowledgeQueryHistory(effectiveKnowledgeVersion),
-      getKnowledgeQuerySummary(effectiveKnowledgeVersion),
-    ])
-      .then(
-        ([
-          cardData,
-          sourceData,
-          nodeData,
-          evidenceData,
-          claimData,
-          gymData,
-          queryHistoryData,
-          querySummaryData,
-        ]) => {
-          setKnowledgeCards(cardData);
-          setKnowledgeSources(sourceData);
-          setKnowledgeNodes(nodeData);
-          setKnowledgeEvidence(evidenceData);
-          setKnowledgeClaims(claimData);
-          setKnowledgeGym(gymData);
-          setKnowledgeQueryHistory(queryHistoryData);
-          setKnowledgeQuerySummary(querySummaryData);
-          setLoadedKnowledgeVersion(effectiveKnowledgeVersion);
-          if (selectedKnowledgeCardId && !cardData.some((card) => card.id === selectedKnowledgeCardId)) {
-            setSelectedKnowledgeCardId(null);
-          }
-        },
-      )
-      .catch((nextError: Error) => setError(nextError.message));
-  }, [effectiveKnowledgeVersion, knowledge]);
+  }, [activeContext, activeSection.id]);
 
   const averageConfidence = useMemo(() => {
     if (scores.length === 0) return 0;
@@ -565,6 +598,10 @@ export function App() {
     () => [...knowledgeVersions].sort((left, right) => knowledgeVersionRank(left.id) - knowledgeVersionRank(right.id)),
     [knowledgeVersions],
   );
+  const candidateBaseVersions =
+    knowledgeVersions.length > 0
+      ? knowledgeVersions
+      : [{ id: loadedKnowledgeVersion, status: knowledge?.state ?? "published" }];
   const sourceExplorerGroups = useMemo(
     () => [
       {
@@ -1334,6 +1371,21 @@ export function App() {
                 </button>
               );
             })}
+            {activeSection.id === "system" ? (
+              <button
+                className={showSystemTechnical ? "subtab active" : "subtab"}
+                onClick={() => {
+                  if (showSystemTechnical && systemTechnicalTabs.includes(active)) {
+                    setActive("audit");
+                  }
+                  setShowSystemTechnical((current) => !current);
+                }}
+                type="button"
+              >
+                <ShieldCheck size={16} />
+                <span>{showSystemTechnical ? "Ocultar tecnico" : "Mostrar tecnico"}</span>
+              </button>
+            ) : null}
           </div>
         ) : null}
 
@@ -1733,7 +1785,7 @@ export function App() {
                   onChange={(event) => setCandidateBaseVersion(event.target.value)}
                   value={candidateBaseVersion}
                 >
-                  {knowledgeVersions.map((version) => (
+                  {candidateBaseVersions.map((version) => (
                     <option key={version.id} value={version.id}>
                       base {version.id}
                     </option>
@@ -2646,7 +2698,7 @@ export function App() {
 
         {active === "screens" && (
           <section className="panel">
-            <h2>Pantallas V1</h2>
+            <h2>Pantallas internas</h2>
             <div className="knowledgeGrid">
               {screens.map((screen) => (
                 <article className="knowledgeItem" key={screen.id}>
@@ -2723,7 +2775,7 @@ export function App() {
         {active === "persistence" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Dominios persistidos</h2>
+              <h2>Datos guardados</h2>
               <div className="knowledgeGrid">
                 {persistenceDomains.map((domain) => (
                   <article className="knowledgeItem" key={domain.id}>
@@ -2760,7 +2812,7 @@ export function App() {
 
         {active === "cerebro" && (
           <section className="panel">
-            <h2>Auditoria Cerebro</h2>
+            <h2>Revision de cantera</h2>
             <div className="knowledgeGrid">
               {cerebroCandidates.map((candidate) => (
                 <article className="knowledgeItem" key={candidate.component}>
@@ -2781,7 +2833,7 @@ export function App() {
 
         {active === "acceptance" && (
           <section className="panel">
-            <h2>Aceptacion V1</h2>
+            <h2>Aceptacion interna</h2>
             <div className="auditList">
               {acceptanceCriteria.map((criterion) => (
                 <article className="auditItem" key={criterion.id}>
@@ -2817,7 +2869,7 @@ export function App() {
               </div>
             </div>
             <div className="inspector">
-              <h2>Cierre tecnico</h2>
+              <h2>Cierre interno</h2>
               <div className="auditList">
                 {technicalClosure.map((criterion) => (
                   <article className="auditItem" key={criterion.id}>
@@ -2856,7 +2908,7 @@ export function App() {
         {active === "roadmap" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Roadmap tecnico</h2>
+              <h2>Plan interno</h2>
               <div className="knowledgeGrid">
                 {roadmap.map((phase) => (
                   <article className="knowledgeItem" key={phase.id}>
