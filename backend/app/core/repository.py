@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from datetime import UTC, datetime
+from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from uuid import UUID, uuid4
 
@@ -1144,7 +1144,7 @@ class Repository:
             raise ValueError(
                 "Knowledge version is not publishable: " + ", ".join(readiness.blockers)
             )
-        now = datetime.now(UTC).isoformat()
+        now = self._next_publication_timestamp()
         promoted = self._promote_snapshot_to_published(snapshot, payload.version, now)
         record.status = "published"
         record.published_at = now
@@ -1170,6 +1170,25 @@ class Repository:
         )
         self.session.commit()
         return knowledge_version_from_record(record, self)
+
+    def _next_publication_timestamp(self) -> str:
+        now = datetime.now(UTC)
+        latest = self.session.scalars(
+            select(KnowledgeVersionRecord)
+            .where(KnowledgeVersionRecord.status == "published")
+            .order_by(KnowledgeVersionRecord.published_at.desc(), KnowledgeVersionRecord.id.desc())
+        ).first()
+        if latest is None:
+            return now.isoformat()
+        try:
+            latest_published_at = datetime.fromisoformat(latest.published_at)
+        except ValueError:
+            return now.isoformat()
+        if latest_published_at.tzinfo is None:
+            latest_published_at = latest_published_at.replace(tzinfo=UTC)
+        if now <= latest_published_at:
+            now = latest_published_at + timedelta(microseconds=1)
+        return now.isoformat()
 
     def _promote_snapshot_to_published(
         self,

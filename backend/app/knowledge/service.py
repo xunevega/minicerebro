@@ -67,7 +67,8 @@ KNOWLEDGE_V29_VERSION = "knowledge-v29"
 KNOWLEDGE_V30_VERSION = "knowledge-v30"
 KNOWLEDGE_V31_VERSION = "knowledge-v31"
 KNOWLEDGE_V32_VERSION = "knowledge-v32"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v33"
+KNOWLEDGE_V33_VERSION = "knowledge-v33"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v34"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -102,6 +103,7 @@ KNOWLEDGE_V30_PUBLISHED_AT = "2026-07-24T05:00:00+00:00"
 KNOWLEDGE_V31_PUBLISHED_AT = "2026-07-24T06:00:00+00:00"
 KNOWLEDGE_V32_PUBLISHED_AT = "2026-07-24T07:00:00+00:00"
 KNOWLEDGE_V33_PUBLISHED_AT = "2026-07-25T08:00:00+00:00"
+KNOWLEDGE_V34_PUBLISHED_AT = "2026-07-26T08:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -5764,6 +5766,194 @@ V33_SEED_ITEMS = [
     },
 ]
 
+V34_SEED_ITEMS = [
+    {
+        "key": "sinonimo-prudente",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:sinonimo-prudente",
+        "index_title": "Sinonimo prudente",
+        "index_locator": "Edicion de referencia > sinonimia > sustitucion prudente",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:sinonimo-prudente:seg-1",
+        "segment_title": "Sustituir sin perder sentido",
+        "segment_text": "Resumen editorial minimo: un sinonimo solo conviene si conserva matiz, registro, regimen y contexto; no basta con que comparta una zona de significado.",
+        "extraction_id": "ext-diccionario-sinonimos-antonimos-sinonimo-prudente-1",
+        "node_id": "diccionario-sinonimos-sinonimo-prudente",
+        "canonical_name": "Sinonimo prudente",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "sinonimia",
+        "node_summary": "Criterio para sustituir una palabra sin traicionar sentido, tono ni construccion.",
+        "short_definition": "Uso de sinonimos condicionado por matiz, registro y contexto sintactico.",
+        "aliases": ["sustitucion sinonimica", "sinonimia prudente"],
+        "relation_target": "diccionario-sinonimos-sinonimia-contextual",
+        "relation_type": "depende_de",
+        "card_id": "card-sinonimo-prudente",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Sinonimo prudente",
+        "card_definition": "Criterio para cambiar una palabra solo si el sustituto mantiene sentido, tono y encaje.",
+        "signals": ["matiz", "registro", "regimen"],
+        "risks": ["sustituir por variedad y cambiar el sentido"],
+        "contexts": ["revision lexica", "reescritura", "precision"],
+        "evidence_id": "ev-diccionario-sinonimos-sinonimo-prudente",
+        "evidence_section": "sinonimo prudente",
+        "confidence": 0.61,
+        "claim_id": "claim-diccionario-sinonimos-sinonimo-prudente",
+        "statement": "El sinonimo prudente solo debe sustituir una palabra si conserva matiz, registro, regimen y contexto.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.synonymy",
+        "related_node_ids": ["diccionario-sinonimos-sinonimia-contextual", "casares-matiz-lexico"],
+    },
+    {
+        "key": "sustitucion-contextual",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:sustitucion-contextual",
+        "index_title": "Sustitucion contextual",
+        "index_locator": "Edicion de referencia > idea dada > sustitucion contextual",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:sustitucion-contextual:seg-1",
+        "segment_title": "Cambiar palabra desde la idea del texto",
+        "segment_text": "Resumen editorial minimo: la sustitucion contextual parte de la idea que se quiere decir y comprueba si la palabra nueva encaja con el campo semantico y la frase.",
+        "extraction_id": "ext-casares-diccionario-ideologico-sustitucion-contextual-1",
+        "node_id": "casares-sustitucion-contextual",
+        "canonical_name": "Sustitucion contextual",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "idea dada",
+        "node_summary": "Criterio para buscar una palabra desde la idea y no desde una equivalencia mecanica.",
+        "short_definition": "Sustitucion guiada por la idea, el campo semantico y la frase concreta.",
+        "aliases": ["sustitucion por contexto", "eleccion contextual"],
+        "relation_target": "casares-idea-dada",
+        "relation_type": "usa",
+        "card_id": "card-sustitucion-contextual",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Sustitucion contextual",
+        "card_definition": "Criterio para cambiar una palabra mirando primero la idea que el texto necesita decir.",
+        "signals": ["idea dada", "campo semantico", "frase"],
+        "risks": ["elegir una palabra bonita que no pertenece a la idea del texto"],
+        "contexts": ["revision", "precision lexica", "reescritura"],
+        "evidence_id": "ev-casares-sustitucion-contextual",
+        "evidence_section": "sustitucion contextual",
+        "confidence": 0.61,
+        "claim_id": "claim-casares-sustitucion-contextual",
+        "statement": "La sustitucion contextual debe partir de la idea del texto y comprobar campo semantico, matiz y encaje en la frase.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.contextual_choice",
+        "related_node_ids": ["casares-idea-dada", "casares-campo-semantico"],
+    },
+    {
+        "key": "antonimo-de-contraste",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimo-de-contraste",
+        "index_title": "Antonimo de contraste",
+        "index_locator": "Edicion de referencia > antonimia > contraste expresivo",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimo-de-contraste:seg-1",
+        "segment_title": "Contrastar para precisar",
+        "segment_text": "Resumen editorial minimo: el antonimo puede aclarar una idea cuando muestra el contraste pertinente, pero no debe forzar oposiciones que el texto no necesita.",
+        "extraction_id": "ext-diccionario-sinonimos-antonimos-antonimo-de-contraste-1",
+        "node_id": "diccionario-sinonimos-antonimo-de-contraste",
+        "canonical_name": "Antonimo de contraste",
+        "node_type": "recurso",
+        "primary_branch": "lexico",
+        "secondary_branch": "antonimia",
+        "node_summary": "Uso del contrario para definir mejor una idea o tension de sentido.",
+        "short_definition": "Contraste lexico usado para aclarar o enfatizar una diferencia pertinente.",
+        "aliases": ["contraste lexico", "oposicion pertinente"],
+        "relation_target": "diccionario-sinonimos-antonimia-gradual",
+        "relation_type": "ejemplifica",
+        "card_id": "card-antonimo-de-contraste",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Antonimo de contraste",
+        "card_definition": "Criterio para usar el contrario cuando ayuda a precisar una idea, no como adorno.",
+        "signals": ["contraste", "oposicion", "enfasis"],
+        "risks": ["crear una oposicion artificial que endurece el texto"],
+        "contexts": ["argumentacion", "revision lexica", "estilo"],
+        "evidence_id": "ev-diccionario-sinonimos-antonimo-de-contraste",
+        "evidence_section": "antonimo de contraste",
+        "confidence": 0.6,
+        "claim_id": "claim-diccionario-sinonimos-antonimo-de-contraste",
+        "statement": "El antonimo de contraste ayuda a precisar una idea cuando la oposicion es pertinente y mejora la lectura.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.antonymy",
+        "related_node_ids": ["diccionario-sinonimos-antonimia-gradual", "aristoteles-antitesis-argumentativa"],
+    },
+    {
+        "key": "familia-lexica-aplicada",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:familia-lexica-aplicada",
+        "index_title": "Familia lexica",
+        "index_locator": "Edicion de referencia > relaciones de ideas > familia lexica",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:familia-lexica-aplicada:seg-1",
+        "segment_title": "Variar sin abandonar la familia de sentido",
+        "segment_text": "Resumen editorial minimo: la familia lexica permite variar palabras manteniendo parentesco de sentido, siempre que la repeticion o derivacion no vuelva pesada la frase.",
+        "extraction_id": "ext-casares-diccionario-ideologico-familia-lexica-aplicada-1",
+        "node_id": "casares-familia-lexica-aplicada",
+        "canonical_name": "Familia lexica aplicada",
+        "node_type": "concepto",
+        "primary_branch": "lexico",
+        "secondary_branch": "relaciones lexicas",
+        "node_summary": "Criterio para mantener continuidad de sentido mediante palabras relacionadas.",
+        "short_definition": "Conjunto de palabras emparentadas que permite continuidad o variacion controlada.",
+        "aliases": ["familia de palabras", "derivacion lexica"],
+        "relation_target": "casares-familia-lexica",
+        "relation_type": "deriva_de",
+        "card_id": "card-familia-lexica-aplicada",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Familia lexica aplicada",
+        "card_definition": "Criterio para variar una palabra sin perder continuidad de sentido.",
+        "signals": ["derivacion", "continuidad", "parentesco lexico"],
+        "risks": ["encadenar derivados y producir monotonia o pesadez"],
+        "contexts": ["cohesion", "revision", "estilo"],
+        "evidence_id": "ev-casares-familia-lexica-aplicada",
+        "evidence_section": "familia lexica",
+        "confidence": 0.6,
+        "claim_id": "claim-casares-familia-lexica-aplicada",
+        "statement": "La familia lexica permite continuidad o variacion si conserva sentido y no vuelve pesada la frase.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.word_family",
+        "related_node_ids": ["casares-familia-lexica", "cassany-repeticion-lexica-funcional"],
+    },
+    {
+        "key": "campo-semantico-operativo",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:campo-semantico-operativo",
+        "index_title": "Campo semantico operativo",
+        "index_locator": "Edicion de referencia > campo semantico > uso editorial",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:campo-semantico-operativo:seg-1",
+        "segment_title": "Elegir desde la zona de sentido",
+        "segment_text": "Resumen editorial minimo: el campo semantico ayuda a elegir palabras coherentes con una zona de sentido y a detectar intrusiones lexicas que desentonan.",
+        "extraction_id": "ext-casares-diccionario-ideologico-campo-semantico-operativo-1",
+        "node_id": "casares-campo-semantico-operativo",
+        "canonical_name": "Campo semantico operativo",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "campo semantico",
+        "node_summary": "Uso del campo semantico para orientar eleccion y coherencia lexical.",
+        "short_definition": "Zona de sentido que guia palabras compatibles y alerta de intrusiones.",
+        "aliases": ["zona semantica", "coherencia lexica"],
+        "relation_target": "casares-campo-semantico",
+        "relation_type": "usa",
+        "card_id": "card-campo-semantico-operativo",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Campo semantico operativo",
+        "card_definition": "Criterio para elegir palabras que pertenecen a la misma zona de sentido del texto.",
+        "signals": ["zona de sentido", "coherencia", "intrusion lexica"],
+        "risks": ["mezclar campos sin efecto expresivo claro"],
+        "contexts": ["revision lexica", "cohesion", "precision"],
+        "evidence_id": "ev-casares-campo-semantico-operativo",
+        "evidence_section": "campo semantico operativo",
+        "confidence": 0.61,
+        "claim_id": "claim-casares-campo-semantico-operativo",
+        "statement": "El campo semantico operativo orienta la eleccion de palabras coherentes y detecta intrusiones que desentonan.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.semantic_field",
+        "related_node_ids": ["casares-campo-semantico", "casares-sustitucion-contextual"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -7113,7 +7303,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V30_VERSION: "seed_applied_creative_narratology_batch",
     KNOWLEDGE_V31_VERSION: "seed_creative_scene_practice_batch",
     KNOWLEDGE_V32_VERSION: "seed_creative_revision_practice_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_applied_lexical_precision_batch",
+    KNOWLEDGE_V33_VERSION: "seed_applied_lexical_precision_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_applied_synonymy_choice_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -7141,7 +7332,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V30_VERSION: KNOWLEDGE_V30_PUBLISHED_AT,
     KNOWLEDGE_V31_VERSION: KNOWLEDGE_V31_PUBLISHED_AT,
     KNOWLEDGE_V32_VERSION: KNOWLEDGE_V32_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V33_PUBLISHED_AT,
+    KNOWLEDGE_V33_VERSION: KNOWLEDGE_V33_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V34_PUBLISHED_AT,
 }
 
 
@@ -8590,6 +8782,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V31_SEED_ITEMS),
         *_published_batch_index_entries(V32_SEED_ITEMS),
         *_published_batch_index_entries(V33_SEED_ITEMS),
+        *_published_batch_index_entries(V34_SEED_ITEMS),
     ]
 
 
@@ -8718,6 +8911,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V31_SEED_ITEMS),
         *_published_batch_segments(V32_SEED_ITEMS),
         *_published_batch_segments(V33_SEED_ITEMS),
+        *_published_batch_segments(V34_SEED_ITEMS),
     ]
 
 
@@ -8865,7 +9059,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_extraction_runs(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_extraction_runs(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_extraction_runs(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_extraction_runs(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9542,7 +9737,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_proposals(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_proposals(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_proposals(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_proposals(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9718,7 +9914,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_nodes(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_nodes(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_nodes(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_nodes(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -9856,7 +10053,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_node_relations(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_node_relations(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_node_relations(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_node_relations(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10223,7 +10421,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_evidence(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_evidence(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_evidence(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_evidence(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10490,7 +10689,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_claims(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_claims(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_claims(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_claims(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10577,7 +10777,7 @@ def seed_cards() -> list[KnowledgeCard]:
             confidence=0.5,
             version=KNOWLEDGE_VERSION,
             payload={
-                "signals": ["adjetivacion medida", "tono estable", "poca hipérbole"],
+                "signals": ["adjetivacion medida", "tono estable", "poca hiperbole"],
                 "risks": ["sequedad", "falta de energia"],
                 "contexts": ["ensayo", "tecnico"],
             },
@@ -10678,7 +10878,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V30_SEED_ITEMS, KNOWLEDGE_V30_VERSION),
         *_published_batch_cards(V31_SEED_ITEMS, KNOWLEDGE_V31_VERSION),
         *_published_batch_cards(V32_SEED_ITEMS, KNOWLEDGE_V32_VERSION),
-        *_published_batch_cards(V33_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V33_SEED_ITEMS, KNOWLEDGE_V33_VERSION),
+        *_published_batch_cards(V34_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11464,8 +11665,8 @@ def seed_versions() -> list[KnowledgeVersion]:
     v32_evidence = [evidence for evidence in seed_evidence() if evidence.version in v32_chain]
     v32_claims = [claim for claim in seed_claims() if claim.version in v32_chain]
     v32_cards = [card for card in seed_cards() if card.version in v32_chain]
-    latest_chain = {*v32_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_sources = [
+    v33_chain = {*v32_chain, KNOWLEDGE_V33_VERSION}
+    v33_sources = [
         source
         for source in seed_sources()
         if source.id in {
@@ -11495,7 +11696,44 @@ def seed_versions() -> list[KnowledgeVersion]:
             *{item["source_id"] for item in V33_SEED_ITEMS},
         }
     ]
-    latest_node_ids = {*v32_node_ids, *{item["node_id"] for item in V33_SEED_ITEMS}}
+    v33_node_ids = {*v32_node_ids, *{item["node_id"] for item in V33_SEED_ITEMS}}
+    v33_nodes = [node for node in seed_nodes() if node.id in v33_node_ids]
+    v33_evidence = [evidence for evidence in seed_evidence() if evidence.version in v33_chain]
+    v33_claims = [claim for claim in seed_claims() if claim.version in v33_chain]
+    v33_cards = [card for card in seed_cards() if card.version in v33_chain]
+    latest_chain = {*v33_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_sources = [
+        source
+        for source in seed_sources()
+        if source.id in {
+            *v7_source_ids,
+            *{item["source_id"] for item in V11_SEED_ITEMS},
+            *{item["source_id"] for item in V12_SEED_ITEMS},
+            *{item["source_id"] for item in V13_SEED_ITEMS},
+            *{item["source_id"] for item in V14_SEED_ITEMS},
+            *{item["source_id"] for item in V15_SEED_ITEMS},
+            *{item["source_id"] for item in V16_SEED_ITEMS},
+            *{item["source_id"] for item in V17_SEED_ITEMS},
+            *{item["source_id"] for item in V18_SEED_ITEMS},
+            *{item["source_id"] for item in V19_SEED_ITEMS},
+            *{item["source_id"] for item in V20_SEED_ITEMS},
+            *{item["source_id"] for item in V21_SEED_ITEMS},
+            *{item["source_id"] for item in V22_SEED_ITEMS},
+            *{item["source_id"] for item in V23_SEED_ITEMS},
+            *{item["source_id"] for item in V24_SEED_ITEMS},
+            *{item["source_id"] for item in V25_SEED_ITEMS},
+            *{item["source_id"] for item in V26_SEED_ITEMS},
+            *{item["source_id"] for item in V27_SEED_ITEMS},
+            *{item["source_id"] for item in V28_SEED_ITEMS},
+            *{item["source_id"] for item in V29_SEED_ITEMS},
+            *{item["source_id"] for item in V30_SEED_ITEMS},
+            *{item["source_id"] for item in V31_SEED_ITEMS},
+            *{item["source_id"] for item in V32_SEED_ITEMS},
+            *{item["source_id"] for item in V33_SEED_ITEMS},
+            *{item["source_id"] for item in V34_SEED_ITEMS},
+        }
+    ]
+    latest_node_ids = {*v33_node_ids, *{item["node_id"] for item in V34_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -11832,9 +12070,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v32_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V33_VERSION,
             status="published",
             published_at=KNOWLEDGE_V33_PUBLISHED_AT,
+            source_count=len(v33_sources),
+            node_count=len(v33_nodes),
+            evidence_count=len(v33_evidence),
+            claim_count=len(v33_claims),
+            card_count=len(v33_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V34_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -12239,6 +12487,8 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V29_VERSION,
             KNOWLEDGE_V30_VERSION,
             KNOWLEDGE_V31_VERSION,
+            KNOWLEDGE_V32_VERSION,
+            KNOWLEDGE_V33_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
