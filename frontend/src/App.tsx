@@ -366,6 +366,10 @@ export function App() {
     "knowledge-v0";
   const effectiveKnowledgeVersion =
     selectedKnowledgeVersion === "latest" ? latestPublishedKnowledgeVersion : selectedKnowledgeVersion;
+  const loadedKnowledgeVersionLabel = knowledgeVersionPublicLabel(
+    loadedKnowledgeVersion,
+    latestPublishedKnowledgeVersion,
+  );
 
   useEffect(() => {
     getKnowledgeStatus()
@@ -1453,22 +1457,22 @@ export function App() {
           <section className="panel">
             <h2>Base de escritura</h2>
             <div className="versionToolbar">
-              <label htmlFor="knowledgeVersionSelect">Base activa</label>
+              <label htmlFor="knowledgeVersionSelect">Vista</label>
               <select
                 id="knowledgeVersionSelect"
                 onChange={(event) => setSelectedKnowledgeVersion(event.target.value)}
                 value={selectedKnowledgeVersion}
               >
-                <option value="latest">latest ({latestPublishedKnowledgeVersion})</option>
+                <option value="latest">Base publicada actual</option>
                 {knowledgeVersions.map((version) => (
                   <option key={version.id} value={version.id}>
-                    {version.id} · {version.status}
+                    {knowledgeVersionPublicLabel(version.id, latestPublishedKnowledgeVersion)}
                   </option>
                 ))}
               </select>
             </div>
             <div className="metricGrid">
-              <Metric label="Base cargada" value={loadedKnowledgeVersion} />
+              <Metric label="Base lista" value={loadedKnowledgeVersionLabel} />
               <Metric
                 label="Estado"
                 value={
@@ -1599,6 +1603,10 @@ export function App() {
               <>
             <div className="proposalBox">
               <h3>Versiones de la base</h3>
+              <p className="note">
+                Detalle tecnico de versiones: se muestra aqui para trazabilidad y recuperacion
+                historica, no como recorrido normal de lectura.
+              </p>
               <div className="versionList">
                 {orderedKnowledgeVersions.map((version, index) => {
                   const previousVersion = orderedKnowledgeVersions[index - 1] ?? null;
@@ -3554,6 +3562,20 @@ function knowledgeVersionRank(versionId: string) {
     return Number.MAX_SAFE_INTEGER;
   }
   return Number.parseInt(match[1], 10);
+}
+
+function knowledgeVersionPublicLabel(versionId: string, latestVersionId: string) {
+  if (versionId === latestVersionId) {
+    return "Base publicada actual";
+  }
+  const rank = knowledgeVersionRank(versionId);
+  if (rank === 0) {
+    return "Base inicial congelada";
+  }
+  if (rank !== Number.MAX_SAFE_INTEGER) {
+    return `Base historica ${rank}`;
+  }
+  return "Base historica";
 }
 
 function versionChangeBadges(version: KnowledgeVersion, previousVersion: KnowledgeVersion | null) {

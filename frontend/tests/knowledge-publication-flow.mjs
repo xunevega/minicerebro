@@ -14,7 +14,7 @@ try {
     has: page.getByRole("heading", { name: /^Publicacion tecnica$/ }),
   });
   await panel.getByText("Crear candidato congela una version revisable.").waitFor();
-  await page.locator(".metric", { hasText: "Base cargada" }).filter({ hasText: "knowledge-v32" }).first().waitFor({
+  await page.locator(".metric", { hasText: "Base lista" }).filter({ hasText: "Base publicada actual" }).first().waitFor({
     timeout: 90000,
   });
 
