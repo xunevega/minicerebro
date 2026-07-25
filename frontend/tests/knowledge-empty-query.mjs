@@ -14,7 +14,7 @@ try {
   await page.locator(".metric", { hasText: "Base lista" }).filter({ hasText: "Base publicada actual" }).first().waitFor({
     timeout: 90000,
   });
-  await page.locator(".metric", { hasText: "Revision" }).first().waitFor({ timeout: 90000 });
+  await page.locator(".metric", { hasText: "Por revisar" }).first().waitFor({ timeout: 90000 });
   const libraryPanel = page.locator(".proposalBox", { hasText: "Estanterias" });
   await libraryPanel.getByText("Orden bibliotecario").waitFor();
   await libraryPanel.locator(".statusPill", { hasText: "147 fichas" }).waitFor();
@@ -29,7 +29,7 @@ try {
   await libraryPanel.getByText(/nivel: /).first().waitFor();
   const gymPanel = page.locator(".proposalBox", { hasText: "Calidad de la base" });
   await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor({ timeout: 90000 });
-  await gymPanel.locator(".metric", { hasText: "Fichas revisadas" }).filter({ hasText: "147" }).waitFor();
+  await gymPanel.locator(".metric", { hasText: "Fichas" }).filter({ hasText: "147" }).waitFor();
   await gymPanel.locator("strong", { hasText: /^Precision$/ }).waitFor();
   await gymPanel.locator("strong", { hasText: /^Trazabilidad$/ }).waitFor();
   await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();

@@ -188,7 +188,7 @@ type LibraryClassification = {
 };
 
 type TabId = (typeof tabs)[number]["id"];
-const systemDefaultTabs: TabId[] = ["audit", "persistence"];
+const systemDefaultTabs: TabId[] = ["persistence"];
 const systemTechnicalTabs: TabId[] = ["screens", "rules", "closure", "roadmap", "cerebro", "acceptance"];
 
 const mainSections: Array<{
@@ -224,12 +224,20 @@ const mainSections: Array<{
     tabs: ["knowledge"],
   },
   {
-    id: "system",
+    id: "history",
     label: "Historial",
-    description: "Historial, datos guardados y panel tecnico.",
+    description: "Consultas y cambios hechos en la app.",
     icon: Database,
     defaultTab: "audit",
-    tabs: ["audit", "persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
+    tabs: ["audit"],
+  },
+  {
+    id: "technical",
+    label: "Sistema",
+    description: "Datos guardados y controles internos.",
+    icon: ShieldCheck,
+    defaultTab: "persistence",
+    tabs: ["persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
   },
 ];
 
@@ -351,7 +359,7 @@ export function App() {
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
   const activeSectionTabs = tabs.filter((tab) => {
     if (!activeSection.tabs.includes(tab.id)) return false;
-    if (activeSection.id !== "system") return true;
+    if (activeSection.id !== "technical") return true;
     return (
       showSystemTechnical ||
       systemDefaultTabs.includes(tab.id) ||
@@ -468,7 +476,7 @@ export function App() {
   }, [active, effectiveKnowledgeVersion, knowledge, selectedKnowledgeCardId]);
 
   useEffect(() => {
-    if (activeSection.id !== "system") return;
+    if (!["history", "technical"].includes(activeSection.id)) return;
     Promise.all([
       getAuditEvents(),
       getFeedbackProposals(),
@@ -1417,7 +1425,7 @@ export function App() {
           </div>
         </header>
 
-        {activeSectionTabs.length > 1 ? (
+        {activeSectionTabs.length > 1 || activeSection.id === "technical" ? (
           <div className="subnav" aria-label={`Secciones de ${activeSection.label}`}>
             {activeSectionTabs.map((tab) => {
               const Icon = tab.icon;
@@ -1433,7 +1441,7 @@ export function App() {
                 </button>
               );
             })}
-            {activeSection.id === "system" ? (
+            {activeSection.id === "technical" ? (
               <button
                 className={showSystemTechnical ? "subtab active" : "subtab"}
                 onClick={() => {
@@ -1476,13 +1484,15 @@ export function App() {
               <Metric
                 label="Estado"
                 value={
-                  knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
-                    ?.status ?? knowledge?.state ?? "..."
+                  knowledgeStatePublicLabel(
+                    knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
+                      ?.status ?? knowledge?.state,
+                  )
                 }
               />
-              <Metric label="Areas" value={`${knowledge?.coverage.length ?? 0} areas`} />
-              <Metric label="Revision" value={`${pendingKnowledgeValidationCount} pendientes`} />
-              <Metric label="Pendientes" value={registeredOnlySourceCount} />
+              <Metric label="Materias" value={`${knowledge?.coverage.length ?? 0} areas`} />
+              <Metric label="Por revisar" value={`${pendingKnowledgeValidationCount} pendientes`} />
+              <Metric label="Fuentes pendientes" value={registeredOnlySourceCount} />
             </div>
             <p className="note">{knowledge?.sources_policy}</p>
             <div className="proposalBox">
@@ -1560,11 +1570,17 @@ export function App() {
               {knowledgeGym ? (
                 <>
                   <div className="metricGrid">
-                    <Metric label="Version" value={knowledgeGym.version} />
-                    <Metric label="Score" value={`${Math.round(knowledgeGym.score * 100)}%`} />
-                    <Metric label="Fichas revisadas" value={knowledgeGym.checked_card_count} />
-                    <Metric label="Claims revisados" value={knowledgeGym.checked_claim_count} />
-                    <Metric label="Evidencias revisadas" value={knowledgeGym.checked_evidence_count} />
+                    <Metric
+                      label="Base"
+                      value={knowledgeVersionPublicLabel(
+                        knowledgeGym.version,
+                        latestPublishedKnowledgeVersion,
+                      )}
+                    />
+                    <Metric label="Salud" value={`${Math.round(knowledgeGym.score * 100)}%`} />
+                    <Metric label="Fichas" value={knowledgeGym.checked_card_count} />
+                    <Metric label="Ideas" value={knowledgeGym.checked_claim_count} />
+                    <Metric label="Apoyos" value={knowledgeGym.checked_evidence_count} />
                   </div>
                   <div className="gymCheckGrid">
                     {knowledgeGym.checks.map((check) => (
@@ -2286,7 +2302,7 @@ export function App() {
                     <Metric label="Ideas" value={knowledgeResult.claim_count} />
                     <Metric label="Apoyos" value={knowledgeResult.evidence_count} />
                     <Metric
-                      label="Revision"
+                      label="Por revisar"
                       value={`${
                         [
                           ...knowledgeResult.cards,
@@ -2374,7 +2390,7 @@ export function App() {
                 </>
               ) : null}
             </div>
-            <List title="Areas cubiertas" items={knowledge?.coverage ?? []} />
+            <List title="Materias cubiertas" items={knowledge?.coverage ?? []} />
             <List title="Limites actuales" items={knowledge?.gaps ?? []} />
           </section>
         )}
@@ -3170,7 +3186,7 @@ export function App() {
               )}
             </div>
             <div className="auditSection">
-              <h2>Eventos recientes</h2>
+              <h2>Actividad reciente</h2>
               <div className="rowActions">
                 <select
                   aria-label="Filtro auditoria"
@@ -3191,14 +3207,18 @@ export function App() {
                   {auditEvents.map((event) => (
                     <article className="auditItem" key={event.id}>
                       <div>
-                        <strong>{event.event_type}</strong>
+                        <strong>{auditEventPublicLabel(event.event_type)}</strong>
                         <span>
-                          {event.entity_type} · {event.entity_id}
+                          {auditEntityPublicLabel(event.entity_type)} · {event.entity_id}
                         </span>
                         <KnowledgeAuditTrace event={event} />
                       </div>
                       <time>{formatDate(event.created_at)}</time>
-                      <pre>{JSON.stringify(event.payload, null, 2)}</pre>
+                      <details className="queryTraceBox">
+                        <summary>Ver detalle tecnico</summary>
+                        <pre>{event.event_type}</pre>
+                        <pre>{JSON.stringify(event.payload, null, 2)}</pre>
+                      </details>
                     </article>
                   ))}
                 </div>
@@ -3216,6 +3236,31 @@ function formatDate(value: string) {
     dateStyle: "short",
     timeStyle: "medium",
   }).format(new Date(value));
+}
+
+function auditEventPublicLabel(eventType: string) {
+  const labels: Record<string, string> = {
+    "knowledge.query.executed": "Consulta en la biblioteca",
+    "preference.created": "Gusto aprendido",
+    "preference.reinforced": "Gusto reforzado",
+    "score.updated": "Ajuste cambiado",
+    "text.generated": "Texto generado",
+    "feedback.created": "Feedback guardado",
+    "profile.knowledge_card.updated": "Ficha personal actualizada",
+  };
+  return labels[eventType] ?? "Actividad registrada";
+}
+
+function auditEntityPublicLabel(entityType: string) {
+  const labels: Record<string, string> = {
+    knowledge_version: "base",
+    preference: "gusto",
+    score: "ajuste",
+    generated_text: "texto",
+    feedback: "feedback",
+    profile_knowledge_card: "ficha",
+  };
+  return labels[entityType] ?? entityType;
 }
 
 function groupBy<T>(items: T[], keyFor: (item: T) => string) {
@@ -3576,6 +3621,19 @@ function knowledgeVersionPublicLabel(versionId: string, latestVersionId: string)
     return `Base historica ${rank}`;
   }
   return "Base historica";
+}
+
+function knowledgeStatePublicLabel(state?: string) {
+  const labels: Record<string, string> = {
+    published: "Lista",
+    validated: "Revisada",
+    candidate: "En revision",
+    draft: "Borrador",
+    seed: "Inicial",
+    deprecated: "Retirada",
+    archived: "Archivada",
+  };
+  return state ? (labels[state] ?? state) : "...";
 }
 
 function versionChangeBadges(version: KnowledgeVersion, previousVersion: KnowledgeVersion | null) {
