@@ -187,11 +187,10 @@ try {
   });
   await complementoClaim.getByRole("button", { name: "Ver ficha" }).click();
   const selectedCard = page.locator(".proposalBox", {
-    has: page.getByRole("heading", { name: /^Ficha$/ }),
+    has: page.getByRole("heading", { name: /^Ficha editorial$/ }),
   });
   await selectedCard.locator("article.knowledgeItem > strong", { hasText: "Complemento directo" }).waitFor();
   await selectedCard.getByText("Nueva gramatica de la lengua espanola").waitFor();
-  await selectedCard.getByText("Manual 2010").waitFor();
   await selectedCard.getByText("Validacion pendiente").first().waitFor();
 
   const queryPanel = page.locator(".proposalBox", {

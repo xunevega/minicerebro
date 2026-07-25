@@ -587,6 +587,15 @@ export function App() {
           item.knowledge_version === selectedKnowledgeCard.version,
       ) ?? null)
     : null;
+  const selectedKnowledgeCardClaims = selectedKnowledgeCard
+    ? (claimsByCard.get(selectedKnowledgeCard.id) ?? [])
+    : [];
+  const selectedKnowledgeCardEvidence = selectedKnowledgeCardClaims
+    .map((claim) => evidenceById.get(claim.evidence_id))
+    .filter((item): item is KnowledgeEvidenceItem => Boolean(item));
+  const selectedKnowledgeCardSources = selectedKnowledgeCardEvidence
+    .map((item) => sourceById.get(item.source_id))
+    .filter((item): item is KnowledgeSource => Boolean(item));
   const pendingKnowledgeValidationCount = useMemo(
     () =>
       [...knowledgeCards, ...knowledgeClaims, ...knowledgeEvidence].filter(
@@ -1553,6 +1562,212 @@ export function App() {
                 </p>
               ) : null}
             </div>
+            {selectedKnowledgeCard ? (
+              <div className="proposalBox">
+                <div className="versionHeader">
+                  <div>
+                    <h3>Ficha editorial</h3>
+                    <p className="note">
+                      Una ficha es una ayuda de escritura: resume una idea util y conserva sus
+                      apoyos sin mezclarla con tus gustos personales.
+                    </p>
+                  </div>
+                  <button
+                    className="ghostButton"
+                    onClick={() => setSelectedKnowledgeCardId(null)}
+                    type="button"
+                  >
+                    Cerrar ficha
+                  </button>
+                </div>
+                <article className="knowledgeItem">
+                  <strong>{selectedKnowledgeCard.name}</strong>
+                  <span>{selectedKnowledgeCard.definition}</span>
+                  <div className="metricGrid">
+                    <Metric
+                      label="Uso"
+                      value={classifyKnowledgeCard(selectedKnowledgeCard).use}
+                    />
+                    <Metric
+                      label="Materia"
+                      value={libraryAreaLabel(classifyKnowledgeCard(selectedKnowledgeCard).area)}
+                    />
+                    <Metric
+                      label="Nivel"
+                      value={classifyKnowledgeCard(selectedKnowledgeCard).level}
+                    />
+                    <Metric
+                      label="Revision"
+                      value={validationLabel(selectedKnowledgeCard.confidence)}
+                    />
+                  </div>
+                  <List title="Cuando usarla" items={payloadList(selectedKnowledgeCard.payload.contexts)} />
+                  <List title="Senales para detectarla" items={payloadList(selectedKnowledgeCard.payload.signals)} />
+                  <List title="Cuidado con" items={payloadList(selectedKnowledgeCard.payload.risks)} />
+                  <List
+                    title="Fuentes"
+                    items={
+                      selectedKnowledgeCardSources.length
+                        ? [...new Set(selectedKnowledgeCardSources.map((source) => source.name))]
+                        : ["Fuente pendiente de cargar en esta vista."]
+                    }
+                  />
+                  <details className="queryTraceBox">
+                    <summary>Ver trazabilidad tecnica</summary>
+                    <div className="metricGrid">
+                      <Metric label="ID" value={selectedKnowledgeCard.id} />
+                      <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
+                      <Metric label="Version" value={selectedKnowledgeCard.version} />
+                      <Metric label="Ideas" value={selectedKnowledgeCardClaims.length} />
+                    </div>
+                    <List
+                      title="Ideas trazadas"
+                      items={selectedKnowledgeCardClaims.map(
+                        (claim) => `${claim.statement} · ${validationLabel(claim.confidence)}`,
+                      )}
+                    />
+                    <List
+                      title="Apoyos trazados"
+                      items={selectedKnowledgeCardEvidence.map(
+                        (item) =>
+                          `${item.reference}: ${item.excerpt} · ${validationLabel(
+                            item.confidence,
+                          )}`,
+                      )}
+                    />
+                  </details>
+                </article>
+                <div className="userCardPanel">
+                  <h3>Tu criterio sobre esta ficha</h3>
+                  <p className="note">
+                    Esto solo ajusta tu perfil. No cambia la base publicada ni sus fuentes.
+                  </p>
+                  <div className="metricGrid">
+                    <Metric
+                      label="Estado"
+                      value={profileKnowledgeCardSaved?.stance ?? "sin guardar"}
+                    />
+                    <Metric label="Afinidad" value={profileKnowledgeCardScore} />
+                    <Metric label="Contexto" value={activeContext} />
+                  </div>
+                  <div className="buttonRow" role="group" aria-label="Estado de tu ficha">
+                    {userKnowledgeCardStances.map((stance) => (
+                      <button
+                        className={
+                          profileKnowledgeCardStance === stance.value
+                            ? "ghostButton activeGhostButton"
+                            : "ghostButton"
+                        }
+                        key={stance.value}
+                        onClick={() => setProfileKnowledgeCardStance(stance.value)}
+                        type="button"
+                      >
+                        {stance.label}
+                      </button>
+                    ))}
+                  </div>
+                  <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
+                    Afinidad personal
+                  </label>
+                  <input
+                    id="profileKnowledgeCardScore"
+                    max="1000"
+                    min="0"
+                    onChange={(event) => setProfileKnowledgeCardScore(Number(event.target.value))}
+                    type="range"
+                    value={profileKnowledgeCardScore}
+                  />
+                  <label className="fieldLabel" htmlFor="profileKnowledgeCardFeedback">
+                    Tu comentario
+                  </label>
+                  <textarea
+                    id="profileKnowledgeCardFeedback"
+                    onChange={(event) => setProfileKnowledgeCardFeedback(event.target.value)}
+                    value={profileKnowledgeCardFeedback}
+                  />
+                  <label className="fieldLabel" htmlFor="profileKnowledgeCardMaintained">
+                    Mantener de esta ficha
+                  </label>
+                  <input
+                    className="textInput"
+                    id="profileKnowledgeCardMaintained"
+                    onChange={(event) => setProfileKnowledgeCardMaintained(event.target.value)}
+                    value={profileKnowledgeCardMaintained}
+                  />
+                  <label className="fieldLabel" htmlFor="profileKnowledgeCardChanges">
+                    Cambiar en mi uso
+                  </label>
+                  <input
+                    className="textInput"
+                    id="profileKnowledgeCardChanges"
+                    onChange={(event) => setProfileKnowledgeCardChanges(event.target.value)}
+                    value={profileKnowledgeCardChanges}
+                  />
+                  <label className="fieldLabel" htmlFor="profileKnowledgeCardNotes">
+                    Notas
+                  </label>
+                  <textarea
+                    id="profileKnowledgeCardNotes"
+                    onChange={(event) => setProfileKnowledgeCardNotes(event.target.value)}
+                    value={profileKnowledgeCardNotes}
+                  />
+                  <div className="rowActions">
+                    <button
+                      className="primaryButton"
+                      onClick={handleSaveProfileKnowledgeCard}
+                      type="button"
+                    >
+                      Guardar en mi ficha
+                    </button>
+                    <button
+                      className="ghostButton"
+                      onClick={handleProfileKnowledgeCardScoreProposal}
+                      type="button"
+                    >
+                      Calcular ajuste sugerido
+                    </button>
+                  </div>
+                  {profileKnowledgeCardProposal ? (
+                    <div className="proposalBox">
+                      <h3>Ajuste sugerido</h3>
+                      <div className="metricGrid">
+                        <Metric label="Estado" value={profileKnowledgeCardProposal.status} />
+                        <Metric label="Ajustes" value={profileKnowledgeCardProposal.items.length} />
+                      </div>
+                      <div className="auditList">
+                        {profileKnowledgeCardProposal.items.map((item) => (
+                          <article
+                            className="auditItem"
+                            key={`${item.variable_key}-${item.context}`}
+                          >
+                            <div>
+                              <strong>{item.variable_key}</strong>
+                              <span>{item.reason}</span>
+                            </div>
+                            <span>
+                              {item.current_value} -&gt; {item.proposed_value} ({item.delta})
+                            </span>
+                          </article>
+                        ))}
+                      </div>
+                      <button
+                        className="primaryButton editorButton"
+                        disabled={profileKnowledgeCardProposal.items.length === 0}
+                        onClick={handleApplyProfileKnowledgeCardScoreProposal}
+                        title={
+                          profileKnowledgeCardProposal.items.length === 0
+                            ? "No hay ajustes aplicables para esta ficha."
+                            : undefined
+                        }
+                        type="button"
+                      >
+                        Aplicar ajuste
+                      </button>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+            ) : null}
             <div className="proposalBox knowledgeGymPanel">
               <div className="versionHeader">
                 <div>
@@ -1827,6 +2042,11 @@ export function App() {
                   className="primaryButton"
                   disabled={!manualIngestionSourceIdValue || manualIngestionBusy}
                   onClick={handleCreateManualIngestionFlow}
+                  title={
+                    !manualIngestionSourceIdValue
+                      ? "No hay una fuente disponible para crear un lote."
+                      : undefined
+                  }
                   type="button"
                 >
                   {manualIngestionBusy ? "Creando..." : "Crear lote manual"}
@@ -1835,6 +2055,11 @@ export function App() {
                   className="ghostButton"
                   disabled={!manualIngestionExtraction}
                   onClick={handleLoadManualProposals}
+                  title={
+                    !manualIngestionExtraction
+                      ? "Primero crea un lote manual."
+                      : undefined
+                  }
                   type="button"
                 >
                   Recargar proposals
@@ -1941,6 +2166,11 @@ export function App() {
                   className="primaryButton"
                   disabled={publicationBusy || !candidateVersionId || !candidateAuthor || !candidateReason}
                   onClick={handleCreateCandidateVersion}
+                  title={
+                    !candidateVersionId || !candidateAuthor || !candidateReason
+                      ? "Completa ID, autor y motivo para crear el candidato."
+                      : undefined
+                  }
                   type="button"
                 >
                   Crear candidate
@@ -1974,6 +2204,11 @@ export function App() {
                   className="ghostButton"
                   disabled={!publicationTargetVersion || publicationBusy}
                   onClick={() => void handleCheckPublicationReadiness()}
+                  title={
+                    !publicationTargetVersion
+                      ? "Selecciona una version candidata para revisar."
+                      : undefined
+                  }
                   type="button"
                 >
                   Ver readiness
@@ -1982,6 +2217,11 @@ export function App() {
                   className="primaryButton"
                   disabled={!publishableReadiness || publicationBusy}
                   onClick={handlePublishCandidateVersion}
+                  title={
+                    !publishableReadiness
+                      ? "Primero revisa un candidato publicable."
+                      : undefined
+                  }
                   type="button"
                 >
                   Publicar candidate
@@ -2100,172 +2340,6 @@ export function App() {
                 ))}
               </div>
             </div>
-            {selectedKnowledgeCard ? (
-              <div className="proposalBox">
-                <h3>Ficha</h3>
-                <article className="knowledgeItem">
-                  <strong>{selectedKnowledgeCard.name}</strong>
-                  <span>{selectedKnowledgeCard.definition}</span>
-                  <ValidationPill confidence={selectedKnowledgeCard.confidence} />
-                  <div className="metricGrid">
-                    <Metric label="Confianza" value={selectedKnowledgeCard.confidence} />
-                    <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
-                    <Metric label="Version" value={selectedKnowledgeCard.version} />
-                  </div>
-                  <List title="Senales" items={payloadList(selectedKnowledgeCard.payload.signals)} />
-                  <List title="Riesgos" items={payloadList(selectedKnowledgeCard.payload.risks)} />
-                  <List title="Contextos" items={payloadList(selectedKnowledgeCard.payload.contexts)} />
-                  <div className="auditList">
-                    {(claimsByCard.get(selectedKnowledgeCard.id) ?? []).map((claim) => {
-                      const evidence = evidenceById.get(claim.evidence_id);
-                      const node = evidence ? nodeById.get(evidence.node_id) : null;
-                      const source = evidence ? sourceById.get(evidence.source_id) : null;
-                      return (
-                        <article className="auditItem" key={claim.id}>
-                          <div>
-                            <strong>{claim.statement}</strong>
-                            <span>
-                              {source?.name ?? evidence?.source_id ?? "fuente desconocida"} -&gt;{" "}
-                              {node?.title ?? evidence?.node_id ?? "nodo desconocido"} -&gt;{" "}
-                              {evidence?.reference ?? claim.evidence_id}
-                            </span>
-                            <ValidationPill confidence={claim.confidence} />
-                          </div>
-                          <span>confianza {claim.confidence}</span>
-                          <pre>
-                            {evidence?.excerpt ?? "Evidencia no cargada."}
-                            {evidence
-                              ? `\nValidacion evidencia: ${validationLabel(evidence.confidence)}`
-                              : ""}
-                          </pre>
-                        </article>
-                      );
-                    })}
-                  </div>
-                  <div className="userCardPanel">
-                    <h3>Tu ficha sobre esta idea</h3>
-                    <div className="metricGrid">
-                      <Metric
-                        label="Estado"
-                        value={profileKnowledgeCardSaved?.stance ?? "sin guardar"}
-                      />
-                      <Metric label="Afinidad" value={profileKnowledgeCardScore} />
-                      <Metric label="Contexto" value={activeContext} />
-                    </div>
-                    <div className="buttonRow" role="group" aria-label="Estado de tu ficha">
-                      {userKnowledgeCardStances.map((stance) => (
-                        <button
-                          className={
-                            profileKnowledgeCardStance === stance.value
-                              ? "ghostButton activeGhostButton"
-                              : "ghostButton"
-                          }
-                          key={stance.value}
-                          onClick={() => setProfileKnowledgeCardStance(stance.value)}
-                          type="button"
-                        >
-                          {stance.label}
-                        </button>
-                      ))}
-                    </div>
-                    <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
-                      Afinidad personal
-                    </label>
-                    <input
-                      id="profileKnowledgeCardScore"
-                      max="1000"
-                      min="0"
-                      onChange={(event) => setProfileKnowledgeCardScore(Number(event.target.value))}
-                      type="range"
-                      value={profileKnowledgeCardScore}
-                    />
-                    <label className="fieldLabel" htmlFor="profileKnowledgeCardFeedback">
-                      Tu comentario
-                    </label>
-                    <textarea
-                      id="profileKnowledgeCardFeedback"
-                      onChange={(event) => setProfileKnowledgeCardFeedback(event.target.value)}
-                      value={profileKnowledgeCardFeedback}
-                    />
-                    <label className="fieldLabel" htmlFor="profileKnowledgeCardMaintained">
-                      Mantener
-                    </label>
-                    <input
-                      className="textInput"
-                      id="profileKnowledgeCardMaintained"
-                      onChange={(event) => setProfileKnowledgeCardMaintained(event.target.value)}
-                      value={profileKnowledgeCardMaintained}
-                    />
-                    <label className="fieldLabel" htmlFor="profileKnowledgeCardChanges">
-                      Cambiar
-                    </label>
-                    <input
-                      className="textInput"
-                      id="profileKnowledgeCardChanges"
-                      onChange={(event) => setProfileKnowledgeCardChanges(event.target.value)}
-                      value={profileKnowledgeCardChanges}
-                    />
-                    <label className="fieldLabel" htmlFor="profileKnowledgeCardNotes">
-                      Notas
-                    </label>
-                    <textarea
-                      id="profileKnowledgeCardNotes"
-                      onChange={(event) => setProfileKnowledgeCardNotes(event.target.value)}
-                      value={profileKnowledgeCardNotes}
-                    />
-                    <div className="rowActions">
-                      <button
-                        className="primaryButton"
-                        onClick={handleSaveProfileKnowledgeCard}
-                        type="button"
-                      >
-                        Guardar ficha
-                      </button>
-                      <button
-                        className="ghostButton"
-                        onClick={handleProfileKnowledgeCardScoreProposal}
-                        type="button"
-                      >
-                        Calcular ajuste sugerido
-                      </button>
-                    </div>
-                    {profileKnowledgeCardProposal ? (
-                      <div className="proposalBox">
-                        <h3>Ajuste sugerido</h3>
-                        <div className="metricGrid">
-                          <Metric label="Estado" value={profileKnowledgeCardProposal.status} />
-                          <Metric label="Ajustes" value={profileKnowledgeCardProposal.items.length} />
-                        </div>
-                        <div className="auditList">
-                          {profileKnowledgeCardProposal.items.map((item) => (
-                            <article
-                              className="auditItem"
-                              key={`${item.variable_key}-${item.context}`}
-                            >
-                              <div>
-                                <strong>{item.variable_key}</strong>
-                                <span>{item.reason}</span>
-                              </div>
-                              <span>
-                                {item.current_value} -&gt; {item.proposed_value} ({item.delta})
-                              </span>
-                            </article>
-                          ))}
-                        </div>
-                        <button
-                          className="primaryButton editorButton"
-                          disabled={profileKnowledgeCardProposal.items.length === 0}
-                          onClick={handleApplyProfileKnowledgeCardScoreProposal}
-                          type="button"
-                        >
-                        Aplicar ajuste
-                        </button>
-                      </div>
-                    ) : null}
-                  </div>
-                </article>
-              </div>
-            ) : null}
               </>
             ) : null}
             <div className="proposalBox">
@@ -2398,13 +2472,16 @@ export function App() {
         {active === "preferences" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Decirle un gusto</h2>
+              <h2>Contarle un gusto</h2>
+              <p className="note">
+                Esto enseña cómo quieres escribir. No cambia la biblioteca ni sus fuentes.
+              </p>
               <textarea value={preferenceText} onChange={(event) => setPreferenceText(event.target.value)} />
               <button className="primaryButton" onClick={handlePreference} type="button">
                 Guardar gusto
               </button>
               <div className="preferenceList">
-                <h2>Pendiente de revisar</h2>
+                <h2>Gustos guardados</h2>
                 {preferences.length === 0 ? (
                   <p className="note">Todavia no hay gustos guardados.</p>
                 ) : (
@@ -2412,13 +2489,21 @@ export function App() {
                     <article className="preferenceItem" key={item.id}>
                       <div>
                         <strong>{item.text}</strong>
-                        <span>{item.affected_variables.join(", ")}</span>
+                        <span>{preferenceStatusPublicLabel(item.status)}</span>
                       </div>
-                      <span className="statusPill">{item.status}</span>
+                      <span className="statusPill">
+                        {item.affected_variables.length} ajustes posibles
+                      </span>
                       <div className="rowActions">
                         <button
                           className="ghostButton"
+                          disabled={item.status === "accepted"}
                           onClick={() => handlePreferenceStatus(item.id, "accepted")}
+                          title={
+                            item.status === "accepted"
+                              ? "Este gusto ya esta aceptado."
+                              : undefined
+                          }
                           type="button"
                         >
                           Aceptar
@@ -2434,7 +2519,13 @@ export function App() {
                         ) : null}
                         <button
                           className="ghostButton"
+                          disabled={item.status === "rejected"}
                           onClick={() => handlePreferenceStatus(item.id, "rejected")}
+                          title={
+                            item.status === "rejected"
+                              ? "Este gusto ya esta descartado."
+                              : undefined
+                          }
                           type="button"
                         >
                           Descartar
@@ -2453,12 +2544,12 @@ export function App() {
               </div>
             </div>
             <div className="inspector">
-              <h2>Como lo ha entendido</h2>
+              <h2>Como lo entiende</h2>
               {preference ? (
                 <>
                   <p>{preference.interpreted_as}</p>
                   <List title="Aspectos afectados" items={preference.affected_variables} />
-                  <span className="statusPill">{preference.status}</span>
+                  <span className="statusPill">{preferenceStatusPublicLabel(preference.status)}</span>
                 </>
               ) : (
                 <p className="note">El gusto queda pendiente hasta que lo aceptes.</p>
@@ -2660,6 +2751,10 @@ export function App() {
         {active === "profile" && (
           <section className="panel">
             <h2>Ficha personal</h2>
+            <p className="note">
+              Esta es tu capa personal: gustos, ajustes y fichas que has marcado. No modifica la
+              biblioteca publicada.
+            </p>
             <p>{summary?.summary}</p>
             <div className="metricGrid">
               <Metric label="Gustos" value={summary?.preference_count ?? 0} />
@@ -2690,13 +2785,13 @@ export function App() {
                   )}
                 />
                 <List
-                  title="Fichas de usuario"
+                  title="Fichas guardadas"
                   items={
                     profileExport.knowledge_cards.length === 0
                       ? ["Sin fichas de usuario guardadas."]
                       : profileExport.knowledge_cards.map(
                           (item) =>
-                            `${item.card_id}: ${item.stance} (${item.user_score}) en ${item.knowledge_version}`,
+                            `${profileKnowledgeCardStanceLabel(item.stance)} · afinidad ${item.user_score}`,
                         )
                   }
                 />
@@ -3261,6 +3356,25 @@ function auditEntityPublicLabel(entityType: string) {
     profile_knowledge_card: "ficha",
   };
   return labels[entityType] ?? entityType;
+}
+
+function preferenceStatusPublicLabel(status: string) {
+  const labels: Record<string, string> = {
+    pending: "Pendiente de revisar",
+    accepted: "Aceptado",
+    rejected: "Descartado",
+  };
+  return labels[status] ?? status;
+}
+
+function profileKnowledgeCardStanceLabel(stance: string) {
+  const labels: Record<string, string> = {
+    liked: "Me gusta",
+    kept: "Mantener",
+    changed: "Cambiar",
+    dismissed: "Descartar",
+  };
+  return labels[stance] ?? stance;
 }
 
 function groupBy<T>(items: T[], keyFor: (item: T) => string) {
