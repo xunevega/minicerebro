@@ -35,6 +35,19 @@ from app.main import app
 client = TestClient(app)
 
 
+def test_root_explains_backend_entrypoint():
+    response = client.get("/")
+
+    assert response.status_code == 200
+    assert response.json() == {
+        "name": "Editados API",
+        "status": "ok",
+        "health": "/health",
+        "docs": "/docs",
+        "frontend": "https://frontend-production-834c.up.railway.app",
+    }
+
+
 def test_health():
     response = client.get("/health")
     assert response.status_code == 200

@@ -21,9 +21,9 @@ def cors_allow_origins() -> list[str]:
 
 
 app = FastAPI(
-    title="Minicerebro API",
+    title="Editados API",
     version="1.0.0",
-    description="API inicial para Minicerebro V1.",
+    description="API para Editados V1.",
 )
 
 app.add_middleware(
@@ -36,6 +36,17 @@ app.add_middleware(
 )
 
 app.include_router(router)
+
+
+@app.get("/")
+def root() -> dict[str, str]:
+    return {
+        "name": "Editados API",
+        "status": "ok",
+        "health": "/health",
+        "docs": "/docs",
+        "frontend": "https://frontend-production-834c.up.railway.app",
+    }
 
 
 @app.get("/health")
