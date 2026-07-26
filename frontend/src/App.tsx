@@ -356,7 +356,7 @@ export function App() {
   const [contractBoundaries, setContractBoundaries] = useState<ContractBoundary[]>([]);
   const [observability, setObservability] = useState<ObservabilityMetric[]>([]);
   const [roadmap, setRoadmap] = useState<TechnicalRoadmapPhase[]>([]);
-  const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
+  const [editorText, setEditorText] = useState("");
   const [editorOriginalBeforeGeneration, setEditorOriginalBeforeGeneration] = useState("");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
@@ -387,7 +387,7 @@ export function App() {
   );
   const [labComparison, setLabComparison] = useState<ComparisonResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
-  const [auditFilter, setAuditFilter] = useState("Todos");
+  const [auditFilter, setAuditFilter] = useState("Todo");
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -2833,7 +2833,12 @@ export function App() {
                   </div>
                 ))}
               </div>
-              <textarea value={editorText} onChange={(event) => setEditorText(event.target.value)} />
+              <textarea
+                aria-label="Borrador"
+                onChange={(event) => setEditorText(event.target.value)}
+                placeholder="Escribe aqui una idea o un texto para trabajar."
+                value={editorText}
+              />
               <div className="actionChooser" aria-label="Acciones de escritura">
                 {editorActions.map((action) => (
                   <button
