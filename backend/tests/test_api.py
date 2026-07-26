@@ -5700,20 +5700,37 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
         json={
             "query": "que le pasa a este texto revisar estructura parrafo frase tono limpieza final",
             "version": "latest",
-            "limit": 5,
+            "limit": 6,
         },
     )
     assert layers_response.status_code == 200
     layers_payload = layers_response.json()
     assert layers_payload["resolved_version"] == "knowledge-v40"
     assert layers_payload["status"] == "ok"
-    assert {
+    assert [card["id"] for card in layers_payload["cards"]] == [
+        "card-diagnostico-de-reescritura",
         "card-revision-estructural",
         "card-revision-de-parrafo",
         "card-revision-de-frase",
         "card-revision-de-tono",
         "card-limpieza-final",
-    } & {card["id"] for card in layers_payload["cards"]}
+    ]
+    assert layers_payload["context"]["editorial_route"] == [
+        "card-diagnostico-de-reescritura",
+        "card-revision-estructural",
+        "card-revision-de-parrafo",
+        "card-revision-de-frase",
+        "card-revision-de-tono",
+        "card-limpieza-final",
+    ]
+    assert [item["card_id"] for item in layers_payload["ranking"]] == [
+        "card-diagnostico-de-reescritura",
+        "card-revision-estructural",
+        "card-revision-de-parrafo",
+        "card-revision-de-frase",
+        "card-revision-de-tono",
+        "card-limpieza-final",
+    ]
 
     with SessionLocal() as session:
         card = session.get(KnowledgeCardRecord, "card-complemento-directo")

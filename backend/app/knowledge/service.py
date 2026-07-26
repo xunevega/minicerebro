@@ -13656,11 +13656,41 @@ QUERY_TERM_EXPANSIONS = {
     "puente": {"transicion", "estructura"},
     "relleno": {"decorativa", "funcion", "transicion"},
     "rellenar": {"decorativa", "funcion"},
+    "revisar": {"revision", "reescritura"},
     "sirva": {"funcion", "cambio", "decision"},
     "servir": {"funcion", "cambio", "decision"},
     "sugerir": {"subtexto", "inferencia"},
     "transicion": {"puente", "estructura"},
 }
+
+EDITORIAL_REVISION_ROUTE = [
+    "card-diagnostico-de-reescritura",
+    "card-revision-estructural",
+    "card-revision-de-parrafo",
+    "card-revision-de-frase",
+    "card-revision-de-tono",
+    "card-limpieza-final",
+]
+EDITORIAL_REVISION_ROUTE_ORDER = {
+    card_id: index for index, card_id in enumerate(EDITORIAL_REVISION_ROUTE)
+}
+EDITORIAL_REVISION_QUERY_MARKERS = {
+    "diagnostico",
+    "limpieza",
+    "parrafo",
+    "reescritura",
+    "revision",
+    "revisar",
+    "texto",
+    "tono",
+}
+
+
+def _is_editorial_revision_query(normalized_query: str, terms: set[str]) -> bool:
+    if not ({"revision", "revisar"} & terms):
+        return False
+    marker_count = len(EDITORIAL_REVISION_QUERY_MARKERS & terms)
+    return marker_count >= 2 or "que le pasa a este texto" in normalized_query
 
 
 def resolve_knowledge_version(version: str) -> str:
@@ -13905,6 +13935,7 @@ def query_knowledge(
     resolved_version = interpretation.resolved_version
     normalized_query = interpretation.normalized_query
     terms = _query_terms(normalized_query)
+    editorial_revision_query = _is_editorial_revision_query(normalized_query, terms)
     query_types = interpretation.query_type
     sources = sources if sources is not None else seed_sources()
     nodes = nodes if nodes is not None else seed_nodes()
@@ -14057,6 +14088,7 @@ def query_knowledge(
             "domain_match": round(domain_match, 3),
             "scope_match": round(scope_match, 3),
             "context_match": round(context_match, 3),
+            "editorial_route_order": EDITORIAL_REVISION_ROUTE_ORDER.get(card.id),
             "authority_score": round(authority_score, 3),
             "evidence_score": round(evidence_score, 3),
             "claim_confidence": round(claim_confidence, 3),
@@ -14089,6 +14121,8 @@ def query_knowledge(
             reasons.append("identifica fuentes de respaldo")
         if relation_paths:
             reasons.append("expansion controlada por relaciones")
+        if editorial_revision_query and card.id in EDITORIAL_REVISION_ROUTE_ORDER:
+            reasons.append("orden editorial por capas de revision")
         return score, factors, reasons, relation_paths
 
     evaluated_cards = []
@@ -14106,9 +14140,23 @@ def query_knowledge(
             }
         )
 
-    ranked_evaluations = sorted(evaluated_cards, key=lambda item: item[1], reverse=True)[
-        : payload.limit
-    ]
+    def evaluation_sort_key(
+        item: tuple[KnowledgeCard, float, dict, list[str], list[str]],
+    ) -> tuple[float, float, str]:
+        card, score, factors, _, _ = item
+        if editorial_revision_query:
+            route_order = factors.get("editorial_route_order")
+            if route_order is not None:
+                return (route_order, -score, card.id)
+        return (999.0, -score, card.id)
+
+    def ranking_sort_key(item: dict) -> tuple[float, float, str]:
+        route_order = item["factors"].get("editorial_route_order")
+        if editorial_revision_query and route_order is not None:
+            return (route_order, -item["final_score"], item["card_id"])
+        return (999.0, -item["final_score"], item["card_id"])
+
+    ranked_evaluations = sorted(evaluated_cards, key=evaluation_sort_key)[: payload.limit]
     ranked_cards = [item[0] for item in ranked_evaluations]
     card_ids = {card.id for card in ranked_cards}
     matched_claims = [
@@ -14183,6 +14231,7 @@ def query_knowledge(
         domain=domains,
         context={
             **interpretation.context,
+            "editorial_route": EDITORIAL_REVISION_ROUTE if editorial_revision_query else [],
             "normalized_query": normalized_query,
             "primary_domain": domains[0] if domains else None,
         },
@@ -14196,7 +14245,7 @@ def query_knowledge(
         sources=matched_sources,
         relations_followed=relations_followed,
         contradictions=[],
-        ranking=ranking[: payload.limit],
+        ranking=sorted(ranking, key=ranking_sort_key)[: payload.limit],
         retrieved_cards=retrieved_cards,
         retrieval_trace={
             "original_query_preserved_in_response": True,
@@ -14221,8 +14270,7 @@ def query_knowledge(
                 item["factors"]
                 for item in sorted(
                     ranking,
-                    key=lambda ranking_item: ranking_item["final_score"],
-                    reverse=True,
+                    key=ranking_sort_key,
                 )[: payload.limit]
             ],
             "thresholds": {
