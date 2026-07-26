@@ -8,13 +8,13 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Biblioteca" }).click();
-  await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();
+  await page.getByRole("button", { name: "Ver trazabilidad" }).click();
 
   const panel = page.locator(".proposalBox", {
     has: page.getByRole("heading", { name: /^Publicacion tecnica$/ }),
   });
   await panel.getByText("Crear candidato congela una version revisable.").waitFor();
-  await page.locator(".metric", { hasText: "Base lista" }).filter({ hasText: "Base publicada actual" }).first().waitFor({
+  await page.locator(".metric", { hasText: "Base" }).filter({ hasText: "Base publicada actual" }).first().waitFor({
     timeout: 90000,
   });
 

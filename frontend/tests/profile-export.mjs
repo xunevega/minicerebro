@@ -8,7 +8,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Mi criterio" }).click();
-  await page.getByRole("button", { name: "Ficha" }).click();
+  await page.getByRole("button", { name: "Mi ficha" }).click();
 
   const exportResponse = page.waitForResponse(
     (response) => {

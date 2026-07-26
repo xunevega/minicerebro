@@ -218,6 +218,16 @@ h3 {
   color: var(--muted);
 }
 
+.sectionEyebrow {
+  color: var(--accent);
+  display: inline-block;
+  font-size: 13px;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  margin-top: 6px;
+  text-transform: uppercase;
+}
+
 .panel {
   background: var(--paper);
   border: 1px solid var(--line);
@@ -557,6 +567,23 @@ textarea + .primaryButton {
   color: #716a60;
   font-size: 13px;
   font-weight: 700;
+}
+
+.quietDetails {
+  margin: -4px 0 16px;
+}
+
+.quietDetails summary {
+  color: var(--muted);
+  cursor: pointer;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 700;
+  list-style-position: inside;
+}
+
+.quietDetails[open] summary {
+  margin-bottom: 10px;
 }
 
 .proposalItem {

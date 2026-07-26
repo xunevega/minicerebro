@@ -10,8 +10,9 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Biblioteca" }).click();
+  await page.getByText("Cambiar base consultada").click();
   await page.getByLabel("Vista").selectOption("latest");
-  await page.locator(".metric", { hasText: "Base lista" }).filter({ hasText: "Base publicada actual" }).first().waitFor({
+  await page.locator(".metric", { hasText: "Base" }).filter({ hasText: "Base publicada actual" }).first().waitFor({
     timeout: 90000,
   });
   await page.locator(".metric", { hasText: "Por revisar" }).first().waitFor({ timeout: 90000 });
@@ -34,7 +35,7 @@ try {
   });
   await gymPanel.locator("strong", { hasText: /^Precision$/ }).waitFor();
   await gymPanel.locator("strong", { hasText: /^Trazabilidad$/ }).waitFor();
-  await page.getByRole("button", { name: "Mostrar panel tecnico" }).click();
+  await page.getByRole("button", { name: "Ver trazabilidad" }).click();
   await page.getByRole("heading", { name: "Limites actuales" }).waitFor();
   const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de la base" });
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v40" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();

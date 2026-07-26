@@ -9,7 +9,7 @@ try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
 
   await page.getByLabel("Navegacion principal").getByRole("button", { name: "Sistema" }).click();
-  await page.getByRole("button", { name: "Datos guardados" }).click();
+  await page.getByRole("button", { name: "Guardado" }).click();
   const persistencePanel = page.locator(".panel", { hasText: "Datos guardados" });
   await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();
   await persistencePanel.getByText("Todavia no hay textos generados en este contexto.").waitFor();
@@ -21,7 +21,7 @@ try {
   await closurePanel.getByText("Limites 21/22").waitFor();
   await closurePanel.getByText("Resultado esperado").waitFor();
 
-  await page.getByRole("button", { name: "Plan interno" }).click();
+  await page.getByRole("button", { name: "Plan" }).click();
   const roadmapPanel = page.locator(".panel", { hasText: "Plan interno" });
   await roadmapPanel.getByText("Observabilidad").waitFor();
 

@@ -141,18 +141,18 @@ import type {
 
 const tabs = [
   { id: "knowledge", label: "Biblioteca", icon: BookOpen },
-  { id: "preferences", label: "Gustos", icon: PenLine },
-  { id: "profile", label: "Ficha", icon: Brain },
-  { id: "scoring", label: "Ajustes", icon: SlidersHorizontal },
+  { id: "preferences", label: "Preferencias", icon: PenLine },
+  { id: "profile", label: "Mi ficha", icon: Brain },
+  { id: "scoring", label: "Pesos", icon: SlidersHorizontal },
   { id: "editor", label: "Escribir", icon: FilePenLine },
-  { id: "lab", label: "Probar cambios", icon: FlaskConical },
+  { id: "lab", label: "Taller", icon: FlaskConical },
   { id: "compare", label: "Comparar", icon: GitCompare },
-  { id: "rules", label: "Criterios", icon: ShieldCheck },
-  { id: "persistence", label: "Datos guardados", icon: Database },
-  { id: "cerebro", label: "Cerebro", icon: Search },
-  { id: "acceptance", label: "Aceptacion", icon: ClipboardCheck },
+  { id: "rules", label: "Reglas", icon: ShieldCheck },
+  { id: "persistence", label: "Guardado", icon: Database },
+  { id: "cerebro", label: "Auditoria", icon: Search },
+  { id: "acceptance", label: "Checklist", icon: ClipboardCheck },
   { id: "closure", label: "Cierre", icon: Flag },
-  { id: "roadmap", label: "Plan interno", icon: Route },
+  { id: "roadmap", label: "Plan", icon: Route },
   { id: "screens", label: "Pantallas", icon: LayoutDashboard },
   { id: "audit", label: "Historial", icon: History },
 ] as const;
@@ -218,7 +218,7 @@ const mainSections: Array<{
   {
     id: "profile",
     label: "Mi criterio",
-    description: "Gustos, ajustes y ficha personal.",
+    description: "Preferencias, pesos y ficha personal.",
     icon: Brain,
     defaultTab: "preferences",
     tabs: ["preferences", "scoring", "profile"],
@@ -242,7 +242,7 @@ const mainSections: Array<{
   {
     id: "technical",
     label: "Sistema",
-    description: "Datos guardados y controles internos.",
+    description: "Guardado, auditoria y controles internos.",
     icon: ShieldCheck,
     defaultTab: "persistence",
     tabs: ["persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
@@ -1543,8 +1543,11 @@ export function App() {
       <section className="workspace">
         <header className="topbar">
           <div>
-            <h1>{activeTab.label}</h1>
+            <h1>{activeSection.label}</h1>
             <p>{activeSection.description}</p>
+            {activeTab.id !== activeSection.defaultTab ? (
+              <span className="sectionEyebrow">{activeTab.label}</span>
+            ) : null}
           </div>
           <div className="contextControl">
             <label htmlFor="contextSelect">Contexto</label>
@@ -1601,23 +1604,26 @@ export function App() {
         {active === "knowledge" && (
           <section className="panel">
             <h2>Base de escritura</h2>
-            <div className="versionToolbar">
-              <label htmlFor="knowledgeVersionSelect">Vista</label>
-              <select
-                id="knowledgeVersionSelect"
-                onChange={(event) => setSelectedKnowledgeVersion(event.target.value)}
-                value={selectedKnowledgeVersion}
-              >
-                <option value="latest">Base publicada actual</option>
-                {knowledgeVersions.map((version) => (
-                  <option key={version.id} value={version.id}>
-                    {knowledgeVersionPublicLabel(version.id, latestPublishedKnowledgeVersion)}
-                  </option>
-                ))}
-              </select>
-            </div>
+            <details className="quietDetails">
+              <summary>Cambiar base consultada</summary>
+              <div className="versionToolbar">
+                <label htmlFor="knowledgeVersionSelect">Vista</label>
+                <select
+                  id="knowledgeVersionSelect"
+                  onChange={(event) => setSelectedKnowledgeVersion(event.target.value)}
+                  value={selectedKnowledgeVersion}
+                >
+                  <option value="latest">Base publicada actual</option>
+                  {knowledgeVersions.map((version) => (
+                    <option key={version.id} value={version.id}>
+                      {knowledgeVersionPublicLabel(version.id, latestPublishedKnowledgeVersion)}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </details>
             <div className="metricGrid">
-              <Metric label="Base lista" value={loadedKnowledgeVersionLabel} />
+              <Metric label="Base" value={loadedKnowledgeVersionLabel} />
               <Metric
                 label="Estado"
                 value={
@@ -1976,7 +1982,7 @@ export function App() {
                 onClick={() => setShowKnowledgeTechnical((current) => !current)}
                 type="button"
               >
-                {showKnowledgeTechnical ? "Ocultar panel tecnico" : "Mostrar panel tecnico"}
+                {showKnowledgeTechnical ? "Ocultar trazabilidad" : "Ver trazabilidad"}
               </button>
             </div>
             {showKnowledgeTechnical ? (

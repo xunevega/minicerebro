@@ -10,12 +10,12 @@ try {
 
   await page.getByLabel("Navegacion principal").getByRole("button", { name: "Sistema" }).click();
   await page.getByRole("button", { name: "Mostrar tecnico" }).click();
-  await page.getByRole("button", { name: "Cerebro" }).click();
+  await page.getByRole("button", { name: "Auditoria" }).click();
   const cerebroPanel = page.locator(".panel", { hasText: "Revision de cantera" });
   await cerebroPanel.getByText("Revision de cantera").waitFor();
   await cerebroPanel.getByText("Bloqueos antes de reutilizar").waitFor();
 
-  await page.getByRole("button", { name: "Aceptacion" }).click();
+  await page.getByRole("button", { name: "Checklist" }).click();
   const acceptancePanel = page.locator(".panel", { hasText: "Aceptacion interna" });
   await acceptancePanel.getByText("Aceptacion interna").waitFor();
 } finally {
