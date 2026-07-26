@@ -43,6 +43,11 @@ try {
   await revisionResponse;
   await resultPanel.getByText("Revision con fichas").waitFor();
   await resultPanel.getByText("Diagnostico de reescritura").waitFor();
+  await resultPanel.getByText("Por que aplica").first().waitFor();
+  await resultPanel.getByText("Que haria").first().waitFor();
+  await resultPanel.getByText("Senales miradas").first().waitFor();
+  await resultPanel.getByRole("button", { name: "No va por ahi" }).first().waitFor();
+  await resultPanel.getByRole("button", { name: "Guardar criterio" }).first().waitFor();
   const feedbackResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());

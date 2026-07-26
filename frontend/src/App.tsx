@@ -2899,11 +2899,29 @@ export function App() {
                     <Metric label="Frases" value={textRevision.sentence_count} />
                   </div>
                   {textRevision.steps.map((step) => (
-                    <div className="proposalItem" key={step.card_id}>
-                      <strong>{step.label}</strong>
-                      <span>{step.finding}</span>
-                      <span>{step.action}</span>
-                      <div className="buttonRow compactRow">
+                    <article className="revisionStepCard" key={step.card_id}>
+                      <div className="revisionStepHeader">
+                        <div>
+                          <strong>{step.label}</strong>
+                          <span>{revisionStepFocus(step.card_id)}</span>
+                        </div>
+                        <span className={step.status === "review" ? "statusPill warning" : "statusPill done"}>
+                          {step.status === "review" ? "Revisar" : "Correcto"}
+                        </span>
+                      </div>
+                      <div className="revisionStepGrid">
+                        <div>
+                          <span className="revisionLabel">Por que aplica</span>
+                          <p>{step.finding}</p>
+                        </div>
+                        <div>
+                          <span className="revisionLabel">Que haria</span>
+                          <p>{step.action}</p>
+                        </div>
+                      </div>
+                      <List title="Senales miradas" items={step.signals.slice(0, 3)} />
+                      <List title="Cuidado con" items={step.risks.slice(0, 2)} />
+                      <div className="buttonRow compactRow" aria-label={`Decision sobre ${step.label}`}>
                         <button
                           className="secondaryButton"
                           disabled={revisionFeedbackBusyCard === step.card_id}
@@ -2924,13 +2942,27 @@ export function App() {
                           onClick={() =>
                             handleRevisionFeedback(
                               step.card_id,
-                              "cambia_esto",
-                              `Cambiar recomendacion: ${step.action}`,
+                              "no_me_sirve",
+                              `No va por ahi: ${step.action}`,
                             )
                           }
                           type="button"
                         >
-                          Cambiar
+                          No va por ahi
+                        </button>
+                        <button
+                          className="secondaryButton"
+                          disabled={revisionFeedbackBusyCard === step.card_id}
+                          onClick={() =>
+                            handleRevisionFeedback(
+                              step.card_id,
+                              "mantiene_esto",
+                              `Guardar como criterio: ${step.action}`,
+                            )
+                          }
+                          type="button"
+                        >
+                          Guardar criterio
                         </button>
                       </div>
                       {revisionFeedbackByCard[step.card_id] ? (
@@ -2976,7 +3008,7 @@ export function App() {
                           )}
                         </div>
                       ) : null}
-                    </div>
+                    </article>
                   ))}
                   <p className="note">
                     Revisar no modifica la biblioteca publicada. Tus respuestas alimentan solo la ficha personal.
@@ -3764,6 +3796,18 @@ function profileKnowledgeCardStanceLabel(stance: string) {
     dismissed: "Descartar",
   };
   return labels[stance] ?? stance;
+}
+
+function revisionStepFocus(cardId: string) {
+  const labels: Record<string, string> = {
+    "card-diagnostico-de-reescritura": "Mira el recorrido general antes de tocar frases.",
+    "card-revision-estructural": "Mira foco, orden y cierre del texto.",
+    "card-revision-de-parrafo": "Mira unidad, avance y transiciones de parrafo.",
+    "card-revision-de-frase": "Mira orden, concision y ritmo de frase.",
+    "card-revision-de-tono": "Mira voz, distancia y registro.",
+    "card-limpieza-final": "Mira puntuacion, espacios, repeticiones y cierre.",
+  };
+  return labels[cardId] ?? "Mira una ficha editorial relacionada con esta revision.";
 }
 
 function groupBy<T>(items: T[], keyFor: (item: T) => string) {

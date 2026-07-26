@@ -660,6 +660,53 @@ textarea + .primaryButton {
   margin-top: 6px;
 }
 
+.revisionStepCard {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 12px;
+  margin: 12px 0;
+  padding: 16px;
+}
+
+.revisionStepHeader {
+  align-items: start;
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr auto;
+}
+
+.revisionStepHeader strong {
+  display: block;
+  font-size: 16px;
+}
+
+.revisionStepHeader span:not(.statusPill) {
+  color: var(--muted);
+  display: block;
+  font-size: 13px;
+  margin-top: 4px;
+}
+
+.revisionStepGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: 1fr 1fr;
+}
+
+.revisionStepGrid p {
+  margin-bottom: 0;
+}
+
+.revisionLabel {
+  color: var(--accent);
+  display: block;
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 4px;
+  text-transform: uppercase;
+}
+
 .learningBox {
   background: #f8f6ef;
   border: 1px solid #e6e0d7;
@@ -1183,6 +1230,11 @@ textarea + .primaryButton {
   }
 
   .knowledgeGrid {
+    grid-template-columns: 1fr;
+  }
+
+  .revisionStepGrid,
+  .revisionStepHeader {
     grid-template-columns: 1fr;
   }
 
