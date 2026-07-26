@@ -83,7 +83,7 @@ try {
     throw new Error("Usar este texto no sustituyo el borrador por la propuesta.");
   }
   await resultPanel.getByRole("button", { name: "Comparar con original" }).click();
-  const comparePanel = page.locator(".panel", { hasText: "Textos" });
+  const comparePanel = page.locator(".panel", { hasText: "Comparar textos" });
   await comparePanel.waitFor();
   const compareTextareas = comparePanel.locator("textarea");
   if ((await compareTextareas.nth(0).inputValue()) !== inputText) {
@@ -93,6 +93,11 @@ try {
     throw new Error("El comparador no recibio el texto propuesto.");
   }
   await page.locator(".subnav").getByRole("button", { name: "Escribir" }).click();
+  await editorPanel.getByRole("button", { name: "Borrar texto" }).click();
+  if ((await editorPanel.locator("textarea").first().inputValue()) !== "") {
+    throw new Error("Borrar texto no dejo el borrador vacio.");
+  }
+  await page.getByLabel("Recorrido de escritura").getByText("Escribe o pega un texto.").waitFor();
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
     timeout: 90000,

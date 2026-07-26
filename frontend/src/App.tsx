@@ -1435,6 +1435,18 @@ export function App() {
     setActive("compare");
   }
 
+  function handleClearEditor() {
+    setEditorText("");
+    setEditorOriginalBeforeGeneration("");
+    setGeneration(null);
+    setGenerationCopyStatus("");
+    setTextRevision(null);
+    setRevisionFeedbackByCard({});
+    setRevisionScoreAppliedByCard({});
+    setRevisionScorePendingByCard({});
+    setError(null);
+  }
+
   async function handleTextRevision() {
     setError(null);
     try {
@@ -2906,6 +2918,19 @@ export function App() {
                   type="button"
                 >
                   Leer con fichas
+                </button>
+                <button
+                  className="ghostButton danger"
+                  disabled={!editorHasDraft && !generation && !textRevision}
+                  onClick={handleClearEditor}
+                  title={
+                    !editorHasDraft && !generation && !textRevision
+                      ? "No hay texto ni lectura que borrar."
+                      : undefined
+                  }
+                  type="button"
+                >
+                  Borrar texto
                 </button>
               </div>
             </div>
