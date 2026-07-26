@@ -179,6 +179,17 @@ const auditEventFilters = [
   { label: "Gustos", eventType: "preference.created", entityType: "preference" },
   { label: "Escritura", eventType: "text.generated", entityType: "generated_text" },
 ] as const;
+const writerFacingAuditEventTypes = new Set([
+  "preference.created",
+  "preference.reinforced",
+  "score.updated",
+  "text.generated",
+  "text.revision.executed",
+  "text.revision.feedback_recorded",
+  "feedback.created",
+  "profile.knowledge_card.updated",
+  "profile.knowledge_card.score_applied",
+]);
 
 const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label: string }> = [
   { value: "liked", label: "Me gusta" },
@@ -332,7 +343,7 @@ export function App() {
   const [statistics, setStatistics] = useState<ProfileStatistics | null>(null);
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
   const [scores, setScores] = useState<ScoreVariable[]>([]);
-  const [preferenceText, setPreferenceText] = useState("Me gusta un estilo sobrio, preciso y con ritmo.");
+  const [preferenceText, setPreferenceText] = useState("");
   const [preference, setPreference] = useState<Preference | null>(null);
   const [preferences, setPreferences] = useState<Preference[]>([]);
   const [scoreProposal, setScoreProposal] = useState<ScoreProposal | null>(null);
@@ -380,6 +391,8 @@ export function App() {
   const [labComparison, setLabComparison] = useState<ComparisonResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
   const [auditFilter, setAuditFilter] = useState("Todo");
+  const [showAllKnowledgeHistory, setShowAllKnowledgeHistory] = useState(false);
+  const [showAllAuditEvents, setShowAllAuditEvents] = useState(false);
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -454,6 +467,13 @@ export function App() {
   const pendingRevisionSteps =
     textRevision?.steps.filter((step) => !revisionFeedbackByCard[step.card_id]) ?? [];
   const decidedRevisionCount = textRevision ? textRevision.steps.length - pendingRevisionSteps.length : 0;
+  const displayedKnowledgeQueryHistory = showAllKnowledgeHistory
+    ? knowledgeQueryHistory
+    : knowledgeQueryHistory.slice(0, 5);
+  const writerFacingAuditEvents = auditEvents.filter(isWriterFacingAuditEvent);
+  const displayedAuditEvents = showAllAuditEvents
+    ? writerFacingAuditEvents
+    : writerFacingAuditEvents.slice(0, 6);
 
   useEffect(() => {
     getKnowledgeStatus()
@@ -845,6 +865,7 @@ export function App() {
 
   async function handlePreference() {
     setError(null);
+    if (!preferenceText.trim()) return;
     try {
       const created = await createPreference(preferenceText, activeContext);
       setPreference(created);
@@ -875,6 +896,7 @@ export function App() {
   async function handleAuditFilter(nextFilter: string) {
     setError(null);
     setAuditFilter(nextFilter);
+    setShowAllAuditEvents(false);
     try {
       await refreshAuditEvents(nextFilter);
     } catch (nextError) {
@@ -885,6 +907,7 @@ export function App() {
   async function handleKnowledgeQueryHistoryLimit(nextLimit: number) {
     setError(null);
     setKnowledgeQueryHistoryLimit(nextLimit);
+    setShowAllKnowledgeHistory(false);
     setSelectedKnowledgeQueryEventId(null);
     try {
       setKnowledgeQueryHistory(await getKnowledgeQueryHistory(effectiveKnowledgeVersion, nextLimit));
@@ -2709,13 +2732,27 @@ export function App() {
 
         {active === "preferences" && (
           <section className="panel editorGrid">
-            <div>
+            <div className="editorPane">
+              <span className="fieldRole">Aqui escribes</span>
               <h2>Contarle un gusto</h2>
               <p className="note">
                 Esto enseña cómo quieres escribir. No cambia la biblioteca ni sus fuentes.
               </p>
-              <textarea value={preferenceText} onChange={(event) => setPreferenceText(event.target.value)} />
-              <button className="primaryButton" onClick={handlePreference} type="button">
+              <label className="srOnly" htmlFor="preferenceText">
+                Gusto de escritura
+              </label>
+              <textarea
+                id="preferenceText"
+                onChange={(event) => setPreferenceText(event.target.value)}
+                placeholder="Ejemplo: Me gusta un estilo sobrio, preciso y con ritmo."
+                value={preferenceText}
+              />
+              <button
+                className="primaryButton"
+                disabled={!preferenceText.trim()}
+                onClick={handlePreference}
+                type="button"
+              >
                 Guardar gusto
               </button>
               <div className="preferenceList">
@@ -2781,7 +2818,8 @@ export function App() {
                 )}
               </div>
             </div>
-            <div className="inspector">
+            <div className="inspector outputPane">
+              <span className="fieldRole">Aqui aparece la interpretacion</span>
               <h2>Como lo entiende</h2>
               {preference ? (
                 <>
@@ -2821,7 +2859,8 @@ export function App() {
 
         {active === "editor" && (
           <section className="panel editorGrid">
-            <div>
+            <div className="editorPane">
+              <span className="fieldRole">Aqui escribes</span>
               <h2>Borrador</h2>
               <p className="note">
                 Trabaja un texto sin entregar el mando: Editados propone, tu criterio decide.
@@ -2842,7 +2881,7 @@ export function App() {
                 value={editorText}
               />
               <div className="editorControls">
-                <label>
+                <label className="editorControl actionControl">
                   Que quieres hacer
                   <select
                     onChange={(event) => setEditorAction(event.target.value as GenerationAction)}
@@ -2855,7 +2894,7 @@ export function App() {
                     ))}
                   </select>
                 </label>
-                <label>
+                <label className="editorControl intensityControl">
                   Intensidad: {editorIntensity}
                   <input
                     max={1000}
@@ -2866,7 +2905,7 @@ export function App() {
                     value={editorIntensity}
                   />
                 </label>
-                <label>
+                <label className="editorControl revisionControl">
                   Revision
                   <select
                     onChange={(event) => setRevisionIntention(event.target.value)}
@@ -2930,14 +2969,15 @@ export function App() {
                 </button>
               </div>
             </div>
-            <div className="inspector">
+            <div className="inspector outputPane">
+              <span className="fieldRole">Aqui sale la respuesta</span>
               <h2>Salida</h2>
               {generation ? (
                 <>
                   <h3>Propuesta de {editorProposalLabel}</h3>
                   <p className="note">
                     Es una version alternativa creada con {selectedEditorAction.label.toLowerCase()}.
-                    No sustituye tu borrador hasta que pulses "Usar este texto".
+                    No sustituye tu borrador hasta que pulses "Aceptar propuesta".
                   </p>
                   <textarea readOnly value={generation.output} />
                   <div className="resultActions">
@@ -2969,7 +3009,10 @@ export function App() {
                   </details>
                 </>
               ) : (
-                <p className="note">Aqui aparecera la propuesta o la lectura del texto.</p>
+                <div className="emptyOutput">
+                  <strong>Sin salida todavia</strong>
+                  <p>Primero escribe o pega un texto. Luego crea una propuesta o pide lectura con fichas.</p>
+                </div>
               )}
               {textRevision ? (
                 <div className="proposalBox">
@@ -3697,7 +3740,7 @@ export function App() {
                 <p className="note">Todavia no hay busquedas registradas.</p>
               ) : (
                 <div className="auditList">
-                  {knowledgeQueryHistory.map((item) => (
+                  {displayedKnowledgeQueryHistory.map((item) => (
                     <article className="auditItem" key={item.event_id}>
                       <div>
                         <strong>Consulta en la base publicada</strong>
@@ -3771,6 +3814,15 @@ export function App() {
                   ))}
                 </div>
               )}
+              {knowledgeQueryHistory.length > displayedKnowledgeQueryHistory.length ? (
+                <button
+                  className="ghostButton"
+                  onClick={() => setShowAllKnowledgeHistory(true)}
+                  type="button"
+                >
+                  Ver mas consultas
+                </button>
+              ) : null}
             </div>
             <div className="auditSection">
               <h2>Actividad de escritura</h2>
@@ -3787,11 +3839,11 @@ export function App() {
                   ))}
                 </select>
               </div>
-              {auditEvents.length === 0 ? (
+              {writerFacingAuditEvents.length === 0 ? (
                 <p className="note">Todavia no hay eventos registrados.</p>
               ) : (
                 <div className="auditList">
-                  {auditEvents.map((event) => (
+                  {displayedAuditEvents.map((event) => (
                     <article className="auditItem" key={event.id}>
                       <div>
                         <strong>{auditEventPublicLabel(event.event_type)}</strong>
@@ -3815,6 +3867,15 @@ export function App() {
                   ))}
                 </div>
               )}
+              {writerFacingAuditEvents.length > displayedAuditEvents.length ? (
+                <button
+                  className="ghostButton"
+                  onClick={() => setShowAllAuditEvents(true)}
+                  type="button"
+                >
+                  Ver mas actividad
+                </button>
+              ) : null}
             </div>
           </section>
         )}
@@ -3900,6 +3961,10 @@ function auditHumanBadges(event: AuditEvent) {
     stringPayloadValue(payload.stance, ""),
   ].filter(Boolean);
   return badges.length ? [...new Set(badges)].slice(0, 4) : [event.event_type];
+}
+
+function isWriterFacingAuditEvent(event: AuditEvent) {
+  return writerFacingAuditEventTypes.has(event.event_type);
 }
 
 function preferenceStatusPublicLabel(status: string) {

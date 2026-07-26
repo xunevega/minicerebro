@@ -17,6 +17,18 @@
   box-sizing: border-box;
 }
 
+.srOnly {
+  clip: rect(0 0 0 0);
+  border: 0;
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  padding: 0;
+  position: absolute;
+  white-space: nowrap;
+  width: 1px;
+}
+
 body {
   background:
     linear-gradient(rgba(17, 17, 17, 0.025) 1px, transparent 1px),
@@ -327,7 +339,22 @@ li {
 .editorGrid {
   display: grid;
   gap: 0;
-  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.88fr);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.editorPane,
+.outputPane {
+  min-width: 0;
+}
+
+.fieldRole {
+  color: var(--accent);
+  display: block;
+  font-size: 11px;
+  font-weight: 900;
+  letter-spacing: 0.08em;
+  margin-bottom: 8px;
+  text-transform: uppercase;
 }
 
 textarea {
@@ -343,6 +370,19 @@ textarea {
   padding: 22px 0;
   resize: vertical;
   width: 100%;
+}
+
+.editorPane > textarea,
+.outputPane > textarea {
+  background: rgba(255, 255, 255, 0.72);
+  border: 1px solid var(--line);
+  margin-top: 18px;
+  min-height: 300px;
+  padding: 22px;
+}
+
+.outputPane > textarea {
+  background: var(--soft);
 }
 
 textarea + textarea,
@@ -478,9 +518,10 @@ textarea + .primaryButton {
 
 .editorControls {
   display: grid;
+  align-items: end;
   gap: 14px;
-  grid-template-columns: minmax(150px, 0.6fr) 1fr minmax(160px, 0.55fr);
-  margin: 14px 0;
+  grid-template-columns: minmax(260px, 1.35fr) minmax(220px, 1fr) minmax(170px, 0.75fr);
+  margin: 18px 0;
 }
 
 .compactEditorControls {
@@ -549,10 +590,19 @@ textarea + .primaryButton {
 .editorControls label {
   display: grid;
   gap: 8px;
+  min-width: 0;
 }
 
 .editorControls input[type="range"] {
   accent-color: #191714;
+  display: block;
+  margin: 0;
+  width: 100%;
+}
+
+.editorControl select,
+.editorControl input {
+  width: 100%;
 }
 
 .actionChooser {
@@ -698,7 +748,13 @@ textarea + .primaryButton {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 12px 0 14px;
+  margin: 20px 0 14px;
+}
+
+.buttonRow .editorButton,
+.buttonRow .ghostButton {
+  min-height: 42px;
+  padding: 0 16px;
 }
 
 .compactRow {
@@ -740,6 +796,26 @@ textarea + .primaryButton {
   border-top: 1px solid #e6e0d7;
   margin-top: 20px;
   padding-top: 18px;
+}
+
+.emptyOutput {
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+  margin-top: 18px;
+  min-height: 150px;
+  place-content: center start;
+  padding: 22px;
+}
+
+.emptyOutput strong {
+  color: var(--ink);
+}
+
+.emptyOutput p {
+  margin: 0;
+  max-width: 460px;
 }
 
 .versionToolbar {
@@ -1247,9 +1323,19 @@ textarea + .primaryButton {
   grid-column: 1 / -1;
 }
 
+.rowActions select {
+  background-color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  min-height: 38px;
+  min-width: 170px;
+  padding: 7px 38px 7px 12px;
+}
+
 .auditList {
   display: grid;
   gap: 12px;
+  margin-bottom: 12px;
 }
 
 .auditSection + .auditSection {
@@ -1346,6 +1432,16 @@ textarea + .primaryButton {
   background: #191714;
   display: block;
   height: 100%;
+}
+
+@media (max-width: 1180px) {
+  .editorControls {
+    grid-template-columns: minmax(260px, 1fr) minmax(180px, 0.8fr);
+  }
+
+  .editorControls .revisionControl {
+    grid-column: 1 / -1;
+  }
 }
 
 @media (max-width: 860px) {
