@@ -509,6 +509,14 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 published_at="2026-07-26T13:00:00+00:00",
             )
         )
+    if session.get(KnowledgeVersionRecord, "knowledge-v40") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v40",
+                status="published",
+                published_at="2026-07-26T14:00:00+00:00",
+            )
+        )
     for source in seed_sources():
         source_record = session.get(KnowledgeSourceRecord, source.id)
         values = {
@@ -1132,6 +1140,7 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "knowledge-v37",
             "knowledge-v38",
             "knowledge-v39",
+            "knowledge-v40",
         }
         candidate_object_ids.update(
             node.id for node in seed_nodes() if node.version in published_versions
@@ -2528,6 +2537,53 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "knowledge-v39",
         },
         timestamp="2026-07-26T13:00:00+00:00",
+    )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v40",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+            "knowledge-v10",
+            "knowledge-v11",
+            "knowledge-v12",
+            "knowledge-v13",
+            "knowledge-v14",
+            "knowledge-v15",
+            "knowledge-v16",
+            "knowledge-v17",
+            "knowledge-v18",
+            "knowledge-v19",
+            "knowledge-v20",
+            "knowledge-v21",
+            "knowledge-v22",
+            "knowledge-v23",
+            "knowledge-v24",
+            "knowledge-v25",
+            "knowledge-v26",
+            "knowledge-v27",
+            "knowledge-v28",
+            "knowledge-v29",
+            "knowledge-v30",
+            "knowledge-v31",
+            "knowledge-v32",
+            "knowledge-v33",
+            "knowledge-v34",
+            "knowledge-v35",
+            "knowledge-v36",
+            "knowledge-v37",
+            "knowledge-v38",
+            "knowledge-v39",
+            "knowledge-v40",
+        },
+        timestamp="2026-07-26T14:00:00+00:00",
     )
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v1") is None:
         source_ids = ["rae-ngle"]

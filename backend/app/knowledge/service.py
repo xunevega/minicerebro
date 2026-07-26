@@ -73,7 +73,8 @@ KNOWLEDGE_V35_VERSION = "knowledge-v35"
 KNOWLEDGE_V36_VERSION = "knowledge-v36"
 KNOWLEDGE_V37_VERSION = "knowledge-v37"
 KNOWLEDGE_V38_VERSION = "knowledge-v38"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v39"
+KNOWLEDGE_V39_VERSION = "knowledge-v39"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v40"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -114,6 +115,7 @@ KNOWLEDGE_V36_PUBLISHED_AT = "2026-07-26T10:00:00+00:00"
 KNOWLEDGE_V37_PUBLISHED_AT = "2026-07-26T11:00:00+00:00"
 KNOWLEDGE_V38_PUBLISHED_AT = "2026-07-26T12:00:00+00:00"
 KNOWLEDGE_V39_PUBLISHED_AT = "2026-07-26T13:00:00+00:00"
+KNOWLEDGE_V40_PUBLISHED_AT = "2026-07-26T14:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -6904,6 +6906,194 @@ V39_SEED_ITEMS = [
     },
 ]
 
+V40_SEED_ITEMS = [
+    {
+        "key": "revision-estructural",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:revision-estructural",
+        "index_title": "Revision estructural",
+        "index_locator": "Edicion de referencia > revision > estructura",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:revision-estructural:seg-1",
+        "segment_title": "Empezar por el plan del texto",
+        "segment_text": "Resumen editorial minimo: la revision estructural mira primero si el texto tiene plan, foco y orden antes de tocar frases sueltas.",
+        "extraction_id": "ext-cassany-revision-estructural-1",
+        "node_id": "cassany-revision-estructural",
+        "canonical_name": "Revision estructural",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "estructura",
+        "node_summary": "Criterio para revisar plan, foco y orden antes de corregir la superficie.",
+        "short_definition": "Primera capa de revision: plan, foco, orden y arquitectura del texto.",
+        "aliases": ["revision de estructura", "revision global"],
+        "relation_target": "cassany-reescritura-global",
+        "relation_type": "deriva_de",
+        "card_id": "card-revision-estructural",
+        "card_type": "revision_layer_tool",
+        "card_name": "Revision estructural",
+        "card_definition": "Capa de revision que decide si el problema esta en el plan general antes de tocar parrafos o frases.",
+        "signals": ["plan", "foco", "orden"],
+        "risks": ["pulir frases de un texto mal planteado", "perder la idea principal"],
+        "contexts": ["revision", "estructura", "diagnostico"],
+        "evidence_id": "ev-cassany-revision-estructural",
+        "evidence_section": "revision estructural",
+        "confidence": 0.63,
+        "claim_id": "claim-cassany-revision-estructural",
+        "statement": "La revision estructural debe comprobar plan, foco y orden antes de intervenir en frases sueltas.",
+        "claim_type": "writing",
+        "domain": "writing.revision.layers.structure",
+        "related_node_ids": ["cassany-reescritura-global", "reyes-coherencia-textual"],
+    },
+    {
+        "key": "revision-de-parrafo",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:revision-parrafo",
+        "index_title": "Revision de parrafo",
+        "index_locator": "Edicion 2012 > revision > parrafo",
+        "segment_id": "reyes-arte-escribir:edicion-2012:revision-parrafo:seg-1",
+        "segment_title": "Revisar unidad y avance",
+        "segment_text": "Resumen editorial minimo: revisar un parrafo exige comprobar unidad, progresion y enlace con el parrafo anterior y el siguiente.",
+        "extraction_id": "ext-reyes-2012-revision-parrafo-1",
+        "node_id": "reyes-revision-de-parrafo",
+        "canonical_name": "Revision de parrafo",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para revisar unidad, progresion y enlace de cada parrafo.",
+        "short_definition": "Segunda capa de revision: unidad, avance y transicion del parrafo.",
+        "aliases": ["revision del parrafo", "revision de unidad de parrafo"],
+        "relation_target": "reyes-parrafo-idea",
+        "relation_type": "usa",
+        "card_id": "card-revision-de-parrafo",
+        "card_type": "revision_layer_tool",
+        "card_name": "Revision de parrafo",
+        "card_definition": "Capa de revision que comprueba si cada parrafo cumple una funcion y avanza.",
+        "signals": ["idea central", "progresion", "transicion"],
+        "risks": ["parrafo cajon", "salto entre ideas"],
+        "contexts": ["revision", "parrafo", "estructura"],
+        "evidence_id": "ev-reyes-revision-de-parrafo",
+        "evidence_section": "revision de parrafo",
+        "confidence": 0.63,
+        "claim_id": "claim-reyes-revision-de-parrafo",
+        "statement": "La revision de parrafo comprueba unidad, progresion y enlace antes de bajar a la frase.",
+        "claim_type": "writing",
+        "domain": "writing.revision.layers.paragraph",
+        "related_node_ids": ["reyes-parrafo-idea", "reyes-progresion-de-parrafo"],
+    },
+    {
+        "key": "revision-de-frase",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:revision-frase-capa",
+        "index_title": "Revision de frase",
+        "index_locator": "Edicion de referencia > revision > frase",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:revision-frase-capa:seg-1",
+        "segment_title": "Pulir claridad y ritmo",
+        "segment_text": "Resumen editorial minimo: la revision de frase trabaja orden, concision y ritmo cuando la estructura y el parrafo ya estan claros.",
+        "extraction_id": "ext-strunk-white-revision-frase-capa-1",
+        "node_id": "strunk-revision-de-frase",
+        "canonical_name": "Revision de frase",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "frase",
+        "node_summary": "Criterio para pulir orden, concision y ritmo de la frase.",
+        "short_definition": "Tercera capa de revision: claridad, orden, concision y ritmo de frase.",
+        "aliases": ["revision frase a frase", "pulido de frase"],
+        "relation_target": "strunk-white-revision-frases",
+        "relation_type": "deriva_de",
+        "card_id": "card-revision-de-frase",
+        "card_type": "revision_layer_tool",
+        "card_name": "Revision de frase",
+        "card_definition": "Capa de revision que mejora orden, ritmo y concision cuando el texto ya tiene estructura.",
+        "signals": ["orden", "concision", "ritmo"],
+        "risks": ["pulir antes de entender", "borrar voz por exceso de limpieza"],
+        "contexts": ["revision", "frase", "claridad"],
+        "evidence_id": "ev-strunk-revision-de-frase",
+        "evidence_section": "revision de frase",
+        "confidence": 0.62,
+        "claim_id": "claim-strunk-revision-de-frase",
+        "statement": "La revision de frase trabaja orden, concision y ritmo despues de resolver estructura y parrafo.",
+        "claim_type": "editing",
+        "domain": "writing.revision.layers.sentence",
+        "related_node_ids": ["strunk-white-revision-frases", "cassany-frase-nuclear"],
+    },
+    {
+        "key": "revision-de-tono",
+        "source_id": "rae-lese",
+        "source_edition_id": "rae-lese:edicion-2018",
+        "index_id": "rae-lese:edicion-2018:revision-tono",
+        "index_title": "Revision de tono",
+        "index_locator": "Edicion 2018 > revision > tono",
+        "segment_id": "rae-lese:edicion-2018:revision-tono:seg-1",
+        "segment_title": "Ajustar voz y registro",
+        "segment_text": "Resumen editorial minimo: la revision de tono ajusta voz, distancia y registro cuando el sentido del texto ya esta establecido.",
+        "extraction_id": "ext-rae-lese-2018-revision-tono-1",
+        "node_id": "rae-lese-revision-de-tono",
+        "canonical_name": "Revision de tono",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "tono",
+        "node_summary": "Criterio para ajustar voz, distancia y registro sin alterar el sentido.",
+        "short_definition": "Cuarta capa de revision: voz, distancia, registro y adecuacion al lector.",
+        "aliases": ["ajuste de tono", "revision tonal"],
+        "relation_target": "rae-lese-tono-adecuado",
+        "relation_type": "usa",
+        "card_id": "card-revision-de-tono",
+        "card_type": "revision_layer_tool",
+        "card_name": "Revision de tono",
+        "card_definition": "Capa de revision que ajusta voz y registro cuando estructura, parrafo y frase ya funcionan.",
+        "signals": ["voz", "registro", "distancia"],
+        "risks": ["tono impostado", "cambiar la intencion del texto"],
+        "contexts": ["revision", "tono", "registro"],
+        "evidence_id": "ev-rae-lese-revision-de-tono",
+        "evidence_section": "revision de tono",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-lese-revision-de-tono",
+        "statement": "La revision de tono ajusta voz, distancia y registro sin cambiar la intencion del texto.",
+        "claim_type": "stylistic",
+        "domain": "writing.revision.layers.tone",
+        "related_node_ids": ["rae-lese-tono-adecuado", "zinsser-voz-del-autor-controlada"],
+    },
+    {
+        "key": "limpieza-final",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:limpieza-final",
+        "index_title": "Limpieza final",
+        "index_locator": "Edicion 2015 > correccion de estilo > limpieza final",
+        "segment_id": "martinez-sousa-mele:edicion-2015:limpieza-final:seg-1",
+        "segment_title": "Cerrar superficie sin reabrir el texto",
+        "segment_text": "Resumen editorial minimo: la limpieza final revisa puntuacion, repeticiones, uniformidad y erratas sin reabrir decisiones estructurales.",
+        "extraction_id": "ext-martinez-sousa-limpieza-final-1",
+        "node_id": "martinez-sousa-limpieza-final",
+        "canonical_name": "Limpieza final",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "correccion final",
+        "node_summary": "Criterio para cerrar puntuacion, uniformidad, repeticiones y erratas.",
+        "short_definition": "Ultima capa de revision: correccion superficial, uniformidad y cierre.",
+        "aliases": ["correccion final", "pulido final"],
+        "relation_target": "martinez-sousa-correccion-estilo-fina",
+        "relation_type": "deriva_de",
+        "card_id": "card-limpieza-final",
+        "card_type": "revision_layer_tool",
+        "card_name": "Limpieza final",
+        "card_definition": "Capa final para corregir puntuacion, repeticiones, uniformidad y erratas sin rehacer el texto.",
+        "signals": ["puntuacion", "uniformidad", "errata"],
+        "risks": ["reabrir decisiones cerradas", "maquillar un problema de fondo"],
+        "contexts": ["revision", "correccion", "cierre"],
+        "evidence_id": "ev-martinez-sousa-limpieza-final",
+        "evidence_section": "limpieza final",
+        "confidence": 0.62,
+        "claim_id": "claim-martinez-sousa-limpieza-final",
+        "statement": "La limpieza final corrige superficie y uniformidad sin reabrir problemas estructurales ya resueltos.",
+        "claim_type": "editing",
+        "domain": "writing.revision.layers.final_cleaning",
+        "related_node_ids": ["martinez-sousa-correccion-estilo-fina", "rae-lese-repeticion"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -8259,7 +8449,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V36_VERSION: "seed_paragraph_progression_batch",
     KNOWLEDGE_V37_VERSION: "seed_tone_register_batch",
     KNOWLEDGE_V38_VERSION: "seed_argumentation_practice_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_revision_diagnostic_batch",
+    KNOWLEDGE_V39_VERSION: "seed_revision_diagnostic_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_revision_layers_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -8293,7 +8484,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V36_VERSION: KNOWLEDGE_V36_PUBLISHED_AT,
     KNOWLEDGE_V37_VERSION: KNOWLEDGE_V37_PUBLISHED_AT,
     KNOWLEDGE_V38_VERSION: KNOWLEDGE_V38_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V39_PUBLISHED_AT,
+    KNOWLEDGE_V39_VERSION: KNOWLEDGE_V39_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V40_PUBLISHED_AT,
 }
 
 
@@ -9748,6 +9940,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V37_SEED_ITEMS),
         *_published_batch_index_entries(V38_SEED_ITEMS),
         *_published_batch_index_entries(V39_SEED_ITEMS),
+        *_published_batch_index_entries(V40_SEED_ITEMS),
     ]
 
 
@@ -9882,6 +10075,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V37_SEED_ITEMS),
         *_published_batch_segments(V38_SEED_ITEMS),
         *_published_batch_segments(V39_SEED_ITEMS),
+        *_published_batch_segments(V40_SEED_ITEMS),
     ]
 
 
@@ -10035,7 +10229,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_extraction_runs(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_extraction_runs(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_extraction_runs(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_extraction_runs(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10718,7 +10913,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_proposals(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_proposals(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_proposals(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_proposals(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10900,7 +11096,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_nodes(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_nodes(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_nodes(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_nodes(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11044,7 +11241,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_node_relations(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_node_relations(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_node_relations(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_node_relations(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11417,7 +11615,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_evidence(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_evidence(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_evidence(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_evidence(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11690,7 +11889,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_claims(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_claims(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_claims(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_claims(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11884,7 +12084,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V36_SEED_ITEMS, KNOWLEDGE_V36_VERSION),
         *_published_batch_cards(V37_SEED_ITEMS, KNOWLEDGE_V37_VERSION),
         *_published_batch_cards(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
-        *_published_batch_cards(V39_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
+        *_published_batch_cards(V40_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12777,10 +12978,18 @@ def seed_versions() -> list[KnowledgeVersion]:
     v38_evidence = [evidence for evidence in seed_evidence() if evidence.version in v38_chain]
     v38_claims = [claim for claim in seed_claims() if claim.version in v38_chain]
     v38_cards = [card for card in seed_cards() if card.version in v38_chain]
-    latest_chain = {*v38_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_source_ids = {*v38_source_ids, *{item["source_id"] for item in V39_SEED_ITEMS}}
+    v39_chain = {*v38_chain, KNOWLEDGE_V39_VERSION}
+    v39_source_ids = {*v38_source_ids, *{item["source_id"] for item in V39_SEED_ITEMS}}
+    v39_sources = [source for source in seed_sources() if source.id in v39_source_ids]
+    v39_node_ids = {*v38_node_ids, *{item["node_id"] for item in V39_SEED_ITEMS}}
+    v39_nodes = [node for node in seed_nodes() if node.id in v39_node_ids]
+    v39_evidence = [evidence for evidence in seed_evidence() if evidence.version in v39_chain]
+    v39_claims = [claim for claim in seed_claims() if claim.version in v39_chain]
+    v39_cards = [card for card in seed_cards() if card.version in v39_chain]
+    latest_chain = {*v39_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_source_ids = {*v39_source_ids, *{item["source_id"] for item in V40_SEED_ITEMS}}
     latest_sources = [source for source in seed_sources() if source.id in latest_source_ids]
-    latest_node_ids = {*v38_node_ids, *{item["node_id"] for item in V39_SEED_ITEMS}}
+    latest_node_ids = {*v39_node_ids, *{item["node_id"] for item in V40_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -13177,9 +13386,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v38_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V39_VERSION,
             status="published",
             published_at=KNOWLEDGE_V39_PUBLISHED_AT,
+            source_count=len(v39_sources),
+            node_count=len(v39_nodes),
+            evidence_count=len(v39_evidence),
+            claim_count=len(v39_claims),
+            card_count=len(v39_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V40_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -13591,6 +13810,7 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V36_VERSION,
             KNOWLEDGE_V37_VERSION,
             KNOWLEDGE_V38_VERSION,
+            KNOWLEDGE_V39_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
