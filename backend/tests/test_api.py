@@ -775,6 +775,58 @@ def test_revision_feedback_rejects_missing_card():
     assert response.status_code == 404
 
 
+def test_revision_feedback_score_proposal_can_be_applied_without_knowledge_mutation():
+    assert client.get("/knowledge/status").status_code == 200
+    with SessionLocal() as session:
+        session.query(ProfileKnowledgeCardRecord).filter(
+            ProfileKnowledgeCardRecord.profile_id == "default",
+            ProfileKnowledgeCardRecord.card_id == "card-revision-de-frase",
+            ProfileKnowledgeCardRecord.knowledge_version == "knowledge-v40",
+        ).delete()
+        card_count = len(session.scalars(select(KnowledgeCardRecord)).all())
+        session.commit()
+
+    feedback = client.post(
+        "/revision/feedback/card-revision-de-frase",
+        json={
+            "knowledge_version": "latest",
+            "context": "general",
+            "stance": "me_sirve",
+            "feedback": "Me sirve para revisar ritmo de frase.",
+            "maintained_elements": ["ritmo"],
+            "change_requests": [],
+            "user_score": 780,
+        },
+    )
+    assert feedback.status_code == 200
+    feedback_payload = feedback.json()
+    assert feedback_payload["score_proposal"]["status"] == "pending_review"
+
+    apply_response = client.post(
+        "/profiles/default/knowledge-cards/card-revision-de-frase/score-proposal/apply"
+        "?knowledge_version=knowledge-v40&context=general",
+        json={"reason": "Aplicar scoring desde feedback de revision."},
+    )
+
+    assert apply_response.status_code == 200
+    payload = apply_response.json()
+    assert payload["proposal"]["profile_knowledge_card_id"] == (
+        feedback_payload["profile_card"]["id"]
+    )
+    assert payload["variables"]
+
+    with SessionLocal() as session:
+        assert len(session.scalars(select(KnowledgeCardRecord)).all()) == card_count
+        event = session.scalar(
+            select(AuditEventRecord)
+            .where(AuditEventRecord.event_type == "profile.knowledge_card.score_applied")
+            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
+        )
+        assert event is not None
+        assert event.payload["card_id"] == "card-revision-de-frase"
+        assert event.payload["stable_knowledge_mutated"] is False
+
+
 def test_lab_simulation_does_not_persist_score_changes():
     before = client.get("/profiles/default/scores?context=general").json()
     target = before[0]

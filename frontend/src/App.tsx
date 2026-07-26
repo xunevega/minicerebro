@@ -124,6 +124,7 @@ import type {
   PersistenceDomain,
   ProfileExport,
   ProfileKnowledgeCard,
+  ProfileKnowledgeCardScoreApplyResult,
   ProfileKnowledgeCardScoreProposal,
   ProfileKnowledgeCardStance,
   RevisionFeedbackResult,
@@ -354,6 +355,13 @@ export function App() {
     Record<string, RevisionFeedbackResult>
   >({});
   const [revisionFeedbackBusyCard, setRevisionFeedbackBusyCard] = useState<string | null>(null);
+  const [revisionScoreAppliedByCard, setRevisionScoreAppliedByCard] = useState<
+    Record<string, ProfileKnowledgeCardScoreApplyResult>
+  >({});
+  const [revisionScoreBusyCard, setRevisionScoreBusyCard] = useState<string | null>(null);
+  const [revisionScorePendingByCard, setRevisionScorePendingByCard] = useState<
+    Record<string, boolean>
+  >({});
   const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
   const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
   const [labIntensity, setLabIntensity] = useState(500);
@@ -1359,6 +1367,8 @@ export function App() {
       );
       setTextRevision(result);
       setRevisionFeedbackByCard({});
+      setRevisionScoreAppliedByCard({});
+      setRevisionScorePendingByCard({});
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -1388,6 +1398,16 @@ export function App() {
         user_score: stance === "me_sirve" || stance === "mantiene_esto" ? 780 : 420,
       });
       setRevisionFeedbackByCard((previous) => ({ ...previous, [cardId]: result }));
+      setRevisionScoreAppliedByCard((previous) => {
+        const next = { ...previous };
+        delete next[cardId];
+        return next;
+      });
+      setRevisionScorePendingByCard((previous) => {
+        const next = { ...previous };
+        delete next[cardId];
+        return next;
+      });
       setProfileKnowledgeCards(await getProfileKnowledgeCards());
       setEditorialProfileCard(await getEditorialProfileCard(activeContext));
       await refreshAuditEvents();
@@ -1396,6 +1416,46 @@ export function App() {
     } finally {
       setRevisionFeedbackBusyCard(null);
     }
+  }
+
+  async function handleApplyRevisionScore(cardId: string) {
+    const feedback = revisionFeedbackByCard[cardId];
+    if (!feedback || feedback.score_proposal.status !== "pending_review") {
+      return;
+    }
+    setError(null);
+    setRevisionScoreBusyCard(cardId);
+    try {
+      const applied = await applyProfileKnowledgeCardScoreProposal(
+        cardId,
+        feedback.knowledge_version,
+        activeContext,
+        "Aplicar scoring desde feedback de revision.",
+      );
+      setRevisionScoreAppliedByCard((previous) => ({ ...previous, [cardId]: applied }));
+      setRevisionScorePendingByCard((previous) => {
+        const next = { ...previous };
+        delete next[cardId];
+        return next;
+      });
+      setScores((current) =>
+        current.map(
+          (item) => applied.variables.find((variable) => variable.key === item.key) ?? item,
+        ),
+      );
+      setStatistics(await getProfileStatistics(activeContext));
+      setEditorialProfileCard(await getEditorialProfileCard(activeContext));
+      setProfileExport(null);
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setRevisionScoreBusyCard(null);
+    }
+  }
+
+  function handleKeepRevisionScorePending(cardId: string) {
+    setRevisionScorePendingByCard((previous) => ({ ...previous, [cardId]: true }));
   }
 
   async function handleLabSimulation() {
@@ -2795,7 +2855,47 @@ export function App() {
                         </button>
                       </div>
                       {revisionFeedbackByCard[step.card_id] ? (
-                        <span className="statusPill done">Guardado en ficha</span>
+                        <div className="learningBox">
+                          <span className="statusPill done">Guardado en ficha</span>
+                          <strong>Aprendido de ti</strong>
+                          <span>{revisionFeedbackByCard[step.card_id].profile_card.feedback}</span>
+                          {revisionFeedbackByCard[step.card_id].score_proposal.items.length > 0 ? (
+                            <>
+                              {revisionFeedbackByCard[step.card_id].score_proposal.items.map((item) => (
+                                <span key={item.variable_key}>
+                                  {item.variable_key}: {item.delta > 0 ? "+" : ""}
+                                  {item.delta} si decides aplicarlo
+                                </span>
+                              ))}
+                              {revisionScoreAppliedByCard[step.card_id] ? (
+                                <span className="statusPill done">Scoring actualizado</span>
+                              ) : revisionScorePendingByCard[step.card_id] ? (
+                                <span className="statusPill warning">Ajuste pendiente</span>
+                              ) : (
+                                <div className="buttonRow compactRow">
+                                  <button
+                                    className="primaryButton"
+                                    disabled={revisionScoreBusyCard === step.card_id}
+                                    onClick={() => handleApplyRevisionScore(step.card_id)}
+                                    type="button"
+                                  >
+                                    Aplicar ajuste
+                                  </button>
+                                  <button
+                                    className="secondaryButton"
+                                    disabled={revisionScoreBusyCard === step.card_id}
+                                    onClick={() => handleKeepRevisionScorePending(step.card_id)}
+                                    type="button"
+                                  >
+                                    Dejar pendiente
+                                  </button>
+                                </div>
+                              )}
+                            </>
+                          ) : (
+                            <span>Sin ajuste automatico de scoring para esta respuesta.</span>
+                          )}
+                        </div>
                       ) : null}
                     </div>
                   ))}

@@ -53,6 +53,16 @@ try {
   await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
   await feedbackResponse;
   await resultPanel.getByText("Guardado en ficha").first().waitFor();
+  const scoreApplyResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname.includes("/score-proposal/apply") && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await resultPanel.getByRole("button", { name: "Aplicar ajuste" }).first().click();
+  await scoreApplyResponse;
+  await resultPanel.getByText("Scoring actualizado").first().waitFor();
 
   const output = await resultPanel.locator("textarea[readonly]").inputValue();
   if (!output || output.length < 10) {
