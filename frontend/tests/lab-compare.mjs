@@ -13,7 +13,7 @@ try {
       description: "Redacta, corrige y compara sin perder tu criterio.",
     })
     .click();
-  await page.getByRole("button", { name: "Taller" }).click();
+  await page.getByLabel("Vista").selectOption("lab");
 
   const labPanel = page.locator(".panel", { hasText: "Simulacion" });
   await labPanel.locator("textarea").first().fill("Texto base para comparar.");

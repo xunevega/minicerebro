@@ -124,7 +124,6 @@ import type {
   PersistenceDomain,
   ProfileExport,
   ProfileKnowledgeCard,
-  ProfileKnowledgeCardScoreApplyResult,
   ProfileKnowledgeCardScoreProposal,
   ProfileKnowledgeCardStance,
   RevisionFeedbackResult,
@@ -369,13 +368,6 @@ export function App() {
     Record<string, RevisionFeedbackResult>
   >({});
   const [revisionFeedbackBusyCard, setRevisionFeedbackBusyCard] = useState<string | null>(null);
-  const [revisionScoreAppliedByCard, setRevisionScoreAppliedByCard] = useState<
-    Record<string, ProfileKnowledgeCardScoreApplyResult>
-  >({});
-  const [revisionScoreBusyCard, setRevisionScoreBusyCard] = useState<string | null>(null);
-  const [revisionScorePendingByCard, setRevisionScorePendingByCard] = useState<
-    Record<string, boolean>
-  >({});
   const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
   const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
   const [labIntensity, setLabIntensity] = useState(500);
@@ -391,9 +383,13 @@ export function App() {
   const [scoreReason, setScoreReason] = useState("Ajuste manual revisado en la pantalla de scoring.");
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const showInternalNavigation = new URLSearchParams(window.location.search).get("internal") === "1";
   const activeTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
   const activeSection =
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
+  const visibleMainSections = mainSections.filter(
+    (section) => showInternalNavigation || section.id !== "technical",
+  );
   const activeSectionTabs = tabs.filter((tab) => {
     if (!activeSection.tabs.includes(tab.id)) return false;
     if (activeSection.id !== "technical") return true;
@@ -455,6 +451,9 @@ export function App() {
       status: editorFeedbackCount > 0 ? "done" : textRevision ? "active" : "pending",
     },
   ];
+  const pendingRevisionSteps =
+    textRevision?.steps.filter((step) => !revisionFeedbackByCard[step.card_id]) ?? [];
+  const decidedRevisionCount = textRevision ? textRevision.steps.length - pendingRevisionSteps.length : 0;
 
   useEffect(() => {
     getKnowledgeStatus()
@@ -1415,6 +1414,9 @@ export function App() {
       );
       setGeneration(result);
       setEditorOriginalBeforeGeneration(draftBeforeGeneration);
+      setOriginal(draftBeforeGeneration);
+      setRevised(result.output);
+      setComparison(await compareTexts(draftBeforeGeneration, result.output, activeContext));
       setGeneratedTexts(await getGeneratedTexts(activeContext));
       await refreshAuditEvents();
     } catch (nextError) {
@@ -1425,17 +1427,29 @@ export function App() {
   function handleUseGeneratedText() {
     if (!generation) return;
     setEditorText(generation.output);
+    setEditorOriginalBeforeGeneration("");
+    setGeneration(null);
+    setGenerationCopyStatus("");
+    setTextRevision(null);
+    setRevisionFeedbackByCard({});
   }
 
-  async function handleCopyGeneratedText() {
-    if (!generation) return;
+  function handleDiscardGeneratedText() {
+    setGeneration(null);
+    setGenerationCopyStatus("");
+    setComparison(null);
+  }
+
+  async function handleCopyEditorText() {
+    const textToCopy = generation?.output || editorText;
+    if (!textToCopy) return;
     setGenerationCopyStatus("");
     try {
       if (navigator.clipboard?.writeText) {
-        await navigator.clipboard.writeText(generation.output);
+        await navigator.clipboard.writeText(textToCopy);
       } else {
         const element = document.createElement("textarea");
-        element.value = generation.output;
+        element.value = textToCopy;
         element.setAttribute("readonly", "true");
         element.style.position = "fixed";
         element.style.opacity = "0";
@@ -1450,11 +1464,6 @@ export function App() {
     }
   }
 
-  async function handleCompareGeneratedText() {
-    if (!generation) return;
-    await compareDrafts(editorOriginalBeforeGeneration || editorText, generation.output);
-  }
-
   function handleClearEditor() {
     setEditorText("");
     setEditorOriginalBeforeGeneration("");
@@ -1462,8 +1471,6 @@ export function App() {
     setGenerationCopyStatus("");
     setTextRevision(null);
     setRevisionFeedbackByCard({});
-    setRevisionScoreAppliedByCard({});
-    setRevisionScorePendingByCard({});
     setError(null);
   }
 
@@ -1478,8 +1485,6 @@ export function App() {
       );
       setTextRevision(result);
       setRevisionFeedbackByCard({});
-      setRevisionScoreAppliedByCard({});
-      setRevisionScorePendingByCard({});
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -1509,16 +1514,24 @@ export function App() {
         user_score: stance === "me_sirve" || stance === "mantiene_esto" ? 780 : 420,
       });
       setRevisionFeedbackByCard((previous) => ({ ...previous, [cardId]: result }));
-      setRevisionScoreAppliedByCard((previous) => {
-        const next = { ...previous };
-        delete next[cardId];
-        return next;
-      });
-      setRevisionScorePendingByCard((previous) => {
-        const next = { ...previous };
-        delete next[cardId];
-        return next;
-      });
+      if (
+        stance === "me_sirve" &&
+        result.score_proposal.status === "pending_review" &&
+        result.score_proposal.items.length > 0
+      ) {
+        const applied = await applyProfileKnowledgeCardScoreProposal(
+          cardId,
+          result.knowledge_version,
+          activeContext,
+          "Aplicar scoring desde ficha aceptada en revision.",
+        );
+        setScores((current) =>
+          current.map(
+            (item) => applied.variables.find((variable) => variable.key === item.key) ?? item,
+          ),
+        );
+        setStatistics(await getProfileStatistics(activeContext));
+      }
       setProfileKnowledgeCards(await getProfileKnowledgeCards());
       setEditorialProfileCard(await getEditorialProfileCard(activeContext));
       await refreshAuditEvents();
@@ -1527,46 +1540,6 @@ export function App() {
     } finally {
       setRevisionFeedbackBusyCard(null);
     }
-  }
-
-  async function handleApplyRevisionScore(cardId: string) {
-    const feedback = revisionFeedbackByCard[cardId];
-    if (!feedback || feedback.score_proposal.status !== "pending_review") {
-      return;
-    }
-    setError(null);
-    setRevisionScoreBusyCard(cardId);
-    try {
-      const applied = await applyProfileKnowledgeCardScoreProposal(
-        cardId,
-        feedback.knowledge_version,
-        activeContext,
-        "Aplicar scoring desde feedback de revision.",
-      );
-      setRevisionScoreAppliedByCard((previous) => ({ ...previous, [cardId]: applied }));
-      setRevisionScorePendingByCard((previous) => {
-        const next = { ...previous };
-        delete next[cardId];
-        return next;
-      });
-      setScores((current) =>
-        current.map(
-          (item) => applied.variables.find((variable) => variable.key === item.key) ?? item,
-        ),
-      );
-      setStatistics(await getProfileStatistics(activeContext));
-      setEditorialProfileCard(await getEditorialProfileCard(activeContext));
-      setProfileExport(null);
-      await refreshAuditEvents();
-    } catch (nextError) {
-      setError((nextError as Error).message);
-    } finally {
-      setRevisionScoreBusyCard(null);
-    }
-  }
-
-  function handleKeepRevisionScorePending(cardId: string) {
-    setRevisionScorePendingByCard((previous) => ({ ...previous, [cardId]: true }));
   }
 
   async function handleLabSimulation() {
@@ -1633,7 +1606,7 @@ export function App() {
           <img className="brandLogo" src="/editados-logo.png" alt="Editados" />
         </div>
         <nav>
-          {mainSections.map((section) => {
+          {visibleMainSections.map((section) => {
             const Icon = section.icon;
             return (
               <button
@@ -1676,37 +1649,34 @@ export function App() {
           </div>
         </header>
 
-        {activeSectionTabs.length > 1 || activeSection.id === "technical" ? (
-          <div className="subnav" aria-label={`Secciones de ${activeSection.label}`}>
-            {activeSectionTabs.map((tab) => {
-              const Icon = tab.icon;
-              return (
-                <button
-                  className={active === tab.id ? "subtab active" : "subtab"}
-                  key={tab.id}
-                  onClick={() => setActive(tab.id)}
-                  type="button"
-                >
-                  <Icon size={16} />
-                  <span>{tab.label}</span>
-                </button>
-              );
-            })}
-            {activeSection.id === "technical" ? (
-              <button
-                className={showSystemTechnical ? "subtab active" : "subtab"}
-                onClick={() => {
+        {activeSectionTabs.length > 1 || (showInternalNavigation && activeSection.id === "technical") ? (
+          <div className="sectionMenu">
+            <label htmlFor="sectionSelect">Vista</label>
+            <select
+              id="sectionSelect"
+              onChange={(event) => {
+                if (event.target.value === "__toggle_internal") {
                   if (showSystemTechnical && systemTechnicalTabs.includes(active)) {
-                    setActive("audit");
+                    setActive("persistence");
                   }
                   setShowSystemTechnical((current) => !current);
-                }}
-                type="button"
-              >
-                <ShieldCheck size={16} />
-                <span>{showSystemTechnical ? "Ocultar tecnico" : "Mostrar tecnico"}</span>
-              </button>
-            ) : null}
+                  return;
+                }
+                setActive(event.target.value as TabId);
+              }}
+              value={active}
+            >
+              {activeSectionTabs.map((tab) => (
+                <option key={tab.id} value={tab.id}>
+                  {tab.label}
+                </option>
+              ))}
+              {showInternalNavigation && activeSection.id === "technical" ? (
+                <option value="__toggle_internal">
+                  {showSystemTechnical ? "Ocultar interno" : "Mostrar interno"}
+                </option>
+              ) : null}
+            </select>
           </div>
         ) : null}
 
@@ -2868,25 +2838,23 @@ export function App() {
               <textarea
                 aria-label="Borrador"
                 onChange={(event) => setEditorText(event.target.value)}
-                placeholder="Escribe aqui una idea o un texto para trabajar."
+                placeholder="Pega o escribe aqui el texto que quieres trabajar."
                 value={editorText}
               />
-              <div className="actionChooser" aria-label="Acciones de escritura">
-                {editorActions.map((action) => (
-                  <button
-                    className={
-                      editorAction === action.value ? "actionChoice active" : "actionChoice"
-                    }
-                    key={action.value}
-                    onClick={() => setEditorAction(action.value)}
-                    type="button"
+              <div className="editorControls">
+                <label>
+                  Que quieres hacer
+                  <select
+                    onChange={(event) => setEditorAction(event.target.value as GenerationAction)}
+                    value={editorAction}
                   >
-                    <strong>{action.label}</strong>
-                    <span>{action.description}</span>
-                  </button>
-                ))}
-              </div>
-              <div className="editorControls compactEditorControls">
+                    {editorActions.map((action) => (
+                      <option key={action.value} value={action.value}>
+                        {action.label} - {action.description}
+                      </option>
+                    ))}
+                  </select>
+                </label>
                 <label>
                   Intensidad: {editorIntensity}
                   <input
@@ -2929,7 +2897,7 @@ export function App() {
                   onClick={handleGenerate}
                   type="button"
                 >
-                  Crear {editorProposalLabel}
+                  Crear propuesta
                 </button>
                 <button
                   className="secondaryButton editorButton"
@@ -2938,6 +2906,14 @@ export function App() {
                   type="button"
                 >
                   Leer con fichas
+                </button>
+                <button
+                  className="ghostButton"
+                  disabled={!editorHasDraft && !generation}
+                  onClick={() => void handleCopyEditorText()}
+                  type="button"
+                >
+                  Copiar
                 </button>
                 <button
                   className="ghostButton danger"
@@ -2966,27 +2942,34 @@ export function App() {
                   <textarea readOnly value={generation.output} />
                   <div className="resultActions">
                     <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
-                      Usar este texto
+                      Aceptar propuesta
                     </button>
-                    <button className="secondaryButton" onClick={handleCompareGeneratedText} type="button">
-                      Comparar propuesta con original
-                    </button>
-                    <button className="ghostButton" onClick={handleCopyGeneratedText} type="button">
+                    <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                       Copiar
+                    </button>
+                    <button className="ghostButton danger" onClick={handleDiscardGeneratedText} type="button">
+                      Descartar
                     </button>
                     {generationCopyStatus ? (
                       <span className="statusPill">{generationCopyStatus}</span>
                     ) : null}
                   </div>
-                  <p className="draftSnapshot">
-                    Original conservado para comparar. Comparar no aplica cambios.
-                  </p>
-                  <p className="note">{generation.explanation}</p>
-                  <span className="statusPill">{generation.provider}</span>
-                  <List title="Aspectos usados" items={generation.used_profile_variables} />
+                  {comparison ? (
+                    <div className="comparisonSummary">
+                      <strong>Comparacion automatica</strong>
+                      <span>Cambios: {comparison.modification_score}</span>
+                      <span>Adecuacion: {comparison.adequacy_score}</span>
+                      <p>{comparison.summary}</p>
+                    </div>
+                  ) : null}
+                  <details className="quietDetails">
+                    <summary>Ver detalles</summary>
+                    <p className="note">{generation.explanation}</p>
+                    <List title="Aspectos usados" items={generation.used_profile_variables} />
+                  </details>
                 </>
               ) : (
-                <p className="note">El editor usa el perfil del contexto activo sin aplicar aprendizaje.</p>
+                <p className="note">Aqui aparecera la propuesta o la lectura del texto.</p>
               )}
               {textRevision ? (
                 <div className="proposalBox">
@@ -3002,7 +2985,18 @@ export function App() {
                     <Metric label="Parrafos" value={textRevision.paragraph_count} />
                     <Metric label="Frases" value={textRevision.sentence_count} />
                   </div>
-                  {textRevision.steps.map((step) => (
+                  {decidedRevisionCount > 0 ? (
+                    <p className="note">
+                      {decidedRevisionCount} ficha{decidedRevisionCount === 1 ? "" : "s"} decidida{decidedRevisionCount === 1 ? "" : "s"}.
+                    </p>
+                  ) : null}
+                  {pendingRevisionSteps.length === 0 ? (
+                    <div className="emptyState">
+                      <strong>Lectura cerrada</strong>
+                      <p>Ya no quedan fichas pendientes. Si necesitas otro enfoque, vuelve a pedir una lectura.</p>
+                    </div>
+                  ) : null}
+                  {pendingRevisionSteps.map((step) => (
                     <article className="revisionStepCard" key={step.card_id}>
                       <div className="revisionStepHeader">
                         <div>
@@ -3059,66 +3053,6 @@ export function App() {
                           No va por ahi
                         </button>
                       </div>
-                      {revisionFeedbackByCard[step.card_id] ? (
-                        <div className="learningBox">
-                          {revisionScoreAppliedByCard[step.card_id] ? (
-                            <>
-                              <span className="statusPill done">Scoring actualizado</span>
-                              <strong>Cerrado en tu criterio</strong>
-                              <span>La ficha quedo guardada y el ajuste ya esta aplicado.</span>
-                            </>
-                          ) : revisionScorePendingByCard[step.card_id] ? (
-                            <>
-                              <span className="statusPill warning">Ajuste pendiente</span>
-                              <strong>Ficha guardada</strong>
-                              <span>
-                                Esta respuesta queda en tu ficha personal. El scoring no cambia hasta que
-                                decidas aplicarlo.
-                              </span>
-                            </>
-                          ) : revisionFeedbackByCard[step.card_id].score_proposal.items.length > 0 ? (
-                            <>
-                              <span className="statusPill done">Guardado en ficha</span>
-                              <strong>Aprendido de ti</strong>
-                              <span>{revisionFeedbackByCard[step.card_id].profile_card.feedback}</span>
-                              <span className="learningHint">
-                                Me sirve guarda la ficha. Aplicar ajuste actualiza tu scoring.
-                              </span>
-                              {revisionFeedbackByCard[step.card_id].score_proposal.items.map((item) => (
-                                <span key={item.variable_key}>
-                                  {item.variable_key}: {item.delta > 0 ? "+" : ""}
-                                  {item.delta} si decides aplicarlo
-                                </span>
-                              ))}
-                              <div className="buttonRow compactRow">
-                                <button
-                                  className="primaryButton"
-                                  disabled={revisionScoreBusyCard === step.card_id}
-                                  onClick={() => handleApplyRevisionScore(step.card_id)}
-                                  type="button"
-                                >
-                                  Aplicar ajuste
-                                </button>
-                                <button
-                                  className="secondaryButton"
-                                  disabled={revisionScoreBusyCard === step.card_id}
-                                  onClick={() => handleKeepRevisionScorePending(step.card_id)}
-                                  type="button"
-                                >
-                                  Dejar pendiente
-                                </button>
-                              </div>
-                            </>
-                          ) : (
-                            <>
-                              <span className="statusPill done">Guardado en ficha</span>
-                              <strong>Aprendido de ti</strong>
-                              <span>{revisionFeedbackByCard[step.card_id].profile_card.feedback}</span>
-                              <span>Sin ajuste automatico de scoring para esta respuesta.</span>
-                            </>
-                          )}
-                        </div>
-                      ) : null}
                     </article>
                   ))}
                   <p className="note">

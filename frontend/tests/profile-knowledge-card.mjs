@@ -8,7 +8,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Mi criterio" }).click();
-  await page.getByRole("button", { name: "Mi ficha" }).click();
+  await page.getByLabel("Vista").selectOption("profile");
 
   await page.getByRole("heading", { name: "Ficha personal" }).waitFor();
   await page.getByText("Preferencias, pesos y ficha personal.").waitFor();

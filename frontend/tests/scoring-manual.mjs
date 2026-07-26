@@ -8,7 +8,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Mi criterio" }).click();
-  await page.getByRole("button", { name: "Pesos" }).click();
+  await page.getByLabel("Vista").selectOption("scoring");
 
   await page.getByText("Ajustes de estilo").waitFor();
   await page.getByLabel("Por que cambias este ajuste").fill("Smoke UI de ajustes.");

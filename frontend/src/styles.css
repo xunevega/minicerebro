@@ -193,6 +193,31 @@ nav {
   color: var(--ink);
 }
 
+.sectionMenu {
+  align-items: center;
+  border-top: 1px solid var(--ink);
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  margin: 0 0 22px;
+  padding-top: 18px;
+}
+
+.sectionMenu label {
+  color: var(--muted);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.sectionMenu select {
+  background-color: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  min-height: 42px;
+  min-width: 220px;
+  padding: 8px 42px 8px 14px;
+}
+
 .workspace {
   margin: 0 auto;
   max-width: 1380px;
@@ -611,6 +636,21 @@ textarea + .primaryButton {
   font-size: 13px;
   margin: 8px 0 14px;
   padding-left: 10px;
+}
+
+.comparisonSummary {
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 6px;
+  margin: 12px 0;
+  padding: 14px;
+}
+
+.comparisonSummary span,
+.comparisonSummary p {
+  color: var(--muted);
+  font-size: 14px;
+  margin: 0;
 }
 
 .adjustControl {

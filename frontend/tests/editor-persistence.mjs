@@ -8,6 +8,9 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
+  if ((await page.getByLabel("Navegacion principal").getByRole("button", { name: "Sistema" }).count()) !== 0) {
+    throw new Error("La navegacion normal muestra la seccion tecnica Sistema.");
+  }
   await page
     .getByRole("button", {
       name: "Escribir",
@@ -28,11 +31,12 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Crear reescritura" }).click();
+  await page.getByRole("button", { name: "Crear propuesta" }).click();
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Salida" });
-  await resultPanel.getByText("deterministic").waitFor();
+  await resultPanel.getByText("Propuesta de reescritura").waitFor();
+  await resultPanel.getByText("Comparacion automatica").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
 
   const revisionResponse = page.waitForResponse(
@@ -60,48 +64,21 @@ try {
   );
   await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
   await feedbackResponse;
-  await resultPanel.getByText("Guardado en ficha").first().waitFor();
+  await resultPanel.getByText("ficha decidida").first().waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("criterio guardado").first().waitFor();
-  const scoreApplyResponse = page.waitForResponse(
-    (response) => {
-      const url = new URL(response.url());
-      return url.pathname.includes("/score-proposal/apply") && response.request().method() === "POST";
-    },
-    { timeout: 90000 },
-  );
-  await resultPanel.getByRole("button", { name: "Aplicar ajuste" }).first().click();
-  await scoreApplyResponse;
-  await resultPanel.getByText("Scoring actualizado").first().waitFor();
-  const appliedLearningBox = resultPanel.locator(".learningBox", { hasText: "Scoring actualizado" }).first();
-  if ((await appliedLearningBox.getByRole("button", { name: "Aplicar ajuste" }).count()) !== 0) {
-    throw new Error("El ajuste aplicado sigue mostrando la accion de aplicar.");
-  }
-  if ((await appliedLearningBox.getByText("si decides aplicarlo").count()) !== 0) {
-    throw new Error("El ajuste aplicado sigue mostrando texto de propuesta pendiente.");
+  if ((await resultPanel.getByRole("button", { name: "Aplicar ajuste" }).count()) !== 0) {
+    throw new Error("La lectura muestra acciones tecnicas de scoring.");
   }
 
   const output = await resultPanel.locator("textarea[readonly]").inputValue();
   if (!output || output.length < 10) {
     throw new Error("La generacion no devolvio un texto persistible.");
   }
-  await resultPanel.getByRole("button", { name: "Usar este texto" }).click();
+  await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).click();
   const updatedDraft = await editorPanel.locator("textarea").first().inputValue();
   if (updatedDraft !== output) {
-    throw new Error("Usar este texto no sustituyo el borrador por la propuesta.");
+    throw new Error("Aceptar propuesta no sustituyo el borrador por la propuesta.");
   }
-  await resultPanel.getByRole("button", { name: "Comparar propuesta con original" }).click();
-  const comparePanel = page.locator(".panel", { hasText: "Comparar textos" });
-  await comparePanel.waitFor();
-  const compareTextareas = comparePanel.locator("textarea");
-  if ((await compareTextareas.nth(0).inputValue()) !== inputText) {
-    throw new Error("El comparador no conserva el texto original previo a la propuesta.");
-  }
-  if ((await compareTextareas.nth(1).inputValue()) !== output) {
-    throw new Error("El comparador no recibio el texto propuesto.");
-  }
-  await comparePanel.locator(".metric", { hasText: "Cambios detectados" }).waitFor();
-  await comparePanel.locator(".metric", { hasText: "Adecuacion estimada" }).waitFor();
-  await page.locator(".subnav").getByRole("button", { name: "Escribir" }).click();
   await editorPanel.getByRole("button", { name: "Borrar texto" }).click();
   if ((await editorPanel.locator("textarea").first().inputValue()) !== "") {
     throw new Error("Borrar texto no dejo el borrador vacio.");
