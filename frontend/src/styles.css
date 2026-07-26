@@ -426,6 +426,10 @@ textarea + .primaryButton {
   margin: 14px 0;
 }
 
+.compactEditorControls {
+  grid-template-columns: minmax(180px, 1fr) minmax(160px, 0.55fr);
+}
+
 .editorControls label {
   display: grid;
   gap: 8px;
@@ -433,6 +437,42 @@ textarea + .primaryButton {
 
 .editorControls input[type="range"] {
   accent-color: #191714;
+}
+
+.actionChooser {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 18px 0 14px;
+}
+
+.actionChoice {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 0;
+  color: var(--ink);
+  cursor: pointer;
+  display: grid;
+  gap: 6px;
+  min-height: 96px;
+  padding: 14px;
+  text-align: left;
+}
+
+.actionChoice:hover,
+.actionChoice.active {
+  border-color: var(--accent);
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.actionChoice strong {
+  font-size: 15px;
+}
+
+.actionChoice span {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .labControls {
@@ -1116,6 +1156,10 @@ textarea + .primaryButton {
 
   .editorControls {
     grid-template-columns: 1fr;
+  }
+
+  .actionChooser {
+    grid-template-columns: 1fr 1fr;
   }
 
   .labControls {

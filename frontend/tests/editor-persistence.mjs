@@ -15,7 +15,7 @@ try {
     })
     .click();
 
-  const editorPanel = page.locator(".panel", { hasText: "Texto" });
+  const editorPanel = page.locator(".panel", { hasText: "Borrador" });
   const inputText = `Smoke editor persistencia ${Date.now()}. Frase para guardar.`;
   await editorPanel.locator("textarea").first().fill(inputText);
 
@@ -26,7 +26,7 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Generar texto" }).click();
+  await page.getByRole("button", { name: "Aplicar reescribir" }).click();
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Resultado" });
@@ -39,9 +39,9 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Revisar texto" }).click();
+  await page.getByRole("button", { name: "Revisar con fichas" }).click();
   await revisionResponse;
-  await resultPanel.getByText("Revision por capas").waitFor();
+  await resultPanel.getByText("Revision con fichas").waitFor();
   await resultPanel.getByText("Diagnostico de reescritura").waitFor();
   const feedbackResponse = page.waitForResponse(
     (response) => {

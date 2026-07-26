@@ -158,6 +158,18 @@ const tabs = [
 ] as const;
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
+const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
+  { value: "rewrite", label: "Reescribir", description: "Mejora claridad y ritmo." },
+  { value: "correction", label: "Corregir", description: "Limpia errores y mantiene el texto." },
+  { value: "continue", label: "Continuar", description: "Sigue la idea sin cerrarla." },
+  { value: "variants", label: "Variantes", description: "Propone alternativas de enfoque." },
+];
+const revisionIntentions = [
+  { value: "claridad", label: "Claridad" },
+  { value: "estructura", label: "Estructura" },
+  { value: "tono", label: "Tono" },
+  { value: "limpieza", label: "Limpieza final" },
+];
 const auditEventFilters = [
   { label: "Todos", eventType: "", entityType: "" },
   {
@@ -2741,21 +2753,27 @@ export function App() {
         {active === "editor" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Texto</h2>
+              <h2>Borrador</h2>
+              <p className="note">
+                Trabaja un texto sin entregar el mando: Editados propone, tu criterio decide.
+              </p>
               <textarea value={editorText} onChange={(event) => setEditorText(event.target.value)} />
-              <div className="editorControls">
-                <label>
-                  Accion
-                  <select
-                    onChange={(event) => setEditorAction(event.target.value as GenerationAction)}
-                    value={editorAction}
+              <div className="actionChooser" aria-label="Acciones de escritura">
+                {editorActions.map((action) => (
+                  <button
+                    className={
+                      editorAction === action.value ? "actionChoice active" : "actionChoice"
+                    }
+                    key={action.value}
+                    onClick={() => setEditorAction(action.value)}
+                    type="button"
                   >
-                    <option value="rewrite">Reescribir</option>
-                    <option value="correction">Corregir</option>
-                    <option value="continue">Continuar</option>
-                    <option value="variants">Variantes</option>
-                  </select>
-                </label>
+                    <strong>{action.label}</strong>
+                    <span>{action.description}</span>
+                  </button>
+                ))}
+              </div>
+              <div className="editorControls compactEditorControls">
                 <label>
                   Intensidad: {editorIntensity}
                   <input
@@ -2768,15 +2786,16 @@ export function App() {
                   />
                 </label>
                 <label>
-                  Intencion
+                  Revision
                   <select
                     onChange={(event) => setRevisionIntention(event.target.value)}
                     value={revisionIntention}
                   >
-                    <option value="claridad">Claridad</option>
-                    <option value="estructura">Estructura</option>
-                    <option value="tono">Tono</option>
-                    <option value="limpieza">Limpieza final</option>
+                    {revisionIntentions.map((intention) => (
+                      <option key={intention.value} value={intention.value}>
+                        {intention.label}
+                      </option>
+                    ))}
                   </select>
                 </label>
               </div>
@@ -2792,10 +2811,10 @@ export function App() {
               />
               <div className="buttonRow">
                 <button className="primaryButton editorButton" onClick={handleGenerate} type="button">
-                  Generar texto
+                  Aplicar {editorActions.find((action) => action.value === editorAction)?.label.toLowerCase()}
                 </button>
                 <button className="primaryButton editorButton" onClick={handleTextRevision} type="button">
-                  Revisar texto
+                  Revisar con fichas
                 </button>
               </div>
             </div>
@@ -2803,6 +2822,7 @@ export function App() {
               <h2>Resultado</h2>
               {generation ? (
                 <>
+                  <h3>Texto propuesto</h3>
                   <textarea readOnly value={generation.output} />
                   <p className="note">{generation.explanation}</p>
                   <span className="statusPill">{generation.provider}</span>
@@ -2813,10 +2833,10 @@ export function App() {
               )}
               {textRevision ? (
                 <div className="proposalBox">
-                  <h3>Revision por capas</h3>
+                  <h3>Revision con fichas</h3>
                   <div className="metricGrid">
-                    <Metric label="Base" value={textRevision.version} />
-                    <Metric label="Intencion" value={textRevision.intention} />
+                    <Metric label="Base" value={knowledgeVersionPublicLabel(textRevision.version, latestPublishedKnowledgeVersion)} />
+                    <Metric label="Objetivo" value={textRevision.intention} />
                     <Metric label="Palabras" value={textRevision.word_count} />
                     <Metric label="Parrafos" value={textRevision.paragraph_count} />
                     <Metric label="Frases" value={textRevision.sentence_count} />
