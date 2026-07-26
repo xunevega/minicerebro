@@ -63,6 +63,7 @@ from app.core.models import (
     KnowledgeStatus,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
+    EditorialProfileCard,
     ProfileExport,
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
@@ -77,6 +78,8 @@ from app.core.models import (
     ExpectedAnswerLine,
     TechnicalClosureCriterion,
     TechnicalRoadmapPhase,
+    TextRevisionInput,
+    TextRevisionResult,
     V1Screen,
 )
 from app.api.deps import get_repository
@@ -615,6 +618,26 @@ def knowledge_query(payload: KnowledgeQueryInput, repository: RepositoryDep) -> 
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 
 
+@router.post("/revision")
+def text_revision(payload: TextRevisionInput, repository: RepositoryDep) -> TextRevisionResult:
+    try:
+        return repository.review_text(DEFAULT_PROFILE_ID, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile or knowledge version not found") from exc
+
+
+@router.post("/profiles/{profile_id}/revision")
+def profile_text_revision(
+    profile_id: str,
+    payload: TextRevisionInput,
+    repository: RepositoryDep,
+) -> TextRevisionResult:
+    try:
+        return repository.review_text(profile_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile or knowledge version not found") from exc
+
+
 @router.get("/knowledge/gym")
 def knowledge_gym(repository: RepositoryDep, version: str = "latest") -> KnowledgeGymReport:
     try:
@@ -831,6 +854,18 @@ def profile_summary(profile_id: str, repository: RepositoryDep):
         "preference_count": len(profile.preferences),
         "confidence_note": "Confianza baja hasta que existan evidencias confirmadas.",
     }
+
+
+@router.get("/profiles/{profile_id}/editorial-card")
+def profile_editorial_card(
+    profile_id: str,
+    repository: RepositoryDep,
+    context: str = "general",
+) -> EditorialProfileCard:
+    try:
+        return repository.editorial_profile_card(profile_id, context)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile not found") from exc
 
 
 @router.get("/profiles/{profile_id}/knowledge-cards")

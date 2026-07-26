@@ -9,6 +9,7 @@ import type {
   Contradiction,
   DecisionEvaluation,
   DecisionRule,
+  EditorialProfileCard,
   ExpectedAnswerLine,
   FeedbackProposal,
   FeedbackStatus,
@@ -71,6 +72,7 @@ import type {
   ScoreVariable,
   TechnicalClosureCriterion,
   TechnicalRoadmapPhase,
+  TextRevisionResult,
   V1Screen,
 } from "../types/api";
 
@@ -458,6 +460,12 @@ export function getProfileSummary() {
   return request<ProfileSummary>("/profiles/default/summary");
 }
 
+export function getEditorialProfileCard(context: string) {
+  return request<EditorialProfileCard>(
+    withContext("/profiles/default/editorial-card", context),
+  );
+}
+
 export function getProfileExport() {
   return request<ProfileExport>("/profiles/default/export");
 }
@@ -626,6 +634,17 @@ export function generateText(
       context,
       intensity,
       protected_terms: protectedTerms,
+    }),
+  });
+}
+
+export function reviewText(text: string, context: string, version = "latest") {
+  return request<TextRevisionResult>("/revision", {
+    method: "POST",
+    body: JSON.stringify({
+      text,
+      context,
+      version,
     }),
   });
 }

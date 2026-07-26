@@ -35,6 +35,7 @@ import {
   getContractBoundaries,
   getContradictions,
   getDecisionRules,
+  getEditorialProfileCard,
   getExpectedResult,
   getFeedbackProposals,
   getGeneratedTexts,
@@ -74,6 +75,7 @@ import {
   registerKnowledgeSegments,
   registerKnowledgeSourceEdition,
   rejectKnowledgeProposal,
+  reviewText,
   saveProfileKnowledgeCard,
   simulateLab,
   updatePreferenceStatus,
@@ -90,6 +92,7 @@ import type {
   Contradiction,
   DecisionEvaluation,
   DecisionRule,
+  EditorialProfileCard,
   ExpectedAnswerLine,
   FeedbackProposal,
   GeneratedText,
@@ -128,6 +131,7 @@ import type {
   ScoreVariable,
   TechnicalClosureCriterion,
   TechnicalRoadmapPhase,
+  TextRevisionResult,
   V1Screen,
 } from "./types/api";
 
@@ -292,6 +296,8 @@ export function App() {
   );
   const [selectedKnowledgeCardId, setSelectedKnowledgeCardId] = useState<string | null>(null);
   const [summary, setSummary] = useState<ProfileSummary | null>(null);
+  const [editorialProfileCard, setEditorialProfileCard] =
+    useState<EditorialProfileCard | null>(null);
   const [profileExport, setProfileExport] = useState<ProfileExport | null>(null);
   const [profileKnowledgeCards, setProfileKnowledgeCards] = useState<ProfileKnowledgeCard[]>([]);
   const [profileKnowledgeCardStance, setProfileKnowledgeCardStance] =
@@ -339,6 +345,7 @@ export function App() {
   const [editorIntensity, setEditorIntensity] = useState(500);
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
+  const [textRevision, setTextRevision] = useState<TextRevisionResult | null>(null);
   const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
   const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
   const [labIntensity, setLabIntensity] = useState(500);
@@ -399,6 +406,7 @@ export function App() {
       getProfileStatistics(activeContext),
       getContradictions(activeContext),
       getScores(activeContext),
+      getEditorialProfileCard(activeContext),
       getProfileKnowledgeCards(),
       getPreferences(activeContext),
       getGeneratedTexts(activeContext),
@@ -409,6 +417,7 @@ export function App() {
           statisticsData,
           contradictionData,
           scoreData,
+          editorialProfileCardData,
           profileKnowledgeCardData,
           preferenceData,
           textData,
@@ -417,6 +426,7 @@ export function App() {
         setStatistics(statisticsData);
         setContradictions(contradictionData);
         setScores(scoreData);
+        setEditorialProfileCard(editorialProfileCardData);
         setProfileKnowledgeCards(profileKnowledgeCardData);
         setPreferences(preferenceData);
         setGeneratedTexts(textData);
@@ -1324,6 +1334,17 @@ export function App() {
         ),
       );
       setGeneratedTexts(await getGeneratedTexts(activeContext));
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
+  async function handleTextRevision() {
+    setError(null);
+    try {
+      const result = await reviewText(editorText, activeContext, selectedKnowledgeVersion);
+      setTextRevision(result);
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -2648,9 +2669,14 @@ export function App() {
                 placeholder="Separados por coma"
                 value={protectedTerms}
               />
-              <button className="primaryButton editorButton" onClick={handleGenerate} type="button">
-                Generar texto
-              </button>
+              <div className="buttonRow">
+                <button className="primaryButton editorButton" onClick={handleGenerate} type="button">
+                  Generar texto
+                </button>
+                <button className="primaryButton editorButton" onClick={handleTextRevision} type="button">
+                  Revisar texto
+                </button>
+              </div>
             </div>
             <div className="inspector">
               <h2>Resultado</h2>
@@ -2664,6 +2690,27 @@ export function App() {
               ) : (
                 <p className="note">El editor usa el perfil del contexto activo sin aplicar aprendizaje.</p>
               )}
+              {textRevision ? (
+                <div className="proposalBox">
+                  <h3>Revision por capas</h3>
+                  <div className="metricGrid">
+                    <Metric label="Base" value={textRevision.version} />
+                    <Metric label="Palabras" value={textRevision.word_count} />
+                    <Metric label="Parrafos" value={textRevision.paragraph_count} />
+                    <Metric label="Frases" value={textRevision.sentence_count} />
+                  </div>
+                  {textRevision.steps.map((step) => (
+                    <div className="proposalItem" key={step.card_id}>
+                      <strong>{step.label}</strong>
+                      <span>{step.finding}</span>
+                      <span>{step.action}</span>
+                    </div>
+                  ))}
+                  <p className="note">
+                    No modifica perfil ni biblioteca publicada.
+                  </p>
+                </div>
+              ) : null}
             </div>
           </section>
         )}
@@ -2789,6 +2836,49 @@ export function App() {
               <Metric label="Cobertura" value={`${Math.round((statistics?.coverage ?? 0) * 100)}%`} />
             </div>
             <p className="note">{summary?.confidence_note}</p>
+            {editorialProfileCard ? (
+              <div className="proposalBox">
+                <h3>Ficha editorial</h3>
+                <p>{editorialProfileCard.summary}</p>
+                <div className="metricGrid">
+                  <Metric
+                    label="Fichas personales"
+                    value={editorialProfileCard.knowledge_card_feedback_count}
+                  />
+                  <Metric
+                    label="Textos recientes"
+                    value={editorialProfileCard.generated_text_count}
+                  />
+                  <Metric
+                    label="Base estable"
+                    value={editorialProfileCard.stable_knowledge_mutated ? "modificada" : "intacta"}
+                  />
+                </div>
+                <List
+                  title="Aspectos dominantes"
+                  items={editorialProfileCard.strongest_variables.map(
+                    (item) => `${item.label}: ${item.effective_value}`,
+                  )}
+                />
+                <List
+                  title="Mantener"
+                  items={
+                    editorialProfileCard.maintained_elements.length
+                      ? editorialProfileCard.maintained_elements
+                      : ["Todavia no has marcado elementos que mantener."]
+                  }
+                />
+                <List
+                  title="Cambiar"
+                  items={
+                    editorialProfileCard.change_requests.length
+                      ? editorialProfileCard.change_requests
+                      : ["Todavia no has marcado cambios personales."]
+                  }
+                />
+                <p className="note">{editorialProfileCard.profile_mutation_source}</p>
+              </div>
+            ) : null}
             <button className="primaryButton editorButton" onClick={handleProfileExport} type="button">
               Ver ficha completa
             </button>

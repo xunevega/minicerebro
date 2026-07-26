@@ -801,6 +801,55 @@ class KnowledgeQuerySummary(BaseModel):
     last_query_at: datetime | None = None
 
 
+class TextRevisionInput(BaseModel):
+    text: str = Field(min_length=1, max_length=12000)
+    context: str = "general"
+    version: str = "latest"
+
+
+class TextRevisionStep(BaseModel):
+    card_id: str
+    label: str
+    status: str
+    finding: str
+    action: str
+    signals: list[str]
+    risks: list[str]
+    confidence: float = Field(ge=0, le=1)
+
+
+class TextRevisionResult(BaseModel):
+    profile_id: str
+    context: str
+    version: str
+    requested_version: str
+    status: str
+    word_count: int
+    paragraph_count: int
+    sentence_count: int
+    route: list[str]
+    steps: list[TextRevisionStep]
+    stable_knowledge_mutated: bool = False
+    profile_mutated: bool = False
+    query_result: KnowledgeQueryResult
+
+
+class EditorialProfileCard(BaseModel):
+    profile_id: str
+    context: str
+    summary: str
+    strongest_variables: list[dict]
+    low_confidence_variables: list[str]
+    accepted_preferences: list[str]
+    maintained_elements: list[str]
+    change_requests: list[str]
+    knowledge_card_feedback_count: int
+    generated_text_count: int
+    profile_mutation_source: str
+    stable_knowledge_mutated: bool = False
+    generated_at: datetime = Field(default_factory=lambda: datetime.now(UTC))
+
+
 class ComparisonInput(BaseModel):
     original: str = Field(min_length=1)
     revised: str = Field(min_length=1)

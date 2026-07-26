@@ -24,6 +24,7 @@ from app.db.models import (
     KnowledgeSourceEditionRecord,
     KnowledgeVersionRecord,
     KnowledgeVersionSnapshotRecord,
+    PreferenceRecord,
     ProfileKnowledgeCardRecord,
     ScoreVariableRecord,
 )
@@ -349,6 +350,83 @@ def test_profile_knowledge_card_records_user_feedback_without_mutating_knowledge
             session.commit()
 
 
+def test_editorial_profile_card_summarizes_user_state_without_stable_knowledge():
+    preference_id = None
+    try:
+        preference_response = client.post(
+            "/preferences",
+            json={
+                "text": "Quiero mantener precision lexica y un tono directo.",
+                "context": "general",
+            },
+        )
+        assert preference_response.status_code == 200
+        preference_id = preference_response.json()["id"]
+        accepted = client.patch(
+            f"/preferences/{preference_id}",
+            json={"status": "accepted"},
+        )
+        assert accepted.status_code == 200
+
+        profile_card_response = client.post(
+            "/profiles/default/knowledge-cards/card-revision-de-tono",
+            json={
+                "knowledge_version": "knowledge-v40",
+                "stance": "kept",
+                "user_score": 760,
+                "feedback": "Me sirve para mantener mi voz sin volverla rigida.",
+                "maintained_elements": ["voz propia", "tono directo"],
+                "change_requests": ["menos rigidez"],
+                "notes": "Ficha personal de revision.",
+            },
+        )
+        assert profile_card_response.status_code == 200
+
+        response = client.get("/profiles/default/editorial-card?context=general")
+
+        assert response.status_code == 200
+        payload = response.json()
+        assert payload["profile_id"] == "default"
+        assert payload["context"] == "general"
+        assert payload["stable_knowledge_mutated"] is False
+        assert payload["knowledge_card_feedback_count"] >= 1
+        assert "tono directo" in payload["maintained_elements"]
+        assert "menos rigidez" in payload["change_requests"]
+        assert any("precision lexica" in item for item in payload["accepted_preferences"])
+        assert payload["strongest_variables"]
+        assert (
+            "esta lectura no modifica perfil ni conocimiento estable"
+            in payload["profile_mutation_source"]
+        )
+    finally:
+        with SessionLocal() as session:
+            profile_card_ids = [
+                record.id
+                for record in session.scalars(
+                    select(ProfileKnowledgeCardRecord).where(
+                        ProfileKnowledgeCardRecord.profile_id == "default",
+                        ProfileKnowledgeCardRecord.card_id == "card-revision-de-tono",
+                        ProfileKnowledgeCardRecord.knowledge_version == "knowledge-v40",
+                    )
+                ).all()
+            ]
+            if profile_card_ids:
+                session.query(AuditEventRecord).filter(
+                    AuditEventRecord.entity_id.in_(profile_card_ids)
+                ).delete(synchronize_session=False)
+                session.query(ProfileKnowledgeCardRecord).filter(
+                    ProfileKnowledgeCardRecord.id.in_(profile_card_ids)
+                ).delete(synchronize_session=False)
+            if preference_id is not None:
+                session.query(AuditEventRecord).filter(
+                    AuditEventRecord.entity_id == preference_id
+                ).delete(synchronize_session=False)
+                session.query(PreferenceRecord).filter(
+                    PreferenceRecord.id == preference_id
+                ).delete(synchronize_session=False)
+            session.commit()
+
+
 def test_profile_surfaces_reject_missing_profile_consistently():
     assert client.get("/profiles/missing/summary").status_code == 404
     assert client.get("/profiles/missing/scores").status_code == 404
@@ -576,6 +654,51 @@ def test_generation_audits_duration_without_raw_text():
     assert event["event_type"] == "text.generated"
     assert event["payload"]["duration_ms"] >= 0
     assert "Texto con duracion auditada" not in str(event["payload"])
+
+
+def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledge():
+    text = (
+        "Este texto quiere explicar una idea, pero lo hace todo en un unico bloque con "
+        "muchas vueltas y muchas frases largas que tardan en llegar al punto central y "
+        "tambien tambien deja algun ruido de limpieza final"
+    )
+    with SessionLocal() as session:
+        card_count = len(session.scalars(select(KnowledgeCardRecord)).all())
+        profile_card_count = len(session.scalars(select(ProfileKnowledgeCardRecord)).all())
+
+    response = client.post(
+        "/revision",
+        json={"text": text, "context": "general", "version": "latest"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["version"] == "knowledge-v40"
+    assert payload["requested_version"] == "latest"
+    assert payload["stable_knowledge_mutated"] is False
+    assert payload["profile_mutated"] is False
+    assert payload["route"] == [
+        "card-diagnostico-de-reescritura",
+        "card-revision-estructural",
+        "card-revision-de-parrafo",
+        "card-revision-de-frase",
+        "card-revision-de-tono",
+        "card-limpieza-final",
+    ]
+    assert [step["status"] for step in payload["steps"]].count("review") >= 2
+    assert payload["query_result"]["context"]["editorial_route"] == payload["route"]
+
+    with SessionLocal() as session:
+        assert len(session.scalars(select(KnowledgeCardRecord)).all()) == card_count
+        assert len(session.scalars(select(ProfileKnowledgeCardRecord)).all()) == profile_card_count
+        event = session.scalar(
+            select(AuditEventRecord)
+            .where(AuditEventRecord.event_type == "text.revision.executed")
+            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
+        )
+        assert event is not None
+        assert event.payload["route"] == payload["route"]
+        assert text not in str(event.payload)
 
 
 def test_lab_simulation_does_not_persist_score_changes():

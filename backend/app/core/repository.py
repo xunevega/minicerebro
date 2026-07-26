@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from datetime import UTC, datetime, timedelta
 from hashlib import sha256
 from uuid import UUID, uuid4
@@ -59,6 +60,7 @@ from app.core.models import (
     Preference,
     PreferenceStatus,
     Profile,
+    EditorialProfileCard,
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
     ProfileKnowledgeCardScoreProposal,
@@ -66,6 +68,9 @@ from app.core.models import (
     ProfileStatistics,
     ScoreProposal,
     ScoreVariable,
+    TextRevisionInput,
+    TextRevisionResult,
+    TextRevisionStep,
     Contradiction,
 )
 from app.core.seeds import seed_variables
@@ -2426,6 +2431,220 @@ class Repository:
         )
         self.session.commit()
         return result
+
+    def review_text(self, profile_id: str, payload: TextRevisionInput) -> TextRevisionResult:
+        if self.session.get(ProfileRecord, profile_id) is None:
+            raise KeyError(profile_id)
+        text_profile = self._text_profile(payload.text)
+        query_result = self.query_knowledge(
+            KnowledgeQueryInput(
+                query="que le pasa a este texto revisar estructura parrafo frase tono limpieza final",
+                version=payload.version,
+                limit=6,
+            )
+        )
+        steps = [
+            self._revision_step_from_card(card, text_profile)
+            for card in query_result.cards
+        ]
+        result = TextRevisionResult(
+            profile_id=profile_id,
+            context=payload.context,
+            version=query_result.resolved_version,
+            requested_version=payload.version,
+            status=query_result.status,
+            word_count=text_profile["word_count"],
+            paragraph_count=text_profile["paragraph_count"],
+            sentence_count=text_profile["sentence_count"],
+            route=[step.card_id for step in steps],
+            steps=steps,
+            stable_knowledge_mutated=False,
+            profile_mutated=False,
+            query_result=query_result,
+        )
+        self.add_audit_event(
+            "text.revision.executed",
+            "profile",
+            profile_id,
+            {
+                "context": payload.context,
+                "requested_version": payload.version,
+                "resolved_version": result.version,
+                "word_count": result.word_count,
+                "paragraph_count": result.paragraph_count,
+                "sentence_count": result.sentence_count,
+                "route": result.route,
+                "stable_knowledge_mutated": False,
+                "profile_mutated": False,
+            },
+        )
+        self.session.commit()
+        return result
+
+    def editorial_profile_card(self, profile_id: str, context: str) -> EditorialProfileCard:
+        profile = self.get_profile(profile_id)
+        variables = [
+            variable for variable in profile.variables if variable.context == context
+        ]
+        preferences = [
+            preference
+            for preference in profile.preferences
+            if preference.evidence.context == context and preference.status == PreferenceStatus.accepted
+        ]
+        profile_cards = self.list_profile_knowledge_cards(profile_id)
+        generated_texts = self.list_generated_texts(profile_id, limit=20, context=context)
+        strongest_variables = [
+            {
+                "key": variable.key,
+                "label": variable.label,
+                "effective_value": variable.effective_value,
+                "confidence": round(variable.confidence, 3),
+            }
+            for variable in sorted(
+                variables,
+                key=lambda item: (item.effective_value, item.confidence, item.key),
+                reverse=True,
+            )[:4]
+        ]
+        maintained_elements = sorted(
+            {
+                element
+                for card in profile_cards
+                for element in card.maintained_elements
+                if element
+            }
+        )
+        change_requests = sorted(
+            {
+                request
+                for card in profile_cards
+                for request in card.change_requests
+                if request
+            }
+        )
+        low_confidence = [variable.key for variable in variables if variable.confidence < 0.4]
+        summary = (
+            f"Perfil editorial de {profile.name}: "
+            f"{len(preferences)} gustos aceptados, "
+            f"{len(profile_cards)} fichas personales y "
+            f"{len(generated_texts)} textos recientes en {context}."
+        )
+        return EditorialProfileCard(
+            profile_id=profile_id,
+            context=context,
+            summary=summary,
+            strongest_variables=strongest_variables,
+            low_confidence_variables=low_confidence,
+            accepted_preferences=[preference.text for preference in preferences],
+            maintained_elements=maintained_elements,
+            change_requests=change_requests,
+            knowledge_card_feedback_count=len(profile_cards),
+            generated_text_count=len(generated_texts),
+            profile_mutation_source=(
+                "preferencias aceptadas, scoring, feedback de fichas y textos generados; "
+                "esta lectura no modifica perfil ni conocimiento estable"
+            ),
+            stable_knowledge_mutated=False,
+        )
+
+    def _text_profile(self, text: str) -> dict[str, int | float | bool]:
+        paragraphs = [paragraph.strip() for paragraph in text.splitlines() if paragraph.strip()]
+        words = re.findall(r"\b[\wáéíóúüñÁÉÍÓÚÜÑ]+\b", text)
+        sentences = [
+            sentence.strip()
+            for sentence in re.split(r"[.!?]+", text)
+            if sentence.strip()
+        ]
+        paragraph_word_counts = [
+            len(re.findall(r"\b[\wáéíóúüñÁÉÍÓÚÜÑ]+\b", paragraph))
+            for paragraph in paragraphs
+        ]
+        sentence_word_counts = [
+            len(re.findall(r"\b[\wáéíóúüñÁÉÍÓÚÜÑ]+\b", sentence))
+            for sentence in sentences
+        ]
+        return {
+            "word_count": len(words),
+            "paragraph_count": len(paragraphs),
+            "sentence_count": len(sentences),
+            "long_paragraph_count": sum(1 for count in paragraph_word_counts if count > 90),
+            "long_sentence_count": sum(1 for count in sentence_word_counts if count > 28),
+            "average_sentence_words": (
+                round(sum(sentence_word_counts) / len(sentence_word_counts), 2)
+                if sentence_word_counts
+                else 0
+            ),
+            "has_spacing_noise": bool(re.search(r"\s{2,}|\s+[,.!?;:]", text)),
+            "has_repeated_word": bool(
+                re.search(
+                    r"\b([\wáéíóúüñÁÉÍÓÚÜÑ]+)\s+\1\b",
+                    text,
+                    flags=re.IGNORECASE,
+                )
+            ),
+            "has_final_punctuation": text.rstrip().endswith((".", "!", "?")),
+        }
+
+    def _revision_step_from_card(
+        self,
+        card: KnowledgeCard,
+        text_profile: dict[str, int | float | bool],
+    ) -> TextRevisionStep:
+        signals = [str(item) for item in card.payload.get("signals", [])]
+        risks = [str(item) for item in card.payload.get("risks", [])]
+        status = "ok"
+        finding = "No aparece un bloqueo fuerte en esta capa."
+        action = "Mantener esta capa como comprobacion de lectura."
+        if card.id == "card-diagnostico-de-reescritura":
+            status = "review"
+            finding = "Conviene revisar por capas antes de tocar frases aisladas."
+            action = "Empezar por el diagnostico y avanzar solo cuando cada capa este clara."
+        elif card.id == "card-revision-estructural":
+            if text_profile["paragraph_count"] <= 1 and text_profile["word_count"] > 80:
+                status = "review"
+                finding = "El texto concentra muchas palabras en un solo bloque."
+                action = "Separar idea principal, apoyo y cierre antes de pulir estilo."
+            else:
+                action = "Comprobar que el texto tenga foco, orden y cierre."
+        elif card.id == "card-revision-de-parrafo":
+            if text_profile["long_paragraph_count"]:
+                status = "review"
+                finding = "Hay parrafos largos que pueden mezclar varias funciones."
+                action = "Dar a cada parrafo una idea central y una transicion visible."
+            else:
+                action = "Verificar unidad y avance de cada parrafo."
+        elif card.id == "card-revision-de-frase":
+            if text_profile["long_sentence_count"]:
+                status = "review"
+                finding = "Hay frases largas que pueden esconder el nucleo de la idea."
+                action = "Recortar incisos, acercar sujeto y verbo, y revisar ritmo."
+            else:
+                action = "Pulir orden, concision y ritmo sin cambiar la estructura."
+        elif card.id == "card-revision-de-tono":
+            status = "review"
+            finding = "El tono debe contrastarse con la intencion y el lector."
+            action = "Ajustar voz y registro sin borrar la personalidad del texto."
+        elif card.id == "card-limpieza-final":
+            if (
+                text_profile["has_spacing_noise"]
+                or text_profile["has_repeated_word"]
+                or not text_profile["has_final_punctuation"]
+            ):
+                status = "review"
+                finding = "Hay senales de limpieza superficial pendientes."
+                action = "Cerrar puntuacion, espacios, repeticiones y uniformidad al final."
+            else:
+                action = "Dejar la limpieza para el ultimo pase."
+        return TextRevisionStep(
+            card_id=card.id,
+            label=card.name,
+            status=status,
+            finding=finding,
+            action=action,
+            signals=signals,
+            risks=risks,
+            confidence=card.confidence,
+        )
 
     def knowledge_gym_report(self, version: str = "latest") -> KnowledgeGymReport:
         resolved_version = self._resolve_knowledge_version(version)

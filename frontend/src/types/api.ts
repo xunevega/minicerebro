@@ -84,6 +84,27 @@ export type ProfileKnowledgeCardScoreApplyResult = {
   variables: ScoreVariable[];
 };
 
+export type EditorialProfileCard = {
+  profile_id: string;
+  context: string;
+  summary: string;
+  strongest_variables: Array<{
+    key: string;
+    label: string;
+    effective_value: number;
+    confidence: number;
+  }>;
+  low_confidence_variables: string[];
+  accepted_preferences: string[];
+  maintained_elements: string[];
+  change_requests: string[];
+  knowledge_card_feedback_count: number;
+  generated_text_count: number;
+  profile_mutation_source: string;
+  stable_knowledge_mutated: boolean;
+  generated_at: string;
+};
+
 export type KnowledgeStatus = {
   version: string;
   state: string;
@@ -635,6 +656,33 @@ export type KnowledgeQueryResult = {
   retrieval_trace: Record<string, unknown>;
   limits: Record<string, unknown>;
   generated_at: string;
+};
+
+export type TextRevisionStep = {
+  card_id: string;
+  label: string;
+  status: string;
+  finding: string;
+  action: string;
+  signals: string[];
+  risks: string[];
+  confidence: number;
+};
+
+export type TextRevisionResult = {
+  profile_id: string;
+  context: string;
+  version: string;
+  requested_version: string;
+  status: string;
+  word_count: number;
+  paragraph_count: number;
+  sentence_count: number;
+  route: string[];
+  steps: TextRevisionStep[];
+  stable_knowledge_mutated: boolean;
+  profile_mutated: boolean;
+  query_result: KnowledgeQueryResult;
 };
 
 export type KnowledgeGymCheck = {

@@ -32,6 +32,18 @@ try {
   const resultPanel = page.locator(".inspector", { hasText: "Resultado" });
   await resultPanel.getByText("deterministic").waitFor();
 
+  const revisionResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/revision" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await page.getByRole("button", { name: "Revisar texto" }).click();
+  await revisionResponse;
+  await resultPanel.getByText("Revision por capas").waitFor();
+  await resultPanel.getByText("Diagnostico de reescritura").waitFor();
+
   const output = await resultPanel.locator("textarea[readonly]").inputValue();
   if (!output || output.length < 10) {
     throw new Error("La generacion no devolvio un texto persistible.");
