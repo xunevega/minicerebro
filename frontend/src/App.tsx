@@ -3339,15 +3339,34 @@ export function App() {
         {active === "compare" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Textos</h2>
-              <textarea value={original} onChange={(event) => setOriginal(event.target.value)} />
-              <textarea value={revised} onChange={(event) => setRevised(event.target.value)} />
+              <h2>Comparar textos</h2>
+              <p className="note">
+                Contrasta tu borrador con una version propuesta sin cambiar tu perfil.
+              </p>
+              <label className="fieldLabel" htmlFor="compareOriginal">
+                Original
+              </label>
+              <textarea
+                id="compareOriginal"
+                onChange={(event) => setOriginal(event.target.value)}
+                placeholder="Pega aqui el texto original."
+                value={original}
+              />
+              <label className="fieldLabel" htmlFor="compareRevised">
+                Version propuesta
+              </label>
+              <textarea
+                id="compareRevised"
+                onChange={(event) => setRevised(event.target.value)}
+                placeholder="Pega aqui la version que quieres comparar."
+                value={revised}
+              />
               <button className="primaryButton" onClick={handleCompare} type="button">
                 Comparar
               </button>
             </div>
             <div className="inspector">
-              <h2>Resultado</h2>
+              <h2>Comparacion</h2>
               {comparison ? (
                 <>
                   <Metric label="Modificacion" value={comparison.modification_score} />
