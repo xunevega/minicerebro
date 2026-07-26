@@ -34,6 +34,12 @@ textarea {
   font: inherit;
 }
 
+button {
+  font-size: 14px;
+  font-weight: 800;
+  letter-spacing: 0;
+}
+
 select {
   appearance: none;
   background-image:
@@ -51,15 +57,25 @@ select {
   padding-right: 38px;
 }
 
-select:focus {
-  border-color: var(--accent);
-  box-shadow: 0 0 0 3px rgba(200, 0, 0, 0.08);
+button:focus,
+input:focus,
+select:focus,
+textarea:focus {
+  outline: 0;
+}
+
+button:focus-visible,
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible {
+  border-color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--accent);
   outline: 0;
 }
 
 input::placeholder,
 textarea::placeholder {
-  color: #9b9690;
+  color: #aaa5a0;
   opacity: 1;
 }
 
@@ -315,8 +331,8 @@ textarea + .primaryButton {
   border-radius: 0;
   color: #ffffff;
   cursor: pointer;
-  min-height: 42px;
-  padding: 0 16px;
+  min-height: 40px;
+  padding: 0 14px;
 }
 
 .primaryButton:hover {
@@ -336,9 +352,8 @@ textarea + .primaryButton {
   border-radius: 0;
   color: var(--ink);
   cursor: pointer;
-  font-weight: 700;
-  min-height: 36px;
-  padding: 0 14px;
+  min-height: 38px;
+  padding: 0 13px;
 }
 
 .secondaryButton:hover {
@@ -616,7 +631,7 @@ textarea + .primaryButton {
 .ghostButton {
   background: transparent;
   border: 1px solid #d8d0c6;
-  border-radius: 8px;
+  border-radius: 0;
   color: #191714;
   cursor: pointer;
   min-height: 34px;
@@ -625,7 +640,7 @@ textarea + .primaryButton {
 }
 
 .ghostButton:disabled {
-  cursor: wait;
+  cursor: not-allowed;
   opacity: 0.6;
 }
 
@@ -642,7 +657,7 @@ textarea + .primaryButton {
 .buttonRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 8px;
+  gap: 10px;
   margin: 12px 0 14px;
 }
 
@@ -740,9 +755,9 @@ textarea + .primaryButton {
   background: #ffffff;
   border: 1px solid var(--line);
   display: grid;
-  gap: 12px;
+  gap: 14px;
   margin: 12px 0;
-  padding: 16px;
+  padding: 18px;
 }
 
 .revisionStepHeader {
@@ -766,11 +781,13 @@ textarea + .primaryButton {
 
 .revisionStepGrid {
   display: grid;
-  gap: 12px;
+  gap: 18px;
   grid-template-columns: repeat(3, 1fr);
 }
 
 .revisionStepGrid p {
+  font-size: 15px;
+  line-height: 1.46;
   margin-bottom: 0;
 }
 
@@ -781,6 +798,22 @@ textarea + .primaryButton {
   font-weight: 800;
   margin-bottom: 4px;
   text-transform: uppercase;
+}
+
+.revisionStepCard .listBlock {
+  margin-top: 4px;
+}
+
+.revisionStepCard .listBlock h3 {
+  font-family: inherit;
+  font-size: 14px;
+  margin-bottom: 6px;
+}
+
+.revisionStepCard li {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.5;
 }
 
 .emptyState {
@@ -800,17 +833,30 @@ textarea + .primaryButton {
 }
 
 .learningBox {
-  background: #f8f6ef;
-  border: 1px solid #e6e0d7;
-  border-radius: 8px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 0;
   display: grid;
   gap: 6px;
   margin-top: 10px;
-  padding: 10px;
+  padding: 14px;
+}
+
+.learningBox span {
+  color: var(--muted);
+  font-size: 14px;
+}
+
+.learningBox strong {
+  font-size: 16px;
 }
 
 .learningBox .statusPill {
   justify-self: start;
+}
+
+.learningBox .learningHint {
+  color: var(--ink);
 }
 
 .knowledgeGrid {

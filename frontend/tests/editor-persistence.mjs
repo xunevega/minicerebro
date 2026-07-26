@@ -51,7 +51,6 @@ try {
   await resultPanel.getByText("Como probarlo").first().waitFor();
   await resultPanel.getByText("Senales miradas").first().waitFor();
   await resultPanel.getByRole("button", { name: "No va por ahi" }).first().waitFor();
-  await resultPanel.getByRole("button", { name: "Guardar como criterio" }).first().waitFor();
   const feedbackResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -59,7 +58,7 @@ try {
     },
     { timeout: 90000 },
   );
-  await resultPanel.getByRole("button", { name: "Me sirve esta ficha" }).first().click();
+  await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
   await feedbackResponse;
   await resultPanel.getByText("Guardado en ficha").first().waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("criterio guardado").first().waitFor();
@@ -73,6 +72,13 @@ try {
   await resultPanel.getByRole("button", { name: "Aplicar ajuste" }).first().click();
   await scoreApplyResponse;
   await resultPanel.getByText("Scoring actualizado").first().waitFor();
+  const appliedLearningBox = resultPanel.locator(".learningBox", { hasText: "Scoring actualizado" }).first();
+  if ((await appliedLearningBox.getByRole("button", { name: "Aplicar ajuste" }).count()) !== 0) {
+    throw new Error("El ajuste aplicado sigue mostrando la accion de aplicar.");
+  }
+  if ((await appliedLearningBox.getByText("si decides aplicarlo").count()) !== 0) {
+    throw new Error("El ajuste aplicado sigue mostrando texto de propuesta pendiente.");
+  }
 
   const output = await resultPanel.locator("textarea[readonly]").inputValue();
   if (!output || output.length < 10) {

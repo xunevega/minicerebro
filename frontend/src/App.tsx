@@ -3042,7 +3042,7 @@ export function App() {
                           }
                           type="button"
                         >
-                          Me sirve esta ficha
+                          Me sirve
                         </button>
                         <button
                           className="secondaryButton"
@@ -3058,61 +3058,64 @@ export function App() {
                         >
                           No va por ahi
                         </button>
-                        <button
-                          className="secondaryButton"
-                          disabled={revisionFeedbackBusyCard === step.card_id}
-                          onClick={() =>
-                            handleRevisionFeedback(
-                              step.card_id,
-                              "mantiene_esto",
-                              `Guardar como criterio: ${step.action}`,
-                            )
-                          }
-                          type="button"
-                        >
-                          Guardar como criterio
-                        </button>
                       </div>
                       {revisionFeedbackByCard[step.card_id] ? (
                         <div className="learningBox">
-                          <span className="statusPill done">Guardado en ficha</span>
-                          <strong>Aprendido de ti</strong>
-                          <span>{revisionFeedbackByCard[step.card_id].profile_card.feedback}</span>
-                          {revisionFeedbackByCard[step.card_id].score_proposal.items.length > 0 ? (
+                          {revisionScoreAppliedByCard[step.card_id] ? (
                             <>
+                              <span className="statusPill done">Scoring actualizado</span>
+                              <strong>Cerrado en tu criterio</strong>
+                              <span>La ficha quedo guardada y el ajuste ya esta aplicado.</span>
+                            </>
+                          ) : revisionScorePendingByCard[step.card_id] ? (
+                            <>
+                              <span className="statusPill warning">Ajuste pendiente</span>
+                              <strong>Ficha guardada</strong>
+                              <span>
+                                Esta respuesta queda en tu ficha personal. El scoring no cambia hasta que
+                                decidas aplicarlo.
+                              </span>
+                            </>
+                          ) : revisionFeedbackByCard[step.card_id].score_proposal.items.length > 0 ? (
+                            <>
+                              <span className="statusPill done">Guardado en ficha</span>
+                              <strong>Aprendido de ti</strong>
+                              <span>{revisionFeedbackByCard[step.card_id].profile_card.feedback}</span>
+                              <span className="learningHint">
+                                Me sirve guarda la ficha. Aplicar ajuste actualiza tu scoring.
+                              </span>
                               {revisionFeedbackByCard[step.card_id].score_proposal.items.map((item) => (
                                 <span key={item.variable_key}>
                                   {item.variable_key}: {item.delta > 0 ? "+" : ""}
                                   {item.delta} si decides aplicarlo
                                 </span>
                               ))}
-                              {revisionScoreAppliedByCard[step.card_id] ? (
-                                <span className="statusPill done">Scoring actualizado</span>
-                              ) : revisionScorePendingByCard[step.card_id] ? (
-                                <span className="statusPill warning">Ajuste pendiente</span>
-                              ) : (
-                                <div className="buttonRow compactRow">
-                                  <button
-                                    className="primaryButton"
-                                    disabled={revisionScoreBusyCard === step.card_id}
-                                    onClick={() => handleApplyRevisionScore(step.card_id)}
-                                    type="button"
-                                  >
-                                    Aplicar ajuste
-                                  </button>
-                                  <button
-                                    className="secondaryButton"
-                                    disabled={revisionScoreBusyCard === step.card_id}
-                                    onClick={() => handleKeepRevisionScorePending(step.card_id)}
-                                    type="button"
-                                  >
-                                    Dejar pendiente
-                                  </button>
-                                </div>
-                              )}
+                              <div className="buttonRow compactRow">
+                                <button
+                                  className="primaryButton"
+                                  disabled={revisionScoreBusyCard === step.card_id}
+                                  onClick={() => handleApplyRevisionScore(step.card_id)}
+                                  type="button"
+                                >
+                                  Aplicar ajuste
+                                </button>
+                                <button
+                                  className="secondaryButton"
+                                  disabled={revisionScoreBusyCard === step.card_id}
+                                  onClick={() => handleKeepRevisionScorePending(step.card_id)}
+                                  type="button"
+                                >
+                                  Dejar pendiente
+                                </button>
+                              </div>
                             </>
                           ) : (
-                            <span>Sin ajuste automatico de scoring para esta respuesta.</span>
+                            <>
+                              <span className="statusPill done">Guardado en ficha</span>
+                              <strong>Aprendido de ti</strong>
+                              <span>{revisionFeedbackByCard[step.card_id].profile_card.feedback}</span>
+                              <span>Sin ajuste automatico de scoring para esta respuesta.</span>
+                            </>
                           )}
                         </div>
                       ) : null}
