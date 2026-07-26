@@ -657,6 +657,7 @@ def test_generation_audits_duration_without_raw_text():
 
 
 def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledge():
+    assert client.get("/knowledge/status").status_code == 200
     text = (
         "Este texto quiere explicar una idea, pero lo hace todo en un unico bloque con "
         "muchas vueltas y muchas frases largas que tardan en llegar al punto central y "
@@ -675,6 +676,7 @@ def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledg
     payload = response.json()
     assert payload["version"] == "knowledge-v40"
     assert payload["requested_version"] == "latest"
+    assert payload["intention"] == "claridad"
     assert payload["stable_knowledge_mutated"] is False
     assert payload["profile_mutated"] is False
     assert payload["route"] == [
@@ -699,6 +701,78 @@ def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledg
         assert event is not None
         assert event.payload["route"] == payload["route"]
         assert text not in str(event.payload)
+
+
+def test_revision_feedback_updates_profile_card_and_score_proposal_without_knowledge_mutation():
+    assert client.get("/knowledge/status").status_code == 200
+    with SessionLocal() as session:
+        session.query(ProfileKnowledgeCardRecord).filter(
+            ProfileKnowledgeCardRecord.profile_id == "default",
+            ProfileKnowledgeCardRecord.card_id == "card-revision-de-tono",
+            ProfileKnowledgeCardRecord.knowledge_version == "knowledge-v40",
+        ).delete()
+        session.query(AuditEventRecord).filter(
+            AuditEventRecord.event_type == "text.revision.feedback_recorded",
+            AuditEventRecord.entity_id.in_(
+                select(ProfileKnowledgeCardRecord.id).where(
+                    ProfileKnowledgeCardRecord.profile_id == "default",
+                    ProfileKnowledgeCardRecord.card_id == "card-revision-de-tono",
+                )
+            ),
+        ).delete(synchronize_session=False)
+        card_count = len(session.scalars(select(KnowledgeCardRecord)).all())
+        session.commit()
+
+    response = client.post(
+        "/revision/feedback/card-revision-de-tono",
+        json={
+            "knowledge_version": "latest",
+            "context": "general",
+            "stance": "demasiado_formal",
+            "feedback": "La recomendacion vuelve el texto demasiado formal.",
+            "maintained_elements": [],
+            "change_requests": ["menos distancia"],
+            "user_score": 420,
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["knowledge_version"] == "knowledge-v40"
+    assert payload["profile_mutated"] is True
+    assert payload["stable_knowledge_mutated"] is False
+    assert payload["profile_card"]["stance"] == "changed"
+    assert payload["profile_card"]["change_requests"] == ["menos distancia"]
+    assert payload["score_proposal"]["status"] in {"pending_review", "not_applicable"}
+
+    with SessionLocal() as session:
+        assert len(session.scalars(select(KnowledgeCardRecord)).all()) == card_count
+        event = session.scalar(
+            select(AuditEventRecord)
+            .where(AuditEventRecord.event_type == "text.revision.feedback_recorded")
+            .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
+        )
+        assert event is not None
+        assert event.payload["card_id"] == "card-revision-de-tono"
+        assert event.payload["stable_knowledge_mutated"] is False
+        assert "demasiado formal" not in str(event.payload).lower()
+
+
+def test_revision_feedback_rejects_missing_card():
+    response = client.post(
+        "/revision/feedback/card-no-existe",
+        json={
+            "knowledge_version": "latest",
+            "context": "general",
+            "stance": "me_sirve",
+            "feedback": "Me sirve.",
+            "maintained_elements": [],
+            "change_requests": [],
+            "user_score": 780,
+        },
+    )
+
+    assert response.status_code == 404
 
 
 def test_lab_simulation_does_not_persist_score_changes():

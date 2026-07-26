@@ -43,6 +43,16 @@ try {
   await revisionResponse;
   await resultPanel.getByText("Revision por capas").waitFor();
   await resultPanel.getByText("Diagnostico de reescritura").waitFor();
+  const feedbackResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname.startsWith("/revision/feedback/") && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
+  await feedbackResponse;
+  await resultPanel.getByText("Guardado en ficha").first().waitFor();
 
   const output = await resultPanel.locator("textarea[readonly]").inputValue();
   if (!output || output.length < 10) {

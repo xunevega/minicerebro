@@ -68,6 +68,8 @@ from app.core.models import (
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
     ProfileKnowledgeCardScoreProposal,
+    RevisionFeedbackInput,
+    RevisionFeedbackResult,
     LabSimulationInput,
     LabSimulationResult,
     ObservabilityMetric,
@@ -901,6 +903,28 @@ def profile_knowledge_card_upsert(
 ) -> ProfileKnowledgeCard:
     try:
         return repository.upsert_profile_knowledge_card(profile_id, card_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile, knowledge card or version not found") from exc
+
+
+@router.post("/revision/feedback/{card_id}")
+def revision_feedback_default_profile(
+    card_id: str,
+    payload: RevisionFeedbackInput,
+    repository: RepositoryDep,
+) -> RevisionFeedbackResult:
+    return revision_feedback(DEFAULT_PROFILE_ID, card_id, payload, repository)
+
+
+@router.post("/profiles/{profile_id}/revision-feedback/{card_id}")
+def revision_feedback(
+    profile_id: str,
+    card_id: str,
+    payload: RevisionFeedbackInput,
+    repository: RepositoryDep,
+) -> RevisionFeedbackResult:
+    try:
+        return repository.record_revision_feedback(profile_id, card_id, payload)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Profile, knowledge card or version not found") from exc
 

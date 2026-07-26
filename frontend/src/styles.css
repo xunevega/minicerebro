@@ -248,6 +248,22 @@ textarea + .primaryButton {
   padding: 0 16px;
 }
 
+.secondaryButton {
+  background: #f8f6ef;
+  border: 1px solid #d8d0c5;
+  border-radius: 8px;
+  color: #191714;
+  cursor: pointer;
+  font-weight: 700;
+  min-height: 36px;
+  padding: 0 14px;
+}
+
+.secondaryButton:disabled {
+  color: #8a8378;
+  cursor: wait;
+}
+
 .inspector {
   border-left: 1px solid #e6e0d7;
   padding-left: 22px;
@@ -424,6 +440,10 @@ textarea + .primaryButton {
   flex-wrap: wrap;
   gap: 8px;
   margin: 12px 0 14px;
+}
+
+.compactRow {
+  margin: 10px 0 4px;
 }
 
 .userCardPanel {

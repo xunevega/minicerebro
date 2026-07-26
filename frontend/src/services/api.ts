@@ -64,6 +64,8 @@ import type {
   ProfileKnowledgeCardInput,
   ProfileKnowledgeCardScoreApplyResult,
   ProfileKnowledgeCardScoreProposal,
+  RevisionFeedbackInput,
+  RevisionFeedbackResult,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -638,14 +640,22 @@ export function generateText(
   });
 }
 
-export function reviewText(text: string, context: string, version = "latest") {
+export function reviewText(text: string, context: string, version = "latest", intention = "claridad") {
   return request<TextRevisionResult>("/revision", {
     method: "POST",
     body: JSON.stringify({
       text,
       context,
       version,
+      intention,
     }),
+  });
+}
+
+export function saveRevisionFeedback(cardId: string, payload: RevisionFeedbackInput) {
+  return request<RevisionFeedbackResult>(`/revision/feedback/${cardId}`, {
+    method: "POST",
+    body: JSON.stringify(payload),
   });
 }
 

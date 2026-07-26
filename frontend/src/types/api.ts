@@ -672,6 +672,7 @@ export type TextRevisionStep = {
 export type TextRevisionResult = {
   profile_id: string;
   context: string;
+  intention: string;
   version: string;
   requested_version: string;
   status: string;
@@ -683,6 +684,35 @@ export type TextRevisionResult = {
   stable_knowledge_mutated: boolean;
   profile_mutated: boolean;
   query_result: KnowledgeQueryResult;
+};
+
+export type RevisionFeedbackStance =
+  | "me_sirve"
+  | "no_me_sirve"
+  | "demasiado_formal"
+  | "demasiado_seco"
+  | "mantiene_esto"
+  | "cambia_esto";
+
+export type RevisionFeedbackInput = {
+  knowledge_version: string;
+  context: string;
+  stance: RevisionFeedbackStance;
+  feedback: string;
+  maintained_elements: string[];
+  change_requests: string[];
+  user_score: number;
+};
+
+export type RevisionFeedbackResult = {
+  profile_id: string;
+  card_id: string;
+  context: string;
+  knowledge_version: string;
+  profile_card: ProfileKnowledgeCard;
+  score_proposal: ProfileKnowledgeCardScoreProposal;
+  stable_knowledge_mutated: boolean;
+  profile_mutated: boolean;
 };
 
 export type KnowledgeGymCheck = {

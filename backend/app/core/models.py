@@ -805,6 +805,7 @@ class TextRevisionInput(BaseModel):
     text: str = Field(min_length=1, max_length=12000)
     context: str = "general"
     version: str = "latest"
+    intention: str = "claridad"
 
 
 class TextRevisionStep(BaseModel):
@@ -821,6 +822,7 @@ class TextRevisionStep(BaseModel):
 class TextRevisionResult(BaseModel):
     profile_id: str
     context: str
+    intention: str
     version: str
     requested_version: str
     status: str
@@ -832,6 +834,27 @@ class TextRevisionResult(BaseModel):
     stable_knowledge_mutated: bool = False
     profile_mutated: bool = False
     query_result: KnowledgeQueryResult
+
+
+class RevisionFeedbackInput(BaseModel):
+    knowledge_version: str = "latest"
+    context: str = "general"
+    stance: str
+    feedback: str = ""
+    maintained_elements: list[str] = Field(default_factory=list)
+    change_requests: list[str] = Field(default_factory=list)
+    user_score: int = Field(default=700, ge=0, le=1000)
+
+
+class RevisionFeedbackResult(BaseModel):
+    profile_id: str
+    card_id: str
+    context: str
+    knowledge_version: str
+    profile_card: ProfileKnowledgeCard
+    score_proposal: ProfileKnowledgeCardScoreProposal
+    stable_knowledge_mutated: bool = False
+    profile_mutated: bool = True
 
 
 class EditorialProfileCard(BaseModel):

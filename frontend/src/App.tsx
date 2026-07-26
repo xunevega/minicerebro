@@ -76,6 +76,7 @@ import {
   registerKnowledgeSourceEdition,
   rejectKnowledgeProposal,
   reviewText,
+  saveRevisionFeedback,
   saveProfileKnowledgeCard,
   simulateLab,
   updatePreferenceStatus,
@@ -125,6 +126,8 @@ import type {
   ProfileKnowledgeCard,
   ProfileKnowledgeCardScoreProposal,
   ProfileKnowledgeCardStance,
+  RevisionFeedbackResult,
+  RevisionFeedbackStance,
   ProfileSummary,
   ProfileStatistics,
   ScoreProposal,
@@ -343,9 +346,14 @@ export function App() {
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
+  const [revisionIntention, setRevisionIntention] = useState("claridad");
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
   const [textRevision, setTextRevision] = useState<TextRevisionResult | null>(null);
+  const [revisionFeedbackByCard, setRevisionFeedbackByCard] = useState<
+    Record<string, RevisionFeedbackResult>
+  >({});
+  const [revisionFeedbackBusyCard, setRevisionFeedbackBusyCard] = useState<string | null>(null);
   const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
   const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
   const [labIntensity, setLabIntensity] = useState(500);
@@ -1343,11 +1351,50 @@ export function App() {
   async function handleTextRevision() {
     setError(null);
     try {
-      const result = await reviewText(editorText, activeContext, selectedKnowledgeVersion);
+      const result = await reviewText(
+        editorText,
+        activeContext,
+        selectedKnowledgeVersion,
+        revisionIntention,
+      );
       setTextRevision(result);
+      setRevisionFeedbackByCard({});
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
+    }
+  }
+
+  async function handleRevisionFeedback(
+    cardId: string,
+    stance: RevisionFeedbackStance,
+    feedback: string,
+  ) {
+    if (!textRevision) {
+      return;
+    }
+    setError(null);
+    setRevisionFeedbackBusyCard(cardId);
+    try {
+      const result = await saveRevisionFeedback(cardId, {
+        knowledge_version: textRevision.version,
+        context: activeContext,
+        stance,
+        feedback,
+        maintained_elements:
+          stance === "me_sirve" || stance === "mantiene_esto" ? [revisionIntention] : [],
+        change_requests:
+          stance === "cambia_esto" || stance === "no_me_sirve" ? [feedback] : [],
+        user_score: stance === "me_sirve" || stance === "mantiene_esto" ? 780 : 420,
+      });
+      setRevisionFeedbackByCard((previous) => ({ ...previous, [cardId]: result }));
+      setProfileKnowledgeCards(await getProfileKnowledgeCards());
+      setEditorialProfileCard(await getEditorialProfileCard(activeContext));
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setRevisionFeedbackBusyCard(null);
     }
   }
 
@@ -2658,6 +2705,18 @@ export function App() {
                     value={editorIntensity}
                   />
                 </label>
+                <label>
+                  Intencion
+                  <select
+                    onChange={(event) => setRevisionIntention(event.target.value)}
+                    value={revisionIntention}
+                  >
+                    <option value="claridad">Claridad</option>
+                    <option value="estructura">Estructura</option>
+                    <option value="tono">Tono</option>
+                    <option value="limpieza">Limpieza final</option>
+                  </select>
+                </label>
               </div>
               <label className="fieldLabel" htmlFor="protectedTerms">
                 Terminos protegidos
@@ -2695,6 +2754,7 @@ export function App() {
                   <h3>Revision por capas</h3>
                   <div className="metricGrid">
                     <Metric label="Base" value={textRevision.version} />
+                    <Metric label="Intencion" value={textRevision.intention} />
                     <Metric label="Palabras" value={textRevision.word_count} />
                     <Metric label="Parrafos" value={textRevision.paragraph_count} />
                     <Metric label="Frases" value={textRevision.sentence_count} />
@@ -2704,10 +2764,43 @@ export function App() {
                       <strong>{step.label}</strong>
                       <span>{step.finding}</span>
                       <span>{step.action}</span>
+                      <div className="buttonRow compactRow">
+                        <button
+                          className="secondaryButton"
+                          disabled={revisionFeedbackBusyCard === step.card_id}
+                          onClick={() =>
+                            handleRevisionFeedback(
+                              step.card_id,
+                              "me_sirve",
+                              `Me sirve: ${step.action}`,
+                            )
+                          }
+                          type="button"
+                        >
+                          Me sirve
+                        </button>
+                        <button
+                          className="secondaryButton"
+                          disabled={revisionFeedbackBusyCard === step.card_id}
+                          onClick={() =>
+                            handleRevisionFeedback(
+                              step.card_id,
+                              "cambia_esto",
+                              `Cambiar recomendacion: ${step.action}`,
+                            )
+                          }
+                          type="button"
+                        >
+                          Cambiar
+                        </button>
+                      </div>
+                      {revisionFeedbackByCard[step.card_id] ? (
+                        <span className="statusPill done">Guardado en ficha</span>
+                      ) : null}
                     </div>
                   ))}
                   <p className="note">
-                    No modifica perfil ni biblioteca publicada.
+                    Revisar no modifica la biblioteca publicada. Tus respuestas alimentan solo la ficha personal.
                   </p>
                 </div>
               ) : null}

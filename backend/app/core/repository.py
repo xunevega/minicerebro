@@ -66,6 +66,8 @@ from app.core.models import (
     ProfileKnowledgeCardScoreProposal,
     ProfileKnowledgeCardScoreProposalItem,
     ProfileStatistics,
+    RevisionFeedbackInput,
+    RevisionFeedbackResult,
     ScoreProposal,
     ScoreVariable,
     TextRevisionInput,
@@ -2450,6 +2452,7 @@ class Repository:
         result = TextRevisionResult(
             profile_id=profile_id,
             context=payload.context,
+            intention=payload.intention,
             version=query_result.resolved_version,
             requested_version=payload.version,
             status=query_result.status,
@@ -2468,6 +2471,7 @@ class Repository:
             profile_id,
             {
                 "context": payload.context,
+                "intention": payload.intention,
                 "requested_version": payload.version,
                 "resolved_version": result.version,
                 "word_count": result.word_count,
@@ -2480,6 +2484,86 @@ class Repository:
         )
         self.session.commit()
         return result
+
+    def record_revision_feedback(
+        self,
+        profile_id: str,
+        card_id: str,
+        payload: RevisionFeedbackInput,
+    ) -> RevisionFeedbackResult:
+        knowledge_version = self._resolve_knowledge_version(payload.knowledge_version)
+        feedback_text = payload.feedback.strip() or self._revision_feedback_default(payload.stance)
+        profile_card = self.upsert_profile_knowledge_card(
+            profile_id,
+            card_id,
+            ProfileKnowledgeCardInput(
+                knowledge_version=knowledge_version,
+                stance=self._revision_feedback_stance(payload.stance),
+                user_score=payload.user_score,
+                feedback=feedback_text,
+                maintained_elements=payload.maintained_elements,
+                change_requests=payload.change_requests,
+                notes=f"Feedback de revision: {payload.stance}",
+            ),
+        )
+        score_proposal = self.build_profile_knowledge_card_score_proposal(
+            profile_id,
+            card_id,
+            knowledge_version,
+            payload.context,
+        )
+        self.add_audit_event(
+            "text.revision.feedback_recorded",
+            "profile_knowledge_card",
+            str(profile_card.id),
+            {
+                "profile_id": profile_id,
+                "card_id": card_id,
+                "context": payload.context,
+                "knowledge_version": knowledge_version,
+                "stance": payload.stance,
+                "profile_mutated": True,
+                "stable_knowledge_mutated": False,
+            },
+        )
+        self.session.commit()
+        return RevisionFeedbackResult(
+            profile_id=profile_id,
+            card_id=card_id,
+            context=payload.context,
+            knowledge_version=knowledge_version,
+            profile_card=profile_card,
+            score_proposal=score_proposal,
+            stable_knowledge_mutated=False,
+            profile_mutated=True,
+        )
+
+    def _revision_feedback_stance(self, stance: str) -> str:
+        normalized = canonical_text(stance).replace(" ", "_")
+        if normalized in {"me_sirve", "sirve", "mantener", "mantiene_esto", "keep"}:
+            return "kept"
+        if normalized in {"no_me_sirve", "no_sirve", "descartar", "rechazar"}:
+            return "dismissed"
+        if normalized in {
+            "cambiar",
+            "cambia_esto",
+            "demasiado_formal",
+            "demasiado_seco",
+        }:
+            return "changed"
+        return "changed"
+
+    def _revision_feedback_default(self, stance: str) -> str:
+        normalized = canonical_text(stance).replace(" ", "_")
+        defaults = {
+            "me_sirve": "Esta recomendacion sirve para revisar mi texto.",
+            "no_me_sirve": "Esta recomendacion no ayuda en esta revision.",
+            "demasiado_formal": "La recomendacion lleva el texto a un registro demasiado formal.",
+            "demasiado_seco": "La recomendacion seca demasiado la voz del texto.",
+            "mantiene_esto": "Quiero conservar este rasgo durante la revision.",
+            "cambia_esto": "Quiero cambiar este rasgo durante la revision.",
+        }
+        return defaults.get(normalized, "Feedback de usuario sobre una recomendacion de revision.")
 
     def editorial_profile_card(self, profile_id: str, context: str) -> EditorialProfileCard:
         profile = self.get_profile(profile_id)
