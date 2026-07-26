@@ -217,7 +217,7 @@ const mainSections: Array<{
   },
   {
     id: "profile",
-    label: "Aprender de mi",
+    label: "Mi criterio",
     description: "Gustos, ajustes y ficha personal.",
     icon: Brain,
     defaultTab: "preferences",
@@ -1517,13 +1517,9 @@ export function App() {
 
   return (
     <main className="appShell">
-      <aside className="sidebar" aria-label="Navegacion principal">
+      <header className="sidebar" aria-label="Navegacion principal">
         <div className="brand">
           <img className="brandLogo" src="/editados-logo.png" alt="Editados" />
-          <div>
-            <strong>Editados</strong>
-            <span>Editor personal</span>
-          </div>
         </div>
         <nav>
           {mainSections.map((section) => {
@@ -1542,7 +1538,7 @@ export function App() {
             );
           })}
         </nav>
-      </aside>
+      </header>
 
       <section className="workspace">
         <header className="topbar">

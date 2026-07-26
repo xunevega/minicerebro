@@ -7,7 +7,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Aprender de mi" }).click();
+  await page.getByRole("button", { name: "Mi criterio" }).click();
   await page.getByRole("button", { name: "Ajustes" }).click();
 
   await page.getByText("Ajustes de estilo").waitFor();

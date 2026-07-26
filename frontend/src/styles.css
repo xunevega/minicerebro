@@ -1,8 +1,16 @@
 :root {
-  color: #191714;
-  background: #faf9f6;
+  --paper: #ffffff;
+  --ink: #111111;
+  --muted: #6f6f6b;
+  --line: #deded8;
+  --soft: #f5f4ef;
+  --accent: #c80000;
+  --accent-soft: #f6e9e7;
+  --shadow: 0 18px 60px rgba(20, 20, 20, 0.07);
+  color: var(--ink);
+  background: var(--paper);
   font-family:
-    Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
 * {
@@ -10,6 +18,11 @@
 }
 
 body {
+  background:
+    linear-gradient(rgba(17, 17, 17, 0.025) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(17, 17, 17, 0.025) 1px, transparent 1px),
+    var(--paper);
+  background-size: 72px 72px;
   margin: 0;
   min-width: 320px;
 }
@@ -22,32 +35,37 @@ textarea {
 }
 
 .appShell {
-  display: grid;
-  grid-template-columns: 248px minmax(0, 1fr);
   min-height: 100vh;
 }
 
 .sidebar {
-  background: #ffffff;
-  border-right: 1px solid #e6e0d7;
-  color: #191714;
-  padding: 26px 18px;
+  align-items: center;
+  backdrop-filter: blur(18px);
+  background: rgba(255, 255, 255, 0.94);
+  border-bottom: 1px solid var(--line);
+  color: var(--ink);
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(180px, 1fr) auto;
+  min-height: 92px;
+  padding: 0 clamp(24px, 5vw, 82px);
   position: sticky;
   top: 0;
-  height: 100vh;
+  z-index: 20;
 }
 
 .brand {
-  display: grid;
-  gap: 8px;
-  margin-bottom: 34px;
+  align-items: center;
+  display: flex;
+  gap: 16px;
+  min-width: 0;
 }
 
 .brandLogo {
   display: block;
-  height: 46px;
+  height: 64px;
   object-fit: contain;
-  object-position: left center;
+  object-position: center;
   width: 190px;
 }
 
@@ -57,75 +75,82 @@ textarea {
 }
 
 .brand strong {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: 22px;
+  font-family: "Libre Caslon Display", Georgia, "Times New Roman", serif;
+  font-size: 24px;
   letter-spacing: 0;
 }
 
 .brand span {
-  color: #716a60;
+  color: var(--muted);
   font-size: 13px;
   margin-top: 2px;
 }
 
 nav {
-  display: grid;
+  display: flex;
+  flex-wrap: wrap;
   gap: 6px;
+  justify-content: flex-end;
 }
 
 .tab {
   align-items: center;
   background: transparent;
   border: 0;
-  border-radius: 8px;
-  color: #5e574f;
+  border-bottom: 2px solid transparent;
+  border-radius: 0;
+  color: var(--muted);
   cursor: pointer;
   display: flex;
   gap: 10px;
-  min-height: 42px;
-  padding: 10px 12px;
+  min-height: 92px;
+  padding: 0 12px;
   text-align: left;
 }
 
 .tab.active,
 .tab:hover {
-  background: #f3eee6;
-  color: #191714;
+  background: transparent;
+  border-bottom-color: var(--accent);
+  color: var(--ink);
 }
 
 .tab.active {
-  box-shadow: inset 3px 0 0 #e11919;
+  box-shadow: none;
 }
 
 .subnav {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
-  margin: -4px 0 18px;
+  margin: 0 0 22px;
+  padding-top: 18px;
+  border-top: 1px solid var(--ink);
 }
 
 .subtab {
   align-items: center;
-  background: #ffffff;
-  border: 1px solid #e2dcd4;
-  border-radius: 8px;
-  color: #625b52;
+  background: transparent;
+  border: 0;
+  color: var(--muted);
   cursor: pointer;
   display: inline-flex;
   gap: 8px;
   min-height: 38px;
-  padding: 0 12px;
+  padding: 0 14px;
 }
 
 .subtab.active,
 .subtab:hover {
-  background: #191714;
-  border-color: #191714;
-  color: #ffffff;
+  background: var(--soft);
+  box-shadow: inset 0 -2px 0 var(--accent);
+  color: var(--ink);
 }
 
 .workspace {
-  padding: 34px min(4vw, 56px);
+  margin: 0 auto;
+  max-width: 1380px;
+  padding: 42px 28px 96px;
 }
 
 .topbar {
@@ -133,9 +158,7 @@ nav {
   display: flex;
   gap: 18px;
   justify-content: space-between;
-  border-bottom: 1px solid #e6e0d7;
-  margin-bottom: 20px;
-  padding-bottom: 22px;
+  margin-bottom: 28px;
 }
 
 h1,
@@ -146,14 +169,18 @@ p {
 }
 
 h1 {
-  font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(34px, 4vw, 54px);
-  line-height: 1.1;
-  margin-bottom: 6px;
+  font-family: "Libre Caslon Display", Georgia, "Times New Roman", serif;
+  font-size: clamp(52px, 7vw, 86px);
+  font-weight: 400;
+  letter-spacing: -0.035em;
+  line-height: 0.96;
+  margin-bottom: 10px;
 }
 
 h2 {
-  font-size: 20px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 27px;
+  font-weight: 400;
   margin-bottom: 16px;
 }
 
@@ -164,15 +191,15 @@ h3 {
 
 .topbar p,
 .note {
-  color: #716a60;
+  color: var(--muted);
 }
 
 .panel {
-  background: #ffffff;
-  border: 1px solid #e6e0d7;
-  border-radius: 8px;
-  box-shadow: 0 18px 45px rgba(33, 28, 21, 0.05);
-  padding: 24px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
+  box-shadow: var(--shadow);
+  padding: clamp(24px, 3.3vw, 48px);
 }
 
 .metricGrid {
@@ -183,9 +210,9 @@ h3 {
 }
 
 .metric {
-  background: #fbfaf7;
-  border: 1px solid #e9e3db;
-  border-radius: 8px;
+  background: var(--soft);
+  border: 1px solid var(--line);
+  border-radius: 0;
   padding: 14px;
 }
 
@@ -218,17 +245,21 @@ li {
 
 .editorGrid {
   display: grid;
-  gap: 22px;
-  grid-template-columns: minmax(0, 1.2fr) minmax(280px, 0.8fr);
+  gap: 0;
+  grid-template-columns: minmax(0, 1fr) minmax(360px, 0.88fr);
 }
 
 textarea {
-  background: #fffefd;
-  border: 1px solid #d8d0c6;
-  border-radius: 8px;
+  background: transparent;
+  border: 0;
+  border-radius: 0;
   display: block;
-  min-height: 150px;
-  padding: 14px;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 20px;
+  line-height: 1.72;
+  min-height: 360px;
+  outline: 0;
+  padding: 22px 0;
   resize: vertical;
   width: 100%;
 }
@@ -239,20 +270,25 @@ textarea + .primaryButton {
 }
 
 .primaryButton {
-  background: #191714;
-  border: 0;
-  border-radius: 8px;
+  background: var(--ink);
+  border: 1px solid var(--ink);
+  border-radius: 0;
   color: #ffffff;
   cursor: pointer;
   min-height: 42px;
   padding: 0 16px;
 }
 
+.primaryButton:hover {
+  background: var(--accent);
+  border-color: var(--accent);
+}
+
 .secondaryButton {
-  background: #f8f6ef;
-  border: 1px solid #d8d0c5;
-  border-radius: 8px;
-  color: #191714;
+  background: var(--paper);
+  border: 1px solid var(--ink);
+  border-radius: 0;
+  color: var(--ink);
   cursor: pointer;
   font-weight: 700;
   min-height: 36px;
@@ -265,14 +301,14 @@ textarea + .primaryButton {
 }
 
 .inspector {
-  border-left: 1px solid #e6e0d7;
-  padding-left: 22px;
+  border-left: 1px solid var(--line);
+  padding-left: clamp(24px, 3vw, 44px);
 }
 
 .statusPill {
-  background: #eaf3d2;
+  background: var(--soft);
   border-radius: 999px;
-  color: #42510f;
+  color: var(--ink);
   display: inline-flex;
   font-size: 13px;
   font-weight: 700;
@@ -287,7 +323,7 @@ textarea + .primaryButton {
 .error {
   background: #fff0ee;
   border: 1px solid #f0c7c1;
-  border-radius: 8px;
+  border-radius: 0;
   color: #913b30;
   margin-bottom: 16px;
   padding: 12px;
@@ -318,8 +354,8 @@ textarea + .primaryButton {
 }
 
 .textInput {
-  border: 1px solid #d8d0c6;
-  border-radius: 8px;
+  border: 1px solid var(--line);
+  border-radius: 0;
   min-height: 40px;
   padding: 9px 12px;
   width: min(620px, 100%);
@@ -341,9 +377,9 @@ textarea + .primaryButton {
 
 .contextControl select,
 .editorControls select {
-  background: #ffffff;
-  border: 1px solid #d8d0c6;
-  border-radius: 8px;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 0;
   min-height: 40px;
   padding: 8px 10px;
 }
@@ -351,7 +387,7 @@ textarea + .primaryButton {
 .editorControls {
   display: grid;
   gap: 14px;
-  grid-template-columns: minmax(160px, 0.4fr) 1fr;
+  grid-template-columns: minmax(150px, 0.6fr) 1fr minmax(160px, 0.55fr);
   margin: 14px 0;
 }
 
@@ -955,21 +991,26 @@ textarea + .primaryButton {
 }
 
 @media (max-width: 860px) {
-  .appShell,
   .editorGrid {
     grid-template-columns: 1fr;
   }
 
   .sidebar {
     border-bottom: 1px solid #e6e0d7;
-    border-right: 0;
-    height: auto;
-    padding: 16px;
-    position: static;
+    grid-template-columns: 1fr;
+    min-height: auto;
+    padding: 14px 18px 0;
   }
 
   nav {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    flex-wrap: nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+  }
+
+  .tab {
+    min-height: 54px;
+    white-space: nowrap;
   }
 
   .subnav {
@@ -979,6 +1020,22 @@ textarea + .primaryButton {
 
   .workspace {
     padding: 18px;
+  }
+
+  .brandLogo {
+    height: 44px;
+    width: 125px;
+  }
+
+  h1 {
+    font-size: clamp(44px, 14vw, 64px);
+  }
+
+  .inspector {
+    border-left: 0;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 24px;
   }
 
   .topbar,
