@@ -1246,6 +1246,20 @@ export function App() {
     }
   }
 
+  async function compareDrafts(originalText: string, revisedText: string) {
+    setOriginal(originalText);
+    setRevised(revisedText);
+    setComparison(null);
+    setActive("compare");
+    setError(null);
+    try {
+      setComparison(await compareTexts(originalText, revisedText, activeContext));
+      await refreshAuditEvents();
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    }
+  }
+
   async function handleFeedbackProposal() {
     if (!comparison) return;
     setError(null);
@@ -1436,12 +1450,9 @@ export function App() {
     }
   }
 
-  function handleCompareGeneratedText() {
+  async function handleCompareGeneratedText() {
     if (!generation) return;
-    setOriginal(editorOriginalBeforeGeneration || editorText);
-    setRevised(generation.output);
-    setComparison(null);
-    setActive("compare");
+    await compareDrafts(editorOriginalBeforeGeneration || editorText, generation.output);
   }
 
   function handleClearEditor() {
@@ -2981,7 +2992,8 @@ export function App() {
                 <div className="proposalBox">
                   <h3>Lectura con fichas</h3>
                   <p className="note">
-                    Decide por ficha: lo que marques se guarda en tu criterio, no cambia la biblioteca.
+                    Primero prueba la indicacion en tu texto. Luego decide por ficha: lo que marques se
+                    guarda en tu criterio, no cambia la biblioteca.
                   </p>
                   <div className="metricGrid">
                     <Metric label="Base" value={knowledgeVersionPublicLabel(textRevision.version, latestPublishedKnowledgeVersion)} />
@@ -3010,6 +3022,10 @@ export function App() {
                           <span className="revisionLabel">Que haria</span>
                           <p>{step.action}</p>
                         </div>
+                        <div>
+                          <span className="revisionLabel">Como probarlo</span>
+                          <p>{revisionStepApplication(step.card_id)}</p>
+                        </div>
                       </div>
                       <List title="Senales miradas" items={step.signals.slice(0, 3)} />
                       <List title="Cuidado con" items={step.risks.slice(0, 2)} />
@@ -3026,7 +3042,7 @@ export function App() {
                           }
                           type="button"
                         >
-                          Me sirve
+                          Me sirve esta ficha
                         </button>
                         <button
                           className="secondaryButton"
@@ -3054,7 +3070,7 @@ export function App() {
                           }
                           type="button"
                         >
-                          Guardar criterio
+                          Guardar como criterio
                         </button>
                       </div>
                       {revisionFeedbackByCard[step.card_id] ? (
@@ -3422,7 +3438,14 @@ export function App() {
                   </button>
                 </>
               ) : (
-                <p className="note">El comparador mide modificacion y adecuacion sin actualizar el perfil.</p>
+                <div className="emptyState">
+                  <strong>Sin comparacion todavia</strong>
+                  <p>
+                    Pega dos versiones y pulsa Comparar. Si vienes desde una propuesta, Editados calcula
+                    esta lectura automaticamente.
+                  </p>
+                  <p>Comparar no aplica cambios ni actualiza tu criterio.</p>
+                </div>
               )}
               {activeFeedback ? (
                 <div className="proposalBox">
@@ -3971,6 +3994,24 @@ function revisionStepFocus(cardId: string) {
     "card-limpieza-final": "Mira puntuacion, espacios, repeticiones y cierre.",
   };
   return labels[cardId] ?? "Mira una ficha editorial relacionada con esta revision.";
+}
+
+function revisionStepApplication(cardId: string) {
+  const applications: Record<string, string> = {
+    "card-diagnostico-de-reescritura":
+      "Antes de reescribir, marca una capa principal: estructura, parrafo, frase, tono o limpieza.",
+    "card-revision-estructural":
+      "Resume la idea central en una linea, ordena los bloques y corta lo que no empuje esa idea.",
+    "card-revision-de-parrafo":
+      "Revisa cada parrafo como una unidad: una idea, un apoyo y una transicion visible.",
+    "card-revision-de-frase":
+      "Elige una frase larga, acerca sujeto y verbo, recorta incisos y deja una accion clara.",
+    "card-revision-de-tono":
+      "Lee una frase pensando en el lector previsto y ajusta distancia sin borrar tu voz.",
+    "card-limpieza-final":
+      "Haz un ultimo pase solo de signos, espacios, repeticiones, mayusculas y cierre.",
+  };
+  return applications[cardId] ?? "Aplica la ficha en una parte concreta del texto antes de guardarla.";
 }
 
 function groupBy<T>(items: T[], keyFor: (item: T) => string) {

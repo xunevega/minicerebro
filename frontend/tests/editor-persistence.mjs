@@ -48,9 +48,10 @@ try {
   await resultPanel.getByText("Diagnostico de reescritura").waitFor();
   await resultPanel.getByText("Por que aplica").first().waitFor();
   await resultPanel.getByText("Que haria").first().waitFor();
+  await resultPanel.getByText("Como probarlo").first().waitFor();
   await resultPanel.getByText("Senales miradas").first().waitFor();
   await resultPanel.getByRole("button", { name: "No va por ahi" }).first().waitFor();
-  await resultPanel.getByRole("button", { name: "Guardar criterio" }).first().waitFor();
+  await resultPanel.getByRole("button", { name: "Guardar como criterio" }).first().waitFor();
   const feedbackResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -58,7 +59,7 @@ try {
     },
     { timeout: 90000 },
   );
-  await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
+  await resultPanel.getByRole("button", { name: "Me sirve esta ficha" }).first().click();
   await feedbackResponse;
   await resultPanel.getByText("Guardado en ficha").first().waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("criterio guardado").first().waitFor();
@@ -92,6 +93,8 @@ try {
   if ((await compareTextareas.nth(1).inputValue()) !== output) {
     throw new Error("El comparador no recibio el texto propuesto.");
   }
+  await comparePanel.locator(".metric", { hasText: "Cambios detectados" }).waitFor();
+  await comparePanel.locator(".metric", { hasText: "Adecuacion estimada" }).waitFor();
   await page.locator(".subnav").getByRole("button", { name: "Escribir" }).click();
   await editorPanel.getByRole("button", { name: "Borrar texto" }).click();
   if ((await editorPanel.locator("textarea").first().inputValue()) !== "") {

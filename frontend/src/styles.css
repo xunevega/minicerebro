@@ -57,6 +57,12 @@ select:focus {
   outline: 0;
 }
 
+input::placeholder,
+textarea::placeholder {
+  color: #9b9690;
+  opacity: 1;
+}
+
 .appShell {
   min-height: 100vh;
 }
@@ -335,9 +341,14 @@ textarea + .primaryButton {
   padding: 0 14px;
 }
 
+.secondaryButton:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
 .secondaryButton:disabled {
   color: #8a8378;
-  cursor: wait;
+  cursor: not-allowed;
 }
 
 .inspector {
@@ -756,7 +767,7 @@ textarea + .primaryButton {
 .revisionStepGrid {
   display: grid;
   gap: 12px;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: repeat(3, 1fr);
 }
 
 .revisionStepGrid p {
@@ -770,6 +781,22 @@ textarea + .primaryButton {
   font-weight: 800;
   margin-bottom: 4px;
   text-transform: uppercase;
+}
+
+.emptyState {
+  border: 1px dashed var(--line);
+  color: var(--muted);
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+}
+
+.emptyState strong {
+  color: var(--ink);
+}
+
+.emptyState p {
+  margin: 0;
 }
 
 .learningBox {
