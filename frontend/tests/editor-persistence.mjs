@@ -28,12 +28,12 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await page.getByRole("button", { name: "Crear reescritura" }).click();
   await generationResponse;
 
-  const resultPanel = page.locator(".inspector", { hasText: "Resultado" });
+  const resultPanel = page.locator(".inspector", { hasText: "Salida" });
   await resultPanel.getByText("deterministic").waitFor();
-  await page.getByLabel("Recorrido de escritura").getByText("Hay una version para usar o comparar.").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
 
   const revisionResponse = page.waitForResponse(
     (response) => {
@@ -82,7 +82,7 @@ try {
   if (updatedDraft !== output) {
     throw new Error("Usar este texto no sustituyo el borrador por la propuesta.");
   }
-  await resultPanel.getByRole("button", { name: "Comparar con original" }).click();
+  await resultPanel.getByRole("button", { name: "Comparar propuesta con original" }).click();
   const comparePanel = page.locator(".panel", { hasText: "Comparar textos" });
   await comparePanel.waitFor();
   const compareTextareas = comparePanel.locator("textarea");

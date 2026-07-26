@@ -26,9 +26,9 @@ try {
   await compareEditor.getByRole("button", { name: "Comparar" }).click();
   await compareResponse;
 
-  const comparePanel = page.locator(".panel", { hasText: "Resultado" });
-  await comparePanel.locator(".metric", { hasText: "Modificacion" }).waitFor();
-  await comparePanel.locator(".metric", { hasText: "Adecuacion" }).waitFor();
+  const comparePanel = page.locator(".panel", { hasText: "Comparacion" });
+  await comparePanel.locator(".metric", { hasText: "Cambios detectados" }).waitFor();
+  await comparePanel.locator(".metric", { hasText: "Adecuacion estimada" }).waitFor();
 
   const proposalResponse = page.waitForResponse(
     (response) => {

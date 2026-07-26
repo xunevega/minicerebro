@@ -421,6 +421,15 @@ export function App() {
   );
   const editorHasDraft = editorText.trim().length > 0;
   const editorFeedbackCount = Object.keys(revisionFeedbackByCard).length;
+  const selectedEditorAction =
+    editorActions.find((action) => action.value === editorAction) ?? editorActions[0];
+  const editorProposalLabel =
+    {
+      rewrite: "reescritura",
+      correction: "correccion",
+      continue: "continuacion",
+      variants: "variantes",
+    }[editorAction] ?? "propuesta";
   const editorFlowSteps = [
     {
       label: "Borrador",
@@ -428,14 +437,14 @@ export function App() {
       status: editorHasDraft ? "done" : "active",
     },
     {
-      label: "Propuesta",
-      description: generation ? "Hay una version para usar o comparar." : "Aplica una accion.",
-      status: generation ? "done" : editorHasDraft ? "active" : "pending",
+      label: "Lectura",
+      description: textRevision ? "Fichas editoriales disponibles." : "Pide lectura con fichas.",
+      status: textRevision ? "done" : editorHasDraft ? "active" : "pending",
     },
     {
-      label: "Revision",
-      description: textRevision ? "Fichas editoriales disponibles." : "Pide lectura con fichas.",
-      status: textRevision ? "done" : generation ? "active" : "pending",
+      label: "Propuesta",
+      description: generation ? "Hay una version nueva sin aplicar." : "Crea una version alternativa.",
+      status: generation ? "done" : editorHasDraft ? "active" : "pending",
     },
     {
       label: "Decision",
@@ -2909,7 +2918,7 @@ export function App() {
                   onClick={handleGenerate}
                   type="button"
                 >
-                  Crear propuesta
+                  Crear {editorProposalLabel}
                 </button>
                 <button
                   className="secondaryButton editorButton"
@@ -2935,12 +2944,13 @@ export function App() {
               </div>
             </div>
             <div className="inspector">
-              <h2>Resultado</h2>
+              <h2>Salida</h2>
               {generation ? (
                 <>
-                  <h3>Texto propuesto</h3>
+                  <h3>Propuesta de {editorProposalLabel}</h3>
                   <p className="note">
-                    Propuesta creada con {editorActions.find((action) => action.value === editorAction)?.label.toLowerCase()}.
+                    Es una version alternativa creada con {selectedEditorAction.label.toLowerCase()}.
+                    No sustituye tu borrador hasta que pulses "Usar este texto".
                   </p>
                   <textarea readOnly value={generation.output} />
                   <div className="resultActions">
@@ -2948,7 +2958,7 @@ export function App() {
                       Usar este texto
                     </button>
                     <button className="secondaryButton" onClick={handleCompareGeneratedText} type="button">
-                      Comparar con original
+                      Comparar propuesta con original
                     </button>
                     <button className="ghostButton" onClick={handleCopyGeneratedText} type="button">
                       Copiar
@@ -2958,7 +2968,7 @@ export function App() {
                     ) : null}
                   </div>
                   <p className="draftSnapshot">
-                    Original conservado para comparar antes de reemplazar el borrador.
+                    Original conservado para comparar. Comparar no aplica cambios.
                   </p>
                   <p className="note">{generation.explanation}</p>
                   <span className="statusPill">{generation.provider}</span>
@@ -3394,8 +3404,8 @@ export function App() {
               <h2>Comparacion</h2>
               {comparison ? (
                 <>
-                  <Metric label="Modificacion" value={comparison.modification_score} />
-                  <Metric label="Adecuacion" value={comparison.adequacy_score} />
+                  <Metric label="Cambios detectados" value={comparison.modification_score} />
+                  <Metric label="Adecuacion estimada" value={comparison.adequacy_score} />
                   <p>{comparison.summary}</p>
                   <List
                     title="Dimensiones"
