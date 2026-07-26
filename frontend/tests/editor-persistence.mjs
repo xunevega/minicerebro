@@ -18,6 +18,8 @@ try {
   const editorPanel = page.locator(".panel", { hasText: "Borrador" });
   const inputText = `Smoke editor persistencia ${Date.now()}. Frase para guardar.`;
   await editorPanel.locator("textarea").first().fill(inputText);
+  await page.getByLabel("Recorrido de escritura").getByText("Borrador").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Propuesta").waitFor();
 
   const generationResponse = page.waitForResponse(
     (response) => {
@@ -26,11 +28,12 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Aplicar reescribir" }).click();
+  await page.getByRole("button", { name: "Crear propuesta" }).click();
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Resultado" });
   await resultPanel.getByText("deterministic").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Hay una version para usar o comparar.").waitFor();
 
   const revisionResponse = page.waitForResponse(
     (response) => {
@@ -39,9 +42,9 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Revisar con fichas" }).click();
+  await page.getByRole("button", { name: "Leer con fichas" }).click();
   await revisionResponse;
-  await resultPanel.getByText("Revision con fichas").waitFor();
+  await resultPanel.getByText("Lectura con fichas").waitFor();
   await resultPanel.getByText("Diagnostico de reescritura").waitFor();
   await resultPanel.getByText("Por que aplica").first().waitFor();
   await resultPanel.getByText("Que haria").first().waitFor();
@@ -58,6 +61,7 @@ try {
   await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
   await feedbackResponse;
   await resultPanel.getByText("Guardado en ficha").first().waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("criterio guardado").first().waitFor();
   const scoreApplyResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());

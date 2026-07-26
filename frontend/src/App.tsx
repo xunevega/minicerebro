@@ -419,6 +419,33 @@ export function App() {
     loadedKnowledgeVersion,
     latestPublishedKnowledgeVersion,
   );
+  const editorHasDraft = editorText.trim().length > 0;
+  const editorFeedbackCount = Object.keys(revisionFeedbackByCard).length;
+  const editorFlowSteps = [
+    {
+      label: "Borrador",
+      description: editorHasDraft ? "Texto listo para trabajar." : "Escribe o pega un texto.",
+      status: editorHasDraft ? "done" : "active",
+    },
+    {
+      label: "Propuesta",
+      description: generation ? "Hay una version para usar o comparar." : "Aplica una accion.",
+      status: generation ? "done" : editorHasDraft ? "active" : "pending",
+    },
+    {
+      label: "Revision",
+      description: textRevision ? "Fichas editoriales disponibles." : "Pide lectura con fichas.",
+      status: textRevision ? "done" : generation ? "active" : "pending",
+    },
+    {
+      label: "Decision",
+      description:
+        editorFeedbackCount > 0
+          ? `${editorFeedbackCount} criterio${editorFeedbackCount === 1 ? "" : "s"} guardado${editorFeedbackCount === 1 ? "" : "s"}.`
+          : "Acepta, rechaza o guarda criterio.",
+      status: editorFeedbackCount > 0 ? "done" : textRevision ? "active" : "pending",
+    },
+  ];
 
   useEffect(() => {
     getKnowledgeStatus()
@@ -2797,6 +2824,15 @@ export function App() {
               <p className="note">
                 Trabaja un texto sin entregar el mando: Editados propone, tu criterio decide.
               </p>
+              <div className="editorFlow" aria-label="Recorrido de escritura">
+                {editorFlowSteps.map((step, index) => (
+                  <div className={`editorFlowStep ${step.status}`} key={step.label}>
+                    <span>{index + 1}</span>
+                    <strong>{step.label}</strong>
+                    <small>{step.description}</small>
+                  </div>
+                ))}
+              </div>
               <textarea value={editorText} onChange={(event) => setEditorText(event.target.value)} />
               <div className="actionChooser" aria-label="Acciones de escritura">
                 {editorActions.map((action) => (
@@ -2850,11 +2886,21 @@ export function App() {
                 value={protectedTerms}
               />
               <div className="buttonRow">
-                <button className="primaryButton editorButton" onClick={handleGenerate} type="button">
-                  Aplicar {editorActions.find((action) => action.value === editorAction)?.label.toLowerCase()}
+                <button
+                  className="primaryButton editorButton"
+                  disabled={!editorHasDraft}
+                  onClick={handleGenerate}
+                  type="button"
+                >
+                  Crear propuesta
                 </button>
-                <button className="primaryButton editorButton" onClick={handleTextRevision} type="button">
-                  Revisar con fichas
+                <button
+                  className="secondaryButton editorButton"
+                  disabled={!editorHasDraft}
+                  onClick={handleTextRevision}
+                  type="button"
+                >
+                  Leer con fichas
                 </button>
               </div>
             </div>
@@ -2863,6 +2909,9 @@ export function App() {
               {generation ? (
                 <>
                   <h3>Texto propuesto</h3>
+                  <p className="note">
+                    Propuesta creada con {editorActions.find((action) => action.value === editorAction)?.label.toLowerCase()}.
+                  </p>
                   <textarea readOnly value={generation.output} />
                   <div className="resultActions">
                     <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
@@ -2890,7 +2939,10 @@ export function App() {
               )}
               {textRevision ? (
                 <div className="proposalBox">
-                  <h3>Revision con fichas</h3>
+                  <h3>Lectura con fichas</h3>
+                  <p className="note">
+                    Decide por ficha: lo que marques se guarda en tu criterio, no cambia la biblioteca.
+                  </p>
                   <div className="metricGrid">
                     <Metric label="Base" value={knowledgeVersionPublicLabel(textRevision.version, latestPublishedKnowledgeVersion)} />
                     <Metric label="Objetivo" value={textRevision.intention} />
