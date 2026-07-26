@@ -22,7 +22,8 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
     for term in payload.protected_terms:
         preserved = preserved.replace(term, f"[[{term}]]")
 
-    output = preserved.strip()
+    original = preserved.strip()
+    output = original
     if payload.action in {"rewrite", "correction"}:
         output = " ".join(output.split())
         if payload.intensity > 650 and not output.endswith("."):
@@ -39,12 +40,20 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
     for term in payload.protected_terms:
         output = output.replace(f"[[{term}]]", term)
 
+    if output == payload.text.strip():
+        explanation = (
+            "No se aplicaron cambios deterministas seguros. El texto ya estaba limpio para este "
+            "modo local; para una reescritura profunda hace falta activar generacion externa."
+        )
+    else:
+        explanation = (
+            "Transformacion determinista local. Corrige solo cambios seguros y no aprende nada "
+            "automaticamente."
+        )
+
     return GenerationResult(
         output=output,
-        explanation=(
-            "Transformacion determinista de arranque. Usa el perfil solo para explicar contexto; "
-            "no aplica aprendizaje ni llama a modelos externos."
-        ),
+        explanation=explanation,
         used_profile_variables=[item.key for item in active],
     )
 

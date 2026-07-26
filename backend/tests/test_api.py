@@ -623,6 +623,17 @@ def test_generation_is_persisted_as_text():
     assert payload[0]["learning_applied"] is False
 
 
+def test_generation_explains_when_deterministic_output_is_unchanged():
+    response = client.post(
+        "/generation",
+        json={"text": "Texto limpio para revisar.", "action": "rewrite", "context": "general"},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["output"] == "Texto limpio para revisar."
+    assert "No se aplicaron cambios" in payload["explanation"]
+
+
 def test_generation_action_aliases_are_bound_to_their_routes():
     variants = client.post("/variants", json={"text": "Idea base", "context": "general"})
     assert variants.status_code == 200

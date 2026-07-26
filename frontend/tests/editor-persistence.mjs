@@ -19,8 +19,9 @@ try {
     .click();
 
   const editorPanel = page.locator(".panel", { hasText: "Borrador" });
-  const inputText = `Smoke editor persistencia ${Date.now()}. Frase para guardar.`;
+  const inputText = `Smoke editor persistencia ${Date.now()}.  Frase para guardar.`;
   await editorPanel.locator("textarea").first().fill(inputText);
+  await editorPanel.getByLabel("Que quieres hacer").selectOption("continue");
   await page.getByLabel("Recorrido de escritura").getByText("Borrador").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Propuesta").waitFor();
 
@@ -35,7 +36,7 @@ try {
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Salida" });
-  await resultPanel.getByText("Propuesta de reescritura").waitFor();
+  await resultPanel.getByText("Propuesta de continuacion").waitFor();
   await resultPanel.getByText("Comparacion automatica").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
 
@@ -84,6 +85,22 @@ try {
     throw new Error("Borrar texto no dejo el borrador vacio.");
   }
   await page.getByLabel("Recorrido de escritura").getByText("Escribe o pega un texto.").waitFor();
+
+  const cleanText = "Texto limpio para revisar.";
+  await editorPanel.locator("textarea").first().fill(cleanText);
+  await editorPanel.getByLabel("Que quieres hacer").selectOption("rewrite");
+  const noChangeGenerationResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/generation" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await noChangeGenerationResponse;
+  await resultPanel.getByText("Sin cambios detectados").waitFor();
+  await resultPanel.getByRole("button", { name: "Cerrar propuesta" }).click();
+  await resultPanel.getByText("Sin cambios que aplicar").waitFor();
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
     timeout: 90000,

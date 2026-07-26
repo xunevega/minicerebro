@@ -374,6 +374,7 @@ export function App() {
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
   const [generationCopyStatus, setGenerationCopyStatus] = useState("");
+  const [editorOutcomeNotice, setEditorOutcomeNotice] = useState("");
   const [textRevision, setTextRevision] = useState<TextRevisionResult | null>(null);
   const [revisionFeedbackByCard, setRevisionFeedbackByCard] = useState<
     Record<string, RevisionFeedbackResult>
@@ -467,6 +468,10 @@ export function App() {
   const pendingRevisionSteps =
     textRevision?.steps.filter((step) => !revisionFeedbackByCard[step.card_id]) ?? [];
   const decidedRevisionCount = textRevision ? textRevision.steps.length - pendingRevisionSteps.length : 0;
+  const generationHasChanges =
+    generation !== null &&
+    generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
+    (comparison?.modification_score ?? 0) > 0;
   const displayedKnowledgeQueryHistory = showAllKnowledgeHistory
     ? knowledgeQueryHistory
     : knowledgeQueryHistory.slice(0, 5);
@@ -1423,6 +1428,7 @@ export function App() {
   async function handleGenerate() {
     setError(null);
     setGenerationCopyStatus("");
+    setEditorOutcomeNotice("");
     const draftBeforeGeneration = editorText;
     try {
       const result = await generateText(
@@ -1449,18 +1455,27 @@ export function App() {
 
   function handleUseGeneratedText() {
     if (!generation) return;
+    const hasChanges =
+      generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
+      (comparison?.modification_score ?? 0) > 0;
     setEditorText(generation.output);
     setEditorOriginalBeforeGeneration("");
     setGeneration(null);
     setGenerationCopyStatus("");
     setTextRevision(null);
     setRevisionFeedbackByCard({});
+    setEditorOutcomeNotice(
+      hasChanges
+        ? "Propuesta aplicada al borrador."
+        : "Sin cambios que aplicar: la propuesta era igual al borrador.",
+    );
   }
 
   function handleDiscardGeneratedText() {
     setGeneration(null);
     setGenerationCopyStatus("");
     setComparison(null);
+    setEditorOutcomeNotice("Propuesta descartada. El borrador no ha cambiado.");
   }
 
   async function handleCopyEditorText() {
@@ -1492,6 +1507,8 @@ export function App() {
     setEditorOriginalBeforeGeneration("");
     setGeneration(null);
     setGenerationCopyStatus("");
+    setComparison(null);
+    setEditorOutcomeNotice("");
     setTextRevision(null);
     setRevisionFeedbackByCard({});
     setError(null);
@@ -2983,7 +3000,7 @@ export function App() {
                   <textarea readOnly value={generation.output} />
                   <div className="resultActions">
                     <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
-                      Aceptar propuesta
+                      {generationHasChanges ? "Aceptar propuesta" : "Cerrar propuesta"}
                     </button>
                     <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                       Copiar
@@ -2996,11 +3013,17 @@ export function App() {
                     ) : null}
                   </div>
                   {comparison ? (
-                    <div className="comparisonSummary">
-                      <strong>Comparacion automatica</strong>
+                    <div className={`comparisonSummary ${generationHasChanges ? "" : "noChanges"}`}>
+                      <strong>
+                        {generationHasChanges ? "Comparacion automatica" : "Sin cambios detectados"}
+                      </strong>
                       <span>Cambios: {comparison.modification_score}</span>
                       <span>Adecuacion: {comparison.adequacy_score}</span>
-                      <p>{comparison.summary}</p>
+                      <p>
+                        {generationHasChanges
+                          ? comparison.summary
+                          : "Editados no ha encontrado una correccion segura en este modo. El texto puede estar bien, o puede necesitar una lectura con fichas."}
+                      </p>
                     </div>
                   ) : null}
                   <details className="quietDetails">
@@ -3011,8 +3034,11 @@ export function App() {
                 </>
               ) : (
                 <div className="emptyOutput">
-                  <strong>Sin salida todavia</strong>
-                  <p>Primero escribe o pega un texto. Luego crea una propuesta o pide lectura con fichas.</p>
+                  <strong>{editorOutcomeNotice ? "Decision aplicada" : "Sin salida todavia"}</strong>
+                  <p>
+                    {editorOutcomeNotice ||
+                      "Primero escribe o pega un texto. Luego crea una propuesta o pide lectura con fichas."}
+                  </p>
                 </div>
               )}
               {textRevision ? (

@@ -725,6 +725,11 @@ textarea + .primaryButton {
   padding: 14px;
 }
 
+.comparisonSummary.noChanges {
+  background: #f5f3ee;
+  border-style: dashed;
+}
+
 .comparisonSummary span,
 .comparisonSummary p {
   color: var(--muted);
