@@ -2882,20 +2882,21 @@ export function App() {
               />
               <div className="editorControls">
                 <label className="editorControl actionControl">
-                  Que quieres hacer
+                  <span className="controlLabel">Que quieres hacer</span>
                   <select
                     onChange={(event) => setEditorAction(event.target.value as GenerationAction)}
                     value={editorAction}
                   >
                     {editorActions.map((action) => (
                       <option key={action.value} value={action.value}>
-                        {action.label} - {action.description}
+                        {action.label}
                       </option>
                     ))}
                   </select>
+                  <span className="controlHint">{selectedEditorAction.description}</span>
                 </label>
                 <label className="editorControl intensityControl">
-                  Intensidad: {editorIntensity}
+                  <span className="controlLabel">Intensidad: {editorIntensity}</span>
                   <input
                     max={1000}
                     min={0}
@@ -2906,7 +2907,7 @@ export function App() {
                   />
                 </label>
                 <label className="editorControl revisionControl">
-                  Revision
+                  <span className="controlLabel">Revision</span>
                   <select
                     onChange={(event) => setRevisionIntention(event.target.value)}
                     value={revisionIntention}

@@ -348,13 +348,16 @@ li {
 }
 
 .fieldRole {
-  color: var(--accent);
-  display: block;
+  background: var(--ink);
+  color: #ffffff;
+  display: inline-flex;
   font-size: 11px;
   font-weight: 900;
   letter-spacing: 0.08em;
   margin-bottom: 8px;
+  padding: 6px 9px;
   text-transform: uppercase;
+  width: fit-content;
 }
 
 textarea {
@@ -478,11 +481,15 @@ textarea + .primaryButton {
 }
 
 .fieldLabel {
-  color: #625b52;
-  display: block;
-  font-size: 13px;
-  font-weight: 700;
-  margin-bottom: 8px;
+  background: #eceae4;
+  color: #37332d;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  margin-bottom: 10px;
+  padding: 6px 9px;
+  text-transform: uppercase;
 }
 
 .textInput {
@@ -519,9 +526,13 @@ textarea + .primaryButton {
 .editorControls {
   display: grid;
   align-items: end;
-  gap: 14px;
-  grid-template-columns: minmax(260px, 1.35fr) minmax(220px, 1fr) minmax(170px, 0.75fr);
+  gap: 14px 16px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 18px 0;
+}
+
+.editorControls .actionControl {
+  grid-column: 1 / -1;
 }
 
 .compactEditorControls {
@@ -591,6 +602,24 @@ textarea + .primaryButton {
   display: grid;
   gap: 8px;
   min-width: 0;
+}
+
+.controlLabel {
+  background: #eceae4;
+  color: #37332d;
+  display: inline-flex;
+  font-size: 12px;
+  font-weight: 900;
+  letter-spacing: 0.03em;
+  padding: 6px 9px;
+  text-transform: uppercase;
+  width: fit-content;
+}
+
+.controlHint {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.35;
 }
 
 .editorControls input[type="range"] {
@@ -1436,11 +1465,7 @@ textarea + .primaryButton {
 
 @media (max-width: 1180px) {
   .editorControls {
-    grid-template-columns: minmax(260px, 1fr) minmax(180px, 0.8fr);
-  }
-
-  .editorControls .revisionControl {
-    grid-column: 1 / -1;
+    grid-template-columns: 1fr;
   }
 }
 
