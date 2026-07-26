@@ -929,6 +929,18 @@ textarea + .primaryButton {
   margin-top: 4px;
 }
 
+.revisionProgress {
+  background: #f5f2ec;
+  border: 1px solid var(--line);
+  color: #6f6960;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 800;
+  justify-self: start;
+  margin: -4px 0 0;
+  padding: 6px 10px;
+}
+
 .revisionStepGrid {
   display: grid;
   gap: 18px;

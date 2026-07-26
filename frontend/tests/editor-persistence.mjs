@@ -55,6 +55,10 @@ try {
   await resultPanel.getByText("Que haria").first().waitFor();
   await resultPanel.getByText("Como probarlo").first().waitFor();
   await resultPanel.getByText("Senales miradas").first().waitFor();
+  await resultPanel.getByText("Ficha 1 de").waitFor();
+  if ((await resultPanel.locator(".revisionStepCard").count()) !== 1) {
+    throw new Error("La lectura debe mostrar una sola ficha pendiente cada vez.");
+  }
   await resultPanel.getByRole("button", { name: "No va por ahi" }).first().waitFor();
   const feedbackResponse = page.waitForResponse(
     (response) => {
@@ -66,6 +70,10 @@ try {
   await resultPanel.getByRole("button", { name: "Me sirve" }).first().click();
   await feedbackResponse;
   await resultPanel.getByText("ficha decidida").first().waitFor();
+  await resultPanel.getByText("Ficha 2 de").waitFor();
+  if ((await resultPanel.locator(".revisionStepCard").count()) !== 1) {
+    throw new Error("Despues de decidir una ficha solo debe verse la siguiente.");
+  }
   await page.getByLabel("Recorrido de escritura").getByText("criterio guardado").first().waitFor();
   if ((await resultPanel.getByRole("button", { name: "Aplicar ajuste" }).count()) !== 0) {
     throw new Error("La lectura muestra acciones tecnicas de scoring.");

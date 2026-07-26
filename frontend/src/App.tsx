@@ -468,6 +468,7 @@ export function App() {
   const pendingRevisionSteps =
     textRevision?.steps.filter((step) => !revisionFeedbackByCard[step.card_id]) ?? [];
   const decidedRevisionCount = textRevision ? textRevision.steps.length - pendingRevisionSteps.length : 0;
+  const currentRevisionStep = pendingRevisionSteps[0] ?? null;
   const generationHasChanges =
     generation !== null &&
     generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
@@ -3066,42 +3067,49 @@ export function App() {
                       <p>Ya no quedan fichas pendientes. Si necesitas otro enfoque, vuelve a pedir una lectura.</p>
                     </div>
                   ) : null}
-                  {pendingRevisionSteps.map((step) => (
-                    <article className="revisionStepCard" key={step.card_id}>
+                  {currentRevisionStep ? (
+                    <article className="revisionStepCard" key={currentRevisionStep.card_id}>
                       <div className="revisionStepHeader">
                         <div>
-                          <strong>{step.label}</strong>
-                          <span>{revisionStepFocus(step.card_id)}</span>
+                          <strong>{currentRevisionStep.label}</strong>
+                          <span>{revisionStepFocus(currentRevisionStep.card_id)}</span>
                         </div>
-                        <span className={step.status === "review" ? "statusPill warning" : "statusPill done"}>
-                          {step.status === "review" ? "Revisar" : "Correcto"}
+                        <span
+                          className={
+                            currentRevisionStep.status === "review" ? "statusPill warning" : "statusPill done"
+                          }
+                        >
+                          {currentRevisionStep.status === "review" ? "Revisar" : "Correcto"}
                         </span>
                       </div>
+                      <p className="revisionProgress">
+                        Ficha {decidedRevisionCount + 1} de {textRevision.steps.length}
+                      </p>
                       <div className="revisionStepGrid">
                         <div>
                           <span className="revisionLabel">Por que aplica</span>
-                          <p>{step.finding}</p>
+                          <p>{currentRevisionStep.finding}</p>
                         </div>
                         <div>
                           <span className="revisionLabel">Que haria</span>
-                          <p>{step.action}</p>
+                          <p>{currentRevisionStep.action}</p>
                         </div>
                         <div>
                           <span className="revisionLabel">Como probarlo</span>
-                          <p>{revisionStepApplication(step.card_id)}</p>
+                          <p>{revisionStepApplication(currentRevisionStep.card_id)}</p>
                         </div>
                       </div>
-                      <List title="Senales miradas" items={step.signals.slice(0, 3)} />
-                      <List title="Cuidado con" items={step.risks.slice(0, 2)} />
-                      <div className="buttonRow compactRow" aria-label={`Decision sobre ${step.label}`}>
+                      <List title="Senales miradas" items={currentRevisionStep.signals.slice(0, 3)} />
+                      <List title="Cuidado con" items={currentRevisionStep.risks.slice(0, 2)} />
+                      <div className="buttonRow compactRow" aria-label={`Decision sobre ${currentRevisionStep.label}`}>
                         <button
                           className="secondaryButton"
-                          disabled={revisionFeedbackBusyCard === step.card_id}
+                          disabled={revisionFeedbackBusyCard === currentRevisionStep.card_id}
                           onClick={() =>
                             handleRevisionFeedback(
-                              step.card_id,
+                              currentRevisionStep.card_id,
                               "me_sirve",
-                              `Me sirve: ${step.action}`,
+                              `Me sirve: ${currentRevisionStep.action}`,
                             )
                           }
                           type="button"
@@ -3110,12 +3118,12 @@ export function App() {
                         </button>
                         <button
                           className="secondaryButton"
-                          disabled={revisionFeedbackBusyCard === step.card_id}
+                          disabled={revisionFeedbackBusyCard === currentRevisionStep.card_id}
                           onClick={() =>
                             handleRevisionFeedback(
-                              step.card_id,
+                              currentRevisionStep.card_id,
                               "no_me_sirve",
-                              `No va por ahi: ${step.action}`,
+                              `No va por ahi: ${currentRevisionStep.action}`,
                             )
                           }
                           type="button"
@@ -3124,7 +3132,7 @@ export function App() {
                         </button>
                       </div>
                     </article>
-                  ))}
+                  ) : null}
                   <p className="note">
                     Revisar no modifica la biblioteca publicada. Tus respuestas alimentan solo la ficha personal.
                   </p>
