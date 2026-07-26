@@ -13740,6 +13740,7 @@ QUERY_TERM_EXPANSIONS = {
 EDITORIAL_REVISION_ROUTE = [
     "card-diagnostico-de-reescritura",
     "card-revision-estructural",
+    "card-diagnostico-de-coherencia",
     "card-revision-de-parrafo",
     "card-revision-de-frase",
     "card-revision-de-tono",

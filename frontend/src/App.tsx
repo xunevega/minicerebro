@@ -4025,9 +4025,10 @@ function revisionStepFocus(cardId: string) {
   const labels: Record<string, string> = {
     "card-diagnostico-de-reescritura": "Mira el recorrido general antes de tocar frases.",
     "card-revision-estructural": "Mira foco, orden y cierre del texto.",
+    "card-diagnostico-de-coherencia": "Mira unidad, progresion y contradicciones del conjunto.",
     "card-revision-de-parrafo": "Mira unidad, avance y transiciones de parrafo.",
     "card-revision-de-frase": "Mira orden, concision y ritmo de frase.",
-    "card-revision-de-tono": "Mira voz, distancia y registro.",
+    "card-revision-de-tono": "Mira voz, distancia, registro y continuidad de estilo.",
     "card-limpieza-final": "Mira puntuacion, espacios, repeticiones y cierre.",
   };
   return labels[cardId] ?? "Mira una ficha editorial relacionada con esta revision.";
@@ -4039,12 +4040,14 @@ function revisionStepApplication(cardId: string) {
       "Antes de reescribir, marca una capa principal: estructura, parrafo, frase, tono o limpieza.",
     "card-revision-estructural":
       "Resume la idea central en una linea, ordena los bloques y corta lo que no empuje esa idea.",
+    "card-diagnostico-de-coherencia":
+      "Escribe la idea rectora del texto y comprueba si cada bloque la sostiene, la contradice o se va por otro camino.",
     "card-revision-de-parrafo":
       "Revisa cada parrafo como una unidad: una idea, un apoyo y una transicion visible.",
     "card-revision-de-frase":
       "Elige una frase larga, acerca sujeto y verbo, recorta incisos y deja una accion clara.",
     "card-revision-de-tono":
-      "Lee una frase pensando en el lector previsto y ajusta distancia sin borrar tu voz.",
+      "Compara inicio y final: ajusta distancia, registro y ritmo para que parezcan del mismo texto.",
     "card-limpieza-final":
       "Haz un ultimo pase solo de signos, espacios, repeticiones, mayusculas y cierre.",
   };

@@ -693,6 +693,7 @@ def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledg
     assert payload["route"] == [
         "card-diagnostico-de-reescritura",
         "card-revision-estructural",
+        "card-diagnostico-de-coherencia",
         "card-revision-de-parrafo",
         "card-revision-de-frase",
         "card-revision-de-tono",
@@ -712,6 +713,57 @@ def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledg
         assert event is not None
         assert event.payload["route"] == payload["route"]
         assert text not in str(event.payload)
+
+
+def test_text_revision_flags_long_text_coherence_control():
+    long_paragraphs = [
+        (
+            "El texto abre una idea sobre la responsabilidad del lector y despues la desplaza "
+            "hacia otro punto sin cerrar del todo la relacion entre causa, consecuencia y ejemplo."
+        )
+        for _ in range(16)
+    ]
+    response = client.post(
+        "/revision",
+        json={"text": "\n\n".join(long_paragraphs), "context": "general", "version": "latest"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    coherence_step = next(
+        step for step in payload["steps"] if step["card_id"] == "card-diagnostico-de-coherencia"
+    )
+    assert coherence_step["status"] == "review"
+    assert "unidad" in coherence_step["finding"]
+    assert "idea rectora" in coherence_step["action"]
+
+
+def test_text_revision_flags_style_drift_between_start_and_end():
+    opening = (
+        "La ciudad parecia sostenerse sobre una paciencia antigua, una respiracion larga "
+        "y casi ceremonial que obligaba a mirar cada gesto como si perteneciera a una historia "
+        "mayor que la voluntad inmediata de sus habitantes."
+    )
+    ending = "Todo cambio. Nadie miro atras. La calle callo. El plan siguio. Nadie pregunto."
+    response = client.post(
+        "/revision",
+        json={
+            "text": "\n\n".join([opening for _ in range(4)] + [ending for _ in range(4)]),
+            "context": "general",
+            "version": "latest",
+        },
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    tone_step = next(step for step in payload["steps"] if step["card_id"] == "card-revision-de-tono")
+    coherence_step = next(
+        step for step in payload["steps"] if step["card_id"] == "card-diagnostico-de-coherencia"
+    )
+    assert tone_step["status"] == "review"
+    assert "deriva de estilo" in tone_step["finding"]
+    assert "primer tramo" in tone_step["action"]
+    assert "continuidad de estilo" in coherence_step["finding"]
 
 
 def test_revision_feedback_updates_profile_card_and_score_proposal_without_knowledge_mutation():
@@ -5981,9 +6033,9 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     layers_response = client.post(
         "/knowledge/query",
         json={
-            "query": "que le pasa a este texto revisar estructura parrafo frase tono limpieza final",
+            "query": "que le pasa a este texto revisar estructura coherencia parrafo frase tono limpieza final",
             "version": "latest",
-            "limit": 6,
+            "limit": 7,
         },
     )
     assert layers_response.status_code == 200
@@ -5993,6 +6045,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     assert [card["id"] for card in layers_payload["cards"]] == [
         "card-diagnostico-de-reescritura",
         "card-revision-estructural",
+        "card-diagnostico-de-coherencia",
         "card-revision-de-parrafo",
         "card-revision-de-frase",
         "card-revision-de-tono",
@@ -6001,6 +6054,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     assert layers_payload["context"]["editorial_route"] == [
         "card-diagnostico-de-reescritura",
         "card-revision-estructural",
+        "card-diagnostico-de-coherencia",
         "card-revision-de-parrafo",
         "card-revision-de-frase",
         "card-revision-de-tono",
@@ -6009,6 +6063,7 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     assert [item["card_id"] for item in layers_payload["ranking"]] == [
         "card-diagnostico-de-reescritura",
         "card-revision-estructural",
+        "card-diagnostico-de-coherencia",
         "card-revision-de-parrafo",
         "card-revision-de-frase",
         "card-revision-de-tono",

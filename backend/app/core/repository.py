@@ -2440,9 +2440,12 @@ class Repository:
         text_profile = self._text_profile(payload.text)
         query_result = self.query_knowledge(
             KnowledgeQueryInput(
-                query="que le pasa a este texto revisar estructura parrafo frase tono limpieza final",
+                query=(
+                    "que le pasa a este texto revisar estructura coherencia "
+                    "parrafo frase tono limpieza final"
+                ),
                 version=payload.version,
-                limit=6,
+                limit=7,
             )
         )
         steps = [
@@ -2647,12 +2650,34 @@ class Repository:
             len(re.findall(r"\b[\wáéíóúüñÁÉÍÓÚÜÑ]+\b", sentence))
             for sentence in sentences
         ]
+        first_sentence_band = sentence_word_counts[: max(1, len(sentence_word_counts) // 3)]
+        last_sentence_band = sentence_word_counts[-max(1, len(sentence_word_counts) // 3) :]
+        first_paragraph_band = paragraph_word_counts[: max(1, len(paragraph_word_counts) // 3)]
+        last_paragraph_band = paragraph_word_counts[-max(1, len(paragraph_word_counts) // 3) :]
+
+        def average(items: list[int]) -> float:
+            return round(sum(items) / len(items), 2) if items else 0
+
+        sentence_length_drift = abs(average(first_sentence_band) - average(last_sentence_band))
+        paragraph_length_drift = abs(average(first_paragraph_band) - average(last_paragraph_band))
         return {
             "word_count": len(words),
             "paragraph_count": len(paragraphs),
             "sentence_count": len(sentences),
             "long_paragraph_count": sum(1 for count in paragraph_word_counts if count > 90),
             "long_sentence_count": sum(1 for count in sentence_word_counts if count > 28),
+            "very_long_text": len(words) > 1200,
+            "many_paragraphs": len(paragraphs) > 14,
+            "many_sentences": len(sentences) > 60,
+            "sentence_length_drift": sentence_length_drift,
+            "paragraph_length_drift": paragraph_length_drift,
+            "has_style_drift_signal": (
+                len(sentences) >= 8
+                and (
+                    sentence_length_drift >= 8
+                    or paragraph_length_drift >= 45
+                )
+            ),
             "average_sentence_words": (
                 round(sum(sentence_word_counts) / len(sentence_word_counts), 2)
                 if sentence_word_counts
@@ -2690,6 +2715,23 @@ class Repository:
                 action = "Separar idea principal, apoyo y cierre antes de pulir estilo."
             else:
                 action = "Comprobar que el texto tenga foco, orden y cierre."
+        elif card.id == "card-diagnostico-de-coherencia":
+            if (
+                text_profile["very_long_text"]
+                or text_profile["many_paragraphs"]
+                or text_profile["many_sentences"]
+                or text_profile["has_style_drift_signal"]
+            ):
+                status = "review"
+                finding = (
+                    "El texto necesita comprobar unidad, progresion y continuidad de estilo entre partes."
+                )
+                action = (
+                    "Localizar la idea rectora, revisar saltos entre bloques y comprobar que la voz "
+                    "no cambie de registro sin motivo."
+                )
+            else:
+                action = "Comprobar que las partes respondan a una idea comun y mantengan voz estable."
         elif card.id == "card-revision-de-parrafo":
             if text_profile["long_paragraph_count"]:
                 status = "review"
@@ -2706,8 +2748,12 @@ class Repository:
                 action = "Pulir orden, concision y ritmo sin cambiar la estructura."
         elif card.id == "card-revision-de-tono":
             status = "review"
-            finding = "El tono debe contrastarse con la intencion y el lector."
-            action = "Ajustar voz y registro sin borrar la personalidad del texto."
+            if text_profile["has_style_drift_signal"]:
+                finding = "Hay senales de deriva de estilo entre el inicio y el final del texto."
+                action = "Comparar el primer tramo y el ultimo: unificar ritmo, distancia y registro sin borrar la voz."
+            else:
+                finding = "El tono debe contrastarse con la intencion y el lector."
+                action = "Ajustar voz y registro sin borrar la personalidad del texto."
         elif card.id == "card-limpieza-final":
             if (
                 text_profile["has_spacing_noise"]
