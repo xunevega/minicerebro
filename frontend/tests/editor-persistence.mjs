@@ -100,6 +100,11 @@ try {
   if (!texts.some((text) => text.output_text === output)) {
     throw new Error("La generacion no quedo persistida en /texts.");
   }
+
+  await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
+  await page.getByRole("heading", { name: "Actividad de escritura" }).waitFor();
+  await page.getByText("Se trabajo un texto").first().waitFor();
+  await page.getByText("Se reviso un borrador").first().waitFor();
 } finally {
   await browser.close();
 }

@@ -3702,7 +3702,7 @@ export function App() {
               )}
             </div>
             <div className="auditSection">
-              <h2>Actividad reciente</h2>
+              <h2>Actividad de escritura</h2>
               <div className="rowActions">
                 <select
                   aria-label="Filtro auditoria"
@@ -3724,9 +3724,14 @@ export function App() {
                     <article className="auditItem" key={event.id}>
                       <div>
                         <strong>{auditEventPublicLabel(event.event_type)}</strong>
-                        <span>
-                          {auditEntityPublicLabel(event.entity_type)} · {event.entity_id}
-                        </span>
+                        <span>{auditHumanSummary(event)}</span>
+                        <div className="activityBadges">
+                          {auditHumanBadges(event).map((badge) => (
+                            <span className="phaseBadge" key={badge}>
+                              {badge}
+                            </span>
+                          ))}
+                        </div>
                         <KnowledgeAuditTrace event={event} />
                       </div>
                       <time>{formatDate(event.created_at)}</time>
@@ -3777,6 +3782,50 @@ function auditEntityPublicLabel(entityType: string) {
     profile_knowledge_card: "ficha",
   };
   return labels[entityType] ?? entityType;
+}
+
+function auditHumanSummary(event: AuditEvent) {
+  const payload = event.payload ?? {};
+  if (event.event_type === "text.generated") {
+    return `Se trabajo un texto con la accion ${stringPayloadValue(payload.action, "generar")} en contexto ${stringPayloadValue(payload.context, "general")}.`;
+  }
+  if (event.event_type === "text.revision.executed") {
+    return `Se reviso un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} usando la biblioteca publicada.`;
+  }
+  if (event.event_type === "text.revision.feedback_recorded") {
+    return `Se guardo tu decision sobre una ficha de revision: ${stringPayloadValue(payload.stance, "feedback")}.`;
+  }
+  if (event.event_type === "profile.knowledge_card.updated") {
+    return "Se actualizo tu criterio personal sobre una ficha.";
+  }
+  if (event.event_type === "score.updated") {
+    return `Se ajusto un peso del perfil en ${stringPayloadValue(payload.context, "general")}.`;
+  }
+  if (event.event_type === "preference.created") {
+    return "Se registro una preferencia nueva para revisar.";
+  }
+  if (event.event_type === "preference.reinforced") {
+    return "Se reforzo una preferencia ya existente.";
+  }
+  if (event.event_type === "feedback.created") {
+    return "Se creo una propuesta de aprendizaje desde una comparacion.";
+  }
+  if (event.event_type === "knowledge.query.executed") {
+    return `Se consulto la biblioteca y se encontraron ${numberPayloadValue(payload.card_count)} fichas.`;
+  }
+  return `${auditEntityPublicLabel(event.entity_type)} registrado: ${event.entity_id}`;
+}
+
+function auditHumanBadges(event: AuditEvent) {
+  const payload = event.payload ?? {};
+  const badges = [
+    auditEntityPublicLabel(event.entity_type),
+    stringPayloadValue(payload.context, ""),
+    stringPayloadValue(payload.action, ""),
+    stringPayloadValue(payload.intention, ""),
+    stringPayloadValue(payload.stance, ""),
+  ].filter(Boolean);
+  return badges.length ? [...new Set(badges)].slice(0, 4) : [event.event_type];
 }
 
 function preferenceStatusPublicLabel(status: string) {
@@ -3844,6 +3893,10 @@ function KnowledgeAuditTrace({ event }: { event: AuditEvent }) {
 
 function numberPayloadValue(value: unknown) {
   return typeof value === "number" ? value : 0;
+}
+
+function stringPayloadValue(value: unknown, fallback: string) {
+  return typeof value === "string" && value.trim() ? value : fallback;
 }
 
 function loadAuditEvents(filterLabel: string, knowledgeVersion?: string) {
