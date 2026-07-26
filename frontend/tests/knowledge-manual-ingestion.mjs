@@ -8,12 +8,12 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page.getByRole("button", { name: "Biblioteca" }).click();
-  await page.getByRole("button", { name: "Ver trazabilidad" }).click();
+  await page.getByRole("button", { name: "Ver modo tecnico" }).click();
 
   const panel = page.locator(".proposalBox", {
-    has: page.getByRole("heading", { name: /^Crear lote tecnico$/ }),
+    has: page.getByRole("heading", { name: /^Crear lote de ingestion$/ }),
   });
-  await panel.getByText("Solo una candidate real permite aprobar propuestas").waitFor();
+  await panel.getByText("Solo un candidato real permite aprobar propuestas").waitFor();
 
   const sourceSelect = page.getByLabel("Fuente para ingestion manual");
   const button = panel.getByRole("button", { name: "Crear lote manual" });
@@ -48,11 +48,11 @@ try {
     await button.click();
     await proposalResponse;
 
-    for (const label of ["Edicion", "Indice", "Segmento", "ExtractionRun", "Proposals"]) {
+    for (const label of ["Edicion", "Indice", "Segmento", "Extraccion", "Propuestas"]) {
       await panel.locator(".pipelineStep.done", { hasText: new RegExp(`^${label}$`) }).waitFor();
     }
     await panel.locator(".metric", { hasText: "Extraccion" }).filter({ hasText: "completed" }).waitFor();
-    await panel.locator(".metric", { hasText: "Proposals" }).filter({ hasText: "5" }).waitFor();
+    await panel.locator(".metric", { hasText: "Propuestas" }).filter({ hasText: "5" }).waitFor();
     await panel.locator(".metric", { hasText: "Destino" }).filter({ hasText: "candidate-pending" }).waitFor();
     await panel.locator("article.knowledgeItem > strong", { hasText: /^Nodo candidato manual$/ }).waitFor();
     await panel.getByText("node · proposed").waitFor();

@@ -18,7 +18,7 @@ try {
   await page.locator(".metric", { hasText: "Por revisar" }).first().waitFor({ timeout: 90000 });
   const libraryPanel = page.locator(".proposalBox", { hasText: "Estanterias" });
   await libraryPanel.getByText("Orden bibliotecario").waitFor();
-  await libraryPanel.locator(".statusPill", { hasText: "187 fichas" }).waitFor({ timeout: 90000 });
+  await libraryPanel.locator(".statusPill", { hasText: "188 fichas" }).waitFor({ timeout: 90000 });
   await libraryPanel.locator(".libraryShelf.active", { hasText: "Todo" }).waitFor();
   await libraryPanel.locator(".libraryCard").first().waitFor();
   await libraryPanel.getByText("uso:").first().waitFor();
@@ -28,19 +28,19 @@ try {
   await libraryPanel.locator(".libraryCard").first().waitFor();
   await libraryPanel.getByText(/uso: /).first().waitFor();
   await libraryPanel.getByText(/nivel: /).first().waitFor();
-  const gymPanel = page.locator(".proposalBox", { hasText: "Calidad de la base" });
+  const gymPanel = page.locator(".proposalBox", { hasText: "Estado de la biblioteca" });
   await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor({ timeout: 90000 });
-  await gymPanel.locator(".metric", { hasText: "Fichas" }).filter({ hasText: "187" }).waitFor({
+  await gymPanel.locator(".metric", { hasText: "Fichas" }).filter({ hasText: "188" }).waitFor({
     timeout: 90000,
   });
   await gymPanel.locator("strong", { hasText: /^Precision$/ }).waitFor();
   await gymPanel.locator("strong", { hasText: /^Trazabilidad$/ }).waitFor();
-  await page.getByRole("button", { name: "Ver trazabilidad" }).click();
+  await page.getByRole("button", { name: "Ver modo tecnico" }).click();
   await page.getByRole("heading", { name: "Limites actuales" }).waitFor();
   const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de la base" });
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v40" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v40" }).getByText("0 fuentes").waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v40" }).getByText("+5 nodos").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v41" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v41" }).getByText("0 fuentes").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v41" }).getByText("+1 nodos").waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v0" }).getByText("base congelada").waitFor();
   const sourceExplorerPanel = page.locator(".proposalBox", {
     has: page.getByRole("heading", { name: /^Fuentes$/ }),
@@ -174,15 +174,15 @@ try {
     .waitFor();
   const pipelinePanel = page.locator(".proposalBox", { hasText: "Recorrido de fuentes" });
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Fuente").waitFor();
-  await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("ExtractionRun").waitFor();
+  await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Extraccion").waitFor();
   await pipelinePanel.locator(".pipelineCard", { hasText: "Glosario de terminos gramaticales" }).getByText("Publicacion").waitFor();
   const explorationPanel = page.locator(".proposalBox", { hasText: "Recorrido completo" });
   await explorationPanel.getByText("Trazabilidad").waitFor();
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor({
     timeout: 90000,
   });
-  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "189" }).waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "187" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "190" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "188" }).waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Fuente$/ }).first().waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Publicacion$/ }).first().waitFor();
   const complementoClaim = explorationPanel.locator(".traceClaim", {
@@ -210,7 +210,7 @@ try {
   await queryPanel.getByText("Resultado para \"complemento directo\"").waitFor({ timeout: queryTimeout });
   await queryPanel.getByText("Ver detalle tecnico").waitFor();
   await queryPanel.getByText("Ver detalle tecnico").click();
-  await queryPanel.locator(".metric", { hasText: "Base recuperada" }).filter({ hasText: "knowledge-v40" }).waitFor();
+  await queryPanel.locator(".metric", { hasText: "Base recuperada" }).filter({ hasText: "knowledge-v41" }).waitFor();
   await queryPanel.getByText("Nueva gramatica de la lengua espanola").first().waitFor();
   await queryPanel.getByText("ev-rae-ngle-complemento-directo-candidata").first().waitFor();
   await queryPanel.locator("article.knowledgeItem > strong", { hasText: /^Complemento directo$/ }).waitFor();
@@ -247,7 +247,7 @@ try {
     hasText: "No hubo ficha util para esa busqueda.",
   }).first();
   await historyItem.getByText("No hubo ficha util para esa busqueda.").waitFor();
-  await historyItem.getByRole("button", { name: "Detalle" }).click();
+  await historyItem.getByRole("button", { name: "Ver detalle" }).click();
   await historyItem.locator("dt", { hasText: "Evento" }).waitFor();
   await historyItem.locator("dt", { hasText: "Base" }).waitFor();
   await historyItem.locator("dt", { hasText: "Longitud" }).waitFor();

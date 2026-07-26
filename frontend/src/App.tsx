@@ -171,14 +171,14 @@ const revisionIntentions = [
   { value: "limpieza", label: "Limpieza final" },
 ];
 const auditEventFilters = [
-  { label: "Todos", eventType: "", entityType: "" },
+  { label: "Todo", eventType: "", entityType: "" },
   {
-    label: "Consultas de base",
+    label: "Busquedas",
     eventType: "knowledge.query.executed",
     entityType: "knowledge_version",
   },
   { label: "Gustos", eventType: "preference.created", entityType: "preference" },
-  { label: "Textos generados", eventType: "text.generated", entityType: "generated_text" },
+  { label: "Escritura", eventType: "text.generated", entityType: "generated_text" },
 ] as const;
 
 const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label: string }> = [
@@ -2005,9 +2005,9 @@ export function App() {
             <div className="proposalBox knowledgeGymPanel">
               <div className="versionHeader">
                 <div>
-                  <h3>Calidad de la base</h3>
+                  <h3>Estado de la biblioteca</h3>
                   <p className="note">
-                    Revision de la base publicada. No cambia tus preferencias ni genera contenido.
+                    Chequeo de la base publicada. No cambia tus preferencias ni genera contenido.
                   </p>
                 </div>
                 {knowledgeGym ? (
@@ -2061,7 +2061,7 @@ export function App() {
                 onClick={() => setShowKnowledgeTechnical((current) => !current)}
                 type="button"
               >
-                {showKnowledgeTechnical ? "Ocultar trazabilidad" : "Ver trazabilidad"}
+                {showKnowledgeTechnical ? "Ocultar modo tecnico" : "Ver modo tecnico"}
               </button>
             </div>
             {showKnowledgeTechnical ? (
@@ -2169,7 +2169,7 @@ export function App() {
                       <Metric label="Idx." value={status.counts.index_entries ?? 0} />
                       <Metric label="Seg." value={status.counts.segments ?? 0} />
                       <Metric label="Ext." value={status.counts.completed_extractions ?? 0} />
-                      <Metric label="Prop." value={status.counts.proposals ?? 0} />
+                      <Metric label="Propuestas" value={status.counts.proposals ?? 0} />
                       <Metric
                         label="Obj."
                         value={
@@ -2222,7 +2222,7 @@ export function App() {
                       <Metric label="Idx." value={status.counts.index_entries ?? 0} />
                       <Metric label="Seg." value={status.counts.segments ?? 0} />
                       <Metric label="Ext." value={status.counts.completed_extractions ?? 0} />
-                      <Metric label="Prop." value={status.counts.proposals ?? 0} />
+                      <Metric label="Propuestas" value={status.counts.proposals ?? 0} />
                       <Metric
                         label="Obj."
                         value={
@@ -2243,10 +2243,10 @@ export function App() {
               </div>
             </div>
             <div className="proposalBox">
-              <h3>Crear lote tecnico</h3>
+              <h3>Crear lote de ingestion</h3>
               <p className="note">
-                Crea el recorrido interno fuente-edicion-indice-segmento-extraction run-proposals.
-                Solo una candidate real permite aprobar propuestas; publicar sigue separado.
+                Crea el recorrido interno fuente-edicion-indice-segmento-extraccion-propuestas.
+                Solo un candidato real permite aprobar propuestas; publicar sigue separado.
               </p>
               <div className="rowActions">
                 <select
@@ -2261,11 +2261,11 @@ export function App() {
                   ))}
                 </select>
                 <select
-                  aria-label="Candidate destino para propuestas"
+                  aria-label="Candidato destino para propuestas"
                   onChange={(event) => setPublicationTargetVersion(event.target.value)}
                   value={publicationTargetVersion}
                 >
-                  <option value="">Sin candidate aprobable</option>
+                  <option value="">Sin candidato aprobable</option>
                   {candidateVersions.map((version) => (
                     <option key={version.id} value={version.id}>
                       {version.id} · {version.status}
@@ -2296,7 +2296,7 @@ export function App() {
                   }
                   type="button"
                 >
-                  Recargar proposals
+                  Recargar propuestas
                 </button>
               </div>
               <div className="pipelineTrace">
@@ -2310,10 +2310,10 @@ export function App() {
                   Segmento
                 </span>
                 <span className={manualIngestionExtraction ? "pipelineStep done" : "pipelineStep"}>
-                  ExtractionRun
+                  Extraccion
                 </span>
                 <span className={manualIngestionProposals.length ? "pipelineStep done" : "pipelineStep"}>
-                  Proposals
+                  Propuestas
                 </span>
               </div>
               {manualIngestionExtraction ? (
@@ -2321,7 +2321,7 @@ export function App() {
                   <Metric label="Edicion" value={manualIngestionEdition?.id ?? "Pendiente"} />
                   <Metric label="Segmento" value={manualIngestionSegment?.id ?? "Pendiente"} />
                   <Metric label="Extraccion" value={manualIngestionExtraction.status} />
-                  <Metric label="Proposals" value={manualIngestionProposals.length} />
+                  <Metric label="Propuestas" value={manualIngestionProposals.length} />
                   <Metric label="Destino" value={manualProposalTargetVersion} />
                 </div>
               ) : null}
@@ -2367,20 +2367,20 @@ export function App() {
               ) : null}
             </div>
             <div className="proposalBox">
-              <h3>Publicacion tecnica</h3>
+              <h3>Publicacion de la base</h3>
               <p className="note">
                 Crear candidato congela una version revisable. Publicar solo activa una version si
                 la revision pasa todos los controles.
               </p>
               <div className="rowActions">
                 <input
-                  aria-label="ID de candidate"
+                  aria-label="ID de candidato"
                   className="textInput"
                   onChange={(event) => setCandidateVersionId(event.target.value)}
                   value={candidateVersionId}
                 />
                 <select
-                  aria-label="Version base de candidate"
+                  aria-label="Version base del candidato"
                   onChange={(event) => setCandidateBaseVersion(event.target.value)}
                   value={candidateBaseVersion}
                 >
@@ -2391,7 +2391,7 @@ export function App() {
                   ))}
                 </select>
                 <input
-                  aria-label="Autor de candidate"
+                  aria-label="Autor del candidato"
                   className="textInput"
                   onChange={(event) => setCandidateAuthor(event.target.value)}
                   value={candidateAuthor}
@@ -2407,7 +2407,7 @@ export function App() {
                   }
                   type="button"
                 >
-                  Crear candidate
+                  Crear candidato
                 </button>
               </div>
               <label className="fieldLabel" htmlFor="candidateReason">
@@ -2427,7 +2427,7 @@ export function App() {
                   }}
                   value={publicationTargetVersion}
                 >
-                  <option value="">Seleccionar candidate</option>
+                  <option value="">Seleccionar candidato</option>
                   {candidateVersions.map((version) => (
                     <option key={version.id} value={version.id}>
                       {version.id} · {version.status}
@@ -2445,7 +2445,7 @@ export function App() {
                   }
                   type="button"
                 >
-                  Ver readiness
+                  Revisar publicacion
                 </button>
                 <button
                   className="primaryButton"
@@ -2458,7 +2458,7 @@ export function App() {
                   }
                   type="button"
                 >
-                  Publicar candidate
+                  Publicar candidato
                 </button>
               </div>
               {publicationReadiness ? (
@@ -3698,7 +3698,7 @@ export function App() {
                           }
                           type="button"
                         >
-                          Detalle
+                          Ver detalle
                         </button>
                         <button
                           className="ghostButton"
@@ -3818,8 +3818,11 @@ function auditEventPublicLabel(eventType: string) {
     "preference.reinforced": "Gusto reforzado",
     "score.updated": "Ajuste cambiado",
     "text.generated": "Texto generado",
+    "text.revision.executed": "Revision con fichas",
+    "text.revision.feedback_recorded": "Decision de revision",
     "feedback.created": "Feedback guardado",
     "profile.knowledge_card.updated": "Ficha personal actualizada",
+    "profile.knowledge_card.score_applied": "Ajuste aplicado",
   };
   return labels[eventType] ?? "Actividad registrada";
 }
@@ -4312,8 +4315,8 @@ function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
     { label: "Edicion", done: status?.has_edition ?? false },
     { label: "Indice", done: status?.has_index ?? false },
     { label: "Segmento", done: status?.has_segments ?? false },
-    { label: "ExtractionRun", done: status?.has_extractions ?? false },
-    { label: "Proposals", done: status?.has_proposals ?? false },
+    { label: "Extraccion", done: status?.has_extractions ?? false },
+    { label: "Propuestas", done: status?.has_proposals ?? false },
     { label: "Objetos", done: status?.has_materialized_knowledge ?? false },
     { label: "Publicacion", done: status?.is_published ?? false },
   ];
