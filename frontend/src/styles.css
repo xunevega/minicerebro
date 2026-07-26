@@ -506,6 +506,22 @@ textarea + .primaryButton {
   margin-top: 14px;
 }
 
+.resultActions {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.draftSnapshot {
+  border-left: 3px solid var(--accent);
+  color: var(--muted);
+  font-size: 13px;
+  margin: 8px 0 14px;
+  padding-left: 10px;
+}
+
 .adjustControl {
   display: grid;
   gap: 8px;

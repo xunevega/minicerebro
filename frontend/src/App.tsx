@@ -357,11 +357,13 @@ export function App() {
   const [observability, setObservability] = useState<ObservabilityMetric[]>([]);
   const [roadmap, setRoadmap] = useState<TechnicalRoadmapPhase[]>([]);
   const [editorText, setEditorText] = useState("Escribe aqui una idea o un texto para trabajar.");
+  const [editorOriginalBeforeGeneration, setEditorOriginalBeforeGeneration] = useState("");
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
   const [revisionIntention, setRevisionIntention] = useState("claridad");
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
+  const [generationCopyStatus, setGenerationCopyStatus] = useState("");
   const [textRevision, setTextRevision] = useState<TextRevisionResult | null>(null);
   const [revisionFeedbackByCard, setRevisionFeedbackByCard] = useState<
     Record<string, RevisionFeedbackResult>
@@ -1348,24 +1350,62 @@ export function App() {
 
   async function handleGenerate() {
     setError(null);
+    setGenerationCopyStatus("");
+    const draftBeforeGeneration = editorText;
     try {
-      setGeneration(
-        await generateText(
-          editorText,
-          editorAction,
-          activeContext,
-          editorIntensity,
-          protectedTerms
-            .split(",")
-            .map((term) => term.trim())
-            .filter(Boolean),
-        ),
+      const result = await generateText(
+        draftBeforeGeneration,
+        editorAction,
+        activeContext,
+        editorIntensity,
+        protectedTerms
+          .split(",")
+          .map((term) => term.trim())
+          .filter(Boolean),
       );
+      setGeneration(result);
+      setEditorOriginalBeforeGeneration(draftBeforeGeneration);
       setGeneratedTexts(await getGeneratedTexts(activeContext));
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
     }
+  }
+
+  function handleUseGeneratedText() {
+    if (!generation) return;
+    setEditorText(generation.output);
+  }
+
+  async function handleCopyGeneratedText() {
+    if (!generation) return;
+    setGenerationCopyStatus("");
+    try {
+      if (navigator.clipboard?.writeText) {
+        await navigator.clipboard.writeText(generation.output);
+      } else {
+        const element = document.createElement("textarea");
+        element.value = generation.output;
+        element.setAttribute("readonly", "true");
+        element.style.position = "fixed";
+        element.style.opacity = "0";
+        document.body.appendChild(element);
+        element.select();
+        document.execCommand("copy");
+        document.body.removeChild(element);
+      }
+      setGenerationCopyStatus("Copiado");
+    } catch {
+      setGenerationCopyStatus("No se pudo copiar");
+    }
+  }
+
+  function handleCompareGeneratedText() {
+    if (!generation) return;
+    setOriginal(editorOriginalBeforeGeneration || editorText);
+    setRevised(generation.output);
+    setComparison(null);
+    setActive("compare");
   }
 
   async function handleTextRevision() {
@@ -2824,6 +2864,23 @@ export function App() {
                 <>
                   <h3>Texto propuesto</h3>
                   <textarea readOnly value={generation.output} />
+                  <div className="resultActions">
+                    <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
+                      Usar este texto
+                    </button>
+                    <button className="secondaryButton" onClick={handleCompareGeneratedText} type="button">
+                      Comparar con original
+                    </button>
+                    <button className="ghostButton" onClick={handleCopyGeneratedText} type="button">
+                      Copiar
+                    </button>
+                    {generationCopyStatus ? (
+                      <span className="statusPill">{generationCopyStatus}</span>
+                    ) : null}
+                  </div>
+                  <p className="draftSnapshot">
+                    Original conservado para comparar antes de reemplazar el borrador.
+                  </p>
                   <p className="note">{generation.explanation}</p>
                   <span className="statusPill">{generation.provider}</span>
                   <List title="Aspectos usados" items={generation.used_profile_variables} />

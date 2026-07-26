@@ -68,6 +68,22 @@ try {
   if (!output || output.length < 10) {
     throw new Error("La generacion no devolvio un texto persistible.");
   }
+  await resultPanel.getByRole("button", { name: "Usar este texto" }).click();
+  const updatedDraft = await editorPanel.locator("textarea").first().inputValue();
+  if (updatedDraft !== output) {
+    throw new Error("Usar este texto no sustituyo el borrador por la propuesta.");
+  }
+  await resultPanel.getByRole("button", { name: "Comparar con original" }).click();
+  const comparePanel = page.locator(".panel", { hasText: "Textos" });
+  await comparePanel.waitFor();
+  const compareTextareas = comparePanel.locator("textarea");
+  if ((await compareTextareas.nth(0).inputValue()) !== inputText) {
+    throw new Error("El comparador no conserva el texto original previo a la propuesta.");
+  }
+  if ((await compareTextareas.nth(1).inputValue()) !== output) {
+    throw new Error("El comparador no recibio el texto propuesto.");
+  }
+  await page.locator(".subnav").getByRole("button", { name: "Escribir" }).click();
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
     timeout: 90000,
