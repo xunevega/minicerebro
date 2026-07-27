@@ -21,9 +21,9 @@ try {
   const editorPanel = page.locator(".panel", { hasText: "Borrador" });
   const inputText = `Smoke editor persistencia ${Date.now()}.  Frase para guardar.`;
   await editorPanel.locator("textarea").first().fill(inputText);
-  await editorPanel.getByLabel("Que quieres hacer").selectOption("continue");
+  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("continue");
   await page.getByLabel("Recorrido de escritura").getByText("Borrador").waitFor();
-  await page.getByLabel("Recorrido de escritura").getByText("Propuesta").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Trabajo").waitFor();
 
   const generationResponse = page.waitForResponse(
     (response) => {
@@ -32,16 +32,16 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await page.getByRole("button", { name: "Crear version" }).click();
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Salida" });
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
-  await resultPanel.getByText("Comparacion automatica").waitFor();
+  await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
   await editorPanel.locator("textarea").first().fill(`${inputText} Cambio manual.`);
   await resultPanel.getByText("Borrador actualizado. Crea una nueva propuesta").waitFor();
-  if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
+  if ((await resultPanel.getByRole("button", { name: "Usar esta version" }).count()) !== 0) {
     throw new Error("Editar el borrador no debe conservar una propuesta anterior.");
   }
   await editorPanel.locator("textarea").first().fill(inputText);
@@ -53,10 +53,10 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await page.getByRole("button", { name: "Crear version" }).click();
   await regeneratedResponse;
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
-  await resultPanel.getByText("Comparacion automatica").waitFor();
+  await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
 
   const revisionResponse = page.waitForResponse(
     (response) => {
@@ -101,10 +101,10 @@ try {
   if (!output || output.length < 10) {
     throw new Error("La generacion no devolvio un texto persistible.");
   }
-  await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).click();
+  await resultPanel.getByRole("button", { name: "Usar esta version" }).click();
   const updatedDraft = await editorPanel.locator("textarea").first().inputValue();
   if (updatedDraft !== output) {
-    throw new Error("Aceptar propuesta no sustituyo el borrador por la propuesta.");
+    throw new Error("Usar esta version no sustituyo el borrador por la propuesta.");
   }
   await editorPanel.getByRole("button", { name: "Borrar texto" }).click();
   if ((await editorPanel.locator("textarea").first().inputValue()) !== "") {
@@ -114,7 +114,7 @@ try {
 
   const cleanText = "Texto limpio para revisar.";
   await editorPanel.locator("textarea").first().fill(cleanText);
-  await editorPanel.getByLabel("Que quieres hacer").selectOption("rewrite");
+  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("rewrite");
   const noChangeGenerationResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -122,12 +122,12 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await page.getByRole("button", { name: "Crear version" }).click();
   await noChangeGenerationResponse;
-  await resultPanel.getByText("No he encontrado una reescritura segura").waitFor();
+  await resultPanel.getByText("Sin version nueva").waitFor();
   await resultPanel.getByText("Sin cambios detectados").waitFor();
-  if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
-    throw new Error("Una generacion sin cambios no debe mostrar Aceptar propuesta.");
+  if ((await resultPanel.getByRole("button", { name: "Usar esta version" }).count()) !== 0) {
+    throw new Error("Una generacion sin cambios no debe mostrar una accion para usar version.");
   }
   const noChangeRevisionResponse = page.waitForResponse(
     (response) => {
@@ -139,7 +139,7 @@ try {
   await resultPanel.getByRole("button", { name: "Leer con fichas" }).click();
   await noChangeRevisionResponse;
   await resultPanel.getByRole("heading", { name: "Lectura con fichas" }).waitFor();
-  if ((await resultPanel.getByText("No he encontrado una reescritura segura").count()) !== 0) {
+  if ((await resultPanel.getByText("Sin version nueva").count()) !== 0) {
     throw new Error("La lectura con fichas no debe quedar mezclada con el bloque sin cambios.");
   }
   if ((await resultPanel.getByText("Sin salida todavia").count()) !== 0) {

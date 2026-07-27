@@ -158,10 +158,10 @@ const tabs = [
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
 const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
-  { value: "rewrite", label: "Reescribir", description: "Mejora claridad y ritmo." },
-  { value: "correction", label: "Corregir", description: "Limpia errores y mantiene el texto." },
-  { value: "continue", label: "Continuar", description: "Sigue la idea sin cerrarla." },
-  { value: "variants", label: "Variantes", description: "Propone alternativas de enfoque." },
+  { value: "rewrite", label: "Mejorar claridad", description: "Reordena y limpia sin cambiar la idea." },
+  { value: "correction", label: "Corregir sin reescribir", description: "Busca errores y mantiene tu texto." },
+  { value: "continue", label: "Continuar texto", description: "Sigue la idea sin cerrarla de golpe." },
+  { value: "variants", label: "Ver alternativas", description: "Propone otros enfoques posibles." },
 ];
 const revisionIntentions = [
   { value: "claridad", label: "Claridad" },
@@ -452,26 +452,34 @@ export function App() {
       status: editorHasDraft ? "done" : "active",
     },
     {
-      label: "Lectura",
-      description: textRevision ? "Fichas editoriales disponibles." : "Pide lectura con fichas.",
-      status: textRevision ? "done" : editorHasDraft ? "active" : "pending",
-    },
-    {
-      label: "Propuesta",
+      label: "Trabajo",
       description: generationHasChanges
         ? "Hay una version nueva sin aplicar."
         : generationHasNoChanges
-          ? "No hay reescritura segura."
-          : "Crea una version alternativa.",
-      status: generationHasChanges ? "done" : editorHasDraft ? "active" : "pending",
+          ? "No hay cambio seguro."
+          : textRevision
+            ? "Lectura editorial abierta."
+            : "Elige lectura o propuesta.",
+      status: generation || textRevision ? "done" : editorHasDraft ? "active" : "pending",
+    },
+    {
+      label: "Salida",
+      description: generationHasChanges
+        ? "Version lista para decidir."
+        : textRevision
+          ? "Ficha pendiente de valorar."
+          : "Aqui veras el resultado.",
+      status: generation || textRevision ? "active" : "pending",
     },
     {
       label: "Decision",
       description:
         editorFeedbackCount > 0
           ? `${editorFeedbackCount} criterio${editorFeedbackCount === 1 ? "" : "s"} guardado${editorFeedbackCount === 1 ? "" : "s"}.`
-          : "Acepta, rechaza o guarda criterio.",
-      status: editorFeedbackCount > 0 ? "done" : textRevision ? "active" : "pending",
+          : generationHasChanges
+            ? "Acepta, copia o descarta."
+            : "Tu decides que se queda.",
+      status: editorFeedbackCount > 0 || generationHasChanges ? "done" : "pending",
     },
   ];
   const pendingRevisionSteps =
@@ -2933,7 +2941,7 @@ export function App() {
               <span className="fieldRole">Aqui escribes</span>
               <h2>Borrador</h2>
               <p className="note">
-                Trabaja un texto sin entregar el mando: Editados propone, tu criterio decide.
+                Pega tu texto. Editados puede leerlo con fichas o crear una version alternativa.
               </p>
               <div className="editorFlow" aria-label="Recorrido de escritura">
                 {editorFlowSteps.map((step, index) => (
@@ -2958,7 +2966,7 @@ export function App() {
               </div>
               <div className="editorControls">
                 <label className="editorControl actionControl">
-                  <span className="controlLabel">Que quieres hacer</span>
+                  <span className="controlLabel">Trabajo sobre el texto</span>
                   <select
                     onChange={(event) => handleEditorActionChange(event.target.value as GenerationAction)}
                     value={editorAction}
@@ -3013,7 +3021,7 @@ export function App() {
                   onClick={handleGenerate}
                   type="button"
                 >
-                  Crear propuesta
+                  Crear version
                 </button>
                 <button
                   className="secondaryButton editorButton"
@@ -3053,10 +3061,10 @@ export function App() {
                 generationHasNoChanges ? (
                   <>
                     <div className="emptyOutput noChangeOutput">
-                      <strong>No he encontrado una reescritura segura</strong>
+                      <strong>Sin version nueva</strong>
                       <p>
                         El texto puede estar bien, o este modo no ha encontrado una mejora clara.
-                        No hay propuesta que aceptar.
+                        No hay version nueva que aceptar.
                       </p>
                       {comparison ? (
                         <div className="comparisonSummary noChanges">
@@ -3076,7 +3084,7 @@ export function App() {
                         Leer con fichas
                       </button>
                       <button className="ghostButton" onClick={handleDiscardGeneratedText} type="button">
-                        Cambiar opciones
+                        Cambiar trabajo
                       </button>
                       <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                         Copiar borrador
@@ -3096,12 +3104,12 @@ export function App() {
                     <h3>Propuesta de {editorProposalLabel}</h3>
                     <p className="note">
                       Es una version alternativa creada con {selectedEditorAction.label.toLowerCase()}.
-                      No sustituye tu borrador hasta que pulses "Aceptar propuesta".
+                      No sustituye tu borrador hasta que pulses "Usar esta version".
                     </p>
                     <textarea readOnly value={generation.output} />
                     <div className="resultActions">
                       <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
-                        Aceptar propuesta
+                        Usar esta version
                       </button>
                       <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                         Copiar propuesta
@@ -3115,7 +3123,7 @@ export function App() {
                     </div>
                     {comparison ? (
                       <div className="comparisonSummary">
-                        <strong>Comparacion automatica</strong>
+                        <strong>Diagnostico automatico de cambios</strong>
                         <span>Cambios: {comparison.modification_score}</span>
                         <span>Adecuacion: {comparison.adequacy_score}</span>
                         <p>{comparison.summary}</p>
@@ -3133,7 +3141,7 @@ export function App() {
                   <strong>{editorOutcomeNotice ? "Decision aplicada" : "Sin salida todavia"}</strong>
                   <p>
                     {editorOutcomeNotice ||
-                      "Primero escribe o pega un texto. Luego crea una propuesta o pide lectura con fichas."}
+                      "Primero escribe o pega un texto. Luego lee con fichas o crea una version."}
                   </p>
                 </div>
               )}
