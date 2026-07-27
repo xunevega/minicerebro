@@ -7,6 +7,7 @@ from app.core.models import GenerationInput, GenerationResult, ScoreVariable
 
 
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
+PROTECTED_TOKEN_TEMPLATE = "__PROTECTED_TERM_{index}__"
 
 
 def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
@@ -19,6 +20,32 @@ def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
         for index in range(0, len(sentences), sentences_per_paragraph)
     ]
     return "\n\n".join(paragraphs)
+
+
+def _protect_terms(value: str, terms: list[str]) -> tuple[str, list[tuple[str, str]]]:
+    protected = value
+    replacements: list[tuple[str, str]] = []
+
+    for term in sorted((item.strip() for item in terms), key=len, reverse=True):
+        if not term:
+            continue
+        pattern = re.compile(rf"(?<!\w){re.escape(term)}(?!\w)", re.IGNORECASE)
+
+        def replace_match(match: re.Match[str]) -> str:
+            token = PROTECTED_TOKEN_TEMPLATE.format(index=len(replacements))
+            replacements.append((token, match.group(0)))
+            return token
+
+        protected = pattern.sub(replace_match, protected)
+
+    return protected, replacements
+
+
+def _restore_terms(value: str, replacements: list[tuple[str, str]]) -> str:
+    restored = value
+    for token, term in replacements:
+        restored = restored.replace(token, term)
+    return restored
 
 
 def _profile_prompt(variables: list[ScoreVariable]) -> str:
@@ -34,10 +61,7 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
         return rewrite_with_openai(payload, variables)
 
     active = sorted(variables, key=lambda item: item.effective_value, reverse=True)[:3]
-    preserved = payload.text
-    for term in payload.protected_terms:
-        preserved = preserved.replace(term, f"[[{term}]]")
-
+    preserved, protected_replacements = _protect_terms(payload.text, payload.protected_terms)
     original = preserved.strip()
     output = original
     if payload.action in {"rewrite", "correction"}:
@@ -55,8 +79,7 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
             f"Variante C: {output} Conserva terminos protegidos y reduce rodeos."
         )
 
-    for term in payload.protected_terms:
-        output = output.replace(f"[[{term}]]", term)
+    output = _restore_terms(output, protected_replacements)
 
     if output == payload.text.strip():
         explanation = (
