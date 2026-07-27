@@ -2894,7 +2894,7 @@ export function App() {
               </div>
               <div className="draftFieldShell">
                 <label className="draftFieldLabel" htmlFor="editorDraft">
-                  Texto de entrada
+                  Pega o escribe
                 </label>
                 <textarea
                   aria-label="Borrador"

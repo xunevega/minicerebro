@@ -38,6 +38,7 @@ body {
     linear-gradient(90deg, rgba(17, 17, 17, 0.025) 1px, transparent 1px),
     var(--paper);
   background-size: 72px 72px;
+  font-size: 17px;
   margin: 0;
   min-width: 320px;
 }
@@ -50,7 +51,7 @@ textarea {
 }
 
 button {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -162,7 +163,7 @@ nav {
   color: var(--muted);
   cursor: pointer;
   display: flex;
-  font-size: 13px;
+  font-size: 15px;
   gap: 7px;
   min-height: 132px;
   padding: 0 9px;
@@ -392,14 +393,15 @@ textarea {
 }
 
 .draftFieldLabel {
-  background: var(--ink);
-  color: #ffffff;
+  background: #efefef;
+  border: 1px solid #c7c7c7;
+  color: var(--ink);
   display: inline-flex;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
-  letter-spacing: 0.04em;
+  letter-spacing: 0.02em;
   margin-bottom: 10px;
-  padding: 7px 10px;
+  padding: 8px 12px;
   text-transform: uppercase;
 }
 
