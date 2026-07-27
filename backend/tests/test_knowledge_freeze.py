@@ -1,9 +1,12 @@
 import hashlib
+import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
 from fastapi.testclient import TestClient
+from sqlalchemy import create_engine, text
 
 from app.db.models import KnowledgeVersionSnapshotRecord
 from app.db.session import SessionLocal
@@ -141,6 +144,42 @@ def test_current_published_snapshot_export_is_reproducible(tmp_path) -> None:
     )
 
     assert _file_sha256(generated) == _file_sha256(expected)
+
+
+def test_alembic_data_migration_loads_current_snapshot_without_runtime_seed(tmp_path) -> None:
+    database_path = tmp_path / "knowledge-v51.sqlite3"
+    env = os.environ.copy()
+    env["DATABASE_URL"] = f"sqlite:///{database_path}"
+    alembic = Path(sys.executable).with_name("alembic")
+
+    subprocess.run(
+        [str(alembic), "upgrade", "head"],
+        check=True,
+        cwd=REPO_ROOT / "backend",
+        env=env,
+    )
+
+    engine = create_engine(env["DATABASE_URL"])
+    with engine.connect() as connection:
+        version = connection.execute(
+            text("select status, published_at from knowledge_versions where id = :version"),
+            {"version": CURRENT_PUBLISHED_VERSION},
+        ).one()
+        snapshot = connection.execute(
+            text(
+                "select source_ids, node_ids, evidence_ids, claim_ids, card_ids "
+                "from knowledge_version_snapshots where version_id = :version"
+            ),
+            {"version": CURRENT_PUBLISHED_VERSION},
+        ).one()
+
+    assert version.status == "published"
+    assert version.published_at == "2026-07-27T17:00:00+00:00"
+    assert len(json.loads(snapshot.source_ids)) == CURRENT_PUBLISHED_COUNTS["source_count"]
+    assert len(json.loads(snapshot.node_ids)) == CURRENT_PUBLISHED_COUNTS["node_count"]
+    assert len(json.loads(snapshot.evidence_ids)) == CURRENT_PUBLISHED_COUNTS["evidence_count"]
+    assert len(json.loads(snapshot.claim_ids)) == CURRENT_PUBLISHED_COUNTS["claim_count"]
+    assert len(json.loads(snapshot.card_ids)) == CURRENT_PUBLISHED_COUNTS["card_count"]
 
 
 def _file_sha256(path: Path) -> str:
