@@ -4,7 +4,7 @@
   --muted: #6f6f6b;
   --line: #deded8;
   --soft: #f7f7f5;
-  --field-bg: #dfe4e1;
+  --field-bg: #d1d7d3;
   --field-output-bg: #e5e5e1;
   --field-shell-bg: #d6ddd9;
   --accent: #c80000;
@@ -412,15 +412,20 @@ textarea {
 
 .draftFieldShell textarea {
   background: var(--field-bg);
-  border: 1px solid var(--line);
+  border: 1px solid #bcc4bf;
   font-size: clamp(18px, 2vw, 24px);
   margin-top: 0;
   min-height: 260px;
   padding: 22px;
 }
 
+#editorDraft {
+  background: #d1d7d3 !important;
+  box-shadow: inset 0 0 0 1px #bcc4bf;
+}
+
 .draftFieldShell textarea::placeholder {
-  color: #9a948d;
+  color: #77736f;
   font-family:
     "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   font-size: 17px;
