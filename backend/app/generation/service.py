@@ -1,8 +1,24 @@
+import re
 from os import getenv
 
 from openai import OpenAI
 
 from app.core.models import GenerationInput, GenerationResult, ScoreVariable
+
+
+SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
+
+
+def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
+    sentences = [sentence.strip() for sentence in SENTENCE_RE.split(value) if sentence.strip()]
+    if len(sentences) < 4 or "\n\n" in value:
+        return value
+
+    paragraphs = [
+        " ".join(sentences[index : index + sentences_per_paragraph])
+        for index in range(0, len(sentences), sentences_per_paragraph)
+    ]
+    return "\n\n".join(paragraphs)
 
 
 def _profile_prompt(variables: list[ScoreVariable]) -> str:
@@ -26,6 +42,8 @@ def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable
     output = original
     if payload.action in {"rewrite", "correction"}:
         output = " ".join(output.split())
+        if payload.action == "rewrite":
+            output = _paragraph_rewrite(output)
         if payload.intensity > 650 and not output.endswith("."):
             output = f"{output}."
     elif payload.action == "continue":

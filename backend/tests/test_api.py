@@ -635,6 +635,24 @@ def test_generation_explains_when_deterministic_output_is_unchanged():
     assert "No se aplicaron cambios" in payload["explanation"]
 
 
+def test_generation_rewrites_long_single_block_with_paragraphs():
+    text = (
+        "Primera idea con suficiente claridad. Segunda idea que continua el razonamiento. "
+        "Tercera idea que todavia pertenece al mismo tramo. Cuarta idea que abre otro avance. "
+        "Quinta idea que sostiene el cierre."
+    )
+    response = client.post(
+        "/generation",
+        json={"text": text, "action": "rewrite", "context": "general"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["output"] != text
+    assert "\n\n" in payload["output"]
+    assert "Transformacion determinista local" in payload["explanation"]
+
+
 def test_generation_action_aliases_are_bound_to_their_routes():
     variants = client.post("/variants", json={"text": "Idea base", "context": "general"})
     assert variants.status_code == 200

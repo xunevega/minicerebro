@@ -11,3 +11,28 @@ def test_compare_texts_returns_bounded_scores():
     assert 0 <= result.adequacy_score <= 1000
     assert result.changed_words > 0
 
+
+def test_compare_texts_detects_reordered_same_words():
+    result = compare_texts(
+        ComparisonInput(
+            original="La decision explica el origen del poder.",
+            revised="El origen del poder explica la decision.",
+        )
+    )
+
+    assert result.changed_words == 0
+    assert result.modification_score > 0
+    assert result.dimensions["estructura"] > 0
+
+
+def test_compare_texts_detects_paragraph_structure_changes():
+    result = compare_texts(
+        ComparisonInput(
+            original="Primera idea. Segunda idea.",
+            revised="Primera idea.\n\nSegunda idea.",
+        )
+    )
+
+    assert result.changed_words == 0
+    assert result.modification_score > 0
+    assert result.dimensions["estructura"] >= 120
