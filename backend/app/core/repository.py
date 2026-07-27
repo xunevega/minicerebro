@@ -790,6 +790,24 @@ class Repository:
         ).all()
         return [knowledge_version_from_record(record, self) for record in records]
 
+    def current_published_knowledge_version(self) -> KnowledgeVersionRecord:
+        record = self.session.scalars(
+            select(KnowledgeVersionRecord)
+            .where(KnowledgeVersionRecord.status == "published")
+            .order_by(
+                KnowledgeVersionRecord.published_at.desc(),
+                KnowledgeVersionRecord.id.desc(),
+            )
+            .limit(1)
+        ).first()
+        if record is None:
+            record = self.session.scalars(
+                select(KnowledgeVersionRecord).order_by(KnowledgeVersionRecord.id).limit(1)
+            ).first()
+        if record is None:
+            raise KeyError("knowledge version")
+        return record
+
     def knowledge_versioning_policy(self) -> KnowledgeVersioningPolicy:
         return versioning_policy()
 

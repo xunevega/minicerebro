@@ -160,13 +160,7 @@ def security_status():
 
 @router.get("/knowledge/status")
 def knowledge_status(repository: RepositoryDep) -> KnowledgeStatus:
-    versions = repository.list_knowledge_versions()
-    published_versions = [version for version in versions if version.status == "published"]
-    current_version = (
-        max(published_versions, key=lambda version: (version.published_at, version.id))
-        if published_versions
-        else versions[0]
-    )
+    current_version = repository.current_published_knowledge_version()
     return KnowledgeStatus(
         version=current_version.id,
         state=current_version.status,

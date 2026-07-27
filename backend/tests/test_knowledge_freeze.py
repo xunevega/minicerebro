@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 
 from app.db import bootstrap
 from app.core.seeds import DEFAULT_PROFILE_ID
+from app.core.repository import Repository
 from app.db.models import KnowledgeVersionSnapshotRecord, ProfileRecord, ScoreVariableRecord
 from app.db.session import SessionLocal
 from app.main import app
@@ -215,6 +216,18 @@ def test_runtime_seed_skips_knowledge_when_alembic_snapshot_exists(tmp_path, mon
 
     assert profile is not None
     assert variables
+
+
+def test_knowledge_status_uses_lightweight_current_version_lookup(monkeypatch) -> None:
+    def fail_if_full_version_listing_runs(self):
+        raise AssertionError("knowledge status should not build every version with counts")
+
+    monkeypatch.setattr(Repository, "list_knowledge_versions", fail_if_full_version_listing_runs)
+
+    response = client.get("/knowledge/status")
+
+    assert response.status_code == 200
+    assert response.json()["version"] == CURRENT_PUBLISHED_VERSION
 
 
 def _file_sha256(path: Path) -> str:
