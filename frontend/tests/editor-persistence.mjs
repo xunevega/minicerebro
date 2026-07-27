@@ -39,6 +39,24 @@ try {
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
   await resultPanel.getByText("Comparacion automatica").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
+  await editorPanel.locator("textarea").first().fill(`${inputText} Cambio manual.`);
+  await resultPanel.getByText("Borrador actualizado. Crea una nueva propuesta").waitFor();
+  if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
+    throw new Error("Editar el borrador no debe conservar una propuesta anterior.");
+  }
+  await editorPanel.locator("textarea").first().fill(inputText);
+
+  const regeneratedResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/generation" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await regeneratedResponse;
+  await resultPanel.getByText("Propuesta de continuacion").waitFor();
+  await resultPanel.getByText("Comparacion automatica").waitFor();
 
   const revisionResponse = page.waitForResponse(
     (response) => {
@@ -111,7 +129,7 @@ try {
   if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
     throw new Error("Una generacion sin cambios no debe mostrar Aceptar propuesta.");
   }
-  await resultPanel.getByRole("button", { name: "Probar otra revision" }).click();
+  await resultPanel.getByRole("button", { name: "Cambiar opciones" }).click();
   await resultPanel.getByText("Propuesta descartada. El borrador no ha cambiado.").waitFor();
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {

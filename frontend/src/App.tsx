@@ -1459,6 +1459,40 @@ export function App() {
     }
   }
 
+  function clearEditorOutcomeNotice(notice: string) {
+    if (!generation && !comparison && !textRevision && !editorOutcomeNotice) return;
+    setGeneration(null);
+    setGenerationCopyStatus("");
+    setComparison(null);
+    setTextRevision(null);
+    setRevisionFeedbackByCard({});
+    setEditorOutcomeNotice(notice);
+  }
+
+  function handleEditorTextChange(nextText: string) {
+    setEditorText(nextText);
+    clearEditorOutcomeNotice(
+      nextText.trim()
+        ? "Borrador actualizado. Crea una nueva propuesta o pide lectura con fichas."
+        : "",
+    );
+  }
+
+  function handleEditorActionChange(nextAction: GenerationAction) {
+    setEditorAction(nextAction);
+    clearEditorOutcomeNotice("Opciones cambiadas. Crea una nueva propuesta para ver el resultado.");
+  }
+
+  function handleRevisionIntentionChange(nextIntention: string) {
+    setRevisionIntention(nextIntention);
+    clearEditorOutcomeNotice("Revision cambiada. Pide una nueva lectura con fichas.");
+  }
+
+  function handleProtectedTermsChange(nextTerms: string) {
+    setProtectedTerms(nextTerms);
+    clearEditorOutcomeNotice("Terminos protegidos actualizados. Crea una nueva propuesta.");
+  }
+
   function handleUseGeneratedText() {
     if (!generation) return;
     const hasChanges =
@@ -2911,7 +2945,7 @@ export function App() {
                 <textarea
                   aria-label="Borrador"
                   id="editorDraft"
-                  onChange={(event) => setEditorText(event.target.value)}
+                  onChange={(event) => handleEditorTextChange(event.target.value)}
                   placeholder="Pega o escribe aqui el texto que quieres trabajar."
                   value={editorText}
                 />
@@ -2920,7 +2954,7 @@ export function App() {
                 <label className="editorControl actionControl">
                   <span className="controlLabel">Que quieres hacer</span>
                   <select
-                    onChange={(event) => setEditorAction(event.target.value as GenerationAction)}
+                    onChange={(event) => handleEditorActionChange(event.target.value as GenerationAction)}
                     value={editorAction}
                   >
                     {editorActions.map((action) => (
@@ -2945,7 +2979,7 @@ export function App() {
                 <label className="editorControl revisionControl">
                   <span className="controlLabel">Revision</span>
                   <select
-                    onChange={(event) => setRevisionIntention(event.target.value)}
+                    onChange={(event) => handleRevisionIntentionChange(event.target.value)}
                     value={revisionIntention}
                   >
                     {revisionIntentions.map((intention) => (
@@ -2960,7 +2994,7 @@ export function App() {
                   <input
                     className="textInput"
                     id="protectedTerms"
-                    onChange={(event) => setProtectedTerms(event.target.value)}
+                    onChange={(event) => handleProtectedTermsChange(event.target.value)}
                     placeholder="Separados por coma"
                     value={protectedTerms}
                   />
@@ -3036,7 +3070,7 @@ export function App() {
                         Leer con fichas
                       </button>
                       <button className="ghostButton" onClick={handleDiscardGeneratedText} type="button">
-                        Probar otra revision
+                        Cambiar opciones
                       </button>
                       <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                         Copiar borrador
