@@ -106,9 +106,13 @@ try {
   );
   await page.getByRole("button", { name: "Crear propuesta" }).click();
   await noChangeGenerationResponse;
+  await resultPanel.getByText("No he encontrado una reescritura segura").waitFor();
   await resultPanel.getByText("Sin cambios detectados").waitFor();
-  await resultPanel.getByRole("button", { name: "Cerrar propuesta" }).click();
-  await resultPanel.getByText("Sin cambios que aplicar").waitFor();
+  if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
+    throw new Error("Una generacion sin cambios no debe mostrar Aceptar propuesta.");
+  }
+  await resultPanel.getByRole("button", { name: "Probar otra revision" }).click();
+  await resultPanel.getByText("Propuesta descartada. El borrador no ha cambiado.").waitFor();
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
     timeout: 90000,

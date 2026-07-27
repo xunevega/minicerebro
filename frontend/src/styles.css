@@ -897,6 +897,18 @@ textarea + .primaryButton {
   max-width: 460px;
 }
 
+.noChangeOutput {
+  background: #f1f1f1;
+  border-style: solid;
+  margin-top: 18px;
+}
+
+.noChangeOutput .comparisonSummary {
+  background: #ffffff;
+  margin: 10px 0 0;
+  width: min(420px, 100%);
+}
+
 .versionToolbar {
   align-items: center;
   display: flex;

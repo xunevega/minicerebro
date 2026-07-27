@@ -440,6 +440,11 @@ export function App() {
       continue: "continuacion",
       variants: "variantes",
     }[editorAction] ?? "propuesta";
+  const generationHasChanges =
+    generation !== null &&
+    generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
+    (comparison?.modification_score ?? 0) > 0;
+  const generationHasNoChanges = generation !== null && comparison !== null && !generationHasChanges;
   const editorFlowSteps = [
     {
       label: "Borrador",
@@ -453,8 +458,12 @@ export function App() {
     },
     {
       label: "Propuesta",
-      description: generation ? "Hay una version nueva sin aplicar." : "Crea una version alternativa.",
-      status: generation ? "done" : editorHasDraft ? "active" : "pending",
+      description: generationHasChanges
+        ? "Hay una version nueva sin aplicar."
+        : generationHasNoChanges
+          ? "No hay reescritura segura."
+          : "Crea una version alternativa.",
+      status: generationHasChanges ? "done" : editorHasDraft ? "active" : "pending",
     },
     {
       label: "Decision",
@@ -469,10 +478,6 @@ export function App() {
     textRevision?.steps.filter((step) => !revisionFeedbackByCard[step.card_id]) ?? [];
   const decidedRevisionCount = textRevision ? textRevision.steps.length - pendingRevisionSteps.length : 0;
   const currentRevisionStep = pendingRevisionSteps[0] ?? null;
-  const generationHasChanges =
-    generation !== null &&
-    generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
-    (comparison?.modification_score ?? 0) > 0;
   const displayedKnowledgeQueryHistory = showAllKnowledgeHistory
     ? knowledgeQueryHistory
     : knowledgeQueryHistory.slice(0, 5);
@@ -1459,6 +1464,13 @@ export function App() {
     const hasChanges =
       generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
       (comparison?.modification_score ?? 0) > 0;
+    if (!hasChanges) {
+      setGeneration(null);
+      setGenerationCopyStatus("");
+      setComparison(null);
+      setEditorOutcomeNotice("Sin cambios que aplicar. Puedes pedir lectura con fichas o probar otra revision.");
+      return;
+    }
     setEditorText(generation.output);
     setEditorOriginalBeforeGeneration("");
     setGeneration(null);
@@ -2998,47 +3010,84 @@ export function App() {
               <span className="fieldRole">Aqui sale la respuesta</span>
               <h2>Salida</h2>
               {generation ? (
-                <>
-                  <h3>Propuesta de {editorProposalLabel}</h3>
-                  <p className="note">
-                    Es una version alternativa creada con {selectedEditorAction.label.toLowerCase()}.
-                    No sustituye tu borrador hasta que pulses "Aceptar propuesta".
-                  </p>
-                  <textarea readOnly value={generation.output} />
-                  <div className="resultActions">
-                    <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
-                      {generationHasChanges ? "Aceptar propuesta" : "Cerrar propuesta"}
-                    </button>
-                    <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
-                      Copiar
-                    </button>
-                    <button className="ghostButton danger" onClick={handleDiscardGeneratedText} type="button">
-                      Descartar
-                    </button>
-                    {generationCopyStatus ? (
-                      <span className="statusPill">{generationCopyStatus}</span>
-                    ) : null}
-                  </div>
-                  {comparison ? (
-                    <div className={`comparisonSummary ${generationHasChanges ? "" : "noChanges"}`}>
-                      <strong>
-                        {generationHasChanges ? "Comparacion automatica" : "Sin cambios detectados"}
-                      </strong>
-                      <span>Cambios: {comparison.modification_score}</span>
-                      <span>Adecuacion: {comparison.adequacy_score}</span>
+                generationHasNoChanges ? (
+                  <>
+                    <div className="emptyOutput noChangeOutput">
+                      <strong>No he encontrado una reescritura segura</strong>
                       <p>
-                        {generationHasChanges
-                          ? comparison.summary
-                          : "Editados no ha encontrado una correccion segura en este modo. El texto puede estar bien, o puede necesitar una lectura con fichas."}
+                        El texto puede estar bien, o este modo no ha encontrado una mejora clara.
+                        No hay propuesta que aceptar.
                       </p>
+                      {comparison ? (
+                        <div className="comparisonSummary noChanges">
+                          <strong>Sin cambios detectados</strong>
+                          <span>Cambios: {comparison.modification_score}</span>
+                          <span>Adecuacion: {comparison.adequacy_score}</span>
+                        </div>
+                      ) : null}
                     </div>
-                  ) : null}
-                  <details className="quietDetails">
-                    <summary>Ver detalles</summary>
-                    <p className="note">{generation.explanation}</p>
-                    <List title="Aspectos usados" items={generation.used_profile_variables} />
-                  </details>
-                </>
+                    <div className="resultActions">
+                      <button
+                        className="secondaryButton"
+                        disabled={!editorHasDraft}
+                        onClick={handleTextRevision}
+                        type="button"
+                      >
+                        Leer con fichas
+                      </button>
+                      <button className="ghostButton" onClick={handleDiscardGeneratedText} type="button">
+                        Probar otra revision
+                      </button>
+                      <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
+                        Copiar borrador
+                      </button>
+                      {generationCopyStatus ? (
+                        <span className="statusPill">{generationCopyStatus}</span>
+                      ) : null}
+                    </div>
+                    <details className="quietDetails">
+                      <summary>Ver detalles</summary>
+                      <p className="note">{generation.explanation}</p>
+                      <List title="Aspectos usados" items={generation.used_profile_variables} />
+                    </details>
+                  </>
+                ) : (
+                  <>
+                    <h3>Propuesta de {editorProposalLabel}</h3>
+                    <p className="note">
+                      Es una version alternativa creada con {selectedEditorAction.label.toLowerCase()}.
+                      No sustituye tu borrador hasta que pulses "Aceptar propuesta".
+                    </p>
+                    <textarea readOnly value={generation.output} />
+                    <div className="resultActions">
+                      <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
+                        Aceptar propuesta
+                      </button>
+                      <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
+                        Copiar propuesta
+                      </button>
+                      <button className="ghostButton danger" onClick={handleDiscardGeneratedText} type="button">
+                        Descartar
+                      </button>
+                      {generationCopyStatus ? (
+                        <span className="statusPill">{generationCopyStatus}</span>
+                      ) : null}
+                    </div>
+                    {comparison ? (
+                      <div className="comparisonSummary">
+                        <strong>Comparacion automatica</strong>
+                        <span>Cambios: {comparison.modification_score}</span>
+                        <span>Adecuacion: {comparison.adequacy_score}</span>
+                        <p>{comparison.summary}</p>
+                      </div>
+                    ) : null}
+                    <details className="quietDetails">
+                      <summary>Ver detalles</summary>
+                      <p className="note">{generation.explanation}</p>
+                      <List title="Aspectos usados" items={generation.used_profile_variables} />
+                    </details>
+                  </>
+                )
               ) : (
                 <div className="emptyOutput">
                   <strong>{editorOutcomeNotice ? "Decision aplicada" : "Sin salida todavia"}</strong>
