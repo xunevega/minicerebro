@@ -58,8 +58,23 @@ def _profile_prompt(variables: list[ScoreVariable]) -> str:
 
 def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable]) -> GenerationResult:
     if getenv("OPENAI_API_KEY"):
-        return rewrite_with_openai(payload, variables)
+        try:
+            return rewrite_with_openai(payload, variables)
+        except Exception:
+            fallback = rewrite_deterministic(payload, variables)
+            return fallback.model_copy(
+                update={
+                    "explanation": (
+                        "No se pudo completar la generacion externa. "
+                        f"{fallback.explanation}"
+                    )
+                }
+            )
 
+    return rewrite_deterministic(payload, variables)
+
+
+def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariable]) -> GenerationResult:
     active = sorted(variables, key=lambda item: item.effective_value, reverse=True)[:3]
     preserved, protected_replacements = _protect_terms(payload.text, payload.protected_terms)
     original = preserved.strip()
