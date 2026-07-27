@@ -10,7 +10,7 @@ BACKEND_URL ?= https://backend-production-4652.up.railway.app
 PRODUCTION_FRONTEND_URL ?= https://frontend-production-834c.up.railway.app
 EXPECTED_VERSION ?= knowledge-v51
 
-.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production clean-generated
+.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production export-knowledge-snapshot clean-generated
 
 validate: lint test-backend build-frontend
 
@@ -34,6 +34,9 @@ smoke-ui:
 
 smoke-production:
 	BACKEND_URL="$(BACKEND_URL)" FRONTEND_URL="$(PRODUCTION_FRONTEND_URL)" EXPECTED_VERSION="$(EXPECTED_VERSION)" sh scripts/smoke-production.sh
+
+export-knowledge-snapshot:
+	$(PYTHON) scripts/export-knowledge-snapshot.py --version "$(EXPECTED_VERSION)" --output "backend/app/knowledge/data/$(EXPECTED_VERSION).snapshot.json"
 
 clean-generated:
 	find . -type f \( -name '.DS_Store' -o -name '*.pyc' -o -name '*.pyo' -o -name '*.tsbuildinfo' \) \

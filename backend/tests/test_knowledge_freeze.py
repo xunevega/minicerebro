@@ -1,3 +1,8 @@
+import hashlib
+import subprocess
+import sys
+from pathlib import Path
+
 from fastapi.testclient import TestClient
 
 from app.db.models import KnowledgeVersionSnapshotRecord
@@ -6,6 +11,7 @@ from app.main import app
 
 
 client = TestClient(app)
+REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
 CURRENT_PUBLISHED_VERSION = "knowledge-v51"
@@ -108,3 +114,38 @@ def test_current_published_queries_are_frozen_before_data_migration() -> None:
         assert {card["version"] for card in payload["cards"]} == {CURRENT_PUBLISHED_VERSION}
         assert {claim["version"] for claim in payload["claims"]} == {CURRENT_PUBLISHED_VERSION}
         assert {item["version"] for item in payload["evidence"]} == {CURRENT_PUBLISHED_VERSION}
+
+
+def test_current_published_snapshot_export_is_reproducible(tmp_path) -> None:
+    expected = (
+        REPO_ROOT
+        / "backend"
+        / "app"
+        / "knowledge"
+        / "data"
+        / f"{CURRENT_PUBLISHED_VERSION}.snapshot.json"
+    )
+    generated = tmp_path / f"{CURRENT_PUBLISHED_VERSION}.snapshot.json"
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "scripts" / "export-knowledge-snapshot.py"),
+            "--version",
+            CURRENT_PUBLISHED_VERSION,
+            "--output",
+            str(generated),
+        ],
+        check=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert _file_sha256(generated) == _file_sha256(expected)
+
+
+def _file_sha256(path: Path) -> str:
+    digest = hashlib.sha256()
+    with path.open("rb") as file:
+        for chunk in iter(lambda: file.read(1024 * 1024), b""):
+            digest.update(chunk)
+    return digest.hexdigest()
