@@ -34,6 +34,7 @@ from app.db.models import (
 )
 from app.db.session import database_url
 from app.knowledge.service import (
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION,
     seed_cards,
     seed_claim_evidence_links,
     seed_claim_revisions,
@@ -150,42 +151,52 @@ def upgrade_database() -> None:
 
 def ensure_seed_data(session: Session) -> None:
     with _SEED_LOCK:
-        profile = session.get(ProfileRecord, DEFAULT_PROFILE_ID)
-        if profile is None:
-            profile = ProfileRecord(
-                id=DEFAULT_PROFILE_ID,
-                name="Perfil inicial",
-                language="es",
-                summary="Perfil semilla con baja confianza. Las preferencias requieren revision explicita.",
-                updated_at=datetime.now(UTC),
-            )
-            session.add(profile)
-
-        existing_variables = session.scalars(
-            select(ScoreVariableRecord).where(ScoreVariableRecord.profile_id == DEFAULT_PROFILE_ID)
-        ).all()
-        existing_keys = {variable.key for variable in existing_variables}
-
-        for variable in seed_variables():
-            if variable.key in existing_keys:
-                continue
-            session.add(
-                ScoreVariableRecord(
-                    profile_id=DEFAULT_PROFILE_ID,
-                    key=variable.key,
-                    label=variable.label,
-                    category=variable.category,
-                    calculated_value=variable.calculated_value,
-                    manual_adjustment=variable.manual_adjustment,
-                    confidence=variable.confidence,
-                    context=variable.context,
-                    evidence_count=variable.evidence_count,
-                    updated_at=variable.updated_at,
-                )
-            )
-
-        ensure_knowledge_seed_data(session)
+        ensure_profile_seed_data(session)
+        if not has_published_knowledge_snapshot(session):
+            ensure_knowledge_seed_data(session)
         session.commit()
+
+
+def ensure_profile_seed_data(session: Session) -> None:
+    profile = session.get(ProfileRecord, DEFAULT_PROFILE_ID)
+    if profile is None:
+        profile = ProfileRecord(
+            id=DEFAULT_PROFILE_ID,
+            name="Perfil inicial",
+            language="es",
+            summary="Perfil semilla con baja confianza. Las preferencias requieren revision explicita.",
+            updated_at=datetime.now(UTC),
+        )
+        session.add(profile)
+
+    existing_variables = session.scalars(
+        select(ScoreVariableRecord).where(ScoreVariableRecord.profile_id == DEFAULT_PROFILE_ID)
+    ).all()
+    existing_keys = {variable.key for variable in existing_variables}
+
+    for variable in seed_variables():
+        if variable.key in existing_keys:
+            continue
+        session.add(
+            ScoreVariableRecord(
+                profile_id=DEFAULT_PROFILE_ID,
+                key=variable.key,
+                label=variable.label,
+                category=variable.category,
+                calculated_value=variable.calculated_value,
+                manual_adjustment=variable.manual_adjustment,
+                confidence=variable.confidence,
+                context=variable.context,
+                evidence_count=variable.evidence_count,
+                updated_at=variable.updated_at,
+            )
+        )
+
+
+def has_published_knowledge_snapshot(session: Session) -> bool:
+    version = session.get(KnowledgeVersionRecord, LATEST_PUBLISHED_KNOWLEDGE_VERSION)
+    snapshot = session.get(KnowledgeVersionSnapshotRecord, LATEST_PUBLISHED_KNOWLEDGE_VERSION)
+    return version is not None and version.status == "published" and snapshot is not None
 
 
 def ensure_knowledge_seed_data(session: Session) -> None:

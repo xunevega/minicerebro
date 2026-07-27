@@ -28,7 +28,7 @@ from app.db.models import (
     ProfileKnowledgeCardRecord,
     ScoreVariableRecord,
 )
-from app.db.bootstrap import ensure_seed_data
+from app.db.bootstrap import ensure_knowledge_seed_data, ensure_seed_data
 from app.db.session import SessionLocal
 from app.knowledge.service import seed_cards, seed_claims, seed_evidence, seed_nodes
 from app.main import app
@@ -5350,7 +5350,8 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
                 synchronize_session=False,
             )
             session.commit()
-            ensure_seed_data(session)
+            ensure_knowledge_seed_data(session)
+            session.commit()
 
 
 def test_knowledge_ingestion_policy_closes_documental_pipeline_contract():
