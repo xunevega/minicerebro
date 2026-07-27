@@ -56,4 +56,5 @@ def test_openai_failure_falls_back_to_deterministic_generation(monkeypatch):
     assert result.provider == "deterministic"
     assert result.learning_applied is False
     assert "No se pudo completar la generacion externa" in result.explanation
+    assert "Reescritura estructural local" in result.explanation
     assert "\n\n" in result.output

@@ -1570,6 +1570,12 @@ export function App() {
         selectedKnowledgeVersion,
         revisionIntention,
       );
+      if (generationHasNoChanges) {
+        setGeneration(null);
+        setComparison(null);
+        setGenerationCopyStatus("");
+      }
+      setEditorOutcomeNotice("");
       setTextRevision(result);
       setRevisionFeedbackByCard({});
       await refreshAuditEvents();
@@ -3122,7 +3128,7 @@ export function App() {
                     </details>
                   </>
                 )
-              ) : (
+              ) : textRevision ? null : (
                 <div className="emptyOutput">
                   <strong>{editorOutcomeNotice ? "Decision aplicada" : "Sin salida todavia"}</strong>
                   <p>

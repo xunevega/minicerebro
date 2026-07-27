@@ -129,8 +129,22 @@ try {
   if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
     throw new Error("Una generacion sin cambios no debe mostrar Aceptar propuesta.");
   }
-  await resultPanel.getByRole("button", { name: "Cambiar opciones" }).click();
-  await resultPanel.getByText("Propuesta descartada. El borrador no ha cambiado.").waitFor();
+  const noChangeRevisionResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/revision" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await resultPanel.getByRole("button", { name: "Leer con fichas" }).click();
+  await noChangeRevisionResponse;
+  await resultPanel.getByRole("heading", { name: "Lectura con fichas" }).waitFor();
+  if ((await resultPanel.getByText("No he encontrado una reescritura segura").count()) !== 0) {
+    throw new Error("La lectura con fichas no debe quedar mezclada con el bloque sin cambios.");
+  }
+  if ((await resultPanel.getByText("Sin salida todavia").count()) !== 0) {
+    throw new Error("La lectura con fichas no debe mostrar el estado vacio de salida.");
+  }
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
     timeout: 90000,

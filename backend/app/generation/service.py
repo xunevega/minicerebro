@@ -79,10 +79,14 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
     preserved, protected_replacements = _protect_terms(payload.text, payload.protected_terms)
     original = preserved.strip()
     output = original
+    normalized_original = original
+    paragraph_adjusted = False
     if payload.action in {"rewrite", "correction"}:
         output = " ".join(output.split())
+        normalized_original = output
         if payload.action == "rewrite":
             output = _paragraph_rewrite(output)
+            paragraph_adjusted = output != normalized_original
         if payload.intensity > 650 and not output.endswith("."):
             output = f"{output}."
     elif payload.action == "continue":
@@ -101,9 +105,29 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
             "No se aplicaron cambios deterministas seguros. El texto ya estaba limpio para este "
             "modo local; para una reescritura profunda hace falta activar generacion externa."
         )
+    elif paragraph_adjusted:
+        explanation = (
+            "Reescritura estructural local: ordena el texto en parrafos sin inventar contenido "
+            "ni aplicar aprendizaje automatico."
+        )
+    elif payload.action == "correction":
+        explanation = (
+            "Correccion local segura: limpia formato y espacios sin cambiar la voz ni aplicar "
+            "aprendizaje automatico."
+        )
+    elif payload.action == "continue":
+        explanation = (
+            "Continuacion local de arranque: propone un siguiente tramo sin aplicar aprendizaje "
+            "automatico."
+        )
+    elif payload.action == "variants":
+        explanation = (
+            "Variantes locales de arranque: ofrece alternativas sin aplicar aprendizaje "
+            "automatico."
+        )
     else:
         explanation = (
-            "Transformacion determinista local. Corrige solo cambios seguros y no aprende nada "
+            "Reescritura local segura: aplica solo cambios de bajo riesgo y no aprende nada "
             "automaticamente."
         )
 

@@ -650,7 +650,7 @@ def test_generation_rewrites_long_single_block_with_paragraphs():
     payload = response.json()
     assert payload["output"] != text
     assert "\n\n" in payload["output"]
-    assert "Transformacion determinista local" in payload["explanation"]
+    assert "Reescritura estructural local" in payload["explanation"]
 
 
 def test_generation_action_aliases_are_bound_to_their_routes():
