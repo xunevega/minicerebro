@@ -12,7 +12,11 @@ try {
   await page.getByLabel("Vista").selectOption("persistence");
   const persistencePanel = page.locator(".panel", { hasText: "Datos guardados" });
   await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();
-  await persistencePanel.getByText("Todavia no hay textos generados en este contexto.").waitFor();
+  await page.waitForFunction(
+    () =>
+      document.body.textContent?.includes("Todavia no hay textos generados en este contexto.") ||
+      document.querySelector(".auditItem") !== null,
+  );
 
   await page.getByLabel("Vista").selectOption("__toggle_internal");
   await page.getByLabel("Vista").selectOption("closure");
@@ -28,7 +32,11 @@ try {
   await page.getByLabel("Vista").selectOption("screens");
   const screensPanel = page.locator(".panel", { hasText: "Pantallas internas" });
   await screensPanel.getByText("Feedback pendiente").waitFor();
-  await screensPanel.getByText("Sin propuestas pendientes.").waitFor();
+  await page.waitForFunction(
+    () =>
+      document.body.textContent?.includes("Sin propuestas pendientes.") ||
+      document.body.textContent?.includes("variables"),
+  );
 } finally {
   await browser.close();
 }

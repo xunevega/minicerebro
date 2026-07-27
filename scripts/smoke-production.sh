@@ -3,8 +3,8 @@ set -eu
 
 BACKEND_URL="${BACKEND_URL:-https://backend-production-4652.up.railway.app}"
 FRONTEND_URL="${FRONTEND_URL:-https://frontend-production-834c.up.railway.app}"
-EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v36}"
-QUERY="${QUERY:-escena-inicial-operativa promesa-narrativa gancho-sin-truco revelacion-controlada reescritura-de-escena}"
+EXPECTED_VERSION="${EXPECTED_VERSION:-knowledge-v51}"
+QUERY="${QUERY:-lector previsto promesa de lectura ruptura de intencion situacion de lectura}"
 TMP_DIR="$(mktemp -d)"
 
 echo "backend: $BACKEND_URL"
