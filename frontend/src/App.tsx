@@ -2892,12 +2892,18 @@ export function App() {
                   </div>
                 ))}
               </div>
-              <textarea
-                aria-label="Borrador"
-                onChange={(event) => setEditorText(event.target.value)}
-                placeholder="Pega o escribe aqui el texto que quieres trabajar."
-                value={editorText}
-              />
+              <div className="draftFieldShell">
+                <label className="draftFieldLabel" htmlFor="editorDraft">
+                  Texto de entrada
+                </label>
+                <textarea
+                  aria-label="Borrador"
+                  id="editorDraft"
+                  onChange={(event) => setEditorText(event.target.value)}
+                  placeholder="Pega o escribe aqui el texto que quieres trabajar."
+                  value={editorText}
+                />
+              </div>
               <div className="editorControls">
                 <label className="editorControl actionControl">
                   <span className="controlLabel">Que quieres hacer</span>
