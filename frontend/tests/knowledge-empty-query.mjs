@@ -18,7 +18,7 @@ try {
   await page.locator(".metric", { hasText: "Por revisar" }).first().waitFor({ timeout: 90000 });
   const libraryPanel = page.locator(".proposalBox", { hasText: "Estanterias" });
   await libraryPanel.getByText("Orden bibliotecario").waitFor();
-  await libraryPanel.locator(".statusPill", { hasText: "193 fichas" }).waitFor({ timeout: 90000 });
+  await libraryPanel.locator(".statusPill", { hasText: "203 fichas" }).waitFor({ timeout: 90000 });
   await libraryPanel.locator(".libraryShelf.active", { hasText: "Todo" }).waitFor();
   await libraryPanel.locator(".libraryCard").first().waitFor();
   await libraryPanel.getByText("uso:").first().waitFor();
@@ -30,7 +30,7 @@ try {
   await libraryPanel.getByText(/nivel: /).first().waitFor();
   const gymPanel = page.locator(".proposalBox", { hasText: "Estado de la biblioteca" });
   await gymPanel.locator(".statusPill", { hasText: "sano" }).first().waitFor({ timeout: 90000 });
-  await gymPanel.locator(".metric", { hasText: "Fichas" }).filter({ hasText: "193" }).waitFor({
+  await gymPanel.locator(".metric", { hasText: "Fichas" }).filter({ hasText: "203" }).waitFor({
     timeout: 90000,
   });
   await gymPanel.locator("strong", { hasText: /^Precision$/ }).waitFor();
@@ -38,9 +38,9 @@ try {
   await page.getByRole("button", { name: "Ver modo tecnico" }).click();
   await page.getByRole("heading", { name: "Limites actuales" }).waitFor();
   const versionPanel = page.locator(".proposalBox", { hasText: "Versiones de la base" });
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v42" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v42" }).getByText("0 fuentes").waitFor();
-  await versionPanel.locator(".versionItem", { hasText: "knowledge-v42" }).getByText("+5 nodos").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v44" }).locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v44" }).getByText("0 fuentes").waitFor();
+  await versionPanel.locator(".versionItem", { hasText: "knowledge-v44" }).getByText("+5 nodos").waitFor();
   await versionPanel.locator(".versionItem", { hasText: "knowledge-v0" }).getByText("base congelada").waitFor();
   const sourceExplorerPanel = page.locator(".proposalBox", {
     has: page.getByRole("heading", { name: /^Fuentes$/ }),
@@ -181,8 +181,8 @@ try {
   await explorationPanel.locator(".metric", { hasText: "Fuentes" }).filter({ hasText: "26" }).waitFor({
     timeout: 90000,
   });
-  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "195" }).waitFor();
-  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "193" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Nodos" }).filter({ hasText: "205" }).waitFor();
+  await explorationPanel.locator(".metric", { hasText: "Evidencias" }).filter({ hasText: "203" }).waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Fuente$/ }).first().waitFor();
   await explorationPanel.locator(".pipelineStep", { hasText: /^Publicacion$/ }).first().waitFor();
   const complementoClaim = explorationPanel.locator(".traceClaim", {
@@ -210,7 +210,7 @@ try {
   await queryPanel.getByText("Resultado para \"complemento directo\"").waitFor({ timeout: queryTimeout });
   await queryPanel.getByText("Ver detalle tecnico").waitFor();
   await queryPanel.getByText("Ver detalle tecnico").click();
-  await queryPanel.locator(".metric", { hasText: "Base recuperada" }).filter({ hasText: "knowledge-v42" }).waitFor();
+  await queryPanel.locator(".metric", { hasText: "Base recuperada" }).filter({ hasText: "knowledge-v44" }).waitFor();
   await queryPanel.getByText("Nueva gramatica de la lengua espanola").first().waitFor();
   await queryPanel.getByText("ev-rae-ngle-complemento-directo-candidata").first().waitFor();
   await queryPanel.locator("article.knowledgeItem > strong", { hasText: /^Complemento directo$/ }).waitFor();

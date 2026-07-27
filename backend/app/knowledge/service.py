@@ -76,7 +76,9 @@ KNOWLEDGE_V38_VERSION = "knowledge-v38"
 KNOWLEDGE_V39_VERSION = "knowledge-v39"
 KNOWLEDGE_V40_VERSION = "knowledge-v40"
 KNOWLEDGE_V41_VERSION = "knowledge-v41"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v42"
+KNOWLEDGE_V42_VERSION = "knowledge-v42"
+KNOWLEDGE_V43_VERSION = "knowledge-v43"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v44"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -120,6 +122,8 @@ KNOWLEDGE_V39_PUBLISHED_AT = "2026-07-26T13:00:00+00:00"
 KNOWLEDGE_V40_PUBLISHED_AT = "2026-07-26T14:00:00+00:00"
 KNOWLEDGE_V41_PUBLISHED_AT = "2026-07-26T15:00:00+00:00"
 KNOWLEDGE_V42_PUBLISHED_AT = "2026-07-27T08:00:00+00:00"
+KNOWLEDGE_V43_PUBLISHED_AT = "2026-07-27T09:00:00+00:00"
+KNOWLEDGE_V44_PUBLISHED_AT = "2026-07-27T10:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -7344,6 +7348,412 @@ V42_SEED_ITEMS = [
     },
 ]
 
+V43_SEED_ITEMS = [
+    {
+        "key": "transicion-de-idea",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:transicion-de-idea",
+        "index_title": "Transicion de idea",
+        "index_locator": "Edicion 2012 > coherencia textual > transiciones",
+        "segment_id": "reyes-arte-escribir:edicion-2012:transicion-de-idea:seg-1",
+        "segment_title": "Pasar de una idea a otra",
+        "segment_text": (
+            "Resumen editorial minimo: una transicion de idea indica por que el texto "
+            "abandona un punto y entra en otro sin que el lector tenga que adivinarlo."
+        ),
+        "extraction_id": "ext-reyes-2012-transicion-de-idea-1",
+        "node_id": "reyes-transicion-de-idea",
+        "canonical_name": "Transicion de idea",
+        "node_type": "metodo",
+        "primary_branch": "coherencia",
+        "secondary_branch": "transiciones",
+        "node_summary": "Criterio para enlazar ideas sin saltos invisibles.",
+        "short_definition": "Puente explicito entre una idea terminada y la siguiente.",
+        "aliases": ["paso de idea", "puente logico"],
+        "relation_target": "reyes-conectores",
+        "relation_type": "usa",
+        "card_id": "card-transicion-de-idea",
+        "card_type": "transition_tool",
+        "card_name": "Transicion de idea",
+        "card_definition": "Ficha para revisar si el paso entre ideas esta anunciado y justificado.",
+        "signals": ["paso", "puente", "idea siguiente"],
+        "risks": ["salto invisible", "lector desorientado"],
+        "contexts": ["texto largo", "transicion", "coherencia"],
+        "evidence_id": "ev-reyes-transicion-de-idea",
+        "evidence_section": "transicion de idea",
+        "confidence": 0.64,
+        "claim_id": "claim-reyes-transicion-de-idea",
+        "statement": "Una transicion eficaz explica la relacion entre la idea que termina y la que empieza.",
+        "claim_type": "writing",
+        "domain": "writing.transitions.idea_shift",
+        "related_node_ids": ["reyes-conectores", "reyes-progresion-global"],
+    },
+    {
+        "key": "conector-con-funcion",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:conector-con-funcion",
+        "index_title": "Conector con funcion",
+        "index_locator": "Edicion 2012 > coherencia textual > conectores",
+        "segment_id": "reyes-arte-escribir:edicion-2012:conector-con-funcion:seg-1",
+        "segment_title": "Usar conectores por relacion, no por adorno",
+        "segment_text": (
+            "Resumen editorial minimo: un conector debe nombrar una relacion real entre "
+            "partes del texto: causa, contraste, consecuencia, adicion u orden."
+        ),
+        "extraction_id": "ext-reyes-2012-conector-con-funcion-1",
+        "node_id": "reyes-conector-con-funcion",
+        "canonical_name": "Conector con funcion",
+        "node_type": "metodo",
+        "primary_branch": "coherencia",
+        "secondary_branch": "conectores",
+        "node_summary": "Criterio para elegir conectores por la relacion que realmente cumplen.",
+        "short_definition": "Conector usado para hacer visible una relacion textual concreta.",
+        "aliases": ["conector funcional", "marcador discursivo funcional"],
+        "relation_target": "reyes-conectores",
+        "relation_type": "deriva_de",
+        "card_id": "card-conector-con-funcion",
+        "card_type": "transition_tool",
+        "card_name": "Conector con funcion",
+        "card_definition": "Ficha para sustituir conectores decorativos por relaciones visibles.",
+        "signals": ["causa", "contraste", "consecuencia"],
+        "risks": ["conector de relleno", "falsa relacion"],
+        "contexts": ["conectores", "parrafo", "argumentacion"],
+        "evidence_id": "ev-reyes-conector-con-funcion",
+        "evidence_section": "conector con funcion",
+        "confidence": 0.63,
+        "claim_id": "claim-reyes-conector-con-funcion",
+        "statement": "Un conector solo ayuda si expresa una relacion textual que ya existe o debe quedar clara.",
+        "claim_type": "writing",
+        "domain": "writing.transitions.connector_function",
+        "related_node_ids": ["reyes-conectores", "aristoteles-logos"],
+    },
+    {
+        "key": "parrafo-puente",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:parrafo-puente",
+        "index_title": "Parrafo puente",
+        "index_locator": "Edicion de referencia > revision > parrafo puente",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:parrafo-puente:seg-1",
+        "segment_title": "Crear un tramo de paso",
+        "segment_text": (
+            "Resumen editorial minimo: cuando dos bloques estan demasiado lejos, un parrafo "
+            "puente prepara el cambio y evita que el texto parezca ensamblado a golpes."
+        ),
+        "extraction_id": "ext-cassany-parrafo-puente-1",
+        "node_id": "cassany-parrafo-puente",
+        "canonical_name": "Parrafo puente",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para insertar un tramo breve que conecta bloques alejados.",
+        "short_definition": "Parrafo de enlace entre dos bloques que no encajan directamente.",
+        "aliases": ["puente de parrafo", "parrafo de transicion"],
+        "relation_target": "cassany-frase-puente",
+        "relation_type": "deriva_de",
+        "card_id": "card-parrafo-puente",
+        "card_type": "transition_tool",
+        "card_name": "Parrafo puente",
+        "card_definition": "Ficha para decidir si un salto necesita un parrafo de enlace.",
+        "signals": ["bloques", "salto", "preparacion"],
+        "risks": ["ensamble brusco", "parrafo bisagra vacio"],
+        "contexts": ["texto largo", "parrafo", "estructura"],
+        "evidence_id": "ev-cassany-parrafo-puente",
+        "evidence_section": "parrafo puente",
+        "confidence": 0.62,
+        "claim_id": "claim-cassany-parrafo-puente",
+        "statement": "Cuando dos bloques no se siguen de forma natural, conviene crear un puente antes de reescribir frases aisladas.",
+        "claim_type": "editing",
+        "domain": "writing.transitions.bridge_paragraph",
+        "related_node_ids": ["reyes-progresion-global", "reyes-progresion-de-parrafo"],
+    },
+    {
+        "key": "orden-de-argumentos",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:orden-de-argumentos",
+        "index_title": "Orden de argumentos",
+        "index_locator": "Edicion 2012 > argumentacion > orden",
+        "segment_id": "reyes-arte-escribir:edicion-2012:orden-de-argumentos:seg-1",
+        "segment_title": "Ordenar razones para que avancen",
+        "segment_text": (
+            "Resumen editorial minimo: el orden de argumentos no solo enumera razones; "
+            "las organiza para que cada una prepare, refuerce o matice la siguiente."
+        ),
+        "extraction_id": "ext-reyes-2012-orden-de-argumentos-1",
+        "node_id": "reyes-orden-de-argumentos",
+        "canonical_name": "Orden de argumentos",
+        "node_type": "metodo",
+        "primary_branch": "argumentacion",
+        "secondary_branch": "progresion",
+        "node_summary": "Criterio para ordenar razones de forma acumulativa y legible.",
+        "short_definition": "Secuencia de razones que progresa en vez de amontonarse.",
+        "aliases": ["orden argumental", "secuencia argumentativa"],
+        "relation_target": "quintiliano-orden-argumentativo",
+        "relation_type": "usa",
+        "card_id": "card-orden-de-argumentos",
+        "card_type": "transition_tool",
+        "card_name": "Orden de argumentos",
+        "card_definition": "Ficha para revisar si las razones estan ordenadas o solo acumuladas.",
+        "signals": ["tesis", "razon", "objecion"],
+        "risks": ["lista sin avance", "argumento repetido"],
+        "contexts": ["argumentacion", "ensayo", "texto largo"],
+        "evidence_id": "ev-reyes-orden-de-argumentos",
+        "evidence_section": "orden de argumentos",
+        "confidence": 0.63,
+        "claim_id": "claim-reyes-orden-de-argumentos",
+        "statement": "Una secuencia argumentativa eficaz ordena las razones para producir avance, no solo acumulacion.",
+        "claim_type": "rhetorical",
+        "domain": "writing.transitions.argument_order",
+        "related_node_ids": ["quintiliano-orden-argumentativo", "aristoteles-tesis-operativa"],
+    },
+    {
+        "key": "cierre-y-apertura",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:cierre-y-apertura",
+        "index_title": "Cierre y apertura",
+        "index_locator": "Edicion de referencia > revision > cierre y apertura",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:cierre-y-apertura:seg-1",
+        "segment_title": "Cerrar un tramo antes de abrir otro",
+        "segment_text": (
+            "Resumen editorial minimo: una transicion clara suele cerrar la funcion del "
+            "tramo anterior antes de abrir la pregunta, consecuencia o contraste siguiente."
+        ),
+        "extraction_id": "ext-cassany-cierre-y-apertura-1",
+        "node_id": "cassany-cierre-y-apertura",
+        "canonical_name": "Cierre y apertura",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "transiciones",
+        "node_summary": "Criterio para evitar que un texto abra ideas nuevas sin cerrar el tramo anterior.",
+        "short_definition": "Movimiento doble: cerrar lo anterior y abrir lo siguiente.",
+        "aliases": ["cierre de tramo", "apertura de bloque"],
+        "relation_target": "cassany-revision-estructural",
+        "relation_type": "usa",
+        "card_id": "card-cierre-y-apertura",
+        "card_type": "transition_tool",
+        "card_name": "Cierre y apertura",
+        "card_definition": "Ficha para comprobar si un tramo queda cerrado antes de pasar al siguiente.",
+        "signals": ["cierre", "apertura", "contraste"],
+        "risks": ["tema abandonado", "arranque brusco"],
+        "contexts": ["revision", "estructura", "transicion"],
+        "evidence_id": "ev-cassany-cierre-y-apertura",
+        "evidence_section": "cierre y apertura",
+        "confidence": 0.62,
+        "claim_id": "claim-cassany-cierre-y-apertura",
+        "statement": "Una buena transicion suele cerrar la funcion del tramo anterior antes de abrir el siguiente movimiento.",
+        "claim_type": "editing",
+        "domain": "writing.transitions.close_open",
+        "related_node_ids": ["cassany-revision-estructural", "reyes-transicion-de-idea"],
+    },
+]
+
+V44_SEED_ITEMS = [
+    {
+        "key": "palabra-precisa-en-contexto",
+        "source_id": "casares-diccionario-ideologico",
+        "source_edition_id": "casares-diccionario-ideologico:edicion-referencia",
+        "index_id": "casares-diccionario-ideologico:edicion-referencia:palabra-precisa-contexto",
+        "index_title": "Palabra precisa en contexto",
+        "index_locator": "Edicion de referencia > eleccion lexica > palabra precisa",
+        "segment_id": "casares-diccionario-ideologico:edicion-referencia:palabra-precisa-contexto:seg-1",
+        "segment_title": "Elegir palabra por idea y uso",
+        "segment_text": (
+            "Resumen editorial minimo: la palabra precisa no es la mas rara ni la mas "
+            "brillante; es la que encaja con la idea, el registro y la frase."
+        ),
+        "extraction_id": "ext-casares-palabra-precisa-contexto-1",
+        "node_id": "casares-palabra-precisa-en-contexto",
+        "canonical_name": "Palabra precisa en contexto",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "precision",
+        "node_summary": "Criterio para elegir palabras por idea, registro y frase concreta.",
+        "short_definition": "Eleccion lexica que ajusta significado, tono y colocacion.",
+        "aliases": ["termino preciso", "palabra justa"],
+        "relation_target": "casares-palabra-precisa",
+        "relation_type": "deriva_de",
+        "card_id": "card-palabra-precisa-en-contexto",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Palabra precisa en contexto",
+        "card_definition": "Ficha para elegir una palabra por matiz, registro y encaje en la frase.",
+        "signals": ["matiz", "registro", "colocacion"],
+        "risks": ["palabra brillante pero falsa", "precision aparente"],
+        "contexts": ["lexico", "revision", "estilo"],
+        "evidence_id": "ev-casares-palabra-precisa-en-contexto",
+        "evidence_section": "palabra precisa en contexto",
+        "confidence": 0.64,
+        "claim_id": "claim-casares-palabra-precisa-en-contexto",
+        "statement": "La palabra precisa debe elegirse por su encaje con la idea, el registro y la frase, no por rareza.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.precise_word_context",
+        "related_node_ids": ["casares-palabra-precisa", "casares-colocacion-lexica"],
+    },
+    {
+        "key": "sinonimo-con-matiz",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:sinonimo-con-matiz",
+        "index_title": "Sinonimo con matiz",
+        "index_locator": "Edicion de referencia > sinonimia > matiz",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:sinonimo-con-matiz:seg-1",
+        "segment_title": "Cambiar palabra sin borrar diferencia",
+        "segment_text": (
+            "Resumen editorial minimo: un sinonimo util conserva el nucleo de sentido, "
+            "pero cambia matiz, intensidad, registro o colocacion."
+        ),
+        "extraction_id": "ext-diccionario-sinonimos-sinonimo-matiz-1",
+        "node_id": "diccionario-sinonimos-sinonimo-con-matiz",
+        "canonical_name": "Sinonimo con matiz",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "sinonimia",
+        "node_summary": "Criterio para sustituir palabras sin borrar diferencias de matiz.",
+        "short_definition": "Sinonimo elegido por diferencia controlada, no por equivalencia total.",
+        "aliases": ["sustitucion con matiz", "sinonimia prudente"],
+        "relation_target": "diccionario-sinonimos-sinonimia-contextual",
+        "relation_type": "deriva_de",
+        "card_id": "card-sinonimo-con-matiz",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Sinonimo con matiz",
+        "card_definition": "Ficha para probar si una sustitucion conserva sentido y ajusta matiz.",
+        "signals": ["matiz", "intensidad", "registro"],
+        "risks": ["falso sinonimo", "cambio de intencion"],
+        "contexts": ["sinonimia", "precision", "revision"],
+        "evidence_id": "ev-diccionario-sinonimos-sinonimo-con-matiz",
+        "evidence_section": "sinonimo con matiz",
+        "confidence": 0.63,
+        "claim_id": "claim-diccionario-sinonimos-sinonimo-con-matiz",
+        "statement": "Un sinonimo no es intercambiable por defecto: debe comprobarse su matiz, intensidad y registro.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.synonym_nuance",
+        "related_node_ids": ["diccionario-sinonimos-sinonimia-contextual", "diccionario-sinonimos-falsos-sinonimos"],
+    },
+    {
+        "key": "antonimo-para-contraste",
+        "source_id": "diccionario-sinonimos-antonimos",
+        "source_edition_id": "diccionario-sinonimos-antonimos:edicion-referencia",
+        "index_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimo-para-contraste",
+        "index_title": "Antonimo para contraste",
+        "index_locator": "Edicion de referencia > antonimia > contraste",
+        "segment_id": "diccionario-sinonimos-antonimos:edicion-referencia:antonimo-para-contraste:seg-1",
+        "segment_title": "Usar antonimos para perfilar una idea",
+        "segment_text": (
+            "Resumen editorial minimo: el antonimo sirve para delimitar una idea cuando "
+            "muestra que no se quiere decir, que se excluye o que se contrasta."
+        ),
+        "extraction_id": "ext-diccionario-sinonimos-antonimo-contraste-1",
+        "node_id": "diccionario-sinonimos-antonimo-para-contraste",
+        "canonical_name": "Antonimo para contraste",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "antonimia",
+        "node_summary": "Criterio para usar antonimos como delimitacion de sentido y contraste.",
+        "short_definition": "Antonimo usado para perfilar una idea por oposicion controlada.",
+        "aliases": ["contraste lexico", "oposicion controlada"],
+        "relation_target": "diccionario-sinonimos-antonimo-de-contraste",
+        "relation_type": "deriva_de",
+        "card_id": "card-antonimo-para-contraste",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Antonimo para contraste",
+        "card_definition": "Ficha para usar oposiciones lexicas sin convertirlas en simplificacion falsa.",
+        "signals": ["oposicion", "contraste", "exclusion"],
+        "risks": ["oposicion falsa", "contraste excesivo"],
+        "contexts": ["antonimia", "argumentacion", "precision"],
+        "evidence_id": "ev-diccionario-sinonimos-antonimo-para-contraste",
+        "evidence_section": "antonimo para contraste",
+        "confidence": 0.62,
+        "claim_id": "claim-diccionario-sinonimos-antonimo-para-contraste",
+        "statement": "Un antonimo puede ayudar a perfilar una idea si el contraste es real y no simplifica el sentido.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.antonym_contrast",
+        "related_node_ids": ["diccionario-sinonimos-antonimo-de-contraste", "aristoteles-antitesis-argumentativa"],
+    },
+    {
+        "key": "evitar-repeticion-mala",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:evitar-repeticion-mala",
+        "index_title": "Evitar repeticion mala",
+        "index_locator": "Edicion de referencia > revision lexica > repeticion",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:evitar-repeticion-mala:seg-1",
+        "segment_title": "Distinguir repeticion util de repeticion pobre",
+        "segment_text": (
+            "Resumen editorial minimo: no toda repeticion debe eliminarse; conviene cambiar "
+            "solo la repeticion que empobrece ritmo, precision o progresion."
+        ),
+        "extraction_id": "ext-cassany-evitar-repeticion-mala-1",
+        "node_id": "cassany-evitar-repeticion-mala",
+        "canonical_name": "Evitar repeticion mala",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "revision",
+        "node_summary": "Criterio para distinguir repeticion funcional de pobreza lexica.",
+        "short_definition": "Revision de repeticiones que empobrecen ritmo, precision o avance.",
+        "aliases": ["repeticion pobre", "variacion necesaria"],
+        "relation_target": "cassany-repeticion-lexica-funcional",
+        "relation_type": "contradice",
+        "card_id": "card-evitar-repeticion-mala",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Evitar repeticion mala",
+        "card_definition": "Ficha para decidir si una repeticion ayuda o debe sustituirse.",
+        "signals": ["repeticion", "ritmo", "precision"],
+        "risks": ["variacion artificial", "pobreza lexica"],
+        "contexts": ["revision", "lexico", "estilo"],
+        "evidence_id": "ev-cassany-evitar-repeticion-mala",
+        "evidence_section": "evitar repeticion mala",
+        "confidence": 0.62,
+        "claim_id": "claim-cassany-evitar-repeticion-mala",
+        "statement": "La repeticion solo debe corregirse cuando empobrece el texto; variar por variar puede empeorarlo.",
+        "claim_type": "editing",
+        "domain": "writing.lexicon.bad_repetition",
+        "related_node_ids": ["cassany-repeticion-lexica-funcional", "diccionario-sinonimos-sinonimo-con-matiz"],
+    },
+    {
+        "key": "registro-de-palabra",
+        "source_id": "rae-dle",
+        "source_edition_id": "rae-dle:edicion-23-digital",
+        "index_id": "rae-dle:edicion-23-digital:registro-de-palabra",
+        "index_title": "Registro de palabra",
+        "index_locator": "Edicion digital > uso > registro",
+        "segment_id": "rae-dle:edicion-23-digital:registro-de-palabra:seg-1",
+        "segment_title": "Comprobar si una palabra pertenece al tono del texto",
+        "segment_text": (
+            "Resumen editorial minimo: una palabra puede ser correcta y aun asi no pertenecer "
+            "al registro del texto, del lector o de la situacion."
+        ),
+        "extraction_id": "ext-rae-dle-registro-de-palabra-1",
+        "node_id": "rae-dle-registro-de-palabra",
+        "canonical_name": "Registro de palabra",
+        "node_type": "metodo",
+        "primary_branch": "lexico",
+        "secondary_branch": "registro",
+        "node_summary": "Criterio para verificar si una palabra encaja en el registro del texto.",
+        "short_definition": "Control de adecuacion de una palabra al tono, lector y situacion.",
+        "aliases": ["registro lexico", "adecuacion lexica"],
+        "relation_target": "rae-dle-registro-lexico",
+        "relation_type": "deriva_de",
+        "card_id": "card-registro-de-palabra",
+        "card_type": "lexical_choice_tool",
+        "card_name": "Registro de palabra",
+        "card_definition": "Ficha para comprobar si una palabra correcta encaja en el registro del texto.",
+        "signals": ["registro", "lector", "situacion"],
+        "risks": ["palabra fuera de tono", "tecnicismo innecesario"],
+        "contexts": ["lexico", "tono", "adecuacion"],
+        "evidence_id": "ev-rae-dle-registro-de-palabra",
+        "evidence_section": "registro de palabra",
+        "confidence": 0.63,
+        "claim_id": "claim-rae-dle-registro-de-palabra",
+        "statement": "La correccion lexica no basta: la palabra debe encajar con el registro del texto y del lector previsto.",
+        "claim_type": "lexical",
+        "domain": "writing.lexicon.word_register",
+        "related_node_ids": ["rae-dle-registro-lexico", "rae-lese-adecuacion-lector"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -8702,7 +9112,9 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V39_VERSION: "seed_revision_diagnostic_batch",
     KNOWLEDGE_V40_VERSION: "seed_revision_layers_batch",
     KNOWLEDGE_V41_VERSION: "seed_revision_question_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_long_text_coherence_batch",
+    KNOWLEDGE_V42_VERSION: "seed_long_text_coherence_batch",
+    KNOWLEDGE_V43_VERSION: "seed_connectors_transitions_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_lexical_choice_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -8739,7 +9151,9 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V39_VERSION: KNOWLEDGE_V39_PUBLISHED_AT,
     KNOWLEDGE_V40_VERSION: KNOWLEDGE_V40_PUBLISHED_AT,
     KNOWLEDGE_V41_VERSION: KNOWLEDGE_V41_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V42_PUBLISHED_AT,
+    KNOWLEDGE_V42_VERSION: KNOWLEDGE_V42_PUBLISHED_AT,
+    KNOWLEDGE_V43_VERSION: KNOWLEDGE_V43_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V44_PUBLISHED_AT,
 }
 
 
@@ -10197,6 +10611,8 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V40_SEED_ITEMS),
         *_published_batch_index_entries(V41_SEED_ITEMS),
         *_published_batch_index_entries(V42_SEED_ITEMS),
+        *_published_batch_index_entries(V43_SEED_ITEMS),
+        *_published_batch_index_entries(V44_SEED_ITEMS),
     ]
 
 
@@ -10334,6 +10750,8 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V40_SEED_ITEMS),
         *_published_batch_segments(V41_SEED_ITEMS),
         *_published_batch_segments(V42_SEED_ITEMS),
+        *_published_batch_segments(V43_SEED_ITEMS),
+        *_published_batch_segments(V44_SEED_ITEMS),
     ]
 
 
@@ -10490,7 +10908,9 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_extraction_runs(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_extraction_runs(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_extraction_runs(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_extraction_runs(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_extraction_runs(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11176,7 +11596,9 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_proposals(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_proposals(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_proposals(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_proposals(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_proposals(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11361,7 +11783,9 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_nodes(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_nodes(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_nodes(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_nodes(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_nodes(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11508,7 +11932,9 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_node_relations(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_node_relations(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_node_relations(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_node_relations(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_node_relations(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11884,7 +12310,9 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_evidence(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_evidence(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_evidence(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_evidence(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_evidence(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12160,7 +12588,9 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_claims(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_claims(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_claims(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_claims(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_claims(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12357,7 +12787,9 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_cards(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
         *_published_batch_cards(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
-        *_published_batch_cards(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
+        *_published_batch_cards(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
+        *_published_batch_cards(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -13274,10 +13706,26 @@ def seed_versions() -> list[KnowledgeVersion]:
     v41_evidence = [evidence for evidence in seed_evidence() if evidence.version in v41_chain]
     v41_claims = [claim for claim in seed_claims() if claim.version in v41_chain]
     v41_cards = [card for card in seed_cards() if card.version in v41_chain]
-    latest_chain = {*v41_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_source_ids = {*v41_source_ids, *{item["source_id"] for item in V42_SEED_ITEMS}}
+    v42_chain = {*v41_chain, KNOWLEDGE_V42_VERSION}
+    v42_source_ids = {*v41_source_ids, *{item["source_id"] for item in V42_SEED_ITEMS}}
+    v42_sources = [source for source in seed_sources() if source.id in v42_source_ids]
+    v42_node_ids = {*v41_node_ids, *{item["node_id"] for item in V42_SEED_ITEMS}}
+    v42_nodes = [node for node in seed_nodes() if node.id in v42_node_ids]
+    v42_evidence = [evidence for evidence in seed_evidence() if evidence.version in v42_chain]
+    v42_claims = [claim for claim in seed_claims() if claim.version in v42_chain]
+    v42_cards = [card for card in seed_cards() if card.version in v42_chain]
+    v43_chain = {*v42_chain, KNOWLEDGE_V43_VERSION}
+    v43_source_ids = {*v42_source_ids, *{item["source_id"] for item in V43_SEED_ITEMS}}
+    v43_sources = [source for source in seed_sources() if source.id in v43_source_ids]
+    v43_node_ids = {*v42_node_ids, *{item["node_id"] for item in V43_SEED_ITEMS}}
+    v43_nodes = [node for node in seed_nodes() if node.id in v43_node_ids]
+    v43_evidence = [evidence for evidence in seed_evidence() if evidence.version in v43_chain]
+    v43_claims = [claim for claim in seed_claims() if claim.version in v43_chain]
+    v43_cards = [card for card in seed_cards() if card.version in v43_chain]
+    latest_chain = {*v43_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_source_ids = {*v43_source_ids, *{item["source_id"] for item in V44_SEED_ITEMS}}
     latest_sources = [source for source in seed_sources() if source.id in latest_source_ids]
-    latest_node_ids = {*v41_node_ids, *{item["node_id"] for item in V42_SEED_ITEMS}}
+    latest_node_ids = {*v43_node_ids, *{item["node_id"] for item in V44_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -13704,9 +14152,29 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v41_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V42_VERSION,
             status="published",
             published_at=KNOWLEDGE_V42_PUBLISHED_AT,
+            source_count=len(v42_sources),
+            node_count=len(v42_nodes),
+            evidence_count=len(v42_evidence),
+            claim_count=len(v42_claims),
+            card_count=len(v42_cards),
+        ),
+        KnowledgeVersion(
+            id=KNOWLEDGE_V43_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V43_PUBLISHED_AT,
+            source_count=len(v43_sources),
+            node_count=len(v43_nodes),
+            evidence_count=len(v43_evidence),
+            claim_count=len(v43_claims),
+            card_count=len(v43_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V44_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -14152,6 +14620,8 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V39_VERSION,
             KNOWLEDGE_V40_VERSION,
             KNOWLEDGE_V41_VERSION,
+            KNOWLEDGE_V42_VERSION,
+            KNOWLEDGE_V43_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
