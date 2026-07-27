@@ -80,7 +80,12 @@ KNOWLEDGE_V42_VERSION = "knowledge-v42"
 KNOWLEDGE_V43_VERSION = "knowledge-v43"
 KNOWLEDGE_V44_VERSION = "knowledge-v44"
 KNOWLEDGE_V45_VERSION = "knowledge-v45"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v46"
+KNOWLEDGE_V46_VERSION = "knowledge-v46"
+KNOWLEDGE_V47_VERSION = "knowledge-v47"
+KNOWLEDGE_V48_VERSION = "knowledge-v48"
+KNOWLEDGE_V49_VERSION = "knowledge-v49"
+KNOWLEDGE_V50_VERSION = "knowledge-v50"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v51"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -128,6 +133,11 @@ KNOWLEDGE_V43_PUBLISHED_AT = "2026-07-27T09:00:00+00:00"
 KNOWLEDGE_V44_PUBLISHED_AT = "2026-07-27T10:00:00+00:00"
 KNOWLEDGE_V45_PUBLISHED_AT = "2026-07-27T11:00:00+00:00"
 KNOWLEDGE_V46_PUBLISHED_AT = "2026-07-27T12:00:00+00:00"
+KNOWLEDGE_V47_PUBLISHED_AT = "2026-07-27T13:00:00+00:00"
+KNOWLEDGE_V48_PUBLISHED_AT = "2026-07-27T14:00:00+00:00"
+KNOWLEDGE_V49_PUBLISHED_AT = "2026-07-27T15:00:00+00:00"
+KNOWLEDGE_V50_PUBLISHED_AT = "2026-07-27T16:00:00+00:00"
+KNOWLEDGE_V51_PUBLISHED_AT = "2026-07-27T17:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -8164,6 +8174,901 @@ V46_SEED_ITEMS = [
     },
 ]
 
+V47_SEED_ITEMS = [
+    {
+        "key": "tesis-visible-en-borrador",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:tesis-visible-en-borrador",
+        "index_title": "Tesis visible en borrador",
+        "index_locator": "Edicion de referencia > logos > tesis aplicada",
+        "segment_id": "aristoteles-retorica:edicion-referencia:tesis-visible-en-borrador:seg-1",
+        "segment_title": "Hacer visible que se defiende",
+        "segment_text": (
+            "Resumen editorial minimo: un borrador argumentativo necesita que el lector pueda "
+            "reconocer pronto que idea se defiende y que queda por demostrar."
+        ),
+        "extraction_id": "ext-aristoteles-retorica-tesis-visible-borrador-1",
+        "node_id": "aristoteles-tesis-visible-en-borrador",
+        "canonical_name": "Tesis visible en borrador",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "argumentacion",
+        "node_summary": "Criterio para hacer reconocible la posicion defendida en un borrador.",
+        "short_definition": "Revision de la tesis como idea defendida y no solo tema general.",
+        "aliases": ["tesis clara", "posicion visible"],
+        "relation_target": "aristoteles-tesis-operativa",
+        "relation_type": "deriva_de",
+        "card_id": "card-tesis-visible-en-borrador",
+        "card_type": "argument_revision_tool",
+        "card_name": "Tesis visible en borrador",
+        "card_definition": "Ficha para comprobar si el texto muestra que defiende antes de acumular razones.",
+        "signals": ["tesis", "posicion", "defensa"],
+        "risks": ["tema sin posicion", "tesis escondida"],
+        "contexts": ["argumentacion", "borrador", "revision"],
+        "evidence_id": "ev-aristoteles-tesis-visible-en-borrador",
+        "evidence_section": "tesis visible en borrador",
+        "confidence": 0.64,
+        "claim_id": "claim-aristoteles-tesis-visible-en-borrador",
+        "statement": "Una argumentacion practica empieza por hacer visible la tesis que el texto intenta defender.",
+        "claim_type": "rhetorical",
+        "domain": "writing.argument.applied_thesis",
+        "related_node_ids": ["aristoteles-tesis-operativa", "quintiliano-inventio"],
+    },
+    {
+        "key": "razon-que-no-repite",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:razon-que-no-repite",
+        "index_title": "Razon que no repite",
+        "index_locator": "Edicion de referencia > inventio > razon aplicada",
+        "segment_id": "quintiliano-institutio:edicion-referencia:razon-que-no-repite:seg-1",
+        "segment_title": "Separar razon de opinion",
+        "segment_text": (
+            "Resumen editorial minimo: una razon aporta fundamento nuevo; si solo reformula "
+            "la tesis con otras palabras, el argumento no avanza."
+        ),
+        "extraction_id": "ext-quintiliano-razon-que-no-repite-1",
+        "node_id": "quintiliano-razon-que-no-repite",
+        "canonical_name": "Razon que no repite",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "argumentacion",
+        "node_summary": "Criterio para distinguir razon real de repeticion de la tesis.",
+        "short_definition": "Razon que aporta fundamento y desplaza el argumento.",
+        "aliases": ["razon real", "fundamento no circular"],
+        "relation_target": "quintiliano-razon-suficiente",
+        "relation_type": "deriva_de",
+        "card_id": "card-razon-que-no-repite",
+        "card_type": "argument_revision_tool",
+        "card_name": "Razon que no repite",
+        "card_definition": "Ficha para detectar razones circulares o argumentos que no prueban nada nuevo.",
+        "signals": ["porque", "fundamento", "prueba"],
+        "risks": ["razon circular", "opinion disfrazada"],
+        "contexts": ["argumentacion", "ensayo", "revision"],
+        "evidence_id": "ev-quintiliano-razon-que-no-repite",
+        "evidence_section": "razon que no repite",
+        "confidence": 0.63,
+        "claim_id": "claim-quintiliano-razon-que-no-repite",
+        "statement": "Una razon util no repite la tesis: aporta un fundamento que permite aceptarla o discutirla.",
+        "claim_type": "rhetorical",
+        "domain": "writing.argument.applied_reason",
+        "related_node_ids": ["quintiliano-razon-suficiente", "aristoteles-logos"],
+    },
+    {
+        "key": "ejemplo-anclado-a-la-tesis",
+        "source_id": "carnegie-hablar-publico",
+        "source_edition_id": "carnegie-hablar-publico:edicion-referencia",
+        "index_id": "carnegie-hablar-publico:edicion-referencia:ejemplo-anclado-tesis",
+        "index_title": "Ejemplo anclado a la tesis",
+        "index_locator": "Edicion de referencia > ejemplos > anclaje",
+        "segment_id": "carnegie-hablar-publico:edicion-referencia:ejemplo-anclado-tesis:seg-1",
+        "segment_title": "Ejemplificar sin decorar",
+        "segment_text": (
+            "Resumen editorial minimo: el ejemplo funciona cuando muestra la tesis en accion "
+            "y el texto explica que prueba exactamente."
+        ),
+        "extraction_id": "ext-carnegie-ejemplo-anclado-tesis-1",
+        "node_id": "carnegie-ejemplo-anclado-a-la-tesis",
+        "canonical_name": "Ejemplo anclado a la tesis",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "prueba",
+        "node_summary": "Criterio para vincular un ejemplo con la tesis que sostiene.",
+        "short_definition": "Ejemplo que no queda suelto porque el texto explica que demuestra.",
+        "aliases": ["ejemplo conectado", "caso con funcion"],
+        "relation_target": "carnegie-ejemplo-probatorio",
+        "relation_type": "deriva_de",
+        "card_id": "card-ejemplo-anclado-a-la-tesis",
+        "card_type": "argument_revision_tool",
+        "card_name": "Ejemplo anclado a la tesis",
+        "card_definition": "Ficha para comprobar que cada ejemplo prueba algo y no solo ilustra bonito.",
+        "signals": ["ejemplo", "caso", "demuestra"],
+        "risks": ["anecdota suelta", "ejemplo decorativo"],
+        "contexts": ["argumentacion", "ejemplo", "revision"],
+        "evidence_id": "ev-carnegie-ejemplo-anclado-a-la-tesis",
+        "evidence_section": "ejemplo anclado a la tesis",
+        "confidence": 0.63,
+        "claim_id": "claim-carnegie-ejemplo-anclado-a-la-tesis",
+        "statement": "Un ejemplo argumentativo debe quedar anclado a la tesis mediante una explicacion de lo que prueba.",
+        "claim_type": "rhetorical",
+        "domain": "writing.argument.applied_example",
+        "related_node_ids": ["carnegie-ejemplo-probatorio", "aristoteles-tesis-operativa"],
+    },
+    {
+        "key": "objecion-y-respuesta",
+        "source_id": "aristoteles-retorica",
+        "source_edition_id": "aristoteles-retorica:edicion-referencia",
+        "index_id": "aristoteles-retorica:edicion-referencia:objecion-y-respuesta",
+        "index_title": "Objecion y respuesta",
+        "index_locator": "Edicion de referencia > argumentacion > objecion aplicada",
+        "segment_id": "aristoteles-retorica:edicion-referencia:objecion-y-respuesta:seg-1",
+        "segment_title": "Responder sin caricaturizar",
+        "segment_text": (
+            "Resumen editorial minimo: una objecion mejora el texto cuando se formula con "
+            "honestidad y la respuesta modifica, matiza o refuerza la tesis."
+        ),
+        "extraction_id": "ext-aristoteles-retorica-objecion-y-respuesta-1",
+        "node_id": "aristoteles-objecion-y-respuesta",
+        "canonical_name": "Objecion y respuesta",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "argumentacion",
+        "node_summary": "Criterio para integrar una objecion sin debilitar ni caricaturizar el texto.",
+        "short_definition": "Objecion relevante seguida de una respuesta que matiza o refuerza.",
+        "aliases": ["contraargumento honesto", "respuesta argumentativa"],
+        "relation_target": "aristoteles-objecion-prevista",
+        "relation_type": "deriva_de",
+        "card_id": "card-objecion-y-respuesta",
+        "card_type": "argument_revision_tool",
+        "card_name": "Objecion y respuesta",
+        "card_definition": "Ficha para revisar si el texto atiende una resistencia real del lector.",
+        "signals": ["objecion", "sin embargo", "matiz"],
+        "risks": ["hombre de paja", "respuesta defensiva"],
+        "contexts": ["argumentacion", "lector", "revision"],
+        "evidence_id": "ev-aristoteles-objecion-y-respuesta",
+        "evidence_section": "objecion y respuesta",
+        "confidence": 0.63,
+        "claim_id": "claim-aristoteles-objecion-y-respuesta",
+        "statement": "La objecion solo fortalece el texto si se formula con honestidad y recibe una respuesta argumentativa.",
+        "claim_type": "rhetorical",
+        "domain": "writing.argument.applied_objection",
+        "related_node_ids": ["aristoteles-objecion-prevista", "quintiliano-dispositio"],
+    },
+    {
+        "key": "cierre-argumentativo",
+        "source_id": "quintiliano-institutio",
+        "source_edition_id": "quintiliano-institutio:edicion-referencia",
+        "index_id": "quintiliano-institutio:edicion-referencia:cierre-argumentativo",
+        "index_title": "Cierre argumentativo",
+        "index_locator": "Edicion de referencia > dispositio > cierre",
+        "segment_id": "quintiliano-institutio:edicion-referencia:cierre-argumentativo:seg-1",
+        "segment_title": "Cerrar el recorrido de prueba",
+        "segment_text": (
+            "Resumen editorial minimo: el cierre argumentativo no resume por inercia; muestra "
+            "que cambia despues de las razones y que debe retener el lector."
+        ),
+        "extraction_id": "ext-quintiliano-cierre-argumentativo-1",
+        "node_id": "quintiliano-cierre-argumentativo",
+        "canonical_name": "Cierre argumentativo",
+        "node_type": "metodo",
+        "primary_branch": "retorica",
+        "secondary_branch": "disposicion",
+        "node_summary": "Criterio para cerrar una argumentacion mostrando el resultado del recorrido.",
+        "short_definition": "Cierre que recupera la tesis a la luz de las razones desarrolladas.",
+        "aliases": ["conclusion argumentativa", "remate argumental"],
+        "relation_target": "quintiliano-orden-argumentativo",
+        "relation_type": "deriva_de",
+        "card_id": "card-cierre-argumentativo",
+        "card_type": "argument_revision_tool",
+        "card_name": "Cierre argumentativo",
+        "card_definition": "Ficha para comprobar si el cierre devuelve algo ganado por el razonamiento.",
+        "signals": ["conclusion", "resultado", "retener"],
+        "risks": ["resumen plano", "cierre moralizante"],
+        "contexts": ["argumentacion", "estructura", "cierre"],
+        "evidence_id": "ev-quintiliano-cierre-argumentativo",
+        "evidence_section": "cierre argumentativo",
+        "confidence": 0.62,
+        "claim_id": "claim-quintiliano-cierre-argumentativo",
+        "statement": "El cierre argumentativo debe mostrar que se ha ganado tras el recorrido de razones y objeciones.",
+        "claim_type": "rhetorical",
+        "domain": "writing.argument.applied_closure",
+        "related_node_ids": ["quintiliano-orden-argumentativo", "aristoteles-tesis-operativa"],
+    },
+]
+
+V48_SEED_ITEMS = [
+    {
+        "key": "escena-con-objetivo",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:escena-con-objetivo",
+        "index_title": "Escena con objetivo",
+        "index_locator": "Edicion de referencia > accion > escena aplicada",
+        "segment_id": "aristoteles-poetica:edicion-referencia:escena-con-objetivo:seg-1",
+        "segment_title": "Una escena debe mover algo",
+        "segment_text": (
+            "Resumen editorial minimo: una escena practica necesita objetivo, obstaculo y "
+            "cambio perceptible; si nada se mueve, probablemente es explicacion disfrazada."
+        ),
+        "extraction_id": "ext-aristoteles-poetica-escena-con-objetivo-1",
+        "node_id": "aristoteles-escena-con-objetivo",
+        "canonical_name": "Escena con objetivo",
+        "node_type": "metodo",
+        "primary_branch": "narratologia",
+        "secondary_branch": "escena",
+        "node_summary": "Criterio para revisar si una escena tiene objetivo, obstaculo y cambio.",
+        "short_definition": "Escena que desplaza accion, informacion o relacion entre personajes.",
+        "aliases": ["escena funcional", "escena con cambio"],
+        "relation_target": "aristoteles-escena-narrativa-funcional",
+        "relation_type": "deriva_de",
+        "card_id": "card-escena-con-objetivo",
+        "card_type": "narrative_revision_tool",
+        "card_name": "Escena con objetivo",
+        "card_definition": "Ficha para comprobar si una escena hace avanzar accion, informacion o relacion.",
+        "signals": ["objetivo", "obstaculo", "cambio"],
+        "risks": ["escena explicativa", "movimiento aparente"],
+        "contexts": ["narrativa", "escena", "revision"],
+        "evidence_id": "ev-aristoteles-escena-con-objetivo",
+        "evidence_section": "escena con objetivo",
+        "confidence": 0.64,
+        "claim_id": "claim-aristoteles-escena-con-objetivo",
+        "statement": "Una escena narrativa util debe producir algun cambio reconocible en accion, informacion o relacion.",
+        "claim_type": "literary",
+        "domain": "writing.narrative.scene_goal",
+        "related_node_ids": ["aristoteles-escena-narrativa-funcional", "aristoteles-conflicto-narrativo-aplicado"],
+    },
+    {
+        "key": "punto-de-vista-estable",
+        "source_id": "genette-figuras-iii",
+        "source_edition_id": "genette-figuras-iii:edicion-referencia",
+        "index_id": "genette-figuras-iii:edicion-referencia:punto-de-vista-estable",
+        "index_title": "Punto de vista estable",
+        "index_locator": "Edicion de referencia > focalizacion > estabilidad",
+        "segment_id": "genette-figuras-iii:edicion-referencia:punto-de-vista-estable:seg-1",
+        "segment_title": "Sostener quien percibe",
+        "segment_text": (
+            "Resumen editorial minimo: el punto de vista se vuelve operativo cuando el lector "
+            "entiende desde donde se percibe, se sabe y se limita la escena."
+        ),
+        "extraction_id": "ext-genette-figuras-iii-punto-de-vista-estable-1",
+        "node_id": "genette-punto-de-vista-estable",
+        "canonical_name": "Punto de vista estable",
+        "node_type": "metodo",
+        "primary_branch": "narratologia",
+        "secondary_branch": "focalizacion",
+        "node_summary": "Criterio para sostener una perspectiva narrativa reconocible.",
+        "short_definition": "Control de quien percibe, que sabe y que queda fuera de campo.",
+        "aliases": ["focalizacion estable", "perspectiva sostenida"],
+        "relation_target": "genette-punto-vista-operativo",
+        "relation_type": "deriva_de",
+        "card_id": "card-punto-de-vista-estable",
+        "card_type": "narrative_revision_tool",
+        "card_name": "Punto de vista estable",
+        "card_definition": "Ficha para detectar saltos de mirada, saber o distancia narrativa.",
+        "signals": ["mirada", "saber", "distancia"],
+        "risks": ["salto de focalizacion", "voz que sabe de mas"],
+        "contexts": ["narrativa", "voz", "revision"],
+        "evidence_id": "ev-genette-punto-de-vista-estable",
+        "evidence_section": "punto de vista estable",
+        "confidence": 0.64,
+        "claim_id": "claim-genette-punto-de-vista-estable",
+        "statement": "El punto de vista narrativo debe sostener quien percibe, que sabe y que distancia mantiene el relato.",
+        "claim_type": "literary",
+        "domain": "writing.narrative.point_of_view",
+        "related_node_ids": ["genette-punto-vista-operativo", "genette-figuras-focalizacion"],
+    },
+    {
+        "key": "tension-progresiva",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:tension-progresiva",
+        "index_title": "Tension progresiva",
+        "index_locator": "Edicion de referencia > conflicto > progresion",
+        "segment_id": "aristoteles-poetica:edicion-referencia:tension-progresiva:seg-1",
+        "segment_title": "Hacer crecer la presion",
+        "segment_text": (
+            "Resumen editorial minimo: la tension narrativa progresa cuando cada tramo cambia "
+            "el riesgo, el deseo, la informacion o la posibilidad de accion."
+        ),
+        "extraction_id": "ext-aristoteles-poetica-tension-progresiva-1",
+        "node_id": "aristoteles-tension-progresiva",
+        "canonical_name": "Tension progresiva",
+        "node_type": "metodo",
+        "primary_branch": "narratologia",
+        "secondary_branch": "conflicto",
+        "node_summary": "Criterio para revisar si la tension narrativa aumenta o se transforma.",
+        "short_definition": "Progresion de riesgo, deseo, informacion o posibilidad de accion.",
+        "aliases": ["presion narrativa", "avance de tension"],
+        "relation_target": "aristoteles-conflicto-narrativo-aplicado",
+        "relation_type": "deriva_de",
+        "card_id": "card-tension-progresiva",
+        "card_type": "narrative_revision_tool",
+        "card_name": "Tension progresiva",
+        "card_definition": "Ficha para detectar escenas que mantienen la misma presion sin avanzar.",
+        "signals": ["riesgo", "deseo", "presion"],
+        "risks": ["tension plana", "conflicto repetido"],
+        "contexts": ["narrativa", "conflicto", "escena"],
+        "evidence_id": "ev-aristoteles-tension-progresiva",
+        "evidence_section": "tension progresiva",
+        "confidence": 0.63,
+        "claim_id": "claim-aristoteles-tension-progresiva",
+        "statement": "La tension narrativa debe progresar mediante cambios de riesgo, deseo, informacion o posibilidad de accion.",
+        "claim_type": "literary",
+        "domain": "writing.narrative.tension",
+        "related_node_ids": ["aristoteles-conflicto-narrativo-aplicado", "genette-ritmo-escena"],
+    },
+    {
+        "key": "ritmo-narrativo-practico",
+        "source_id": "genette-discurso-relato",
+        "source_edition_id": "genette-discurso-relato:edicion-referencia",
+        "index_id": "genette-discurso-relato:edicion-referencia:ritmo-narrativo-practico",
+        "index_title": "Ritmo narrativo practico",
+        "index_locator": "Edicion de referencia > duracion > ritmo aplicado",
+        "segment_id": "genette-discurso-relato:edicion-referencia:ritmo-narrativo-practico:seg-1",
+        "segment_title": "Alternar escena, pausa y salto",
+        "segment_text": (
+            "Resumen editorial minimo: el ritmo narrativo se revisa mirando que momentos se "
+            "expanden, cuales se resumen y cuales conviene saltar."
+        ),
+        "extraction_id": "ext-genette-discurso-relato-ritmo-narrativo-practico-1",
+        "node_id": "genette-ritmo-narrativo-practico",
+        "canonical_name": "Ritmo narrativo practico",
+        "node_type": "metodo",
+        "primary_branch": "narratologia",
+        "secondary_branch": "ritmo",
+        "node_summary": "Criterio para alternar desarrollo, resumen y elipsis en una narracion.",
+        "short_definition": "Control practico de duracion narrativa segun importancia de cada tramo.",
+        "aliases": ["ritmo de escena", "duracion aplicada"],
+        "relation_target": "genette-ritmo-escena",
+        "relation_type": "deriva_de",
+        "card_id": "card-ritmo-narrativo-practico",
+        "card_type": "narrative_revision_tool",
+        "card_name": "Ritmo narrativo practico",
+        "card_definition": "Ficha para decidir que expandir, resumir o saltar en una narracion.",
+        "signals": ["duracion", "pausa", "elipsis"],
+        "risks": ["escena lenta sin funcion", "resumen de momento clave"],
+        "contexts": ["narrativa", "ritmo", "revision"],
+        "evidence_id": "ev-genette-ritmo-narrativo-practico",
+        "evidence_section": "ritmo narrativo practico",
+        "confidence": 0.63,
+        "claim_id": "claim-genette-ritmo-narrativo-practico",
+        "statement": "El ritmo narrativo depende de elegir que momentos se desarrollan, se resumen o se omiten.",
+        "claim_type": "literary",
+        "domain": "writing.narrative.rhythm",
+        "related_node_ids": ["genette-ritmo-escena", "genette-duracion-narrativa"],
+    },
+    {
+        "key": "personaje-por-decision",
+        "source_id": "aristoteles-poetica",
+        "source_edition_id": "aristoteles-poetica:edicion-referencia",
+        "index_id": "aristoteles-poetica:edicion-referencia:personaje-por-decision",
+        "index_title": "Personaje por decision",
+        "index_locator": "Edicion de referencia > personaje > accion",
+        "segment_id": "aristoteles-poetica:edicion-referencia:personaje-por-decision:seg-1",
+        "segment_title": "Mostrar caracter en decisiones",
+        "segment_text": (
+            "Resumen editorial minimo: un personaje se vuelve legible cuando sus decisiones "
+            "bajo presion revelan deseo, limite y cambio."
+        ),
+        "extraction_id": "ext-aristoteles-poetica-personaje-por-decision-1",
+        "node_id": "aristoteles-personaje-por-decision",
+        "canonical_name": "Personaje por decision",
+        "node_type": "metodo",
+        "primary_branch": "narratologia",
+        "secondary_branch": "personaje",
+        "node_summary": "Criterio para revisar personajes desde decisiones y consecuencias.",
+        "short_definition": "Construccion de personaje mediante decision visible bajo presion.",
+        "aliases": ["personaje en accion", "decision de personaje"],
+        "relation_target": "aristoteles-arco-personaje-accion",
+        "relation_type": "deriva_de",
+        "card_id": "card-personaje-por-decision",
+        "card_type": "narrative_revision_tool",
+        "card_name": "Personaje por decision",
+        "card_definition": "Ficha para comprobar si el personaje se ve por lo que decide y arriesga.",
+        "signals": ["decision", "deseo", "consecuencia"],
+        "risks": ["personaje explicado", "rasgo sin accion"],
+        "contexts": ["narrativa", "personaje", "escena"],
+        "evidence_id": "ev-aristoteles-personaje-por-decision",
+        "evidence_section": "personaje por decision",
+        "confidence": 0.64,
+        "claim_id": "claim-aristoteles-personaje-por-decision",
+        "statement": "El personaje se vuelve narrativamente legible cuando sus decisiones bajo presion revelan deseo, limite y cambio.",
+        "claim_type": "literary",
+        "domain": "writing.narrative.character_decision",
+        "related_node_ids": ["aristoteles-arco-personaje-accion", "aristoteles-poetica-personaje-accion"],
+    },
+]
+
+V49_SEED_ITEMS = [
+    {
+        "key": "uniformidad-editorial",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:uniformidad-editorial",
+        "index_title": "Uniformidad editorial",
+        "index_locator": "Edicion de referencia > revision > uniformidad",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:uniformidad-editorial:seg-1",
+        "segment_title": "Mantener decisiones de estilo",
+        "segment_text": (
+            "Resumen editorial minimo: la uniformidad editorial revisa que nombres, "
+            "marcas, mayusculas, comillas y criterios repetidos se mantengan constantes."
+        ),
+        "extraction_id": "ext-strunk-white-uniformidad-editorial-1",
+        "node_id": "strunk-uniformidad-editorial",
+        "canonical_name": "Uniformidad editorial",
+        "node_type": "metodo",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "limpieza",
+        "node_summary": "Criterio para mantener decisiones formales consistentes en un texto.",
+        "short_definition": "Revision de coherencia formal en nombres, signos, marcas y criterios repetidos.",
+        "aliases": ["consistencia editorial", "criterio uniforme"],
+        "relation_target": "strunk-white-revision-frases",
+        "relation_type": "deriva_de",
+        "card_id": "card-uniformidad-editorial",
+        "card_type": "editorial_style_tool",
+        "card_name": "Uniformidad editorial",
+        "card_definition": "Ficha para comprobar si las decisiones formales se sostienen en todo el texto.",
+        "signals": ["mayusculas", "comillas", "nombres"],
+        "risks": ["corregir una zona y dejar otra con criterio distinto"],
+        "contexts": ["estilo editorial", "limpieza", "revision"],
+        "evidence_id": "ev-strunk-uniformidad-editorial",
+        "evidence_section": "uniformidad editorial",
+        "confidence": 0.62,
+        "claim_id": "claim-strunk-uniformidad-editorial",
+        "statement": "La uniformidad editorial mejora la lectura cuando mantiene constantes las decisiones formales repetidas.",
+        "claim_type": "editing",
+        "domain": "writing.editorial.uniformity",
+        "related_node_ids": ["strunk-white-revision-frases", "martinez-sousa-limpieza-final"],
+    },
+    {
+        "key": "criterio-de-correccion",
+        "source_id": "rae-lese",
+        "source_edition_id": "rae-lese:edicion-2018",
+        "index_id": "rae-lese:edicion-2018:criterio-de-correccion",
+        "index_title": "Criterio de correccion",
+        "index_locator": "Edicion 2018 > estilo > correccion",
+        "segment_id": "rae-lese:edicion-2018:criterio-de-correccion:seg-1",
+        "segment_title": "Corregir con motivo",
+        "segment_text": (
+            "Resumen editorial minimo: una correccion debe poder explicar que problema "
+            "resuelve: claridad, precision, adecuacion, ritmo, coherencia o norma."
+        ),
+        "extraction_id": "ext-rae-lese-criterio-correccion-1",
+        "node_id": "rae-lese-criterio-de-correccion",
+        "canonical_name": "Criterio de correccion",
+        "node_type": "metodo",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "correccion",
+        "node_summary": "Criterio para corregir solo cuando hay un motivo editorial claro.",
+        "short_definition": "Correccion justificada por claridad, precision, adecuacion, ritmo, coherencia o norma.",
+        "aliases": ["correccion con criterio", "motivo editorial"],
+        "relation_target": "rae-lese-claridad",
+        "relation_type": "usa",
+        "card_id": "card-criterio-de-correccion",
+        "card_type": "editorial_style_tool",
+        "card_name": "Criterio de correccion",
+        "card_definition": "Ficha para no cambiar un texto sin saber que mejora concreta produce el cambio.",
+        "signals": ["motivo", "mejora", "criterio"],
+        "risks": ["corregir por gusto", "borrar una eleccion valida"],
+        "contexts": ["estilo editorial", "correccion", "revision"],
+        "evidence_id": "ev-rae-lese-criterio-de-correccion",
+        "evidence_section": "criterio de correccion",
+        "confidence": 0.63,
+        "claim_id": "claim-rae-lese-criterio-de-correccion",
+        "statement": "Una correccion editorial debe estar justificada por una mejora identificable y no solo por preferencia automatica.",
+        "claim_type": "editing",
+        "domain": "writing.editorial.correction_criterion",
+        "related_node_ids": ["rae-lese-claridad", "rae-lese-registro"],
+    },
+    {
+        "key": "limpieza-sin-borrar-voz",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:limpieza-sin-borrar-voz",
+        "index_title": "Limpieza sin borrar voz",
+        "index_locator": "Edicion de referencia > revision > voz",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:limpieza-sin-borrar-voz:seg-1",
+        "segment_title": "Pulir sin neutralizar",
+        "segment_text": (
+            "Resumen editorial minimo: limpiar un texto no significa neutralizarlo; "
+            "la revision debe quitar ruido y conservar la voz que sostiene la intencion."
+        ),
+        "extraction_id": "ext-zinsser-limpieza-sin-borrar-voz-1",
+        "node_id": "zinsser-limpieza-sin-borrar-voz",
+        "canonical_name": "Limpieza sin borrar voz",
+        "node_type": "metodo",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "voz",
+        "node_summary": "Criterio para pulir sin volver anonimo el texto.",
+        "short_definition": "Revision que quita ruido manteniendo presencia, tono e intencion.",
+        "aliases": ["pulido con voz", "limpieza con criterio"],
+        "relation_target": "zinsser-voz-del-autor",
+        "relation_type": "deriva_de",
+        "card_id": "card-limpieza-sin-borrar-voz",
+        "card_type": "editorial_style_tool",
+        "card_name": "Limpieza sin borrar voz",
+        "card_definition": "Ficha para limpiar repeticiones y ruido sin dejar el texto plano.",
+        "signals": ["ruido", "voz", "intencion"],
+        "risks": ["texto anonimo", "correccion demasiado lisa"],
+        "contexts": ["estilo editorial", "voz", "limpieza"],
+        "evidence_id": "ev-zinsser-limpieza-sin-borrar-voz",
+        "evidence_section": "limpieza sin borrar voz",
+        "confidence": 0.62,
+        "claim_id": "claim-zinsser-limpieza-sin-borrar-voz",
+        "statement": "La limpieza editorial debe quitar ruido sin neutralizar la voz ni la intencion del texto.",
+        "claim_type": "editing",
+        "domain": "writing.editorial.voice_preserving_cleanup",
+        "related_node_ids": ["zinsser-voz-del-autor", "cassany-tono-natural"],
+    },
+    {
+        "key": "sobriedad-aplicada",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:sobriedad-aplicada",
+        "index_title": "Sobriedad aplicada",
+        "index_locator": "Edicion de referencia > estilo > sobriedad",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:sobriedad-aplicada:seg-1",
+        "segment_title": "Quitar aparato que no trabaja",
+        "segment_text": (
+            "Resumen editorial minimo: la sobriedad aplicada reduce solemnidad, relleno "
+            "y aparato verbal cuando no aportan precision, intensidad ni avance."
+        ),
+        "extraction_id": "ext-cassany-sobriedad-aplicada-1",
+        "node_id": "cassany-sobriedad-aplicada",
+        "canonical_name": "Sobriedad aplicada",
+        "node_type": "metodo",
+        "primary_branch": "estilo editorial",
+        "secondary_branch": "sobriedad",
+        "node_summary": "Criterio para quitar aparato verbal que no trabaja.",
+        "short_definition": "Revision de solemnidad, relleno y exceso formal sin empobrecer el texto.",
+        "aliases": ["estilo sobrio", "limpieza de aparato verbal"],
+        "relation_target": "cassany-prosa-acartonada",
+        "relation_type": "contradice",
+        "card_id": "card-sobriedad-aplicada",
+        "card_type": "editorial_style_tool",
+        "card_name": "Sobriedad aplicada",
+        "card_definition": "Ficha para quitar aparato verbal cuando no aporta nada al texto.",
+        "signals": ["solemnidad", "relleno", "aparato verbal"],
+        "risks": ["confundir sobriedad con sequedad", "perder intensidad"],
+        "contexts": ["estilo editorial", "sobriedad", "revision"],
+        "evidence_id": "ev-cassany-sobriedad-aplicada",
+        "evidence_section": "sobriedad aplicada",
+        "confidence": 0.62,
+        "claim_id": "claim-cassany-sobriedad-aplicada",
+        "statement": "La sobriedad aplicada elimina aparato verbal que no aporta precision, intensidad ni avance.",
+        "claim_type": "stylistic",
+        "domain": "writing.editorial.sobriety",
+        "related_node_ids": ["cassany-prosa-acartonada", "strunk-white-concision-estilo"],
+    },
+]
+
+V50_SEED_ITEMS = [
+    {
+        "key": "problema-dominante-del-borrador",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:problema-dominante-borrador",
+        "index_title": "Problema dominante del borrador",
+        "index_locator": "Edicion de referencia > revision > diagnostico de borrador",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:problema-dominante-borrador:seg-1",
+        "segment_title": "No corregir todo a la vez",
+        "segment_text": (
+            "Resumen editorial minimo: diagnosticar un borrador empieza por decidir si "
+            "el problema dominante esta en foco, estructura, parrafo, frase, tono o limpieza."
+        ),
+        "extraction_id": "ext-cassany-problema-dominante-borrador-1",
+        "node_id": "cassany-problema-dominante-del-borrador",
+        "canonical_name": "Problema dominante del borrador",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "diagnostico de borrador",
+        "node_summary": "Criterio para localizar la capa prioritaria de revision.",
+        "short_definition": "Diagnostico que decide que capa conviene atender primero.",
+        "aliases": ["prioridad del borrador", "capa dominante"],
+        "relation_target": "cassany-diagnostico-reescritura",
+        "relation_type": "deriva_de",
+        "card_id": "card-problema-dominante-del-borrador",
+        "card_type": "draft_diagnostic_tool",
+        "card_name": "Problema dominante del borrador",
+        "card_definition": "Ficha para decidir que problema manda antes de tocar frases sueltas.",
+        "signals": ["foco", "estructura", "capa"],
+        "risks": ["arreglar sintomas", "tocar demasiado a la vez"],
+        "contexts": ["borrador", "diagnostico", "revision"],
+        "evidence_id": "ev-cassany-problema-dominante-borrador",
+        "evidence_section": "problema dominante del borrador",
+        "confidence": 0.63,
+        "claim_id": "claim-cassany-problema-dominante-borrador",
+        "statement": "El diagnostico de borrador debe identificar la capa dominante antes de aplicar correcciones locales.",
+        "claim_type": "writing",
+        "domain": "writing.draft.dominant_issue",
+        "related_node_ids": ["cassany-diagnostico-reescritura", "card-revision-estructural"],
+    },
+    {
+        "key": "escala-de-revision",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:escala-de-revision",
+        "index_title": "Escala de revision",
+        "index_locator": "Edicion 2012 > revision > escala",
+        "segment_id": "reyes-arte-escribir:edicion-2012:escala-de-revision:seg-1",
+        "segment_title": "Elegir entre global y local",
+        "segment_text": (
+            "Resumen editorial minimo: la escala de revision distingue entre un cambio "
+            "global de arquitectura textual y un ajuste local de parrafo, frase o palabra."
+        ),
+        "extraction_id": "ext-reyes-escala-de-revision-1",
+        "node_id": "reyes-escala-de-revision",
+        "canonical_name": "Escala de revision",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "diagnostico de borrador",
+        "node_summary": "Criterio para separar revision global y ajuste local.",
+        "short_definition": "Decision sobre si el texto pide arquitectura, parrafo, frase o palabra.",
+        "aliases": ["revision global o local", "tamano del cambio"],
+        "relation_target": "reyes-revision-borrador",
+        "relation_type": "usa",
+        "card_id": "card-escala-de-revision",
+        "card_type": "draft_diagnostic_tool",
+        "card_name": "Escala de revision",
+        "card_definition": "Ficha para decidir si toca reorganizar o solo ajustar una zona.",
+        "signals": ["global", "local", "arquitectura"],
+        "risks": ["hacer microcorrecciones sobre un fallo global"],
+        "contexts": ["borrador", "diagnostico", "revision"],
+        "evidence_id": "ev-reyes-escala-de-revision",
+        "evidence_section": "escala de revision",
+        "confidence": 0.62,
+        "claim_id": "claim-reyes-escala-de-revision",
+        "statement": "La escala de revision evita confundir problemas globales del texto con ajustes locales de frase.",
+        "claim_type": "writing",
+        "domain": "writing.draft.revision_scale",
+        "related_node_ids": ["reyes-revision-borrador", "cassany-reescritura-global"],
+    },
+    {
+        "key": "foco-y-promesa",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:foco-y-promesa",
+        "index_title": "Foco y promesa",
+        "index_locator": "Edicion de referencia > no ficcion > foco",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:foco-y-promesa:seg-1",
+        "segment_title": "Saber que promete el texto",
+        "segment_text": (
+            "Resumen editorial minimo: un borrador se diagnostica mejor cuando se ve "
+            "que promete al lector y si cada tramo trabaja para cumplirlo."
+        ),
+        "extraction_id": "ext-zinsser-foco-y-promesa-1",
+        "node_id": "zinsser-foco-y-promesa",
+        "canonical_name": "Foco y promesa",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "diagnostico de borrador",
+        "node_summary": "Criterio para revisar la promesa lectora del texto.",
+        "short_definition": "Diagnostico de que promete un texto y si cumple ese recorrido.",
+        "aliases": ["promesa del texto", "foco lector"],
+        "relation_target": "zinsser-lector-no-ficcion",
+        "relation_type": "depende_de",
+        "card_id": "card-foco-y-promesa",
+        "card_type": "draft_diagnostic_tool",
+        "card_name": "Foco y promesa",
+        "card_definition": "Ficha para comprobar que el texto sabe que promete y no se dispersa.",
+        "signals": ["promesa", "foco", "lector"],
+        "risks": ["abrir un contrato de lectura y cumplir otro"],
+        "contexts": ["borrador", "diagnostico", "lector"],
+        "evidence_id": "ev-zinsser-foco-y-promesa",
+        "evidence_section": "foco y promesa",
+        "confidence": 0.62,
+        "claim_id": "claim-zinsser-foco-y-promesa",
+        "statement": "El diagnostico de borrador debe contrastar la promesa inicial del texto con lo que efectivamente desarrolla.",
+        "claim_type": "writing",
+        "domain": "writing.draft.focus_promise",
+        "related_node_ids": ["zinsser-lector-no-ficcion", "cassany-entrada-salida-texto"],
+    },
+    {
+        "key": "exceso-o-falta",
+        "source_id": "strunk-white-elements-style",
+        "source_edition_id": "strunk-white-elements-style:edicion-referencia",
+        "index_id": "strunk-white-elements-style:edicion-referencia:exceso-o-falta",
+        "index_title": "Exceso o falta",
+        "index_locator": "Edicion de referencia > revision > proporcion",
+        "segment_id": "strunk-white-elements-style:edicion-referencia:exceso-o-falta:seg-1",
+        "segment_title": "Medir proporcion",
+        "segment_text": (
+            "Resumen editorial minimo: diagnosticar un borrador tambien exige ver si "
+            "sobran explicaciones, faltan pasos o la proporcion entre partes esta rota."
+        ),
+        "extraction_id": "ext-strunk-white-exceso-o-falta-1",
+        "node_id": "strunk-exceso-o-falta",
+        "canonical_name": "Exceso o falta",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "diagnostico de borrador",
+        "node_summary": "Criterio para revisar proporcion entre desarrollo, salto y repeticion.",
+        "short_definition": "Diagnostico de exceso explicativo, huecos de razonamiento o desproporcion.",
+        "aliases": ["proporcion del borrador", "exceso y hueco"],
+        "relation_target": "strunk-white-concision-estilo",
+        "relation_type": "usa",
+        "card_id": "card-exceso-o-falta",
+        "card_type": "draft_diagnostic_tool",
+        "card_name": "Exceso o falta",
+        "card_definition": "Ficha para ver si el texto repite demasiado, salta pasos o reparte mal el peso.",
+        "signals": ["exceso", "hueco", "proporcion"],
+        "risks": ["recortar donde falta desarrollo", "anadir donde ya sobra"],
+        "contexts": ["borrador", "diagnostico", "proporcion"],
+        "evidence_id": "ev-strunk-exceso-o-falta",
+        "evidence_section": "exceso o falta",
+        "confidence": 0.62,
+        "claim_id": "claim-strunk-exceso-o-falta",
+        "statement": "El diagnostico de borrador debe distinguir entre exceso explicativo, falta de pasos y desproporcion entre partes.",
+        "claim_type": "writing",
+        "domain": "writing.draft.proportion",
+        "related_node_ids": ["strunk-white-concision-estilo", "reyes-progresion-informativa"],
+    },
+]
+
+V51_SEED_ITEMS = [
+    {
+        "key": "lector-previsto",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:lector-previsto",
+        "index_title": "Lector previsto",
+        "index_locator": "Edicion de referencia > adecuacion > lector",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:lector-previsto:seg-1",
+        "segment_title": "Escribir para alguien concreto",
+        "segment_text": (
+            "Resumen editorial minimo: la lectura pragmatica pregunta para quien esta "
+            "escrito el texto y que necesita ese lector para entender, confiar y seguir."
+        ),
+        "extraction_id": "ext-cassany-lector-previsto-1",
+        "node_id": "cassany-lector-previsto",
+        "canonical_name": "Lector previsto",
+        "node_type": "metodo",
+        "primary_branch": "pragmatica",
+        "secondary_branch": "lector",
+        "node_summary": "Criterio para revisar el texto desde el lector al que se dirige.",
+        "short_definition": "Lectura que identifica lector, expectativas y necesidades de orientacion.",
+        "aliases": ["destinatario", "lector esperado"],
+        "relation_target": "reyes-enfoque-lector",
+        "relation_type": "deriva_de",
+        "card_id": "card-lector-previsto",
+        "card_type": "pragmatic_reading_tool",
+        "card_name": "Lector previsto",
+        "card_definition": "Ficha para preguntar si el texto sabe a quien habla.",
+        "signals": ["destinatario", "expectativa", "orientacion"],
+        "risks": ["escribir para nadie", "dar por sabido lo que el lector necesita"],
+        "contexts": ["pragmatica", "lector", "revision"],
+        "evidence_id": "ev-cassany-lector-previsto",
+        "evidence_section": "lector previsto",
+        "confidence": 0.63,
+        "claim_id": "claim-cassany-lector-previsto",
+        "statement": "La lectura pragmatica empieza por identificar el lector previsto y lo que necesita para seguir el texto.",
+        "claim_type": "writing",
+        "domain": "writing.pragmatics.reader",
+        "related_node_ids": ["reyes-enfoque-lector", "rae-lese-adecuacion-lector"],
+    },
+    {
+        "key": "promesa-de-lectura",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:promesa-de-lectura",
+        "index_title": "Promesa de lectura",
+        "index_locator": "Edicion de referencia > lector > promesa",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:promesa-de-lectura:seg-1",
+        "segment_title": "Lo que el texto ofrece",
+        "segment_text": (
+            "Resumen editorial minimo: el texto abre una promesa de lectura y debe "
+            "sostenerla con foco, orden y cierre reconocibles."
+        ),
+        "extraction_id": "ext-zinsser-promesa-de-lectura-1",
+        "node_id": "zinsser-promesa-de-lectura",
+        "canonical_name": "Promesa de lectura",
+        "node_type": "metodo",
+        "primary_branch": "pragmatica",
+        "secondary_branch": "intencion",
+        "node_summary": "Criterio para comprobar si el texto cumple lo que propone al lector.",
+        "short_definition": "Contrato implicito entre apertura, desarrollo y cierre.",
+        "aliases": ["contrato de lectura", "promesa textual"],
+        "relation_target": "cassany-entrada-salida-texto",
+        "relation_type": "usa",
+        "card_id": "card-promesa-de-lectura",
+        "card_type": "pragmatic_reading_tool",
+        "card_name": "Promesa de lectura",
+        "card_definition": "Ficha para ver si el texto promete una cosa y luego cumple otra.",
+        "signals": ["inicio", "expectativa", "cierre"],
+        "risks": ["promesa incumplida", "cambio de objetivo sin aviso"],
+        "contexts": ["pragmatica", "estructura", "revision"],
+        "evidence_id": "ev-zinsser-promesa-de-lectura",
+        "evidence_section": "promesa de lectura",
+        "confidence": 0.62,
+        "claim_id": "claim-zinsser-promesa-de-lectura",
+        "statement": "La lectura pragmatica contrasta la promesa que abre el texto con el recorrido que realmente ofrece.",
+        "claim_type": "writing",
+        "domain": "writing.pragmatics.promise",
+        "related_node_ids": ["cassany-entrada-salida-texto", "zinsser-foco-y-promesa"],
+    },
+    {
+        "key": "ruptura-de-intencion",
+        "source_id": "rae-lese",
+        "source_edition_id": "rae-lese:edicion-2018",
+        "index_id": "rae-lese:edicion-2018:ruptura-de-intencion",
+        "index_title": "Ruptura de intencion",
+        "index_locator": "Edicion 2018 > adecuacion > intencion",
+        "segment_id": "rae-lese:edicion-2018:ruptura-de-intencion:seg-1",
+        "segment_title": "Cuando el texto hace otra cosa",
+        "segment_text": (
+            "Resumen editorial minimo: una ruptura pragmatica aparece cuando el texto "
+            "parece querer informar, convencer o emocionar, pero sus decisiones empujan en otra direccion."
+        ),
+        "extraction_id": "ext-rae-lese-ruptura-de-intencion-1",
+        "node_id": "rae-lese-ruptura-de-intencion",
+        "canonical_name": "Ruptura de intencion",
+        "node_type": "metodo",
+        "primary_branch": "pragmatica",
+        "secondary_branch": "intencion",
+        "node_summary": "Criterio para detectar desajuste entre objetivo declarado y efecto real.",
+        "short_definition": "Desajuste entre lo que el texto intenta y lo que sus decisiones producen.",
+        "aliases": ["desajuste pragmatico", "intencion rota"],
+        "relation_target": "rae-lese-adecuacion-lector",
+        "relation_type": "depende_de",
+        "card_id": "card-ruptura-de-intencion",
+        "card_type": "pragmatic_reading_tool",
+        "card_name": "Ruptura de intencion",
+        "card_definition": "Ficha para detectar cuando el texto pretende una cosa y produce otra.",
+        "signals": ["intencion", "efecto", "desajuste"],
+        "risks": ["corregir tono sin revisar objetivo", "forzar un efecto no buscado"],
+        "contexts": ["pragmatica", "adecuacion", "revision"],
+        "evidence_id": "ev-rae-lese-ruptura-de-intencion",
+        "evidence_section": "ruptura de intencion",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-lese-ruptura-de-intencion",
+        "statement": "La lectura pragmatica detecta rupturas cuando la intencion del texto y su efecto probable no coinciden.",
+        "claim_type": "writing",
+        "domain": "writing.pragmatics.intent_break",
+        "related_node_ids": ["rae-lese-adecuacion-lector", "reyes-registro-del-lector"],
+    },
+    {
+        "key": "situacion-de-lectura",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:situacion-de-lectura",
+        "index_title": "Situacion de lectura",
+        "index_locator": "Edicion 2012 > comunicacion escrita > situacion",
+        "segment_id": "reyes-arte-escribir:edicion-2012:situacion-de-lectura:seg-1",
+        "segment_title": "Contexto, tiempo y exigencia",
+        "segment_text": (
+            "Resumen editorial minimo: la situacion de lectura condiciona densidad, "
+            "tono, explicacion y ritmo segun donde, por que y con que atencion se lee."
+        ),
+        "extraction_id": "ext-reyes-situacion-de-lectura-1",
+        "node_id": "reyes-situacion-de-lectura",
+        "canonical_name": "Situacion de lectura",
+        "node_type": "metodo",
+        "primary_branch": "pragmatica",
+        "secondary_branch": "contexto",
+        "node_summary": "Criterio para ajustar un texto al contexto real de lectura.",
+        "short_definition": "Revision de densidad, tono y ritmo segun contexto y atencion del lector.",
+        "aliases": ["contexto de lectura", "uso del texto"],
+        "relation_target": "reyes-enfoque-lector",
+        "relation_type": "depende_de",
+        "card_id": "card-situacion-de-lectura",
+        "card_type": "pragmatic_reading_tool",
+        "card_name": "Situacion de lectura",
+        "card_definition": "Ficha para ajustar densidad, explicacion y tono al contexto en que se leera.",
+        "signals": ["contexto", "atencion", "uso"],
+        "risks": ["texto correcto pero inutil para su situacion real"],
+        "contexts": ["pragmatica", "lector", "contexto"],
+        "evidence_id": "ev-reyes-situacion-de-lectura",
+        "evidence_section": "situacion de lectura",
+        "confidence": 0.62,
+        "claim_id": "claim-reyes-situacion-de-lectura",
+        "statement": "La situacion de lectura condiciona densidad, tono, explicacion y ritmo de un texto.",
+        "claim_type": "writing",
+        "domain": "writing.pragmatics.reading_situation",
+        "related_node_ids": ["reyes-enfoque-lector", "cassany-lector-previsto"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -9526,7 +10431,12 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V43_VERSION: "seed_connectors_transitions_batch",
     KNOWLEDGE_V44_VERSION: "seed_lexical_choice_batch",
     KNOWLEDGE_V45_VERSION: "seed_advanced_punctuation_application_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_paragraph_revision_batch",
+    KNOWLEDGE_V46_VERSION: "seed_paragraph_revision_batch",
+    KNOWLEDGE_V47_VERSION: "seed_argumentation_application_batch",
+    KNOWLEDGE_V48_VERSION: "seed_practical_narrative_batch",
+    KNOWLEDGE_V49_VERSION: "seed_editorial_style_application_batch",
+    KNOWLEDGE_V50_VERSION: "seed_draft_diagnostic_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_pragmatic_reading_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -9567,7 +10477,12 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V43_VERSION: KNOWLEDGE_V43_PUBLISHED_AT,
     KNOWLEDGE_V44_VERSION: KNOWLEDGE_V44_PUBLISHED_AT,
     KNOWLEDGE_V45_VERSION: KNOWLEDGE_V45_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V46_PUBLISHED_AT,
+    KNOWLEDGE_V46_VERSION: KNOWLEDGE_V46_PUBLISHED_AT,
+    KNOWLEDGE_V47_VERSION: KNOWLEDGE_V47_PUBLISHED_AT,
+    KNOWLEDGE_V48_VERSION: KNOWLEDGE_V48_PUBLISHED_AT,
+    KNOWLEDGE_V49_VERSION: KNOWLEDGE_V49_PUBLISHED_AT,
+    KNOWLEDGE_V50_VERSION: KNOWLEDGE_V50_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V51_PUBLISHED_AT,
 }
 
 
@@ -11029,6 +11944,11 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V44_SEED_ITEMS),
         *_published_batch_index_entries(V45_SEED_ITEMS),
         *_published_batch_index_entries(V46_SEED_ITEMS),
+        *_published_batch_index_entries(V47_SEED_ITEMS),
+        *_published_batch_index_entries(V48_SEED_ITEMS),
+        *_published_batch_index_entries(V49_SEED_ITEMS),
+        *_published_batch_index_entries(V50_SEED_ITEMS),
+        *_published_batch_index_entries(V51_SEED_ITEMS),
     ]
 
 
@@ -11170,6 +12090,11 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V44_SEED_ITEMS),
         *_published_batch_segments(V45_SEED_ITEMS),
         *_published_batch_segments(V46_SEED_ITEMS),
+        *_published_batch_segments(V47_SEED_ITEMS),
+        *_published_batch_segments(V48_SEED_ITEMS),
+        *_published_batch_segments(V49_SEED_ITEMS),
+        *_published_batch_segments(V50_SEED_ITEMS),
+        *_published_batch_segments(V51_SEED_ITEMS),
     ]
 
 
@@ -11330,7 +12255,12 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_extraction_runs(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_extraction_runs(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_extraction_runs(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_extraction_runs(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_extraction_runs(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_extraction_runs(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_extraction_runs(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_extraction_runs(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12020,7 +12950,12 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_proposals(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_proposals(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_proposals(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_proposals(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_proposals(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_proposals(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_proposals(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_proposals(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12209,7 +13144,12 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_nodes(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_nodes(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_nodes(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_nodes(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_nodes(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_nodes(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_nodes(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_nodes(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12360,7 +13300,12 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_node_relations(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_node_relations(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_node_relations(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_node_relations(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_node_relations(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_node_relations(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_node_relations(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_node_relations(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12740,7 +13685,12 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_evidence(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_evidence(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_evidence(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_evidence(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_evidence(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_evidence(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_evidence(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_evidence(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -13020,7 +13970,12 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_claims(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_claims(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_claims(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_claims(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_claims(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_claims(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_claims(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_claims(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -13221,7 +14176,12 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
         *_published_batch_cards(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
         *_published_batch_cards(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
-        *_published_batch_cards(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V46_SEED_ITEMS, KNOWLEDGE_V46_VERSION),
+        *_published_batch_cards(V47_SEED_ITEMS, KNOWLEDGE_V47_VERSION),
+        *_published_batch_cards(V48_SEED_ITEMS, KNOWLEDGE_V48_VERSION),
+        *_published_batch_cards(V49_SEED_ITEMS, KNOWLEDGE_V49_VERSION),
+        *_published_batch_cards(V50_SEED_ITEMS, KNOWLEDGE_V50_VERSION),
+        *_published_batch_cards(V51_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -14170,10 +15130,50 @@ def seed_versions() -> list[KnowledgeVersion]:
     v45_evidence = [evidence for evidence in seed_evidence() if evidence.version in v45_chain]
     v45_claims = [claim for claim in seed_claims() if claim.version in v45_chain]
     v45_cards = [card for card in seed_cards() if card.version in v45_chain]
-    latest_chain = {*v45_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_source_ids = {*v45_source_ids, *{item["source_id"] for item in V46_SEED_ITEMS}}
+    v46_chain = {*v45_chain, KNOWLEDGE_V46_VERSION}
+    v46_source_ids = {*v45_source_ids, *{item["source_id"] for item in V46_SEED_ITEMS}}
+    v46_sources = [source for source in seed_sources() if source.id in v46_source_ids]
+    v46_node_ids = {*v45_node_ids, *{item["node_id"] for item in V46_SEED_ITEMS}}
+    v46_nodes = [node for node in seed_nodes() if node.id in v46_node_ids]
+    v46_evidence = [evidence for evidence in seed_evidence() if evidence.version in v46_chain]
+    v46_claims = [claim for claim in seed_claims() if claim.version in v46_chain]
+    v46_cards = [card for card in seed_cards() if card.version in v46_chain]
+    v47_chain = {*v46_chain, KNOWLEDGE_V47_VERSION}
+    v47_source_ids = {*v46_source_ids, *{item["source_id"] for item in V47_SEED_ITEMS}}
+    v47_sources = [source for source in seed_sources() if source.id in v47_source_ids]
+    v47_node_ids = {*v46_node_ids, *{item["node_id"] for item in V47_SEED_ITEMS}}
+    v47_nodes = [node for node in seed_nodes() if node.id in v47_node_ids]
+    v47_evidence = [evidence for evidence in seed_evidence() if evidence.version in v47_chain]
+    v47_claims = [claim for claim in seed_claims() if claim.version in v47_chain]
+    v47_cards = [card for card in seed_cards() if card.version in v47_chain]
+    v48_chain = {*v47_chain, KNOWLEDGE_V48_VERSION}
+    v48_source_ids = {*v47_source_ids, *{item["source_id"] for item in V48_SEED_ITEMS}}
+    v48_sources = [source for source in seed_sources() if source.id in v48_source_ids]
+    v48_node_ids = {*v47_node_ids, *{item["node_id"] for item in V48_SEED_ITEMS}}
+    v48_nodes = [node for node in seed_nodes() if node.id in v48_node_ids]
+    v48_evidence = [evidence for evidence in seed_evidence() if evidence.version in v48_chain]
+    v48_claims = [claim for claim in seed_claims() if claim.version in v48_chain]
+    v48_cards = [card for card in seed_cards() if card.version in v48_chain]
+    v49_chain = {*v48_chain, KNOWLEDGE_V49_VERSION}
+    v49_source_ids = {*v48_source_ids, *{item["source_id"] for item in V49_SEED_ITEMS}}
+    v49_sources = [source for source in seed_sources() if source.id in v49_source_ids]
+    v49_node_ids = {*v48_node_ids, *{item["node_id"] for item in V49_SEED_ITEMS}}
+    v49_nodes = [node for node in seed_nodes() if node.id in v49_node_ids]
+    v49_evidence = [evidence for evidence in seed_evidence() if evidence.version in v49_chain]
+    v49_claims = [claim for claim in seed_claims() if claim.version in v49_chain]
+    v49_cards = [card for card in seed_cards() if card.version in v49_chain]
+    v50_chain = {*v49_chain, KNOWLEDGE_V50_VERSION}
+    v50_source_ids = {*v49_source_ids, *{item["source_id"] for item in V50_SEED_ITEMS}}
+    v50_sources = [source for source in seed_sources() if source.id in v50_source_ids]
+    v50_node_ids = {*v49_node_ids, *{item["node_id"] for item in V50_SEED_ITEMS}}
+    v50_nodes = [node for node in seed_nodes() if node.id in v50_node_ids]
+    v50_evidence = [evidence for evidence in seed_evidence() if evidence.version in v50_chain]
+    v50_claims = [claim for claim in seed_claims() if claim.version in v50_chain]
+    v50_cards = [card for card in seed_cards() if card.version in v50_chain]
+    latest_chain = {*v50_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_source_ids = {*v50_source_ids, *{item["source_id"] for item in V51_SEED_ITEMS}}
     latest_sources = [source for source in seed_sources() if source.id in latest_source_ids]
-    latest_node_ids = {*v45_node_ids, *{item["node_id"] for item in V46_SEED_ITEMS}}
+    latest_node_ids = {*v50_node_ids, *{item["node_id"] for item in V51_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -14640,9 +15640,59 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v45_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V46_VERSION,
             status="published",
             published_at=KNOWLEDGE_V46_PUBLISHED_AT,
+            source_count=len(v46_sources),
+            node_count=len(v46_nodes),
+            evidence_count=len(v46_evidence),
+            claim_count=len(v46_claims),
+            card_count=len(v46_cards),
+        ),
+        KnowledgeVersion(
+            id=KNOWLEDGE_V47_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V47_PUBLISHED_AT,
+            source_count=len(v47_sources),
+            node_count=len(v47_nodes),
+            evidence_count=len(v47_evidence),
+            claim_count=len(v47_claims),
+            card_count=len(v47_cards),
+        ),
+        KnowledgeVersion(
+            id=KNOWLEDGE_V48_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V48_PUBLISHED_AT,
+            source_count=len(v48_sources),
+            node_count=len(v48_nodes),
+            evidence_count=len(v48_evidence),
+            claim_count=len(v48_claims),
+            card_count=len(v48_cards),
+        ),
+        KnowledgeVersion(
+            id=KNOWLEDGE_V49_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V49_PUBLISHED_AT,
+            source_count=len(v49_sources),
+            node_count=len(v49_nodes),
+            evidence_count=len(v49_evidence),
+            claim_count=len(v49_claims),
+            card_count=len(v49_cards),
+        ),
+        KnowledgeVersion(
+            id=KNOWLEDGE_V50_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V50_PUBLISHED_AT,
+            source_count=len(v50_sources),
+            node_count=len(v50_nodes),
+            evidence_count=len(v50_evidence),
+            claim_count=len(v50_claims),
+            card_count=len(v50_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V51_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -14888,9 +15938,9 @@ QUERY_STOPWORDS = {
 }
 
 QUERY_TERM_EXPANSIONS = {
-    "charla": {"dialogo", "conversacion"},
-    "conversacion": {"dialogo", "voz", "personaje"},
-    "conversaciones": {"dialogo", "voz", "personaje"},
+    "charla": {"dialogo", "dialogo con funcion", "conversacion"},
+    "conversacion": {"dialogo", "dialogo con funcion", "dialogo funcional", "voz", "personaje"},
+    "conversaciones": {"dialogo", "dialogo con funcion", "dialogo funcional", "voz", "personaje"},
     "decirlo": {"declarar", "explicitar", "subtexto"},
     "dialogos": {"dialogo"},
     "explicarlo": {"declarar", "explicitar", "subtexto"},
@@ -15092,6 +16142,11 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V43_VERSION,
             KNOWLEDGE_V44_VERSION,
             KNOWLEDGE_V45_VERSION,
+            KNOWLEDGE_V46_VERSION,
+            KNOWLEDGE_V47_VERSION,
+            KNOWLEDGE_V48_VERSION,
+            KNOWLEDGE_V49_VERSION,
+            KNOWLEDGE_V50_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
@@ -15297,6 +16352,10 @@ def query_knowledge(
         )
         concept_match = _text_match_score(terms, haystack)
         core_match = _text_match_score(terms, core_haystack)
+        normalized_core_haystack = _normalize_query(core_haystack)
+        natural_term_boost = 0.0
+        if {"charla", "conversacion", "conversaciones"} & terms and "dialogo" in normalized_core_haystack:
+            natural_term_boost = 2.5
         domain_match = 1.0 if any(term in haystack.lower() for term in ("lexic", "estilo", "escrit")) else 0.5
         if "TEORIA LITERARIA" in _detect_domains(normalized_query, []):
             literary_haystack = _normalize_query(
@@ -15344,6 +16403,7 @@ def query_knowledge(
             "evidence_score": round(evidence_score, 3),
             "claim_confidence": round(claim_confidence, 3),
             "relation_score": round(relation_score, 3),
+            "natural_term_boost": round(natural_term_boost, 3),
             "version_score": round(version_score, 3),
             "status_score": round(status_score, 3),
         }
@@ -15357,6 +16417,7 @@ def query_knowledge(
             + (claim_confidence * 0.5)
             + (context_match * 0.25)
             + (relation_score * 0.35)
+            + natural_term_boost
             + (version_score * 0.25)
             + (status_score * 0.25),
             3,

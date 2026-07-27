@@ -565,6 +565,46 @@ def ensure_knowledge_seed_data(session: Session) -> None:
                 published_at="2026-07-27T12:00:00+00:00",
             )
         )
+    if session.get(KnowledgeVersionRecord, "knowledge-v47") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v47",
+                status="published",
+                published_at="2026-07-27T13:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v48") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v48",
+                status="published",
+                published_at="2026-07-27T14:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v49") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v49",
+                status="published",
+                published_at="2026-07-27T15:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v50") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v50",
+                status="published",
+                published_at="2026-07-27T16:00:00+00:00",
+            )
+        )
+    if session.get(KnowledgeVersionRecord, "knowledge-v51") is None:
+        session.add(
+            KnowledgeVersionRecord(
+                id="knowledge-v51",
+                status="published",
+                published_at="2026-07-27T17:00:00+00:00",
+            )
+        )
     for source in seed_sources():
         source_record = session.get(KnowledgeSourceRecord, source.id)
         values = {
@@ -1195,6 +1235,11 @@ def ensure_knowledge_seed_data(session: Session) -> None:
             "knowledge-v44",
             "knowledge-v45",
             "knowledge-v46",
+            "knowledge-v47",
+            "knowledge-v48",
+            "knowledge-v49",
+            "knowledge-v50",
+            "knowledge-v51",
         }
         candidate_object_ids.update(
             node.id for node in seed_nodes() if node.version in published_versions
@@ -2942,6 +2987,126 @@ def ensure_knowledge_seed_data(session: Session) -> None:
         },
         timestamp="2026-07-27T12:00:00+00:00",
     )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v47",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+            "knowledge-v10",
+            "knowledge-v11",
+            "knowledge-v12",
+            "knowledge-v13",
+            "knowledge-v14",
+            "knowledge-v15",
+            "knowledge-v16",
+            "knowledge-v17",
+            "knowledge-v18",
+            "knowledge-v19",
+            "knowledge-v20",
+            "knowledge-v21",
+            "knowledge-v22",
+            "knowledge-v23",
+            "knowledge-v24",
+            "knowledge-v25",
+            "knowledge-v26",
+            "knowledge-v27",
+            "knowledge-v28",
+            "knowledge-v29",
+            "knowledge-v30",
+            "knowledge-v31",
+            "knowledge-v32",
+            "knowledge-v33",
+            "knowledge-v34",
+            "knowledge-v35",
+            "knowledge-v36",
+            "knowledge-v37",
+            "knowledge-v38",
+            "knowledge-v39",
+            "knowledge-v40",
+            "knowledge-v41",
+            "knowledge-v42",
+            "knowledge-v43",
+            "knowledge-v44",
+            "knowledge-v45",
+            "knowledge-v46",
+            "knowledge-v47",
+        },
+        timestamp="2026-07-27T13:00:00+00:00",
+    )
+    _add_published_snapshot(
+        session,
+        version_id="knowledge-v48",
+        version_chain={
+            "knowledge-v1",
+            "knowledge-v2",
+            "knowledge-v3",
+            "knowledge-v4",
+            "knowledge-v5",
+            "knowledge-v6",
+            "knowledge-v7",
+            "knowledge-v8",
+            "knowledge-v9",
+            "knowledge-v10",
+            "knowledge-v11",
+            "knowledge-v12",
+            "knowledge-v13",
+            "knowledge-v14",
+            "knowledge-v15",
+            "knowledge-v16",
+            "knowledge-v17",
+            "knowledge-v18",
+            "knowledge-v19",
+            "knowledge-v20",
+            "knowledge-v21",
+            "knowledge-v22",
+            "knowledge-v23",
+            "knowledge-v24",
+            "knowledge-v25",
+            "knowledge-v26",
+            "knowledge-v27",
+            "knowledge-v28",
+            "knowledge-v29",
+            "knowledge-v30",
+            "knowledge-v31",
+            "knowledge-v32",
+            "knowledge-v33",
+            "knowledge-v34",
+            "knowledge-v35",
+            "knowledge-v36",
+            "knowledge-v37",
+            "knowledge-v38",
+            "knowledge-v39",
+            "knowledge-v40",
+            "knowledge-v41",
+            "knowledge-v42",
+            "knowledge-v43",
+            "knowledge-v44",
+            "knowledge-v45",
+            "knowledge-v46",
+            "knowledge-v47",
+            "knowledge-v48",
+        },
+        timestamp="2026-07-27T14:00:00+00:00",
+    )
+    for version_id, upper, timestamp in [
+        ("knowledge-v49", 49, "2026-07-27T15:00:00+00:00"),
+        ("knowledge-v50", 50, "2026-07-27T16:00:00+00:00"),
+        ("knowledge-v51", 51, "2026-07-27T17:00:00+00:00"),
+    ]:
+        _add_published_snapshot(
+            session,
+            version_id=version_id,
+            version_chain={f"knowledge-v{number}" for number in range(1, upper + 1)},
+            timestamp=timestamp,
+        )
     if session.get(KnowledgeVersionSnapshotRecord, "knowledge-v1") is None:
         source_ids = ["rae-ngle"]
         source_edition_ids = ["rae-ngle:manual-2010"]
