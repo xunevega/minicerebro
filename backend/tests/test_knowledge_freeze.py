@@ -230,6 +230,20 @@ def test_knowledge_status_uses_lightweight_current_version_lookup(monkeypatch) -
     assert response.json()["version"] == CURRENT_PUBLISHED_VERSION
 
 
+def test_versioned_exploration_uses_lightweight_version_lookup(monkeypatch) -> None:
+    def fail_if_full_version_listing_runs(self):
+        raise AssertionError("versioned exploration should not build every version with counts")
+
+    monkeypatch.setattr(Repository, "list_knowledge_versions", fail_if_full_version_listing_runs)
+
+    response = client.get(f"/knowledge/sources?version={CURRENT_PUBLISHED_VERSION}")
+    missing = client.get("/knowledge/sources?version=missing-version")
+
+    assert response.status_code == 200
+    assert missing.status_code == 404
+    assert missing.json()["detail"] == "Knowledge version not found"
+
+
 def _file_sha256(path: Path) -> str:
     digest = hashlib.sha256()
     with path.open("rb") as file:

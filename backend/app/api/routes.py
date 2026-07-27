@@ -111,7 +111,7 @@ RepositoryDep = Annotated[Repository, Depends(get_repository)]
 def ensure_knowledge_version(repository: Repository, version: str | None) -> None:
     if version is None:
         return
-    if not any(item.id == version for item in repository.list_knowledge_versions()):
+    if not repository.knowledge_version_exists(version):
         raise HTTPException(status_code=404, detail="Knowledge version not found")
 
 

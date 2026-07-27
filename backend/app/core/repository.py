@@ -790,6 +790,16 @@ class Repository:
         ).all()
         return [knowledge_version_from_record(record, self) for record in records]
 
+    def knowledge_version_exists(self, version_id: str) -> bool:
+        return (
+            self.session.scalars(
+                select(KnowledgeVersionRecord.id)
+                .where(KnowledgeVersionRecord.id == version_id)
+                .limit(1)
+            ).first()
+            is not None
+        )
+
     def current_published_knowledge_version(self) -> KnowledgeVersionRecord:
         record = self.session.scalars(
             select(KnowledgeVersionRecord)
