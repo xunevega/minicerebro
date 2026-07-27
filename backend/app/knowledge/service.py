@@ -78,7 +78,9 @@ KNOWLEDGE_V40_VERSION = "knowledge-v40"
 KNOWLEDGE_V41_VERSION = "knowledge-v41"
 KNOWLEDGE_V42_VERSION = "knowledge-v42"
 KNOWLEDGE_V43_VERSION = "knowledge-v43"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v44"
+KNOWLEDGE_V44_VERSION = "knowledge-v44"
+KNOWLEDGE_V45_VERSION = "knowledge-v45"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v46"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -124,6 +126,8 @@ KNOWLEDGE_V41_PUBLISHED_AT = "2026-07-26T15:00:00+00:00"
 KNOWLEDGE_V42_PUBLISHED_AT = "2026-07-27T08:00:00+00:00"
 KNOWLEDGE_V43_PUBLISHED_AT = "2026-07-27T09:00:00+00:00"
 KNOWLEDGE_V44_PUBLISHED_AT = "2026-07-27T10:00:00+00:00"
+KNOWLEDGE_V45_PUBLISHED_AT = "2026-07-27T11:00:00+00:00"
+KNOWLEDGE_V46_PUBLISHED_AT = "2026-07-27T12:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -7754,6 +7758,412 @@ V44_SEED_ITEMS = [
     },
 ]
 
+V45_SEED_ITEMS = [
+    {
+        "key": "coma-de-inciso",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:coma-de-inciso",
+        "index_title": "Coma de inciso",
+        "index_locator": "Edicion 2015 > puntuacion avanzada > inciso",
+        "segment_id": "martinez-sousa-mele:edicion-2015:coma-de-inciso:seg-1",
+        "segment_title": "Delimitar aclaraciones sin romper la frase",
+        "segment_text": (
+            "Resumen editorial minimo: la coma de inciso delimita una aclaracion secundaria "
+            "que puede retirarse sin destruir la estructura principal de la frase."
+        ),
+        "extraction_id": "ext-martinez-sousa-coma-de-inciso-1",
+        "node_id": "martinez-sousa-coma-de-inciso",
+        "canonical_name": "Coma de inciso",
+        "node_type": "norma",
+        "primary_branch": "ortografia",
+        "secondary_branch": "puntuacion",
+        "node_summary": "Criterio para delimitar aclaraciones internas con comas pareadas.",
+        "short_definition": "Uso de coma para aislar un inciso explicativo dentro de una frase.",
+        "aliases": ["coma incidental aplicada", "coma explicativa"],
+        "relation_target": "martinez-sousa-coma-incidental",
+        "relation_type": "deriva_de",
+        "card_id": "card-coma-de-inciso",
+        "card_type": "punctuation_tool",
+        "card_name": "Coma de inciso",
+        "card_definition": "Ficha para decidir si una aclaracion necesita comas de apertura y cierre.",
+        "signals": ["inciso", "aclaracion", "interrupcion"],
+        "risks": ["coma suelta", "inciso mal cerrado"],
+        "contexts": ["puntuacion", "frase larga", "revision"],
+        "evidence_id": "ev-martinez-sousa-coma-de-inciso",
+        "evidence_section": "coma de inciso",
+        "confidence": 0.65,
+        "claim_id": "claim-martinez-sousa-coma-de-inciso",
+        "statement": "Un inciso explicativo debe quedar delimitado de forma completa para no confundirse con la estructura principal.",
+        "claim_type": "orthographic",
+        "domain": "writing.punctuation.incise_comma",
+        "related_node_ids": ["martinez-sousa-coma-incidental", "rae-ole-coma"],
+    },
+    {
+        "key": "punto-y-coma-en-serie-compleja",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:punto-y-coma-serie-compleja",
+        "index_title": "Punto y coma en serie compleja",
+        "index_locator": "Edicion 2015 > puntuacion avanzada > punto y coma",
+        "segment_id": "martinez-sousa-mele:edicion-2015:punto-y-coma-serie-compleja:seg-1",
+        "segment_title": "Separar miembros complejos",
+        "segment_text": (
+            "Resumen editorial minimo: el punto y coma ayuda cuando una enumeracion contiene "
+            "miembros extensos o con comas internas."
+        ),
+        "extraction_id": "ext-martinez-sousa-punto-y-coma-serie-compleja-1",
+        "node_id": "martinez-sousa-punto-y-coma-serie-compleja",
+        "canonical_name": "Punto y coma en serie compleja",
+        "node_type": "norma",
+        "primary_branch": "ortografia",
+        "secondary_branch": "puntuacion",
+        "node_summary": "Criterio para ordenar enumeraciones cuyos miembros ya contienen comas.",
+        "short_definition": "Uso del punto y coma para separar miembros complejos de una serie.",
+        "aliases": ["serie compleja", "enumeracion compleja"],
+        "relation_target": "martinez-sousa-punto-y-coma-articulador",
+        "relation_type": "deriva_de",
+        "card_id": "card-punto-y-coma-en-serie-compleja",
+        "card_type": "punctuation_tool",
+        "card_name": "Punto y coma en serie compleja",
+        "card_definition": "Ficha para ordenar series largas sin que las comas internas confundan la lectura.",
+        "signals": ["enumeracion", "miembros largos", "comas internas"],
+        "risks": ["serie confusa", "coma insuficiente"],
+        "contexts": ["puntuacion", "enumeracion", "frase larga"],
+        "evidence_id": "ev-martinez-sousa-punto-y-coma-serie-compleja",
+        "evidence_section": "punto y coma en serie compleja",
+        "confidence": 0.64,
+        "claim_id": "claim-martinez-sousa-punto-y-coma-serie-compleja",
+        "statement": "En una serie compleja, el punto y coma puede separar miembros extensos o con comas internas para conservar claridad.",
+        "claim_type": "orthographic",
+        "domain": "writing.punctuation.semicolon_complex_series",
+        "related_node_ids": ["martinez-sousa-punto-y-coma-articulador", "rae-ole-punto-y-coma"],
+    },
+    {
+        "key": "dos-puntos-explicativos-aplicados",
+        "source_id": "martinez-sousa-mele",
+        "source_edition_id": "martinez-sousa-mele:edicion-2015",
+        "index_id": "martinez-sousa-mele:edicion-2015:dos-puntos-explicativos-aplicados",
+        "index_title": "Dos puntos explicativos aplicados",
+        "index_locator": "Edicion 2015 > puntuacion avanzada > dos puntos",
+        "segment_id": "martinez-sousa-mele:edicion-2015:dos-puntos-explicativos-aplicados:seg-1",
+        "segment_title": "Anunciar explicacion o consecuencia",
+        "segment_text": (
+            "Resumen editorial minimo: los dos puntos preparan al lector para una explicacion, "
+            "consecuencia, ejemplo o desarrollo anunciado por el tramo anterior."
+        ),
+        "extraction_id": "ext-martinez-sousa-dos-puntos-explicativos-aplicados-1",
+        "node_id": "martinez-sousa-dos-puntos-explicativos-aplicados",
+        "canonical_name": "Dos puntos explicativos aplicados",
+        "node_type": "norma",
+        "primary_branch": "ortografia",
+        "secondary_branch": "puntuacion",
+        "node_summary": "Criterio para usar dos puntos cuando el segundo tramo desarrolla el primero.",
+        "short_definition": "Uso de dos puntos para anunciar explicacion, ejemplo o consecuencia.",
+        "aliases": ["dos puntos de desarrollo", "dos puntos explicativos"],
+        "relation_target": "martinez-sousa-dos-puntos-explicativos",
+        "relation_type": "deriva_de",
+        "card_id": "card-dos-puntos-explicativos-aplicados",
+        "card_type": "punctuation_tool",
+        "card_name": "Dos puntos explicativos aplicados",
+        "card_definition": "Ficha para comprobar si los dos puntos anuncian una explicacion real.",
+        "signals": ["explicacion", "ejemplo", "consecuencia"],
+        "risks": ["dos puntos decorativos", "relacion no anunciada"],
+        "contexts": ["puntuacion", "argumentacion", "frase"],
+        "evidence_id": "ev-martinez-sousa-dos-puntos-explicativos-aplicados",
+        "evidence_section": "dos puntos explicativos aplicados",
+        "confidence": 0.64,
+        "claim_id": "claim-martinez-sousa-dos-puntos-explicativos-aplicados",
+        "statement": "Los dos puntos funcionan mejor cuando el primer tramo anuncia una explicacion, ejemplo o consecuencia que el segundo desarrolla.",
+        "claim_type": "orthographic",
+        "domain": "writing.punctuation.explanatory_colon",
+        "related_node_ids": ["martinez-sousa-dos-puntos-explicativos", "aristoteles-ejemplo-probatorio"],
+    },
+    {
+        "key": "puntuacion-de-frase-larga",
+        "source_id": "rae-ole",
+        "source_edition_id": "rae-ole:edicion-2010",
+        "index_id": "rae-ole:edicion-2010:puntuacion-frase-larga",
+        "index_title": "Puntuacion de frase larga",
+        "index_locator": "Ortografia 2010 > puntuacion > frase larga",
+        "segment_id": "rae-ole:edicion-2010:puntuacion-frase-larga:seg-1",
+        "segment_title": "Puntuar por estructura antes que por respiracion",
+        "segment_text": (
+            "Resumen editorial minimo: en una frase larga conviene puntuar segun la estructura "
+            "y las relaciones internas, no solo por pausas de respiracion."
+        ),
+        "extraction_id": "ext-rae-ole-puntuacion-frase-larga-1",
+        "node_id": "rae-ole-puntuacion-frase-larga",
+        "canonical_name": "Puntuacion de frase larga",
+        "node_type": "norma",
+        "primary_branch": "ortografia",
+        "secondary_branch": "puntuacion",
+        "node_summary": "Criterio para puntuar frases extensas segun su estructura interna.",
+        "short_definition": "Revision de puntuacion en frases largas por jerarquia sintactica y discursiva.",
+        "aliases": ["frase larga puntuada", "puntuacion estructural"],
+        "relation_target": "rae-ole-coma",
+        "relation_type": "usa",
+        "card_id": "card-puntuacion-de-frase-larga",
+        "card_type": "punctuation_tool",
+        "card_name": "Puntuacion de frase larga",
+        "card_definition": "Ficha para revisar comas, punto y coma y dos puntos en frases extensas.",
+        "signals": ["frase larga", "incisos", "miembros coordinados"],
+        "risks": ["puntuar por respiracion", "cortar una relacion necesaria"],
+        "contexts": ["puntuacion", "frase larga", "revision"],
+        "evidence_id": "ev-rae-ole-puntuacion-frase-larga",
+        "evidence_section": "puntuacion de frase larga",
+        "confidence": 0.63,
+        "claim_id": "claim-rae-ole-puntuacion-frase-larga",
+        "statement": "La puntuacion de una frase larga debe seguir su estructura interna y no solo la pausa intuitiva de lectura.",
+        "claim_type": "orthographic",
+        "domain": "writing.punctuation.long_sentence",
+        "related_node_ids": ["rae-ole-coma", "martinez-sousa-punto-y-coma-articulador"],
+    },
+    {
+        "key": "enumeracion-con-criterio",
+        "source_id": "rae-ole",
+        "source_edition_id": "rae-ole:edicion-2010",
+        "index_id": "rae-ole:edicion-2010:enumeracion-con-criterio",
+        "index_title": "Enumeracion con criterio",
+        "index_locator": "Ortografia 2010 > puntuacion > enumeracion",
+        "segment_id": "rae-ole:edicion-2010:enumeracion-con-criterio:seg-1",
+        "segment_title": "Ordenar series sin ruido",
+        "segment_text": (
+            "Resumen editorial minimo: una enumeracion clara mantiene miembros paralelos, "
+            "separadores consistentes y un criterio visible de orden."
+        ),
+        "extraction_id": "ext-rae-ole-enumeracion-con-criterio-1",
+        "node_id": "rae-ole-enumeracion-con-criterio",
+        "canonical_name": "Enumeracion con criterio",
+        "node_type": "metodo",
+        "primary_branch": "ortografia",
+        "secondary_branch": "puntuacion",
+        "node_summary": "Criterio para revisar series y enumeraciones con orden y paralelismo.",
+        "short_definition": "Revision de enumeraciones por orden, separadores y paralelismo.",
+        "aliases": ["serie ordenada", "enumeracion clara"],
+        "relation_target": "rae-ole-coma",
+        "relation_type": "usa",
+        "card_id": "card-enumeracion-con-criterio",
+        "card_type": "punctuation_tool",
+        "card_name": "Enumeracion con criterio",
+        "card_definition": "Ficha para revisar si una serie enumera elementos comparables y bien separados.",
+        "signals": ["serie", "paralelismo", "orden"],
+        "risks": ["lista heterogenea", "separadores inconsistentes"],
+        "contexts": ["puntuacion", "enumeracion", "claridad"],
+        "evidence_id": "ev-rae-ole-enumeracion-con-criterio",
+        "evidence_section": "enumeracion con criterio",
+        "confidence": 0.62,
+        "claim_id": "claim-rae-ole-enumeracion-con-criterio",
+        "statement": "Una enumeracion clara necesita miembros comparables, separadores coherentes y un criterio de orden reconocible.",
+        "claim_type": "orthographic",
+        "domain": "writing.punctuation.clear_enumeration",
+        "related_node_ids": ["rae-ole-coma", "martinez-sousa-coma-enumerativa"],
+    },
+]
+
+V46_SEED_ITEMS = [
+    {
+        "key": "diagnostico-de-parrafo",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:diagnostico-de-parrafo",
+        "index_title": "Diagnostico de parrafo",
+        "index_locator": "Edicion de referencia > revision > diagnostico de parrafo",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:diagnostico-de-parrafo:seg-1",
+        "segment_title": "Mirar primero que hace el parrafo",
+        "segment_text": (
+            "Resumen editorial minimo: antes de reescribir frases conviene decidir si el "
+            "parrafo presenta, desarrolla, contrasta, ejemplifica, transiciona o cierra."
+        ),
+        "extraction_id": "ext-cassany-diagnostico-de-parrafo-1",
+        "node_id": "cassany-diagnostico-de-parrafo",
+        "canonical_name": "Diagnostico de parrafo",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para identificar la funcion de un parrafo antes de tocar frases.",
+        "short_definition": "Lectura del parrafo por funcion textual y no solo por longitud.",
+        "aliases": ["funcion del parrafo", "lectura de parrafo"],
+        "relation_target": "cassany-parrafo-eficaz",
+        "relation_type": "deriva_de",
+        "card_id": "card-diagnostico-de-parrafo",
+        "card_type": "paragraph_revision_tool",
+        "card_name": "Diagnostico de parrafo",
+        "card_definition": "Ficha para decidir que funcion cumple un parrafo dentro del texto.",
+        "signals": ["funcion", "idea central", "avance"],
+        "risks": ["pulir frases sin saber para que sirve el parrafo"],
+        "contexts": ["parrafo", "revision", "texto largo"],
+        "evidence_id": "ev-cassany-diagnostico-de-parrafo",
+        "evidence_section": "diagnostico de parrafo",
+        "confidence": 0.65,
+        "claim_id": "claim-cassany-diagnostico-de-parrafo",
+        "statement": "Un parrafo debe revisarse primero por su funcion en el texto antes de corregir frases aisladas.",
+        "claim_type": "editing",
+        "domain": "writing.paragraph.diagnostic",
+        "related_node_ids": ["cassany-parrafo-eficaz", "reyes-parrafo-idea"],
+    },
+    {
+        "key": "unidad-de-parrafo-aplicada",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:unidad-de-parrafo-aplicada",
+        "index_title": "Unidad de parrafo aplicada",
+        "index_locator": "Edicion de referencia > revision > unidad de parrafo",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:unidad-de-parrafo-aplicada:seg-1",
+        "segment_title": "Una idea dominante por parrafo",
+        "segment_text": (
+            "Resumen editorial minimo: la unidad del parrafo se rompe cuando varias ideas "
+            "compiten sin jerarquia o cuando el cierre no responde al arranque."
+        ),
+        "extraction_id": "ext-cassany-unidad-de-parrafo-aplicada-1",
+        "node_id": "cassany-unidad-de-parrafo-aplicada",
+        "canonical_name": "Unidad de parrafo aplicada",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para mantener una idea dominante y jerarquia interna en un parrafo.",
+        "short_definition": "Revision de unidad interna del parrafo por foco y cierre.",
+        "aliases": ["foco de parrafo", "idea dominante aplicada"],
+        "relation_target": "cassany-parrafo-eficaz",
+        "relation_type": "deriva_de",
+        "card_id": "card-unidad-de-parrafo-aplicada",
+        "card_type": "paragraph_revision_tool",
+        "card_name": "Unidad de parrafo aplicada",
+        "card_definition": "Ficha para comprobar si un parrafo sostiene una idea dominante.",
+        "signals": ["idea dominante", "foco", "jerarquia"],
+        "risks": ["parrafo cajon", "dos ideas compitiendo"],
+        "contexts": ["parrafo", "estructura", "revision"],
+        "evidence_id": "ev-cassany-unidad-de-parrafo-aplicada",
+        "evidence_section": "unidad de parrafo aplicada",
+        "confidence": 0.64,
+        "claim_id": "claim-cassany-unidad-de-parrafo-aplicada",
+        "statement": "Un parrafo eficaz necesita una idea dominante reconocible y una jerarquia interna que no disperse el foco.",
+        "claim_type": "editing",
+        "domain": "writing.paragraph.unity",
+        "related_node_ids": ["cassany-parrafo-eficaz", "strunk-white-unidad-parrafo"],
+    },
+    {
+        "key": "avance-de-parrafo",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:avance-de-parrafo",
+        "index_title": "Avance de parrafo",
+        "index_locator": "Edicion 2012 > parrafo > progresion",
+        "segment_id": "reyes-arte-escribir:edicion-2012:avance-de-parrafo:seg-1",
+        "segment_title": "Cada parrafo debe mover el texto",
+        "segment_text": (
+            "Resumen editorial minimo: un parrafo debe aportar un paso reconocible al texto, "
+            "no repetir con otras palabras lo que el lector ya sabe."
+        ),
+        "extraction_id": "ext-reyes-2012-avance-de-parrafo-1",
+        "node_id": "reyes-avance-de-parrafo",
+        "canonical_name": "Avance de parrafo",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para revisar si un parrafo hace avanzar la lectura.",
+        "short_definition": "Funcion de progresion que aporta un paso nuevo al texto.",
+        "aliases": ["progresion de parrafo aplicada", "avance textual"],
+        "relation_target": "reyes-progresion-de-parrafo",
+        "relation_type": "deriva_de",
+        "card_id": "card-avance-de-parrafo",
+        "card_type": "paragraph_revision_tool",
+        "card_name": "Avance de parrafo",
+        "card_definition": "Ficha para detectar parrafos que repiten, se estancan o no desplazan la idea.",
+        "signals": ["avance", "progresion", "paso nuevo"],
+        "risks": ["parrafo redundante", "avance aparente"],
+        "contexts": ["parrafo", "progresion", "texto largo"],
+        "evidence_id": "ev-reyes-avance-de-parrafo",
+        "evidence_section": "avance de parrafo",
+        "confidence": 0.64,
+        "claim_id": "claim-reyes-avance-de-parrafo",
+        "statement": "Cada parrafo debe aportar un paso reconocible a la progresion global del texto.",
+        "claim_type": "writing",
+        "domain": "writing.paragraph.progression",
+        "related_node_ids": ["reyes-progresion-de-parrafo", "reyes-progresion-global"],
+    },
+    {
+        "key": "parrafo-puente-aplicado",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:parrafo-puente-aplicado",
+        "index_title": "Parrafo puente aplicado",
+        "index_locator": "Edicion de referencia > revision > parrafo puente",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:parrafo-puente-aplicado:seg-1",
+        "segment_title": "Unir dos tramos sin relleno",
+        "segment_text": (
+            "Resumen editorial minimo: un parrafo puente no existe para decorar; debe explicar "
+            "el cambio de foco, escala o direccion entre dos tramos."
+        ),
+        "extraction_id": "ext-cassany-parrafo-puente-aplicado-1",
+        "node_id": "cassany-parrafo-puente-aplicado",
+        "canonical_name": "Parrafo puente aplicado",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para usar un parrafo como transicion funcional entre tramos.",
+        "short_definition": "Parrafo que justifica el paso entre dos partes del texto.",
+        "aliases": ["parrafo de transicion", "puente de seccion"],
+        "relation_target": "cassany-parrafo-puente",
+        "relation_type": "deriva_de",
+        "card_id": "card-parrafo-puente-aplicado",
+        "card_type": "paragraph_revision_tool",
+        "card_name": "Parrafo puente aplicado",
+        "card_definition": "Ficha para revisar si un parrafo de transicion une tramos sin rellenar.",
+        "signals": ["cambio de foco", "transicion", "escala"],
+        "risks": ["parrafo de relleno", "salto encubierto"],
+        "contexts": ["parrafo", "transicion", "estructura"],
+        "evidence_id": "ev-cassany-parrafo-puente-aplicado",
+        "evidence_section": "parrafo puente aplicado",
+        "confidence": 0.63,
+        "claim_id": "claim-cassany-parrafo-puente-aplicado",
+        "statement": "Un parrafo puente debe justificar un cambio entre tramos; si no lo hace, probablemente es relleno.",
+        "claim_type": "editing",
+        "domain": "writing.paragraph.bridge",
+        "related_node_ids": ["cassany-parrafo-puente", "reyes-transicion-de-idea"],
+    },
+    {
+        "key": "cierre-de-parrafo-aplicado",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:cierre-de-parrafo-aplicado",
+        "index_title": "Cierre de parrafo aplicado",
+        "index_locator": "Edicion 2012 > parrafo > cierre",
+        "segment_id": "reyes-arte-escribir:edicion-2012:cierre-de-parrafo-aplicado:seg-1",
+        "segment_title": "Cerrar sin clausurar de mas",
+        "segment_text": (
+            "Resumen editorial minimo: el cierre de parrafo debe completar su paso y preparar "
+            "el siguiente cuando el texto continua."
+        ),
+        "extraction_id": "ext-reyes-2012-cierre-de-parrafo-aplicado-1",
+        "node_id": "reyes-cierre-de-parrafo-aplicado",
+        "canonical_name": "Cierre de parrafo aplicado",
+        "node_type": "metodo",
+        "primary_branch": "redaccion",
+        "secondary_branch": "parrafo",
+        "node_summary": "Criterio para cerrar un parrafo de forma funcional dentro del texto.",
+        "short_definition": "Cierre que completa el paso del parrafo y deja preparada la continuidad.",
+        "aliases": ["remate de parrafo", "cierre funcional"],
+        "relation_target": "cassany-cierre-y-apertura",
+        "relation_type": "deriva_de",
+        "card_id": "card-cierre-de-parrafo-aplicado",
+        "card_type": "paragraph_revision_tool",
+        "card_name": "Cierre de parrafo aplicado",
+        "card_definition": "Ficha para revisar si el final del parrafo cierra, abre o deja colgada la idea.",
+        "signals": ["cierre", "remate", "continuidad"],
+        "risks": ["cierre brusco", "final que no responde al inicio"],
+        "contexts": ["parrafo", "progresion", "revision"],
+        "evidence_id": "ev-reyes-cierre-de-parrafo-aplicado",
+        "evidence_section": "cierre de parrafo aplicado",
+        "confidence": 0.63,
+        "claim_id": "claim-reyes-cierre-de-parrafo-aplicado",
+        "statement": "El cierre de un parrafo debe completar su funcion y preparar la continuidad si el texto sigue.",
+        "claim_type": "writing",
+        "domain": "writing.paragraph.closure",
+        "related_node_ids": ["cassany-cierre-y-apertura", "reyes-progresion-de-parrafo"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -9114,7 +9524,9 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V41_VERSION: "seed_revision_question_batch",
     KNOWLEDGE_V42_VERSION: "seed_long_text_coherence_batch",
     KNOWLEDGE_V43_VERSION: "seed_connectors_transitions_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_lexical_choice_batch",
+    KNOWLEDGE_V44_VERSION: "seed_lexical_choice_batch",
+    KNOWLEDGE_V45_VERSION: "seed_advanced_punctuation_application_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_paragraph_revision_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -9153,7 +9565,9 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V41_VERSION: KNOWLEDGE_V41_PUBLISHED_AT,
     KNOWLEDGE_V42_VERSION: KNOWLEDGE_V42_PUBLISHED_AT,
     KNOWLEDGE_V43_VERSION: KNOWLEDGE_V43_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V44_PUBLISHED_AT,
+    KNOWLEDGE_V44_VERSION: KNOWLEDGE_V44_PUBLISHED_AT,
+    KNOWLEDGE_V45_VERSION: KNOWLEDGE_V45_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V46_PUBLISHED_AT,
 }
 
 
@@ -10613,6 +11027,8 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V42_SEED_ITEMS),
         *_published_batch_index_entries(V43_SEED_ITEMS),
         *_published_batch_index_entries(V44_SEED_ITEMS),
+        *_published_batch_index_entries(V45_SEED_ITEMS),
+        *_published_batch_index_entries(V46_SEED_ITEMS),
     ]
 
 
@@ -10752,6 +11168,8 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V42_SEED_ITEMS),
         *_published_batch_segments(V43_SEED_ITEMS),
         *_published_batch_segments(V44_SEED_ITEMS),
+        *_published_batch_segments(V45_SEED_ITEMS),
+        *_published_batch_segments(V46_SEED_ITEMS),
     ]
 
 
@@ -10910,7 +11328,9 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_extraction_runs(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_extraction_runs(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_extraction_runs(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_extraction_runs(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_extraction_runs(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11598,7 +12018,9 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_proposals(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_proposals(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_proposals(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_proposals(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_proposals(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11785,7 +12207,9 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_nodes(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_nodes(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_nodes(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_nodes(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_nodes(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11934,7 +12358,9 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_node_relations(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_node_relations(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_node_relations(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_node_relations(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_node_relations(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12312,7 +12738,9 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_evidence(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_evidence(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_evidence(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_evidence(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_evidence(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12590,7 +13018,9 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_claims(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_claims(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_claims(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_claims(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_claims(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12789,7 +13219,9 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
         *_published_batch_cards(V42_SEED_ITEMS, KNOWLEDGE_V42_VERSION),
         *_published_batch_cards(V43_SEED_ITEMS, KNOWLEDGE_V43_VERSION),
-        *_published_batch_cards(V44_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V44_SEED_ITEMS, KNOWLEDGE_V44_VERSION),
+        *_published_batch_cards(V45_SEED_ITEMS, KNOWLEDGE_V45_VERSION),
+        *_published_batch_cards(V46_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -13722,10 +14154,26 @@ def seed_versions() -> list[KnowledgeVersion]:
     v43_evidence = [evidence for evidence in seed_evidence() if evidence.version in v43_chain]
     v43_claims = [claim for claim in seed_claims() if claim.version in v43_chain]
     v43_cards = [card for card in seed_cards() if card.version in v43_chain]
-    latest_chain = {*v43_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_source_ids = {*v43_source_ids, *{item["source_id"] for item in V44_SEED_ITEMS}}
+    v44_chain = {*v43_chain, KNOWLEDGE_V44_VERSION}
+    v44_source_ids = {*v43_source_ids, *{item["source_id"] for item in V44_SEED_ITEMS}}
+    v44_sources = [source for source in seed_sources() if source.id in v44_source_ids]
+    v44_node_ids = {*v43_node_ids, *{item["node_id"] for item in V44_SEED_ITEMS}}
+    v44_nodes = [node for node in seed_nodes() if node.id in v44_node_ids]
+    v44_evidence = [evidence for evidence in seed_evidence() if evidence.version in v44_chain]
+    v44_claims = [claim for claim in seed_claims() if claim.version in v44_chain]
+    v44_cards = [card for card in seed_cards() if card.version in v44_chain]
+    v45_chain = {*v44_chain, KNOWLEDGE_V45_VERSION}
+    v45_source_ids = {*v44_source_ids, *{item["source_id"] for item in V45_SEED_ITEMS}}
+    v45_sources = [source for source in seed_sources() if source.id in v45_source_ids]
+    v45_node_ids = {*v44_node_ids, *{item["node_id"] for item in V45_SEED_ITEMS}}
+    v45_nodes = [node for node in seed_nodes() if node.id in v45_node_ids]
+    v45_evidence = [evidence for evidence in seed_evidence() if evidence.version in v45_chain]
+    v45_claims = [claim for claim in seed_claims() if claim.version in v45_chain]
+    v45_cards = [card for card in seed_cards() if card.version in v45_chain]
+    latest_chain = {*v45_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_source_ids = {*v45_source_ids, *{item["source_id"] for item in V46_SEED_ITEMS}}
     latest_sources = [source for source in seed_sources() if source.id in latest_source_ids]
-    latest_node_ids = {*v43_node_ids, *{item["node_id"] for item in V44_SEED_ITEMS}}
+    latest_node_ids = {*v45_node_ids, *{item["node_id"] for item in V46_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -14172,9 +14620,29 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v43_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V44_VERSION,
             status="published",
             published_at=KNOWLEDGE_V44_PUBLISHED_AT,
+            source_count=len(v44_sources),
+            node_count=len(v44_nodes),
+            evidence_count=len(v44_evidence),
+            claim_count=len(v44_claims),
+            card_count=len(v44_cards),
+        ),
+        KnowledgeVersion(
+            id=KNOWLEDGE_V45_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V45_PUBLISHED_AT,
+            source_count=len(v45_sources),
+            node_count=len(v45_nodes),
+            evidence_count=len(v45_evidence),
+            claim_count=len(v45_claims),
+            card_count=len(v45_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V46_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -14622,6 +15090,8 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V41_VERSION,
             KNOWLEDGE_V42_VERSION,
             KNOWLEDGE_V43_VERSION,
+            KNOWLEDGE_V44_VERSION,
+            KNOWLEDGE_V45_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
