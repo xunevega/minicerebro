@@ -75,7 +75,8 @@ KNOWLEDGE_V37_VERSION = "knowledge-v37"
 KNOWLEDGE_V38_VERSION = "knowledge-v38"
 KNOWLEDGE_V39_VERSION = "knowledge-v39"
 KNOWLEDGE_V40_VERSION = "knowledge-v40"
-LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v41"
+KNOWLEDGE_V41_VERSION = "knowledge-v41"
+LATEST_PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v42"
 KNOWLEDGE_PUBLISHED_AT = "2026-07-22"
 KNOWLEDGE_V1_PUBLISHED_AT = "2026-07-23"
 KNOWLEDGE_V2_PUBLISHED_AT = "2026-07-23T01:00:00+00:00"
@@ -118,6 +119,7 @@ KNOWLEDGE_V38_PUBLISHED_AT = "2026-07-26T12:00:00+00:00"
 KNOWLEDGE_V39_PUBLISHED_AT = "2026-07-26T13:00:00+00:00"
 KNOWLEDGE_V40_PUBLISHED_AT = "2026-07-26T14:00:00+00:00"
 KNOWLEDGE_V41_PUBLISHED_AT = "2026-07-26T15:00:00+00:00"
+KNOWLEDGE_V42_PUBLISHED_AT = "2026-07-27T08:00:00+00:00"
 RELATION_UPDATED_AT = "2026-07-23"
 LATEST_KNOWLEDGE_VERSION = LATEST_PUBLISHED_KNOWLEDGE_VERSION
 PUBLICATION_LIFECYCLE = [
@@ -7139,6 +7141,209 @@ V41_SEED_ITEMS = [
     },
 ]
 
+V42_SEED_ITEMS = [
+    {
+        "key": "idea-rectora-texto-largo",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:idea-rectora-texto-largo",
+        "index_title": "Idea rectora en texto largo",
+        "index_locator": "Edicion 2012 > coherencia textual > idea rectora",
+        "segment_id": "reyes-arte-escribir:edicion-2012:idea-rectora-texto-largo:seg-1",
+        "segment_title": "Mantener el centro del texto",
+        "segment_text": (
+            "Resumen editorial minimo: en un texto largo, la idea rectora permite "
+            "comprobar si cada bloque sostiene el mismo proposito o se dispersa."
+        ),
+        "extraction_id": "ext-reyes-2012-idea-rectora-texto-largo-1",
+        "node_id": "reyes-idea-rectora-texto-largo",
+        "canonical_name": "Idea rectora en texto largo",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "coherencia",
+        "node_summary": "Criterio para comprobar que los bloques de un texto largo sostienen un centro comun.",
+        "short_definition": "Control de unidad global: cada bloque debe empujar la misma idea rectora.",
+        "aliases": ["centro del texto", "unidad global"],
+        "relation_target": "reyes-coherencia-textual",
+        "relation_type": "usa",
+        "card_id": "card-idea-rectora-texto-largo",
+        "card_type": "long_text_coherence_tool",
+        "card_name": "Idea rectora",
+        "card_definition": "Ficha para verificar si todos los bloques de un texto largo obedecen al mismo centro.",
+        "signals": ["idea central", "unidad", "bloques"],
+        "risks": ["texto disperso", "bloques que compiten"],
+        "contexts": ["texto largo", "coherencia", "revision"],
+        "evidence_id": "ev-reyes-idea-rectora-texto-largo",
+        "evidence_section": "idea rectora",
+        "confidence": 0.64,
+        "claim_id": "claim-reyes-idea-rectora-texto-largo",
+        "statement": "En un texto largo, cada bloque debe poder justificarse por su relacion con la idea rectora.",
+        "claim_type": "writing",
+        "domain": "writing.long_text.coherence.main_idea",
+        "related_node_ids": ["reyes-coherencia-textual", "cassany-revision-estructural"],
+    },
+    {
+        "key": "continuidad-de-voz",
+        "source_id": "zinsser-on-writing-well",
+        "source_edition_id": "zinsser-on-writing-well:edicion-referencia",
+        "index_id": "zinsser-on-writing-well:edicion-referencia:continuidad-voz",
+        "index_title": "Continuidad de voz",
+        "index_locator": "Edicion de referencia > voz > continuidad",
+        "segment_id": "zinsser-on-writing-well:edicion-referencia:continuidad-voz:seg-1",
+        "segment_title": "Sostener la misma presencia autoral",
+        "segment_text": (
+            "Resumen editorial minimo: la voz de un texto largo debe mantener una presencia "
+            "reconocible aunque cambien los ejemplos, los ritmos o los tramos argumentales."
+        ),
+        "extraction_id": "ext-zinsser-continuidad-voz-1",
+        "node_id": "zinsser-continuidad-de-voz",
+        "canonical_name": "Continuidad de voz",
+        "node_type": "metodo",
+        "primary_branch": "estilo",
+        "secondary_branch": "voz",
+        "node_summary": "Criterio para evitar que un texto largo cambie de presencia autoral sin motivo.",
+        "short_definition": "Control de voz sostenida entre inicio, desarrollo y cierre.",
+        "aliases": ["voz sostenida", "continuidad autoral"],
+        "relation_target": "zinsser-voz-del-autor-controlada",
+        "relation_type": "deriva_de",
+        "card_id": "card-continuidad-de-voz",
+        "card_type": "long_text_coherence_tool",
+        "card_name": "Continuidad de voz",
+        "card_definition": "Ficha para comparar inicio y final y comprobar que parecen escritos desde la misma voz.",
+        "signals": ["voz", "registro", "presencia"],
+        "risks": ["voz partida", "registro accidental"],
+        "contexts": ["texto largo", "voz", "estilo"],
+        "evidence_id": "ev-zinsser-continuidad-de-voz",
+        "evidence_section": "continuidad de voz",
+        "confidence": 0.63,
+        "claim_id": "claim-zinsser-continuidad-de-voz",
+        "statement": "La voz de un texto largo debe mantenerse reconocible entre inicio, desarrollo y cierre.",
+        "claim_type": "stylistic",
+        "domain": "writing.long_text.style.voice_continuity",
+        "related_node_ids": ["zinsser-voz-del-autor-controlada", "rae-lese-revision-de-tono"],
+    },
+    {
+        "key": "deriva-de-estilo",
+        "source_id": "cassany-cocina-escritura",
+        "source_edition_id": "cassany-cocina-escritura:edicion-referencia",
+        "index_id": "cassany-cocina-escritura:edicion-referencia:deriva-estilo",
+        "index_title": "Deriva de estilo",
+        "index_locator": "Edicion de referencia > revision > deriva de estilo",
+        "segment_id": "cassany-cocina-escritura:edicion-referencia:deriva-estilo:seg-1",
+        "segment_title": "Detectar cambios de modo de escritura",
+        "segment_text": (
+            "Resumen editorial minimo: la deriva de estilo aparece cuando el texto cambia "
+            "ritmo, distancia o modo de decir sin que la intencion lo justifique."
+        ),
+        "extraction_id": "ext-cassany-deriva-estilo-1",
+        "node_id": "cassany-deriva-de-estilo",
+        "canonical_name": "Deriva de estilo",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "estilo",
+        "node_summary": "Criterio para detectar cambios no deliberados de ritmo, distancia o modo de decir.",
+        "short_definition": "Control de cambios accidentales de estilo a lo largo del texto.",
+        "aliases": ["cambio de estilo", "deriva tonal"],
+        "relation_target": "cassany-reescritura-global",
+        "relation_type": "usa",
+        "card_id": "card-deriva-de-estilo",
+        "card_type": "long_text_coherence_tool",
+        "card_name": "Deriva de estilo",
+        "card_definition": "Ficha para detectar si el texto empieza con una voz y termina con otra sin decision clara.",
+        "signals": ["ritmo", "distancia", "modo de decir"],
+        "risks": ["cambio accidental de voz", "parches de reescritura visibles"],
+        "contexts": ["texto largo", "estilo", "revision"],
+        "evidence_id": "ev-cassany-deriva-de-estilo",
+        "evidence_section": "deriva de estilo",
+        "confidence": 0.63,
+        "claim_id": "claim-cassany-deriva-de-estilo",
+        "statement": "Un cambio de ritmo, distancia o modo de decir debe responder a una decision, no a una deriva accidental.",
+        "claim_type": "editing",
+        "domain": "writing.long_text.style.drift",
+        "related_node_ids": ["cassany-reescritura-global", "zinsser-continuidad-de-voz"],
+    },
+    {
+        "key": "contradiccion-interna",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:contradiccion-interna",
+        "index_title": "Contradiccion interna",
+        "index_locator": "Edicion 2012 > coherencia textual > contradiccion",
+        "segment_id": "reyes-arte-escribir:edicion-2012:contradiccion-interna:seg-1",
+        "segment_title": "Comprobar compatibilidad entre partes",
+        "segment_text": (
+            "Resumen editorial minimo: un texto largo pierde coherencia si una parte niega, "
+            "debilita o cambia sin aviso lo que otra parte habia establecido."
+        ),
+        "extraction_id": "ext-reyes-2012-contradiccion-interna-1",
+        "node_id": "reyes-contradiccion-interna",
+        "canonical_name": "Contradiccion interna",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "coherencia",
+        "node_summary": "Criterio para detectar partes incompatibles dentro del mismo texto.",
+        "short_definition": "Control de compatibilidad entre afirmaciones, matices y conclusiones.",
+        "aliases": ["incompatibilidad interna", "contradiccion del texto"],
+        "relation_target": "reyes-coherencia-textual",
+        "relation_type": "usa",
+        "card_id": "card-contradiccion-interna",
+        "card_type": "long_text_coherence_tool",
+        "card_name": "Contradiccion interna",
+        "card_definition": "Ficha para comprobar si una parte del texto contradice otra o cambia la tesis sin avisar.",
+        "signals": ["tesis", "matiz", "cierre"],
+        "risks": ["tesis desplazada", "conclusion incompatible"],
+        "contexts": ["texto largo", "coherencia", "argumentacion"],
+        "evidence_id": "ev-reyes-contradiccion-interna",
+        "evidence_section": "contradiccion interna",
+        "confidence": 0.64,
+        "claim_id": "claim-reyes-contradiccion-interna",
+        "statement": "La coherencia de un texto largo exige que sus partes no se contradigan sin una transicion o matiz explicito.",
+        "claim_type": "writing",
+        "domain": "writing.long_text.coherence.contradiction",
+        "related_node_ids": ["reyes-coherencia-textual", "quintiliano-orden-argumentativo"],
+    },
+    {
+        "key": "progresion-global",
+        "source_id": "reyes-arte-escribir",
+        "source_edition_id": "reyes-arte-escribir:edicion-2012",
+        "index_id": "reyes-arte-escribir:edicion-2012:progresion-global",
+        "index_title": "Progresion global",
+        "index_locator": "Edicion 2012 > coherencia textual > progresion global",
+        "segment_id": "reyes-arte-escribir:edicion-2012:progresion-global:seg-1",
+        "segment_title": "Avanzar sin circular",
+        "segment_text": (
+            "Resumen editorial minimo: la progresion global evita que un texto largo "
+            "repita la misma vuelta, salte sin puente o llegue a un cierre no preparado."
+        ),
+        "extraction_id": "ext-reyes-2012-progresion-global-1",
+        "node_id": "reyes-progresion-global",
+        "canonical_name": "Progresion global",
+        "node_type": "metodo",
+        "primary_branch": "revision",
+        "secondary_branch": "coherencia",
+        "node_summary": "Criterio para comprobar que el texto avanza de bloque en bloque hacia un cierre preparado.",
+        "short_definition": "Control de avance global: cada bloque debe modificar o profundizar el anterior.",
+        "aliases": ["avance global", "progresion del texto"],
+        "relation_target": "reyes-progresion-informativa",
+        "relation_type": "deriva_de",
+        "card_id": "card-progresion-global",
+        "card_type": "long_text_coherence_tool",
+        "card_name": "Progresion global",
+        "card_definition": "Ficha para revisar si el texto avanza, repite, salta o cierra sin preparacion.",
+        "signals": ["avance", "puente", "cierre"],
+        "risks": ["dar vueltas", "salto logico", "cierre no preparado"],
+        "contexts": ["texto largo", "progresion", "estructura"],
+        "evidence_id": "ev-reyes-progresion-global",
+        "evidence_section": "progresion global",
+        "confidence": 0.64,
+        "claim_id": "claim-reyes-progresion-global",
+        "statement": "La progresion global de un texto largo exige que cada bloque avance, profundice o prepare el cierre.",
+        "claim_type": "writing",
+        "domain": "writing.long_text.coherence.progression",
+        "related_node_ids": ["reyes-progresion-informativa", "reyes-progresion-de-parrafo"],
+    },
+]
+
 DEFAULT_SOURCE_EDITION = "pendiente de identificacion"
 DEFAULT_SOURCE_PUBLICATION_DATE = "pendiente de identificacion"
 DEFAULT_SOURCE_LOCATION = "pendiente de adquisicion"
@@ -8496,7 +8701,8 @@ PUBLISHED_BATCH_CONTEXT_BY_VERSION = {
     KNOWLEDGE_V38_VERSION: "seed_argumentation_practice_batch",
     KNOWLEDGE_V39_VERSION: "seed_revision_diagnostic_batch",
     KNOWLEDGE_V40_VERSION: "seed_revision_layers_batch",
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_revision_question_batch",
+    KNOWLEDGE_V41_VERSION: "seed_revision_question_batch",
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: "seed_long_text_coherence_batch",
 }
 PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V8_VERSION: KNOWLEDGE_V8_PUBLISHED_AT,
@@ -8532,7 +8738,8 @@ PUBLISHED_BATCH_TIMESTAMP_BY_VERSION = {
     KNOWLEDGE_V38_VERSION: KNOWLEDGE_V38_PUBLISHED_AT,
     KNOWLEDGE_V39_VERSION: KNOWLEDGE_V39_PUBLISHED_AT,
     KNOWLEDGE_V40_VERSION: KNOWLEDGE_V40_PUBLISHED_AT,
-    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V41_PUBLISHED_AT,
+    KNOWLEDGE_V41_VERSION: KNOWLEDGE_V41_PUBLISHED_AT,
+    LATEST_PUBLISHED_KNOWLEDGE_VERSION: KNOWLEDGE_V42_PUBLISHED_AT,
 }
 
 
@@ -9989,6 +10196,7 @@ def seed_index_entries() -> list[KnowledgeIndexEntry]:
         *_published_batch_index_entries(V39_SEED_ITEMS),
         *_published_batch_index_entries(V40_SEED_ITEMS),
         *_published_batch_index_entries(V41_SEED_ITEMS),
+        *_published_batch_index_entries(V42_SEED_ITEMS),
     ]
 
 
@@ -10125,6 +10333,7 @@ def seed_segments() -> list[KnowledgeSegment]:
         *_published_batch_segments(V39_SEED_ITEMS),
         *_published_batch_segments(V40_SEED_ITEMS),
         *_published_batch_segments(V41_SEED_ITEMS),
+        *_published_batch_segments(V42_SEED_ITEMS),
     ]
 
 
@@ -10280,7 +10489,8 @@ def seed_extraction_runs() -> list[KnowledgeExtractionRun]:
         *_published_batch_extraction_runs(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_extraction_runs(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_extraction_runs(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_extraction_runs(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_extraction_runs(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_extraction_runs(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -10965,7 +11175,8 @@ def seed_proposals() -> list[KnowledgeProposal]:
         *_published_batch_proposals(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_proposals(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_proposals(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_proposals(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_proposals(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_proposals(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11149,7 +11360,8 @@ def seed_nodes() -> list[KnowledgeNode]:
         *_published_batch_nodes(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_nodes(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_nodes(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_nodes(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_nodes(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_nodes(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11295,7 +11507,8 @@ def seed_node_relations() -> list[KnowledgeNodeRelation]:
         *_published_batch_node_relations(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_node_relations(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_node_relations(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_node_relations(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_node_relations(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_node_relations(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11670,7 +11883,8 @@ def seed_evidence() -> list[KnowledgeEvidenceItem]:
         *_published_batch_evidence(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_evidence(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_evidence(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_evidence(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_evidence(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_evidence(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -11945,7 +12159,8 @@ def seed_claims() -> list[KnowledgeClaim]:
         *_published_batch_claims(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_claims(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_claims(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_claims(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_claims(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_claims(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -12141,7 +12356,8 @@ def seed_cards() -> list[KnowledgeCard]:
         *_published_batch_cards(V38_SEED_ITEMS, KNOWLEDGE_V38_VERSION),
         *_published_batch_cards(V39_SEED_ITEMS, KNOWLEDGE_V39_VERSION),
         *_published_batch_cards(V40_SEED_ITEMS, KNOWLEDGE_V40_VERSION),
-        *_published_batch_cards(V41_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
+        *_published_batch_cards(V41_SEED_ITEMS, KNOWLEDGE_V41_VERSION),
+        *_published_batch_cards(V42_SEED_ITEMS, LATEST_PUBLISHED_KNOWLEDGE_VERSION),
     ]
 
 
@@ -13050,10 +13266,18 @@ def seed_versions() -> list[KnowledgeVersion]:
     v40_evidence = [evidence for evidence in seed_evidence() if evidence.version in v40_chain]
     v40_claims = [claim for claim in seed_claims() if claim.version in v40_chain]
     v40_cards = [card for card in seed_cards() if card.version in v40_chain]
-    latest_chain = {*v40_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
-    latest_source_ids = {*v40_source_ids, *{item["source_id"] for item in V41_SEED_ITEMS}}
+    v41_chain = {*v40_chain, KNOWLEDGE_V41_VERSION}
+    v41_source_ids = {*v40_source_ids, *{item["source_id"] for item in V41_SEED_ITEMS}}
+    v41_sources = [source for source in seed_sources() if source.id in v41_source_ids]
+    v41_node_ids = {*v40_node_ids, *{item["node_id"] for item in V41_SEED_ITEMS}}
+    v41_nodes = [node for node in seed_nodes() if node.id in v41_node_ids]
+    v41_evidence = [evidence for evidence in seed_evidence() if evidence.version in v41_chain]
+    v41_claims = [claim for claim in seed_claims() if claim.version in v41_chain]
+    v41_cards = [card for card in seed_cards() if card.version in v41_chain]
+    latest_chain = {*v41_chain, LATEST_PUBLISHED_KNOWLEDGE_VERSION}
+    latest_source_ids = {*v41_source_ids, *{item["source_id"] for item in V42_SEED_ITEMS}}
     latest_sources = [source for source in seed_sources() if source.id in latest_source_ids]
-    latest_node_ids = {*v40_node_ids, *{item["node_id"] for item in V41_SEED_ITEMS}}
+    latest_node_ids = {*v41_node_ids, *{item["node_id"] for item in V42_SEED_ITEMS}}
     latest_nodes = [node for node in seed_nodes() if node.id in latest_node_ids]
     latest_evidence = [evidence for evidence in seed_evidence() if evidence.version in latest_chain]
     latest_claims = [claim for claim in seed_claims() if claim.version in latest_chain]
@@ -13470,9 +13694,19 @@ def seed_versions() -> list[KnowledgeVersion]:
             card_count=len(v40_cards),
         ),
         KnowledgeVersion(
-            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            id=KNOWLEDGE_V41_VERSION,
             status="published",
             published_at=KNOWLEDGE_V41_PUBLISHED_AT,
+            source_count=len(v41_sources),
+            node_count=len(v41_nodes),
+            evidence_count=len(v41_evidence),
+            claim_count=len(v41_claims),
+            card_count=len(v41_cards),
+        ),
+        KnowledgeVersion(
+            id=LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            status="published",
+            published_at=KNOWLEDGE_V42_PUBLISHED_AT,
             source_count=len(latest_sources),
             node_count=len(latest_nodes),
             evidence_count=len(latest_evidence),
@@ -13916,6 +14150,8 @@ def query_contract() -> KnowledgeQueryContract:
             KNOWLEDGE_V37_VERSION,
             KNOWLEDGE_V38_VERSION,
             KNOWLEDGE_V39_VERSION,
+            KNOWLEDGE_V40_VERSION,
+            KNOWLEDGE_V41_VERSION,
             LATEST_PUBLISHED_KNOWLEDGE_VERSION,
             "latest",
         ],
