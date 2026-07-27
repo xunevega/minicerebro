@@ -2943,17 +2943,17 @@ export function App() {
                     ))}
                   </select>
                 </label>
+                <label className="editorControl termsControl" htmlFor="protectedTerms">
+                  <span className="controlLabel">Terminos protegidos</span>
+                  <input
+                    className="textInput"
+                    id="protectedTerms"
+                    onChange={(event) => setProtectedTerms(event.target.value)}
+                    placeholder="Separados por coma"
+                    value={protectedTerms}
+                  />
+                </label>
               </div>
-              <label className="fieldLabel" htmlFor="protectedTerms">
-                Terminos protegidos
-              </label>
-              <input
-                className="textInput"
-                id="protectedTerms"
-                onChange={(event) => setProtectedTerms(event.target.value)}
-                placeholder="Separados por coma"
-                value={protectedTerms}
-              />
               <div className="buttonRow">
                 <button
                   className="primaryButton editorButton"

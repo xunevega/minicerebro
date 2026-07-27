@@ -4,9 +4,9 @@
   --muted: #6f6f6b;
   --line: #deded8;
   --soft: #f7f7f5;
-  --field-bg: #e9ecea;
+  --field-bg: #dfe4e1;
   --field-output-bg: #e5e5e1;
-  --field-shell-bg: #eef0ee;
+  --field-shell-bg: #d6ddd9;
   --accent: #c80000;
   --accent-soft: #f6e9e7;
   --shadow: 0 18px 60px rgba(20, 20, 20, 0.07);
@@ -374,7 +374,7 @@ textarea {
   min-height: 360px;
   outline: 0;
   padding: 22px 0;
-  resize: vertical;
+  resize: none;
   width: 100%;
 }
 
@@ -415,7 +415,7 @@ textarea {
   border: 1px solid var(--line);
   font-size: clamp(18px, 2vw, 24px);
   margin-top: 0;
-  min-height: 300px;
+  min-height: 260px;
   padding: 22px;
 }
 
@@ -536,8 +536,8 @@ textarea + .primaryButton {
   background: var(--field-bg);
   border: 1px solid var(--line);
   border-radius: 0;
-  min-height: 40px;
-  padding: 9px 12px;
+  min-height: 46px;
+  padding: 8px 14px;
   width: min(620px, 100%);
 }
 
@@ -567,12 +567,16 @@ textarea + .primaryButton {
 .editorControls {
   display: grid;
   align-items: end;
-  gap: 14px 16px;
+  gap: 10px 14px;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  margin: 18px 0;
+  margin: 10px 0 0;
 }
 
 .editorControls .actionControl {
+  grid-column: 1 / -1;
+}
+
+.editorControls .termsControl {
   grid-column: 1 / -1;
 }
 
@@ -739,7 +743,7 @@ textarea + .primaryButton {
 }
 
 .editorButton {
-  margin-top: 14px;
+  margin-top: 0;
 }
 
 .resultActions {
@@ -823,7 +827,7 @@ textarea + .primaryButton {
   display: flex;
   flex-wrap: wrap;
   gap: 10px;
-  margin: 20px 0 14px;
+  margin: 14px 0 14px;
 }
 
 .buttonRow .editorButton,
