@@ -5350,6 +5350,7 @@ def test_candidate_publication_promotes_validated_snapshot_to_published():
                 synchronize_session=False,
             )
             session.commit()
+            ensure_seed_data(session)
 
 
 def test_knowledge_ingestion_policy_closes_documental_pipeline_contract():
