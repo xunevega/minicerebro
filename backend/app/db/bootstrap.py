@@ -33,7 +33,7 @@ from app.db.models import (
     ScoreVariableRecord,
 )
 from app.db.session import database_url
-from app.knowledge.service import (
+from app.knowledge.catalog import (
     LATEST_PUBLISHED_KNOWLEDGE_VERSION,
     seed_cards,
     seed_claim_evidence_links,

@@ -1,6 +1,6 @@
 from pathlib import Path
 
-from app.knowledge.service import LATEST_PUBLISHED_KNOWLEDGE_VERSION
+from app.knowledge.catalog import LATEST_PUBLISHED_KNOWLEDGE_VERSION
 
 
 def test_production_smoke_defaults_track_current_published_knowledge() -> None:

@@ -30,7 +30,7 @@ from app.db.models import (
 )
 from app.db.bootstrap import ensure_knowledge_seed_data, ensure_seed_data
 from app.db.session import SessionLocal
-from app.knowledge.service import seed_cards, seed_claims, seed_evidence, seed_nodes
+from app.knowledge.catalog import seed_cards, seed_claims, seed_evidence, seed_nodes
 from app.main import app
 
 
