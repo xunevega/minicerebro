@@ -28,8 +28,9 @@ def test_static_knowledge_catalog_is_separate_from_runtime_service() -> None:
     assert "seed_evidence" not in service_source
     assert "seed_nodes" not in service_source
     assert "seed_relations" not in service_source
-    assert "V51_SEED_ITEMS = [" in catalog_source
     assert "def seed_sources(" in catalog_source
+    assert "load_knowledge_seed_snapshot" in catalog_source
+    assert "V51_SEED_ITEMS = [" not in catalog_source
 
 
 def test_runtime_app_does_not_import_static_knowledge_catalog() -> None:
