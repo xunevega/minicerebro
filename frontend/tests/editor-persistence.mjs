@@ -151,6 +151,63 @@ try {
     throw new Error("La lectura con fichas no debe mostrar el estado vacio de salida.");
   }
 
+  const exactSameText = "Texto que vuelve exactamente igual.";
+  await page.route("**/generation", async (route) => {
+    const body = JSON.parse(route.request().postData() ?? "{}");
+    if (body.text === exactSameText) {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          output: exactSameText,
+          explanation: "Misma salida simulada para regresion.",
+          used_profile_variables: [],
+          learning_applied: false,
+          provider: "test",
+        }),
+      });
+      return;
+    }
+    await route.fallback();
+  });
+  await page.route("**/comparisons", async (route) => {
+    const body = JSON.parse(route.request().postData() ?? "{}");
+    if (body.original === exactSameText && body.revised === exactSameText) {
+      await route.fulfill({
+        contentType: "application/json",
+        body: JSON.stringify({
+          id: "comparison-exact-same-regression",
+          modification_score: 165,
+          adequacy_score: 931,
+          changed_words: 0,
+          original_words: 5,
+          revised_words: 5,
+          summary: "Comparacion simulada erronea.",
+          dimensions: { lexico: 165 },
+          changes: [],
+        }),
+      });
+      return;
+    }
+    await route.fallback();
+  });
+  await editorPanel.locator("textarea").first().fill(exactSameText);
+  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("rewrite");
+  const exactSameGenerationResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/generation" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await exactSameGenerationResponse;
+  await resultPanel.getByText("Sin version nueva").waitFor();
+  await resultPanel.getByText("Cambios: 0").waitFor();
+  await resultPanel.getByText("Adecuacion: 1000").waitFor();
+  if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
+    throw new Error("Una salida identica no debe mostrarse como propuesta aunque el comparador falle.");
+  }
+
   await editorPanel.locator("textarea").first().fill(" hola ,mundo. esto funciona ? si ! ");
   await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("correction");
   const correctionResponse = page.waitForResponse(

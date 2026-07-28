@@ -440,11 +440,25 @@ export function App() {
       continue: "continuacion",
       variants: "variantes",
     }[editorAction] ?? "propuesta";
+  const generationIsSameAsDraft =
+    generation !== null &&
+    normalizeComparableText(generation.output) ===
+      normalizeComparableText(editorOriginalBeforeGeneration);
   const generationHasChanges =
     generation !== null &&
-    generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
+    !generationIsSameAsDraft &&
+    comparison !== null &&
     (comparison?.modification_score ?? 0) > 0;
-  const generationHasNoChanges = generation !== null && comparison !== null && !generationHasChanges;
+  const generationHasNoChanges =
+    generation !== null &&
+    (generationIsSameAsDraft ||
+      (comparison !== null && (comparison.modification_score ?? 0) <= 0));
+  const generationModificationScore = generationIsSameAsDraft
+    ? 0
+    : (comparison?.modification_score ?? 0);
+  const generationAdequacyScore = generationIsSameAsDraft
+    ? 1000
+    : (comparison?.adequacy_score ?? 0);
   const editorFlowSteps = [
     {
       label: "Borrador",
@@ -1469,11 +1483,12 @@ export function App() {
           .map((term) => term.trim())
           .filter(Boolean),
       );
+      const nextComparison = await compareTexts(draftBeforeGeneration, result.output, activeContext);
       setGeneration(result);
       setEditorOriginalBeforeGeneration(draftBeforeGeneration);
       setOriginal(draftBeforeGeneration);
       setRevised(result.output);
-      setComparison(await compareTexts(draftBeforeGeneration, result.output, activeContext));
+      setComparison(nextComparison);
       setGeneratedTexts(await getGeneratedTexts(activeContext));
       await refreshAuditEvents();
     } catch (nextError) {
@@ -1518,7 +1533,9 @@ export function App() {
   function handleUseGeneratedText() {
     if (!generation) return;
     const hasChanges =
-      generation.output.trim() !== editorOriginalBeforeGeneration.trim() &&
+      normalizeComparableText(generation.output) !==
+        normalizeComparableText(editorOriginalBeforeGeneration) &&
+      comparison !== null &&
       (comparison?.modification_score ?? 0) > 0;
     if (!hasChanges) {
       setGeneration(null);
@@ -3091,8 +3108,8 @@ export function App() {
                       {comparison ? (
                         <div className="comparisonSummary noChanges">
                           <strong>Sin cambios detectados</strong>
-                          <span>Cambios: {comparison.modification_score}</span>
-                          <span>Adecuacion: {comparison.adequacy_score}</span>
+                          <span>Cambios: {generationModificationScore}</span>
+                          <span>Adecuacion: {generationAdequacyScore}</span>
                         </div>
                       ) : null}
                     </div>
@@ -4167,6 +4184,10 @@ function publicKeyLabel(value: string) {
     .filter(Boolean)
     .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
     .join(" ");
+}
+
+function normalizeComparableText(value: string) {
+  return value.replace(/\s+/g, " ").trim();
 }
 
 function profileKnowledgeCardStanceLabel(stance: string) {
