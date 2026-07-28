@@ -11,8 +11,9 @@ PRODUCTION_FRONTEND_URL ?= https://frontend-production-834c.up.railway.app
 EXPECTED_VERSION ?= knowledge-v51
 KNOWLEDGE_MIGRATION_REVISION ?=
 KNOWLEDGE_MIGRATION_DOWN_REVISION ?=
+KNOWLEDGE_EXPORT_DATABASE_URL ?=
 
-.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production export-knowledge-snapshot create-knowledge-snapshot-migration clean-generated
+.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production export-knowledge-snapshot export-knowledge-snapshot-from-db create-knowledge-snapshot-migration clean-generated
 
 validate: lint test-backend build-frontend
 
@@ -39,6 +40,10 @@ smoke-production:
 
 export-knowledge-snapshot:
 	$(PYTHON) scripts/export-knowledge-snapshot.py --version "$(EXPECTED_VERSION)" --output "backend/app/knowledge/data/$(EXPECTED_VERSION).snapshot.json"
+
+export-knowledge-snapshot-from-db:
+	test -n "$(KNOWLEDGE_EXPORT_DATABASE_URL)"
+	$(PYTHON) scripts/export-knowledge-snapshot.py --database-url "$(KNOWLEDGE_EXPORT_DATABASE_URL)" --version "$(EXPECTED_VERSION)" --output "backend/app/knowledge/data/$(EXPECTED_VERSION).snapshot.json"
 
 create-knowledge-snapshot-migration:
 	test -n "$(KNOWLEDGE_MIGRATION_REVISION)"

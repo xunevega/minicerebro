@@ -18,3 +18,12 @@ def test_make_smoke_ui_passes_api_base_to_frontend_tests() -> None:
 
     assert "API_BASE ?= http://127.0.0.1:8000" in makefile
     assert 'VITE_API_BASE="$(API_BASE)" npm run test:smoke-ui' in makefile
+
+
+def test_makefile_can_export_knowledge_snapshot_from_persistent_database() -> None:
+    root_dir = Path(__file__).resolve().parents[2]
+    makefile = (root_dir / "Makefile").read_text()
+
+    assert "KNOWLEDGE_EXPORT_DATABASE_URL ?=" in makefile
+    assert "export-knowledge-snapshot-from-db:" in makefile
+    assert '--database-url "$(KNOWLEDGE_EXPORT_DATABASE_URL)"' in makefile

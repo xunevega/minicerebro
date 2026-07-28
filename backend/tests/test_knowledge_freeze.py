@@ -150,6 +150,31 @@ def test_current_published_snapshot_export_is_reproducible(tmp_path) -> None:
     assert _file_sha256(generated) == _file_sha256(expected)
 
 
+def test_snapshot_export_defaults_to_latest_published_database_snapshot(tmp_path) -> None:
+    expected = (
+        REPO_ROOT
+        / "backend"
+        / "app"
+        / "knowledge"
+        / "data"
+        / f"{CURRENT_PUBLISHED_VERSION}.snapshot.json"
+    )
+    generated = tmp_path / "latest.snapshot.json"
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(REPO_ROOT / "scripts" / "export-knowledge-snapshot.py"),
+            "--output",
+            str(generated),
+        ],
+        check=True,
+        cwd=REPO_ROOT,
+    )
+
+    assert _file_sha256(generated) == _file_sha256(expected)
+
+
 def test_alembic_data_migration_loads_current_snapshot_without_runtime_seed(tmp_path) -> None:
     database_path = tmp_path / "knowledge-v51.sqlite3"
     env = os.environ.copy()

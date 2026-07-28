@@ -52,6 +52,20 @@ KNOWLEDGE_EXPORT_TABLES = (
 )
 
 
+def latest_published_snapshot_version(session: Session) -> str:
+    versions = session.scalars(
+        select(KnowledgeVersionRecord)
+        .join(
+            KnowledgeVersionSnapshotRecord,
+            KnowledgeVersionSnapshotRecord.version_id == KnowledgeVersionRecord.id,
+        )
+        .where(KnowledgeVersionRecord.status == "published")
+    ).all()
+    if not versions:
+        raise ValueError("no published knowledge snapshot is available")
+    return max(versions, key=lambda version: _version_number(version.id)).id
+
+
 def export_knowledge_seed_snapshot(
     session: Session,
     *,
@@ -90,6 +104,14 @@ def export_knowledge_seed_snapshot(
         },
         "tables": tables,
     }
+
+
+def _version_number(version_id: str) -> int:
+    prefix = "knowledge-v"
+    if not version_id.startswith(prefix):
+        return -1
+    value = version_id.removeprefix(prefix)
+    return int(value) if value.isdigit() else -1
 
 
 def _rows_for_model(session: Session, model: type) -> list[dict[str, Any]]:

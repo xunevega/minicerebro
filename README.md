@@ -41,7 +41,13 @@ cd backend
 
 Si `DATABASE_URL` no esta definida, el backend usa `backend/minicerebro.sqlite3` como base local persistente de desarrollo.
 La base de conocimiento publicada se carga por migraciones Alembic de datos; si falta el snapshot publicado, el arranque falla en vez de reconstruir el catalogo legacy en silencio. Solo para rescates locales antiguos puede activarse `MINICEREBRO_ALLOW_LEGACY_KNOWLEDGE_SEED=1`.
-Para publicar el siguiente snapshot como migracion de datos, genera primero el JSON con `make export-knowledge-snapshot EXPECTED_VERSION=knowledge-vNN` y despues la revision con `make create-knowledge-snapshot-migration EXPECTED_VERSION=knowledge-vNN KNOWLEDGE_MIGRATION_REVISION=<revision> KNOWLEDGE_MIGRATION_DOWN_REVISION=<revision_anterior>`.
+
+Flujo para preparar el siguiente snapshot oficial:
+
+1. Si la version ya existe en una base persistente, exporta desde esa base con `make export-knowledge-snapshot-from-db EXPECTED_VERSION=knowledge-vNN KNOWLEDGE_EXPORT_DATABASE_URL=<database_url>`.
+2. Si solo quieres reproducir el snapshot oficial ya migrado, usa `make export-knowledge-snapshot EXPECTED_VERSION=knowledge-vNN`; el script crea una SQLite temporal, aplica Alembic y exporta desde BD, no desde `catalog.py`.
+3. Crea la migracion de datos con `make create-knowledge-snapshot-migration EXPECTED_VERSION=knowledge-vNN KNOWLEDGE_MIGRATION_REVISION=<revision> KNOWLEDGE_MIGRATION_DOWN_REVISION=<revision_anterior>`.
+4. Ejecuta `make validate`, `make migrate-sqlite` y `make migrate-postgres` antes de considerar publicado el snapshot.
 
 Frontend:
 

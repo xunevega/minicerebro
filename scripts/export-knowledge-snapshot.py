@@ -14,28 +14,30 @@ BACKEND_DIR = ROOT_DIR / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
-from app.knowledge.catalog import LATEST_PUBLISHED_KNOWLEDGE_VERSION  # noqa: E402
-
 
 def main() -> int:
     parser = argparse.ArgumentParser(
-        description="Exporta una foto reproducible del conocimiento sembrado.",
+        description="Exporta una foto reproducible del conocimiento publicado persistido.",
     )
-    parser.add_argument("--version", default=LATEST_PUBLISHED_KNOWLEDGE_VERSION)
+    parser.add_argument("--version")
     parser.add_argument("--output", required=True)
+    parser.add_argument(
+        "--database-url",
+        help="Exporta desde una base existente. Si se omite, crea una SQLite temporal y aplica Alembic.",
+    )
     args = parser.parse_args()
 
-    with tempfile.NamedTemporaryFile(prefix="minicerebro-knowledge-export-", suffix=".sqlite3") as db:
-        os.environ["DATABASE_URL"] = f"sqlite:///{db.name}"
+    if args.database_url:
+        os.environ["DATABASE_URL"] = args.database_url
+        export = _export_snapshot(args.version)
+    else:
+        with tempfile.NamedTemporaryFile(prefix="minicerebro-knowledge-export-", suffix=".sqlite3") as db:
+            os.environ["DATABASE_URL"] = f"sqlite:///{db.name}"
 
-        from app.db.bootstrap import ensure_seed_data, upgrade_database
-        from app.db.session import SessionLocal
-        from app.knowledge.snapshot_export import export_knowledge_seed_snapshot
+            from app.db.bootstrap import upgrade_database
 
-        upgrade_database()
-        with SessionLocal() as session:
-            ensure_seed_data(session)
-            export = export_knowledge_seed_snapshot(session, version=args.version)
+            upgrade_database()
+            export = _export_snapshot(args.version, ensure_profile_seed=True)
 
     output_path = Path(args.output)
     output_path.parent.mkdir(parents=True, exist_ok=True)
@@ -44,6 +46,21 @@ def main() -> int:
         encoding="utf-8",
     )
     return 0
+
+
+def _export_snapshot(version: str | None, *, ensure_profile_seed: bool = False) -> dict:
+    from app.db.bootstrap import ensure_seed_data
+    from app.db.session import SessionLocal
+    from app.knowledge.snapshot_export import (
+        export_knowledge_seed_snapshot,
+        latest_published_snapshot_version,
+    )
+
+    with SessionLocal() as session:
+        if ensure_profile_seed:
+            ensure_seed_data(session)
+        resolved_version = version or latest_published_snapshot_version(session)
+        return export_knowledge_seed_snapshot(session, version=resolved_version)
 
 
 if __name__ == "__main__":

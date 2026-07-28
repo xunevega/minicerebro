@@ -66,6 +66,15 @@ def test_current_alembic_data_migration_uses_shared_snapshot_loader() -> None:
     assert "json.loads" not in migration_source
 
 
+def test_snapshot_export_script_does_not_import_static_catalog() -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+    script_source = (repo_root / "scripts" / "export-knowledge-snapshot.py").read_text()
+
+    assert "app.knowledge.catalog" not in script_source
+    assert "LATEST_PUBLISHED_KNOWLEDGE_VERSION" not in script_source
+    assert "latest_published_snapshot_version" in script_source
+
+
 def test_snapshot_migration_generator_uses_shared_snapshot_loader(tmp_path) -> None:
     repo_root = Path(__file__).resolve().parents[2]
 
