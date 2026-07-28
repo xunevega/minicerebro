@@ -41,6 +41,7 @@ cd backend
 
 Si `DATABASE_URL` no esta definida, el backend usa `backend/minicerebro.sqlite3` como base local persistente de desarrollo.
 La base de conocimiento publicada se carga por migraciones Alembic de datos; si falta el snapshot publicado, el arranque falla en vez de reconstruir el catalogo legacy en silencio. Solo para rescates locales antiguos puede activarse `MINICEREBRO_ALLOW_LEGACY_KNOWLEDGE_SEED=1`.
+Para publicar el siguiente snapshot como migracion de datos, genera primero el JSON con `make export-knowledge-snapshot EXPECTED_VERSION=knowledge-vNN` y despues la revision con `make create-knowledge-snapshot-migration EXPECTED_VERSION=knowledge-vNN KNOWLEDGE_MIGRATION_REVISION=<revision> KNOWLEDGE_MIGRATION_DOWN_REVISION=<revision_anterior>`.
 
 Frontend:
 

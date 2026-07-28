@@ -1,4 +1,6 @@
 from pathlib import Path
+import subprocess
+import sys
 
 import pytest
 
@@ -56,6 +58,39 @@ def test_current_alembic_data_migration_uses_shared_snapshot_loader() -> None:
     ).read_text()
 
     assert "from app.knowledge.snapshot_data import load_knowledge_seed_snapshot" in migration_source
+    assert "load_knowledge_seed_snapshot(SNAPSHOT_VERSION)" in migration_source
+    assert "json.loads" not in migration_source
+
+
+def test_snapshot_migration_generator_uses_shared_snapshot_loader(tmp_path) -> None:
+    repo_root = Path(__file__).resolve().parents[2]
+
+    subprocess.run(
+        [
+            sys.executable,
+            str(repo_root / "scripts" / "create-knowledge-snapshot-migration.py"),
+            "--version",
+            LATEST_PUBLISHED_KNOWLEDGE_VERSION,
+            "--revision-id",
+            "20260728_0099",
+            "--down-revision",
+            "20260728_0022",
+            "--create-date",
+            "2026-07-28",
+            "--output-dir",
+            str(tmp_path),
+        ],
+        check=True,
+        cwd=repo_root,
+    )
+
+    generated = tmp_path / "20260728_0099_seed_knowledge_v51_snapshot.py"
+    migration_source = generated.read_text()
+
+    assert "from app.knowledge.snapshot_data import load_knowledge_seed_snapshot" in migration_source
+    assert 'revision: str = "20260728_0099"' in migration_source
+    assert 'down_revision: str | None = "20260728_0022"' in migration_source
+    assert f'SNAPSHOT_VERSION = "{LATEST_PUBLISHED_KNOWLEDGE_VERSION}"' in migration_source
     assert "load_knowledge_seed_snapshot(SNAPSHOT_VERSION)" in migration_source
     assert "json.loads" not in migration_source
 

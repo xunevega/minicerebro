@@ -9,8 +9,10 @@ API_BASE ?= http://127.0.0.1:8000
 BACKEND_URL ?= https://backend-production-4652.up.railway.app
 PRODUCTION_FRONTEND_URL ?= https://frontend-production-834c.up.railway.app
 EXPECTED_VERSION ?= knowledge-v51
+KNOWLEDGE_MIGRATION_REVISION ?=
+KNOWLEDGE_MIGRATION_DOWN_REVISION ?=
 
-.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production export-knowledge-snapshot clean-generated
+.PHONY: validate lint test-backend build-frontend migrate-sqlite migrate-postgres smoke-ui smoke-production export-knowledge-snapshot create-knowledge-snapshot-migration clean-generated
 
 validate: lint test-backend build-frontend
 
@@ -37,6 +39,11 @@ smoke-production:
 
 export-knowledge-snapshot:
 	$(PYTHON) scripts/export-knowledge-snapshot.py --version "$(EXPECTED_VERSION)" --output "backend/app/knowledge/data/$(EXPECTED_VERSION).snapshot.json"
+
+create-knowledge-snapshot-migration:
+	test -n "$(KNOWLEDGE_MIGRATION_REVISION)"
+	test -n "$(KNOWLEDGE_MIGRATION_DOWN_REVISION)"
+	$(PYTHON) scripts/create-knowledge-snapshot-migration.py --version "$(EXPECTED_VERSION)" --revision-id "$(KNOWLEDGE_MIGRATION_REVISION)" --down-revision "$(KNOWLEDGE_MIGRATION_DOWN_REVISION)"
 
 clean-generated:
 	find . -type f \( -name '.DS_Store' -o -name '*.pyc' -o -name '*.pyo' -o -name '*.tsbuildinfo' \) \
