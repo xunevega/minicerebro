@@ -8,6 +8,9 @@ from app.core.models import GenerationInput, GenerationResult, ScoreVariable
 
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
 PROTECTED_TOKEN_TEMPLATE = "__PROTECTED_TERM_{index}__"
+PUNCTUATION_SPACING_RE = re.compile(r"\s+([,.;:!?])")
+MISSING_SPACE_AFTER_PUNCTUATION_RE = re.compile(r"([,.;:!?])(?=\S)")
+SENTENCE_START_RE = re.compile(r"(^|[.!?]\s+)([a-záéíóúüñ])")
 
 
 def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
@@ -48,6 +51,37 @@ def _restore_terms(value: str, replacements: list[tuple[str, str]]) -> str:
     return restored
 
 
+def _capitalize_sentence_starts(value: str) -> str:
+    def replace_match(match: re.Match[str]) -> str:
+        return f"{match.group(1)}{match.group(2).upper()}"
+
+    return SENTENCE_START_RE.sub(replace_match, value)
+
+
+def _add_opening_marks(value: str) -> str:
+    sentences = SENTENCE_RE.split(value)
+    corrected = []
+    for sentence in sentences:
+        stripped = sentence.lstrip()
+        leading = sentence[: len(sentence) - len(stripped)]
+        if stripped.endswith("?") and "¿" not in stripped:
+            stripped = f"¿{stripped}"
+        if stripped.endswith("!") and "¡" not in stripped:
+            stripped = f"¡{stripped}"
+        corrected.append(f"{leading}{stripped}")
+    return " ".join(corrected)
+
+
+def _safe_surface_correction(value: str) -> str:
+    corrected = " ".join(value.split())
+    corrected = PUNCTUATION_SPACING_RE.sub(r"\1", corrected)
+    corrected = MISSING_SPACE_AFTER_PUNCTUATION_RE.sub(r"\1 ", corrected)
+    corrected = _capitalize_sentence_starts(corrected)
+    corrected = _add_opening_marks(corrected)
+    corrected = PUNCTUATION_SPACING_RE.sub(r"\1", corrected)
+    return corrected
+
+
 def _profile_prompt(variables: list[ScoreVariable]) -> str:
     lines = [
         f"- {item.key}: efectivo={item.effective_value}, confianza={item.confidence:.2f}, contexto={item.context}"
@@ -82,7 +116,7 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
     normalized_original = original
     paragraph_adjusted = False
     if payload.action in {"rewrite", "correction"}:
-        output = " ".join(output.split())
+        output = _safe_surface_correction(output)
         normalized_original = output
         if payload.action == "rewrite":
             output = _paragraph_rewrite(output)
@@ -112,8 +146,8 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
         )
     elif payload.action == "correction":
         explanation = (
-            "Correccion local segura: limpia formato y espacios sin cambiar la voz ni aplicar "
-            "aprendizaje automatico."
+            "Correccion local segura: ajusta espacios, puntuacion visible y mayusculas de frase "
+            "sin reescribir tu voz ni aplicar aprendizaje automatico."
         )
     elif payload.action == "continue":
         explanation = (

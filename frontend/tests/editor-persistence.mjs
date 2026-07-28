@@ -151,6 +151,24 @@ try {
     throw new Error("La lectura con fichas no debe mostrar el estado vacio de salida.");
   }
 
+  await editorPanel.locator("textarea").first().fill(" hola ,mundo. esto funciona ? si ! ");
+  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("correction");
+  const correctionResponse = page.waitForResponse(
+    (response) => {
+      const url = new URL(response.url());
+      return url.pathname === "/generation" && response.request().method() === "POST";
+    },
+    { timeout: 90000 },
+  );
+  await page.getByRole("button", { name: "Crear propuesta" }).click();
+  await correctionResponse;
+  await resultPanel.getByText("Propuesta de correccion").waitFor();
+  const correctedOutput = await resultPanel.locator("textarea[readonly]").inputValue();
+  if (correctedOutput !== "Hola, mundo. ¿Esto funciona? ¡Si!") {
+    throw new Error("Corregir sin reescribir no mostro una correccion visible segura.");
+  }
+  await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).waitFor();
+
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
     timeout: 90000,
   });

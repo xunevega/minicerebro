@@ -671,6 +671,19 @@ def test_generation_action_aliases_are_bound_to_their_routes():
     assert actions == ["correction", "continue", "variants"]
 
 
+def test_correction_endpoint_applies_visible_safe_corrections():
+    response = client.post(
+        "/correction",
+        json={"text": " hola ,mundo. esto funciona ? si ! ", "context": "general"},
+    )
+
+    assert response.status_code == 200
+    payload = response.json()
+    assert payload["output"] == "Hola, mundo. ¿Esto funciona? ¡Si!"
+    assert "puntuacion visible" in payload["explanation"]
+    assert payload["learning_applied"] is False
+
+
 def test_generation_audits_duration_without_raw_text():
     response = client.post(
         "/generation",

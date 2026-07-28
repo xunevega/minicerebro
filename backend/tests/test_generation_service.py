@@ -20,6 +20,36 @@ def test_protected_terms_preserve_original_casing():
     assert _restore_terms(protected, replacements) == "La Mayoría decide."
 
 
+def test_deterministic_correction_fixes_safe_surface_errors():
+    result = service.rewrite_deterministic(
+        GenerationInput(
+            text=" hola ,mundo. esto funciona ? si ! ",
+            action="correction",
+            context="general",
+        ),
+        [],
+    )
+
+    assert result.output == "Hola, mundo. ¿Esto funciona? ¡Si!"
+    assert "Correccion local segura" in result.explanation
+    assert result.learning_applied is False
+
+
+def test_deterministic_correction_preserves_protected_terms():
+    result = service.rewrite_deterministic(
+        GenerationInput(
+            text="la Mayoría , decide?",
+            action="correction",
+            context="general",
+            protected_terms=["Mayoría"],
+        ),
+        [],
+    )
+
+    assert "Mayoría" in result.output
+    assert result.output == "¿La Mayoría, decide?"
+
+
 def test_openai_failure_falls_back_to_deterministic_generation(monkeypatch):
     class FailingResponses:
         def create(self, **kwargs):
