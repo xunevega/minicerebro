@@ -10,8 +10,8 @@ try {
   await page.getByRole("button", { name: "Mi criterio" }).click();
   await page.getByLabel("Vista").selectOption("scoring");
 
-  await page.getByText("Ajustes de estilo").waitFor();
-  await page.getByLabel("Por que cambias este ajuste").fill("Smoke UI de ajustes.");
+  await page.getByRole("heading", { name: "Ajustes personales" }).waitFor();
+  await page.getByLabel("Motivo del cambio").fill("Smoke UI de ajustes.");
 } finally {
   await browser.close();
 }

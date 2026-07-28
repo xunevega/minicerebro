@@ -10,8 +10,8 @@ try {
   await page.getByRole("button", { name: "Mi criterio" }).click();
   await page.getByLabel("Vista").selectOption("profile");
 
-  await page.getByRole("heading", { name: "Ficha personal" }).waitFor();
-  await page.getByText("Preferencias, pesos y ficha personal.").waitFor();
+  await page.getByRole("heading", { name: "Lo que Editados sabe de mi" }).waitFor();
+  await page.getByText("Gustos, decisiones y ajustes personales.", { exact: true }).waitFor();
 } finally {
   await browser.close();
 }

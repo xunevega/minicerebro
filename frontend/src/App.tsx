@@ -140,9 +140,9 @@ import type {
 
 const tabs = [
   { id: "knowledge", label: "Biblioteca", icon: BookOpen },
-  { id: "preferences", label: "Preferencias", icon: PenLine },
-  { id: "profile", label: "Mi ficha", icon: Brain },
-  { id: "scoring", label: "Pesos", icon: SlidersHorizontal },
+  { id: "preferences", label: "Gustos", icon: PenLine },
+  { id: "profile", label: "Resumen", icon: Brain },
+  { id: "scoring", label: "Ajustes", icon: SlidersHorizontal },
   { id: "editor", label: "Escribir", icon: FilePenLine },
   { id: "lab", label: "Taller", icon: FlaskConical },
   { id: "compare", label: "Comparar", icon: GitCompare },
@@ -240,7 +240,7 @@ const mainSections: Array<{
   {
     id: "profile",
     label: "Mi criterio",
-    description: "Preferencias, pesos y ficha personal.",
+    description: "Gustos, decisiones y ajustes personales.",
     icon: Brain,
     defaultTab: "preferences",
     tabs: ["preferences", "scoring", "profile"],
@@ -497,6 +497,16 @@ export function App() {
   const displayedAuditEvents = showAllAuditEvents
     ? writerFacingAuditEvents
     : writerFacingAuditEvents.slice(0, 6);
+  const scoreLabelByKey = (key: string) =>
+    scores.find((score) => score.key === key)?.label ?? publicKeyLabel(key);
+  const scoreDeltaDescription = (delta: number) => {
+    const direction = delta > 0 ? "Sube" : delta < 0 ? "Baja" : "Mantiene";
+    const amount = Math.abs(delta);
+    if (amount === 0) return "Sin cambio personal.";
+    if (amount >= 50) return `${direction} con fuerza si guardas este criterio.`;
+    if (amount >= 20) return `${direction} de forma moderada si guardas este criterio.`;
+    return `${direction} un poco si guardas este criterio.`;
+  };
 
   useEffect(() => {
     getKnowledgeStatus()
@@ -1988,10 +1998,14 @@ export function App() {
                   </p>
                   <div className="metricGrid">
                     <Metric
-                      label="Estado"
-                      value={profileKnowledgeCardSaved?.stance ?? "sin guardar"}
+                      label="Decision"
+                      value={
+                        profileKnowledgeCardSaved
+                          ? profileKnowledgeCardStanceLabel(profileKnowledgeCardSaved.stance)
+                          : "Sin guardar"
+                      }
                     />
-                    <Metric label="Afinidad" value={profileKnowledgeCardScore} />
+                    <Metric label="Te sirve" value={profileKnowledgeCardScore} />
                     <Metric label="Contexto" value={activeContext} />
                   </div>
                   <div className="buttonRow" role="group" aria-label="Estado de tu ficha">
@@ -2011,7 +2025,7 @@ export function App() {
                     ))}
                   </div>
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
-                    Afinidad personal
+                    Cuanto te sirve
                   </label>
                   <input
                     id="profileKnowledgeCardScore"
@@ -2022,7 +2036,7 @@ export function App() {
                     value={profileKnowledgeCardScore}
                   />
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardFeedback">
-                    Tu comentario
+                    Nota para ti
                   </label>
                   <textarea
                     id="profileKnowledgeCardFeedback"
@@ -2030,7 +2044,7 @@ export function App() {
                     value={profileKnowledgeCardFeedback}
                   />
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardMaintained">
-                    Mantener de esta ficha
+                    Que quieres mantener
                   </label>
                   <input
                     className="textInput"
@@ -2039,7 +2053,7 @@ export function App() {
                     value={profileKnowledgeCardMaintained}
                   />
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardChanges">
-                    Cambiar en mi uso
+                    Que quieres cambiar
                   </label>
                   <input
                     className="textInput"
@@ -2048,7 +2062,7 @@ export function App() {
                     value={profileKnowledgeCardChanges}
                   />
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardNotes">
-                    Notas
+                    Comentario libre
                   </label>
                   <textarea
                     id="profileKnowledgeCardNotes"
@@ -2061,22 +2075,22 @@ export function App() {
                       onClick={handleSaveProfileKnowledgeCard}
                       type="button"
                     >
-                      Guardar en mi ficha
+                      Guardar mi decision
                     </button>
                     <button
                       className="ghostButton"
                       onClick={handleProfileKnowledgeCardScoreProposal}
                       type="button"
                     >
-                      Calcular ajuste sugerido
+                      Ver como ajustaria mi criterio
                     </button>
                   </div>
                   {profileKnowledgeCardProposal ? (
                     <div className="proposalBox">
-                      <h3>Ajuste sugerido</h3>
+                      <h3>Como quedaria tu criterio</h3>
                       <div className="metricGrid">
-                        <Metric label="Estado" value={profileKnowledgeCardProposal.status} />
-                        <Metric label="Ajustes" value={profileKnowledgeCardProposal.items.length} />
+                        <Metric label="Resultado" value={scoreProposalStatusLabel(profileKnowledgeCardProposal.status)} />
+                        <Metric label="Cambios" value={profileKnowledgeCardProposal.items.length} />
                       </div>
                       <div className="auditList">
                         {profileKnowledgeCardProposal.items.map((item) => (
@@ -2085,12 +2099,10 @@ export function App() {
                             key={`${item.variable_key}-${item.context}`}
                           >
                             <div>
-                              <strong>{item.variable_key}</strong>
+                              <strong>{scoreLabelByKey(item.variable_key)}</strong>
                               <span>{item.reason}</span>
                             </div>
-                            <span>
-                              {item.current_value} -&gt; {item.proposed_value} ({item.delta})
-                            </span>
+                            <span>{scoreDeltaDescription(item.delta)}</span>
                           </article>
                         ))}
                       </div>
@@ -2105,7 +2117,7 @@ export function App() {
                         }
                         type="button"
                       >
-                        Aplicar ajuste
+                        Guardar este criterio
                       </button>
                     </div>
                   ) : null}
@@ -2909,7 +2921,10 @@ export function App() {
               {preference ? (
                 <>
                   <p>{preference.interpreted_as}</p>
-                  <List title="Aspectos afectados" items={preference.affected_variables} />
+                  <List
+                    title="Lo que podria ajustar"
+                    items={preference.affected_variables.map(scoreLabelByKey)}
+                  />
                   <span className="statusPill">{preferenceStatusPublicLabel(preference.status)}</span>
                 </>
               ) : (
@@ -2917,22 +2932,20 @@ export function App() {
               )}
               {scoreProposal ? (
                 <div className="proposalBox">
-                  <h3>Ajuste sugerido</h3>
+                  <h3>Como quedaria tu criterio</h3>
                   {scoreProposal.items.length === 0 ? (
                     <p className="note">Este gusto todavia no genera cambios aplicables.</p>
                   ) : (
                     <>
                       {scoreProposal.items.map((item) => (
                         <div className="proposalItem" key={item.variable_key}>
-                          <strong>
-                            {item.context}:{item.variable_key} {item.delta > 0 ? "+" : ""}
-                            {item.delta}
-                          </strong>
+                          <strong>{scoreLabelByKey(item.variable_key)}</strong>
                           <span>{item.reason}</span>
+                          <span>{scoreDeltaDescription(item.delta)}</span>
                         </div>
                       ))}
                       <button className="primaryButton" onClick={handleApplyScoreProposal} type="button">
-                        Aplicar ajuste
+                        Guardar ajuste en mi criterio
                       </button>
                     </>
                   )}
@@ -3363,21 +3376,20 @@ export function App() {
 
         {active === "profile" && (
           <section className="panel">
-            <h2>Ficha personal</h2>
+            <h2>Lo que Editados sabe de mi</h2>
             <p className="note">
-              Esta es tu capa personal: gustos, ajustes y fichas que has marcado. No modifica la
-              biblioteca publicada.
+              Tus gustos, decisiones y ajustes personales. La biblioteca publicada no cambia.
             </p>
             <p>{summary?.summary}</p>
             <div className="metricGrid">
               <Metric label="Gustos" value={summary?.preference_count ?? 0} />
-              <Metric label="Confianza media" value={`${Math.round(averageConfidence * 100)}%`} />
-              <Metric label="Cobertura" value={`${Math.round((statistics?.coverage ?? 0) * 100)}%`} />
+              <Metric label="Seguridad" value={`${Math.round(averageConfidence * 100)}%`} />
+              <Metric label="Perfil completado" value={`${Math.round((statistics?.coverage ?? 0) * 100)}%`} />
             </div>
             <p className="note">{summary?.confidence_note}</p>
             {editorialProfileCard ? (
               <div className="proposalBox">
-                <h3>Ficha editorial</h3>
+                <h3>Resumen de mi criterio</h3>
                 <p>{editorialProfileCard.summary}</p>
                 <div className="metricGrid">
                   <Metric
@@ -3389,12 +3401,12 @@ export function App() {
                     value={editorialProfileCard.generated_text_count}
                   />
                   <Metric
-                    label="Base estable"
-                    value={editorialProfileCard.stable_knowledge_mutated ? "modificada" : "intacta"}
+                    label="Biblioteca"
+                    value={editorialProfileCard.stable_knowledge_mutated ? "revisar" : "intacta"}
                   />
                 </div>
                 <List
-                  title="Aspectos dominantes"
+                  title="Rasgos que mas pesan"
                   items={editorialProfileCard.strongest_variables.map(
                     (item) => `${item.label}: ${item.effective_value}`,
                   )}
@@ -3415,17 +3427,19 @@ export function App() {
                       : ["Todavia no has marcado cambios personales."]
                   }
                 />
-                <p className="note">{editorialProfileCard.profile_mutation_source}</p>
+                <details className="queryTraceBox">
+                  <summary>Ver detalle de guardado</summary>
+                  <p className="note">{editorialProfileCard.profile_mutation_source}</p>
+                </details>
               </div>
             ) : null}
             <button className="primaryButton editorButton" onClick={handleProfileExport} type="button">
-              Ver ficha completa
+              Ver datos guardados
             </button>
             {profileExport ? (
               <div className="proposalBox">
-                <h2>Ficha completa</h2>
+                <h2>Datos guardados</h2>
                 <div className="metricGrid">
-                  <Metric label="Formato" value={profileExport.export_version} />
                   <Metric
                     label="Contextos"
                     value={Object.keys(profileExport.variables_by_context).length}
@@ -3433,7 +3447,9 @@ export function App() {
                   <Metric label="Gustos" value={profileExport.preferences.length} />
                   <Metric label="Fichas guardadas" value={profileExport.knowledge_cards.length} />
                 </div>
-                <p className="note">{profileExport.knowledge_policy}</p>
+                <p className="note">
+                  Tu criterio personal esta separado de la biblioteca publicada.
+                </p>
                 <List
                   title="Contextos guardados"
                   items={Object.entries(profileExport.variables_by_context).map(
@@ -3451,15 +3467,23 @@ export function App() {
                         )
                   }
                 />
+                <details className="queryTraceBox">
+                  <summary>Ver detalle tecnico</summary>
+                  <Metric label="Formato" value={profileExport.export_version} />
+                  <p className="note">{profileExport.knowledge_policy}</p>
+                </details>
               </div>
             ) : null}
-            <List title="Aspectos con poca confianza" items={statistics?.low_confidence_variables ?? []} />
+            <List
+              title="Criterios poco aprendidos"
+              items={(statistics?.low_confidence_variables ?? []).map(scoreLabelByKey)}
+            />
             <List
               title="Contradicciones"
               items={
                 contradictions.length === 0
                   ? ["Sin contradicciones detectadas en este contexto."]
-                  : contradictions.map((item) => `${item.variable_key}: ${item.note}`)
+                  : contradictions.map((item) => `${scoreLabelByKey(item.variable_key)}: ${item.note}`)
               }
             />
           </section>
@@ -3467,9 +3491,12 @@ export function App() {
 
         {active === "scoring" && (
           <section className="panel">
-            <h2>Ajustes de estilo</h2>
+            <h2>Ajustes personales</h2>
+            <p className="note">
+              Sube o baja rasgos de estilo. Solo afecta a tu criterio, no a la biblioteca.
+            </p>
             <label className="fieldLabel" htmlFor="scoreReason">
-              Por que cambias este ajuste
+              Motivo del cambio
             </label>
             <input
               className="textInput"
@@ -3484,9 +3511,9 @@ export function App() {
                     <strong>{score.label}</strong>
                     <span>{score.category}</span>
                   </div>
-                  <Meter label="Base" value={score.calculated_value} />
+                  <Meter label="Por defecto" value={score.calculated_value} />
                   <div className="adjustControl">
-                    <label htmlFor={`adjust-${score.key}`}>Ajuste: {score.manual_adjustment}</label>
+                    <label htmlFor={`adjust-${score.key}`}>Cambio personal: {score.manual_adjustment}</label>
                     <input
                       id={`adjust-${score.key}`}
                       max={300}
@@ -3507,7 +3534,7 @@ export function App() {
                       Restablecer
                     </button>
                   </div>
-                  <Meter label="Resultado" value={score.effective_value} />
+                  <Meter label="Ahora" value={score.effective_value} />
                 </article>
               ))}
             </div>
@@ -3581,9 +3608,10 @@ export function App() {
                   {activeFeedback.items.map((item) => (
                     <div className="proposalItem" key={item.variable_key}>
                       <strong>
-                        {`${item.variable_key}: ${item.current_value} -> ${item.proposed_value}`}
+                        {scoreLabelByKey(item.variable_key)}
                       </strong>
                       <span>{item.reason}</span>
+                      <span>{scoreDeltaDescription(item.proposed_value - item.current_value)}</span>
                     </div>
                   ))}
                   {activeFeedback.status === "proposed" ? (
@@ -4048,7 +4076,7 @@ function auditEventPublicLabel(eventType: string) {
     "text.revision.executed": "Revision con fichas",
     "text.revision.feedback_recorded": "Decision de revision",
     "feedback.created": "Feedback guardado",
-    "profile.knowledge_card.updated": "Ficha personal actualizada",
+    "profile.knowledge_card.updated": "Criterio personal actualizado",
     "profile.knowledge_card.score_applied": "Ajuste aplicado",
   };
   return labels[eventType] ?? "Actividad registrada";
@@ -4121,6 +4149,24 @@ function preferenceStatusPublicLabel(status: string) {
     rejected: "Descartado",
   };
   return labels[status] ?? status;
+}
+
+function scoreProposalStatusLabel(status: string) {
+  const labels: Record<string, string> = {
+    proposed: "Listo para guardar",
+    applied: "Guardado",
+    rejected: "Descartado",
+    empty: "Sin ajuste",
+  };
+  return labels[status] ?? publicKeyLabel(status);
+}
+
+function publicKeyLabel(value: string) {
+  return value
+    .split("_")
+    .filter(Boolean)
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }
 
 function profileKnowledgeCardStanceLabel(stance: string) {

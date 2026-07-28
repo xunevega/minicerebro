@@ -17,17 +17,17 @@ try {
     },
     { timeout: 90000 },
   );
-  await page.getByRole("button", { name: "Ver ficha completa" }).click();
+  await page.getByRole("button", { name: "Ver datos guardados" }).click();
   await exportResponse;
 
-  const exportBox = page.locator(".proposalBox", { hasText: "Ficha completa" });
-  await exportBox.getByText("profile-export-v1").waitFor();
+  const exportBox = page.locator(".proposalBox", { hasText: "Datos guardados" });
   await exportBox.locator(".metric", { hasText: "Contextos" }).waitFor();
   await exportBox.locator(".metric", { hasText: "Gustos" }).waitFor();
   await exportBox
-    .getByText("La exportacion del perfil no incluye ni modifica la base de conocimiento.")
+    .getByText("Tu criterio personal esta separado de la biblioteca publicada.")
     .waitFor();
   await exportBox.getByText("Contextos guardados").waitFor();
+  await exportBox.getByText("Ver detalle tecnico").waitFor();
 } finally {
   await browser.close();
 }
