@@ -452,7 +452,7 @@ export function App() {
       status: editorHasDraft ? "done" : "active",
     },
     {
-      label: "Trabajo",
+      label: "Accion",
       description: generationHasChanges
         ? "Hay una version nueva sin aplicar."
         : generationHasNoChanges
@@ -460,7 +460,7 @@ export function App() {
           : textRevision
             ? "Lectura editorial abierta."
             : "Elige lectura o propuesta.",
-      status: generationHasChanges || textRevision ? "done" : editorHasDraft ? "active" : "pending",
+      status: generationHasChanges || generationHasNoChanges || textRevision ? "done" : editorHasDraft ? "active" : "pending",
     },
     {
       label: "Salida",
@@ -471,7 +471,7 @@ export function App() {
         : textRevision
           ? "Ficha pendiente de valorar."
           : "Aqui veras el resultado.",
-      status: generationHasChanges || textRevision ? "active" : "pending",
+      status: generationHasChanges || generationHasNoChanges || textRevision ? "active" : "pending",
     },
     {
       label: "Decision",
@@ -480,6 +480,8 @@ export function App() {
           ? `${editorFeedbackCount} criterio${editorFeedbackCount === 1 ? "" : "s"} guardado${editorFeedbackCount === 1 ? "" : "s"}.`
           : generationHasChanges
             ? "Acepta, copia o descarta."
+            : generationHasNoChanges
+              ? "Prueba fichas o cambia opciones."
             : "Tu decides que se queda.",
       status: editorFeedbackCount > 0 || generationHasChanges ? "done" : "pending",
     },
@@ -1529,10 +1531,13 @@ export function App() {
   }
 
   function handleDiscardGeneratedText() {
+    const notice = generationHasNoChanges
+      ? "Resultado cerrado. Cambia opciones o pide lectura con fichas."
+      : "Propuesta descartada. El borrador no ha cambiado.";
     setGeneration(null);
     setGenerationCopyStatus("");
     setComparison(null);
-    setEditorOutcomeNotice("Propuesta descartada. El borrador no ha cambiado.");
+    setEditorOutcomeNotice(notice);
   }
 
   async function handleCopyEditorText() {
@@ -2970,6 +2975,7 @@ export function App() {
                 <label className="editorControl actionControl">
                   <span className="controlLabel">Trabajo sobre el texto</span>
                   <select
+                    aria-label="Trabajo sobre el texto"
                     onChange={(event) => handleEditorActionChange(event.target.value as GenerationAction)}
                     value={editorAction}
                   >
@@ -2995,6 +3001,7 @@ export function App() {
                 <label className="editorControl revisionControl">
                   <span className="controlLabel">Revision</span>
                   <select
+                    aria-label="Revision"
                     onChange={(event) => handleRevisionIntentionChange(event.target.value)}
                     value={revisionIntention}
                   >
@@ -3023,7 +3030,7 @@ export function App() {
                   onClick={handleGenerate}
                   type="button"
                 >
-                  Crear version
+                  Crear propuesta
                 </button>
                 <button
                   className="secondaryButton editorButton"
@@ -3105,13 +3112,13 @@ export function App() {
                   <>
                     <h3>Propuesta de {editorProposalLabel}</h3>
                     <p className="note">
-                      Es una version alternativa creada con {selectedEditorAction.label.toLowerCase()}.
-                      No sustituye tu borrador hasta que pulses "Usar esta version".
+                      Es una propuesta creada con {selectedEditorAction.label.toLowerCase()}.
+                      No sustituye tu borrador hasta que pulses "Aceptar propuesta".
                     </p>
                     <textarea readOnly value={generation.output} />
                     <div className="resultActions">
                       <button className="primaryButton" onClick={handleUseGeneratedText} type="button">
-                        Usar esta version
+                        Aceptar propuesta
                       </button>
                       <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                         Copiar propuesta
