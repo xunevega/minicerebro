@@ -19,3 +19,7 @@ The expected flow is:
 
 Snapshot files live in `data/` and are loaded through `snapshot_data.py`, so
 data migrations and scripts share the same format checks.
+
+`legacy_seed.py` is only the explicit fallback used when
+`MINICEREBRO_ALLOW_LEGACY_KNOWLEDGE_SEED=1`; normal application startup should
+not use it once Alembic data migrations have loaded the published snapshot.

@@ -27,9 +27,13 @@ def test_static_knowledge_catalog_is_separate_from_runtime_service() -> None:
 def test_bootstrap_reads_knowledge_seed_from_catalog() -> None:
     root_dir = Path(__file__).resolve().parents[1]
     bootstrap_source = (root_dir / "app" / "db" / "bootstrap.py").read_text()
+    legacy_seed_source = (root_dir / "app" / "knowledge" / "legacy_seed.py").read_text()
 
-    assert "from app.knowledge.catalog import (" in bootstrap_source
+    assert "from app.knowledge.legacy_seed import ensure_knowledge_seed_data" in bootstrap_source
+    assert "seed_sources" not in bootstrap_source
     assert "from app.knowledge.service import (" not in bootstrap_source
+    assert "from app.knowledge.catalog import (" in legacy_seed_source
+    assert "def ensure_knowledge_seed_data(" in legacy_seed_source
 
 
 def test_current_snapshot_is_loaded_through_shared_data_contract() -> None:
