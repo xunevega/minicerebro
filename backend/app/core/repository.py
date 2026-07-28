@@ -1310,10 +1310,6 @@ class Repository:
                 KnowledgeObjectRevisionRecord.id.in_(snapshot.revision_ids)
             )
         ).all():
-            if revision.status != "published":
-                revision.status = "published"
-                revision.knowledge_version = version
-                revision.updated_at = published_at
             revision_count += 1
 
         claim_revision_count = 0

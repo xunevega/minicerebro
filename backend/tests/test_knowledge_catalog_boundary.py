@@ -70,7 +70,8 @@ def test_bootstrap_keeps_legacy_knowledge_seed_isolated() -> None:
     assert "app.knowledge.catalog" not in bootstrap_source
     assert "seed_sources" not in bootstrap_source
     assert "from app.knowledge.service import (" not in bootstrap_source
-    assert "from app.knowledge.catalog import (" in legacy_seed_source
+    assert "app.knowledge.catalog" not in legacy_seed_source
+    assert "load_knowledge_seed_snapshot" in legacy_seed_source
     assert "def ensure_knowledge_seed_data(" in legacy_seed_source
 
 
