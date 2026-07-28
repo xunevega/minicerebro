@@ -1,6 +1,6 @@
 [project]
 name = "minicerebro-backend"
-version = "1.0.0"
+version = "1.0.1"
 description = "Backend de Minicerebro V1"
 requires-python = ">=3.12"
 dependencies = [
