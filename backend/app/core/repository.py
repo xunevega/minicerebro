@@ -2423,6 +2423,7 @@ class Repository:
             cards=self.list_knowledge_cards(version=resolved_version),
             claims=self.list_knowledge_claims(version=resolved_version),
             evidence=self.list_knowledge_evidence(version=resolved_version),
+            relations=self.list_knowledge_relations(version=resolved_version),
         )
         result.requested_version = payload.version
         result.resolved_version = resolved_version
@@ -2815,6 +2816,7 @@ class Repository:
             cards=self.list_knowledge_cards(version=resolved_version),
             claims=self.list_knowledge_claims(version=resolved_version),
             evidence=self.list_knowledge_evidence(version=resolved_version),
+            relations=self.list_knowledge_relations(version=resolved_version),
         )
 
     def list_knowledge_query_history(

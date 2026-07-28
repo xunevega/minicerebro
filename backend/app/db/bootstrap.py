@@ -16,7 +16,7 @@ from app.db.models import (
     ScoreVariableRecord,
 )
 from app.db.session import database_url
-from app.knowledge.catalog import LATEST_PUBLISHED_KNOWLEDGE_VERSION
+from app.knowledge.contracts import LATEST_KNOWLEDGE_VERSION
 from app.knowledge.legacy_seed import ensure_knowledge_seed_data
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
@@ -81,11 +81,10 @@ def ensure_profile_seed_data(session: Session) -> None:
 
 
 def has_published_knowledge_snapshot(session: Session) -> bool:
-    version = session.get(KnowledgeVersionRecord, LATEST_PUBLISHED_KNOWLEDGE_VERSION)
-    snapshot = session.get(KnowledgeVersionSnapshotRecord, LATEST_PUBLISHED_KNOWLEDGE_VERSION)
+    version = session.get(KnowledgeVersionRecord, LATEST_KNOWLEDGE_VERSION)
+    snapshot = session.get(KnowledgeVersionSnapshotRecord, LATEST_KNOWLEDGE_VERSION)
     return version is not None and version.status == "published" and snapshot is not None
 
 
 def legacy_knowledge_seed_allowed() -> bool:
     return os.getenv(LEGACY_KNOWLEDGE_SEED_ENV, "").strip().lower() in {"1", "true", "yes"}
-

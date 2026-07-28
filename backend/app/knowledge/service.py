@@ -25,8 +25,7 @@ from app.core.models import (
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
 )
-from app.knowledge.catalog import (
-    _ingestion_blockers,
+from app.knowledge.contracts import (
     DEFAULT_SOURCE_EDITION,
     DEFAULT_SOURCE_LOCATORS,
     EXCLUDED_VERSIONED_OBJECT_TYPES,
@@ -41,12 +40,7 @@ from app.knowledge.catalog import (
     QUERY_LIFECYCLE,
     QUERY_OUT_OF_SCOPE,
     VERSIONED_OBJECT_TYPES,
-    seed_cards,
-    seed_claims,
-    seed_evidence,
-    seed_nodes,
-    seed_relations,
-    seed_sources,
+    ingestion_blockers,
 )
 
 def versioning_policy() -> KnowledgeVersioningPolicy:
@@ -380,7 +374,7 @@ def evaluate_ingestion_readiness(
             ],
             blockers=["missing_edition"],
         )
-    blockers = _ingestion_blockers(source, edition)
+    blockers = ingestion_blockers(source, edition)
     checks = [
         {
             "id": "registered_source",
@@ -881,11 +875,12 @@ def interpret_knowledge_query(payload: KnowledgeQueryInput) -> KnowledgeQueryInt
 
 def query_knowledge(
     payload: KnowledgeQueryInput,
-    sources: list[KnowledgeSource] | None = None,
-    nodes: list[KnowledgeNode] | None = None,
-    cards: list[KnowledgeCard] | None = None,
-    claims: list[KnowledgeClaim] | None = None,
-    evidence: list[KnowledgeEvidenceItem] | None = None,
+    sources: list[KnowledgeSource],
+    nodes: list[KnowledgeNode],
+    cards: list[KnowledgeCard],
+    claims: list[KnowledgeClaim],
+    evidence: list[KnowledgeEvidenceItem],
+    relations: list[KnowledgeRelation],
 ) -> KnowledgeQueryResult:
     interpretation = interpret_knowledge_query(payload)
     requested_version = interpretation.requested_version
@@ -894,11 +889,6 @@ def query_knowledge(
     terms = _query_terms(normalized_query)
     editorial_revision_query = _is_editorial_revision_query(normalized_query, terms)
     query_types = interpretation.query_type
-    sources = sources if sources is not None else seed_sources()
-    nodes = nodes if nodes is not None else seed_nodes()
-    cards = cards if cards is not None else seed_cards()
-    claims = claims if claims is not None else seed_claims()
-    evidence = evidence if evidence is not None else seed_evidence()
     allowed_statuses = {"published"}
     published_claims = [claim for claim in claims if claim.status in allowed_statuses]
     published_evidence = [item for item in evidence if item.status in allowed_statuses]
@@ -909,7 +899,6 @@ def query_knowledge(
     for claim in published_claims:
         claims_by_card.setdefault(claim.card_id, []).append(claim)
 
-    relations = seed_relations()
     relations_by_source = {
         (relation.source_entity_type, relation.source_entity_id): relation
         for relation in relations
@@ -1007,6 +996,9 @@ def query_knowledge(
         natural_term_boost = 0.0
         if {"charla", "conversacion", "conversaciones"} & terms and "dialogo" in normalized_core_haystack:
             natural_term_boost = 2.5
+        diagnostic_family_boost = 0.0
+        if "diagnostico" in terms and card.id.startswith("card-diagnostico-de-"):
+            diagnostic_family_boost = 2.0
         domain_match = 1.0 if any(term in haystack.lower() for term in ("lexic", "estilo", "escrit")) else 0.5
         if "TEORIA LITERARIA" in _detect_domains(normalized_query, []):
             literary_haystack = _normalize_query(
@@ -1055,6 +1047,7 @@ def query_knowledge(
             "claim_confidence": round(claim_confidence, 3),
             "relation_score": round(relation_score, 3),
             "natural_term_boost": round(natural_term_boost, 3),
+            "diagnostic_family_boost": round(diagnostic_family_boost, 3),
             "version_score": round(version_score, 3),
             "status_score": round(status_score, 3),
         }
@@ -1069,6 +1062,7 @@ def query_knowledge(
             + (context_match * 0.25)
             + (relation_score * 0.35)
             + natural_term_boost
+            + diagnostic_family_boost
             + (version_score * 0.25)
             + (status_score * 0.25),
             3,
@@ -1301,6 +1295,7 @@ def knowledge_gym_report(
     cards: list[KnowledgeCard],
     claims: list[KnowledgeClaim],
     evidence: list[KnowledgeEvidenceItem],
+    relations: list[KnowledgeRelation],
 ) -> KnowledgeGymReport:
     checks: list[KnowledgeGymCheck] = []
     published_claims = [claim for claim in claims if claim.status == "published"]
@@ -1326,6 +1321,7 @@ def knowledge_gym_report(
             cards=cards,
             claims=claims,
             evidence=evidence,
+            relations=relations,
         )
         returned_ids = [card.id for card in result.cards]
         selected_cards.extend(returned_ids[:1])
@@ -1456,6 +1452,7 @@ def knowledge_gym_report(
         cards=cards,
         claims=claims,
         evidence=evidence,
+        relations=relations,
     )
     specific_result = query_knowledge(
         KnowledgeQueryInput(query="coma incidental", version=version, limit=5),
@@ -1464,6 +1461,7 @@ def knowledge_gym_report(
         cards=cards,
         claims=claims,
         evidence=evidence,
+        relations=relations,
     )
     broad_ids = {card.id for card in broad_result.cards}
     specific_ids = {card.id for card in specific_result.cards}

@@ -5,6 +5,7 @@ import sys
 import pytest
 
 from app.knowledge.catalog import LATEST_PUBLISHED_KNOWLEDGE_VERSION
+from app.knowledge.contracts import LATEST_KNOWLEDGE_VERSION
 from app.knowledge.snapshot_data import (
     knowledge_snapshot_path,
     load_knowledge_seed_snapshot,
@@ -18,18 +19,37 @@ def test_static_knowledge_catalog_is_separate_from_runtime_service() -> None:
     catalog_source = (root_dir / "app" / "knowledge" / "catalog.py").read_text()
 
     assert "def query_knowledge(" in service_source
+    assert "app.knowledge.catalog" not in service_source
     assert "V51_SEED_ITEMS = [" not in service_source
     assert "def seed_sources(" not in service_source
+    assert "seed_sources" not in service_source
+    assert "seed_cards" not in service_source
+    assert "seed_claims" not in service_source
+    assert "seed_evidence" not in service_source
+    assert "seed_nodes" not in service_source
+    assert "seed_relations" not in service_source
     assert "V51_SEED_ITEMS = [" in catalog_source
     assert "def seed_sources(" in catalog_source
 
 
-def test_bootstrap_reads_knowledge_seed_from_catalog() -> None:
+def test_runtime_contract_version_tracks_legacy_catalog_version() -> None:
+    assert LATEST_KNOWLEDGE_VERSION == LATEST_PUBLISHED_KNOWLEDGE_VERSION
+
+
+def test_repository_passes_persisted_relations_to_knowledge_query() -> None:
+    root_dir = Path(__file__).resolve().parents[1]
+    repository_source = (root_dir / "app" / "core" / "repository.py").read_text()
+
+    assert "relations=self.list_knowledge_relations(version=resolved_version)" in repository_source
+
+
+def test_bootstrap_keeps_legacy_knowledge_seed_isolated() -> None:
     root_dir = Path(__file__).resolve().parents[1]
     bootstrap_source = (root_dir / "app" / "db" / "bootstrap.py").read_text()
     legacy_seed_source = (root_dir / "app" / "knowledge" / "legacy_seed.py").read_text()
 
     assert "from app.knowledge.legacy_seed import ensure_knowledge_seed_data" in bootstrap_source
+    assert "app.knowledge.catalog" not in bootstrap_source
     assert "seed_sources" not in bootstrap_source
     assert "from app.knowledge.service import (" not in bootstrap_source
     assert "from app.knowledge.catalog import (" in legacy_seed_source
