@@ -460,16 +460,18 @@ export function App() {
           : textRevision
             ? "Lectura editorial abierta."
             : "Elige lectura o propuesta.",
-      status: generation || textRevision ? "done" : editorHasDraft ? "active" : "pending",
+      status: generationHasChanges || textRevision ? "done" : editorHasDraft ? "active" : "pending",
     },
     {
       label: "Salida",
       description: generationHasChanges
         ? "Version lista para decidir."
+        : generationHasNoChanges
+          ? "Sin version que aceptar."
         : textRevision
           ? "Ficha pendiente de valorar."
           : "Aqui veras el resultado.",
-      status: generation || textRevision ? "active" : "pending",
+      status: generationHasChanges || textRevision ? "active" : "pending",
     },
     {
       label: "Decision",
@@ -3084,7 +3086,7 @@ export function App() {
                         Leer con fichas
                       </button>
                       <button className="ghostButton" onClick={handleDiscardGeneratedText} type="button">
-                        Cambiar trabajo
+                        Cambiar opciones
                       </button>
                       <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                         Copiar borrador

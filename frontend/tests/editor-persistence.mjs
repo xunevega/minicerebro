@@ -126,6 +126,11 @@ try {
   await noChangeGenerationResponse;
   await resultPanel.getByText("Sin version nueva").waitFor();
   await resultPanel.getByText("Sin cambios detectados").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("No hay cambio seguro.").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Sin version que aceptar.").waitFor();
+  if ((await page.getByLabel("Recorrido de escritura").getByText("Acepta, copia o descarta.").count()) !== 0) {
+    throw new Error("Una generacion sin cambios no debe activar el paso de decision.");
+  }
   if ((await resultPanel.getByRole("button", { name: "Usar esta version" }).count()) !== 0) {
     throw new Error("Una generacion sin cambios no debe mostrar una accion para usar version.");
   }
