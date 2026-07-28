@@ -16,3 +16,6 @@ The expected flow is:
 2. Export the immutable snapshot.
 3. Store that snapshot through an Alembic data migration.
 4. Serve runtime requests from persisted records.
+
+Snapshot files live in `data/` and are loaded through `snapshot_data.py`, so
+data migrations and scripts share the same format checks.

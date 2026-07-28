@@ -14,12 +14,14 @@ BACKEND_DIR = ROOT_DIR / "backend"
 if str(BACKEND_DIR) not in sys.path:
     sys.path.insert(0, str(BACKEND_DIR))
 
+from app.knowledge.catalog import LATEST_PUBLISHED_KNOWLEDGE_VERSION  # noqa: E402
+
 
 def main() -> int:
     parser = argparse.ArgumentParser(
         description="Exporta una foto reproducible del conocimiento sembrado.",
     )
-    parser.add_argument("--version", default="knowledge-v51")
+    parser.add_argument("--version", default=LATEST_PUBLISHED_KNOWLEDGE_VERSION)
     parser.add_argument("--output", required=True)
     args = parser.parse_args()
 

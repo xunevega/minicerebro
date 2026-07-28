@@ -7,12 +7,11 @@ Create Date: 2026-07-28
 from __future__ import annotations
 
 from collections.abc import Sequence
-import json
-from pathlib import Path
-from typing import Any
 
 from alembic import op
 import sqlalchemy as sa
+
+from app.knowledge.snapshot_data import load_knowledge_seed_snapshot
 
 revision: str = "20260728_0022"
 down_revision: str | None = "20260723_0021"
@@ -20,17 +19,10 @@ branch_labels: str | Sequence[str] | None = None
 depends_on: str | Sequence[str] | None = None
 
 SNAPSHOT_VERSION = "knowledge-v51"
-SNAPSHOT_PATH = (
-    Path(__file__).resolve().parents[2]
-    / "app"
-    / "knowledge"
-    / "data"
-    / f"{SNAPSHOT_VERSION}.snapshot.json"
-)
 
 
 def upgrade() -> None:
-    snapshot = _load_snapshot()
+    snapshot = load_knowledge_seed_snapshot(SNAPSHOT_VERSION)
     bind = op.get_bind()
     metadata = sa.MetaData()
 
@@ -50,12 +42,3 @@ def downgrade() -> None:
     # The upgrade is idempotent and may skip rows that already existed before this migration.
     # A destructive downgrade could delete pre-existing published knowledge, so data is preserved.
     return
-
-
-def _load_snapshot() -> dict[str, Any]:
-    payload = json.loads(SNAPSHOT_PATH.read_text(encoding="utf-8"))
-    if payload["format"] != "knowledge-seed-snapshot-v1":
-        raise RuntimeError(f"unexpected knowledge snapshot format: {payload['format']}")
-    if payload["version"] != SNAPSHOT_VERSION:
-        raise RuntimeError(f"unexpected knowledge snapshot version: {payload['version']}")
-    return payload
