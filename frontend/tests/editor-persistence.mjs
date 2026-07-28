@@ -159,8 +159,8 @@ try {
         contentType: "application/json",
         body: JSON.stringify({
           output: exactSameText,
-          explanation: "Misma salida simulada para regresion.",
-          used_profile_variables: [],
+          explanation: "Generacion LLM con gpt-5-mini.",
+          used_profile_variables: ["precision_lexica", "densidad_argumental"],
           learning_applied: false,
           provider: "test",
         }),
@@ -204,6 +204,16 @@ try {
   await resultPanel.getByText("Sin version nueva").waitFor();
   await resultPanel.getByText("Cambios: 0").waitFor();
   await resultPanel.getByText("Adecuacion: 1000").waitFor();
+  await resultPanel.getByText("Ver detalles").click();
+  await resultPanel.getByText("Aspectos tenidos en cuenta").waitFor();
+  await resultPanel.getByText("Precision Lexica").waitFor();
+  await resultPanel.getByText("Densidad Argumental").waitFor();
+  if ((await resultPanel.getByText("precision_lexica").count()) !== 0) {
+    throw new Error("La UI no debe mostrar claves tecnicas de perfil al escritor.");
+  }
+  if ((await resultPanel.getByText("gpt-5-mini").count()) !== 0) {
+    throw new Error("La UI no debe mostrar el modelo tecnico en los detalles de escritura.");
+  }
   if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
     throw new Error("Una salida identica no debe mostrarse como propuesta aunque el comparador falle.");
   }

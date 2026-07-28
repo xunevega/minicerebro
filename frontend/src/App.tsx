@@ -513,6 +513,9 @@ export function App() {
     : writerFacingAuditEvents.slice(0, 6);
   const scoreLabelByKey = (key: string) =>
     scores.find((score) => score.key === key)?.label ?? publicKeyLabel(key);
+  const generationDetailsNote =
+    "Propuesta creada para este borrador. Usa tu criterio y el contexto activo solo para esta salida; no guarda aprendizaje automaticamente.";
+  const generationUsedAspects = generation?.used_profile_variables.map(scoreLabelByKey) ?? [];
   const scoreDeltaDescription = (delta: number) => {
     const direction = delta > 0 ? "Sube" : delta < 0 ? "Baja" : "Mantiene";
     const amount = Math.abs(delta);
@@ -3134,8 +3137,8 @@ export function App() {
                     </div>
                     <details className="quietDetails">
                       <summary>Ver detalles</summary>
-                      <p className="note">{generation.explanation}</p>
-                      <List title="Aspectos usados" items={generation.used_profile_variables} />
+                      <p className="note">{generationDetailsNote}</p>
+                      <List title="Aspectos tenidos en cuenta" items={generationUsedAspects} />
                     </details>
                   </>
                 ) : (
@@ -3170,8 +3173,8 @@ export function App() {
                     ) : null}
                     <details className="quietDetails">
                       <summary>Ver detalles</summary>
-                      <p className="note">{generation.explanation}</p>
-                      <List title="Aspectos usados" items={generation.used_profile_variables} />
+                      <p className="note">{generationDetailsNote}</p>
+                      <List title="Aspectos tenidos en cuenta" items={generationUsedAspects} />
                     </details>
                   </>
                 )
