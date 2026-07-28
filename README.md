@@ -41,6 +41,7 @@ cd backend
 
 Si `DATABASE_URL` no esta definida, el backend usa `backend/minicerebro.sqlite3` como base local persistente de desarrollo.
 La base de conocimiento publicada se carga por migraciones Alembic de datos; si falta el snapshot publicado, el arranque falla en vez de reconstruir el catalogo legacy en silencio. Solo para rescates locales antiguos puede activarse `MINICEREBRO_ALLOW_LEGACY_KNOWLEDGE_SEED=1`.
+El runtime usa `backend/app/knowledge/contracts.py` y datos persistidos; `backend/app/knowledge/catalog.py` queda aislado como catalogo legacy para rescate/exportacion, no como fuente de consulta en peticiones normales.
 
 Flujo para preparar el siguiente snapshot oficial:
 

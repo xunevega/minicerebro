@@ -32,6 +32,23 @@ def test_static_knowledge_catalog_is_separate_from_runtime_service() -> None:
     assert "def seed_sources(" in catalog_source
 
 
+def test_runtime_app_does_not_import_static_knowledge_catalog() -> None:
+    root_dir = Path(__file__).resolve().parents[1]
+    allowed_paths = {
+        root_dir / "app" / "knowledge" / "catalog.py",
+        root_dir / "app" / "knowledge" / "legacy_seed.py",
+    }
+    offenders = []
+    for path in sorted((root_dir / "app").rglob("*.py")):
+        if path in allowed_paths:
+            continue
+        source = path.read_text()
+        if "app.knowledge.catalog" in source:
+            offenders.append(str(path.relative_to(root_dir)))
+
+    assert offenders == []
+
+
 def test_runtime_contract_version_tracks_legacy_catalog_version() -> None:
     assert LATEST_KNOWLEDGE_VERSION == LATEST_PUBLISHED_KNOWLEDGE_VERSION
 
