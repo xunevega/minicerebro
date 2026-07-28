@@ -1,4 +1,5 @@
 from datetime import UTC, datetime
+import os
 from pathlib import Path
 from threading import Lock
 
@@ -56,6 +57,7 @@ from app.knowledge.catalog import (
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
 _SEED_LOCK = Lock()
+LEGACY_KNOWLEDGE_SEED_ENV = "MINICEREBRO_ALLOW_LEGACY_KNOWLEDGE_SEED"
 
 
 def _add_published_snapshot(
@@ -153,6 +155,11 @@ def ensure_seed_data(session: Session) -> None:
     with _SEED_LOCK:
         ensure_profile_seed_data(session)
         if not has_published_knowledge_snapshot(session):
+            if not legacy_knowledge_seed_allowed():
+                raise RuntimeError(
+                    "published knowledge snapshot is missing. Run Alembic migrations first, "
+                    f"or set {LEGACY_KNOWLEDGE_SEED_ENV}=1 for the legacy catalog fallback."
+                )
             ensure_knowledge_seed_data(session)
         session.commit()
 
@@ -197,6 +204,10 @@ def has_published_knowledge_snapshot(session: Session) -> bool:
     version = session.get(KnowledgeVersionRecord, LATEST_PUBLISHED_KNOWLEDGE_VERSION)
     snapshot = session.get(KnowledgeVersionSnapshotRecord, LATEST_PUBLISHED_KNOWLEDGE_VERSION)
     return version is not None and version.status == "published" and snapshot is not None
+
+
+def legacy_knowledge_seed_allowed() -> bool:
+    return os.getenv(LEGACY_KNOWLEDGE_SEED_ENV, "").strip().lower() in {"1", "true", "yes"}
 
 
 def ensure_knowledge_seed_data(session: Session) -> None:

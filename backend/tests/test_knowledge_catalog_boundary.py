@@ -7,6 +7,7 @@ from app.knowledge.snapshot_data import (
     knowledge_snapshot_path,
     load_knowledge_seed_snapshot,
 )
+from app.db import bootstrap
 
 
 def test_static_knowledge_catalog_is_separate_from_runtime_service() -> None:
@@ -57,3 +58,46 @@ def test_current_alembic_data_migration_uses_shared_snapshot_loader() -> None:
     assert "from app.knowledge.snapshot_data import load_knowledge_seed_snapshot" in migration_source
     assert "load_knowledge_seed_snapshot(SNAPSHOT_VERSION)" in migration_source
     assert "json.loads" not in migration_source
+
+
+def test_seed_data_rejects_missing_published_snapshot_without_legacy_flag(monkeypatch) -> None:
+    calls = []
+
+    class FakeSession:
+        def commit(self) -> None:
+            calls.append("commit")
+
+    monkeypatch.delenv(bootstrap.LEGACY_KNOWLEDGE_SEED_ENV, raising=False)
+    monkeypatch.setattr(bootstrap, "ensure_profile_seed_data", lambda session: calls.append("profile"))
+    monkeypatch.setattr(bootstrap, "has_published_knowledge_snapshot", lambda session: False)
+    monkeypatch.setattr(
+        bootstrap,
+        "ensure_knowledge_seed_data",
+        lambda session: calls.append("legacy"),
+    )
+
+    with pytest.raises(RuntimeError, match="published knowledge snapshot is missing"):
+        bootstrap.ensure_seed_data(FakeSession())
+
+    assert calls == ["profile"]
+
+
+def test_seed_data_legacy_catalog_fallback_requires_explicit_flag(monkeypatch) -> None:
+    calls = []
+
+    class FakeSession:
+        def commit(self) -> None:
+            calls.append("commit")
+
+    monkeypatch.setenv(bootstrap.LEGACY_KNOWLEDGE_SEED_ENV, "1")
+    monkeypatch.setattr(bootstrap, "ensure_profile_seed_data", lambda session: calls.append("profile"))
+    monkeypatch.setattr(bootstrap, "has_published_knowledge_snapshot", lambda session: False)
+    monkeypatch.setattr(
+        bootstrap,
+        "ensure_knowledge_seed_data",
+        lambda session: calls.append("legacy"),
+    )
+
+    bootstrap.ensure_seed_data(FakeSession())
+
+    assert calls == ["profile", "legacy", "commit"]
