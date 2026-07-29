@@ -159,6 +159,50 @@ def test_openai_prompt_includes_conservative_rewrite_and_revision_lens(monkeypat
         [],
     )
 
-    assert "mejorar claridad de forma conservadora" in captured["input"]
+    assert "mejorar claridad de forma suave" in captured["input"]
     assert "Conserva hechos, sujetos, matices" in captured["input"]
     assert "Mirada: voz y tono" in captured["input"]
+
+
+def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
+    captured: dict[str, str] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured["input"] = kwargs["input"]
+
+            class Response:
+                output_text = (
+                    "La democracia resolvio un problema antiguo: impedir que una sola persona "
+                    "gobernara por capricho y permitir su sustitucion sin violencia."
+                )
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    original = (
+        "La democracia resolvio uno de los problemas politicos mas antiguos: como impedir "
+        "que una sola persona gobernara por su voluntad y como sustituirla sin recurrir "
+        "a la violencia."
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="rewrite",
+            context="general",
+            intensity=1000,
+            revision_intention="claridad",
+        ),
+        [],
+    )
+
+    assert result.output != original
+    assert "reescritura decidida pero fiel" in captured["input"]
+    assert "Puedes compactar, reordenar" in captured["input"]

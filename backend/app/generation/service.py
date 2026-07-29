@@ -19,7 +19,7 @@ def _rewrite_similarity_floor(intensity: int) -> float:
         return 0.72
     if intensity <= 850:
         return 0.62
-    return 0.0
+    return 0.48
 
 
 def _is_over_rewritten(original: str, output: str, intensity: int) -> bool:
@@ -32,14 +32,35 @@ def _is_over_rewritten(original: str, output: str, intensity: int) -> bool:
 
 def _generation_contract(payload: GenerationInput) -> str:
     if payload.action == "rewrite":
+        if payload.intensity >= 850:
+            return """
+Objetivo: mejorar claridad con una reescritura decidida pero fiel.
+Reglas especificas:
+- Puedes compactar, reordenar y sustituir formulaciones torpes si mejora la lectura.
+- Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
+- No conviertas una atribucion en una afirmacion propia.
+- No introduzcas informacion nueva ni elimines informacion relevante.
+- No endurezcas el tono para que suene mas rotundo.
+- Si un cambio altera el sentido, conserva la formulacion original.
+""".strip()
+        if payload.intensity >= 650:
+            return """
+Objetivo: mejorar claridad con cambios moderados.
+Reglas especificas:
+- Puedes ordenar y limpiar frases pesadas si el sentido queda intacto.
+- Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
+- Evita cambiar verbos o expresiones que ya sean claros.
+- No resumas, no amplies y no introduzcas informacion nueva.
+- Si no hay una mejora clara, conserva la formulacion original.
+""".strip()
         return """
-Objetivo: mejorar claridad de forma conservadora.
+Objetivo: mejorar claridad de forma suave.
 Reglas especificas:
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No cambies un verbo o una expresion si el original ya se entiende.
 - No endurezcas el tono para que suene mas rotundo.
 - No resumas, no amplies y no introduzcas informacion nueva.
-- Mantén la estructura de parrafos salvo que haya una mejora claramente necesaria.
+- Manten la estructura de parrafos salvo que haya una mejora claramente necesaria.
 - Si no hay una mejora segura, devuelve exactamente el texto original.
 """.strip()
     if payload.action == "correction":
