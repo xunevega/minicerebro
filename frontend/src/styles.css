@@ -985,6 +985,11 @@ textarea + .primaryButton {
   max-width: 560px;
 }
 
+.workingOutput {
+  background: #ffffff;
+  border-style: solid;
+}
+
 .noChangeOutput {
   background: #f1f1f1;
   border-style: solid;

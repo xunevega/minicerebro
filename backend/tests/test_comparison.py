@@ -36,3 +36,15 @@ def test_compare_texts_detects_paragraph_structure_changes():
     assert result.changed_words == 0
     assert result.modification_score > 0
     assert result.dimensions["estructura"] >= 120
+
+
+def test_compare_texts_names_minimal_intervention():
+    result = compare_texts(
+        ComparisonInput(
+            original="La mañana era clara y el texto seguia intacto.",
+            revised="La mañana era clara y el texto seguía intacto.",
+        )
+    )
+
+    assert result.modification_score <= 20
+    assert "Intervencion minima" in result.summary

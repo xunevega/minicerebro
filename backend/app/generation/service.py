@@ -12,6 +12,33 @@ PROTECTED_TOKEN_TEMPLATE = "__PROTECTED_TERM_{index}__"
 PUNCTUATION_SPACING_RE = re.compile(r"\s+([,.;:!?])")
 MISSING_SPACE_AFTER_PUNCTUATION_RE = re.compile(r"([,.;:!?])(?=\S)")
 SENTENCE_START_RE = re.compile(r"(^|[.!?]\s+)([a-záéíóúüñ])")
+DEFAULT_OPENAI_TIMEOUT_SECONDS = 25.0
+_OPENAI_CLIENT: OpenAI | None = None
+_OPENAI_CLIENT_FACTORY: object | None = None
+
+
+def _openai_client() -> OpenAI:
+    global _OPENAI_CLIENT, _OPENAI_CLIENT_FACTORY
+    if _OPENAI_CLIENT is None or _OPENAI_CLIENT_FACTORY is not OpenAI:
+        _OPENAI_CLIENT = OpenAI()
+        _OPENAI_CLIENT_FACTORY = OpenAI
+    return _OPENAI_CLIENT
+
+
+def _openai_timeout_seconds() -> float:
+    try:
+        return max(3.0, float(getenv("OPENAI_TIMEOUT_SECONDS", DEFAULT_OPENAI_TIMEOUT_SECONDS)))
+    except ValueError:
+        return DEFAULT_OPENAI_TIMEOUT_SECONDS
+
+
+def _max_output_tokens(payload: GenerationInput) -> int:
+    word_count = len(payload.text.split())
+    if payload.action == "continue":
+        return min(900, max(220, round(word_count * 0.8) + 120))
+    if payload.action == "variants":
+        return min(1600, max(420, round(word_count * 2.0) + 180))
+    return min(2400, max(220, round(word_count * 1.6) + 120))
 
 
 def _rewrite_similarity_floor(intensity: int) -> float:
@@ -283,8 +310,14 @@ Texto:
 {payload.text}
 """.strip()
 
-    client = OpenAI()
-    response = client.responses.create(model=model, input=prompt)
+    response = _openai_client().responses.create(
+        model=model,
+        input=prompt,
+        max_output_tokens=_max_output_tokens(payload),
+        reasoning={"effort": "minimal"},
+        store=False,
+        timeout=_openai_timeout_seconds(),
+    )
     output = getattr(response, "output_text", "").strip()
     if not output:
         output = payload.text

@@ -402,6 +402,7 @@ export function App() {
   const [revisionIntention, setRevisionIntention] = useState("claridad");
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
+  const [editorGenerating, setEditorGenerating] = useState(false);
   const [generationCopyStatus, setGenerationCopyStatus] = useState("");
   const [editorOutcomeNotice, setEditorOutcomeNotice] = useState("");
   const [textRevision, setTextRevision] = useState<TextRevisionResult | null>(null);
@@ -506,25 +507,37 @@ export function App() {
     },
     {
       label: "Accion",
-      description: generationHasChanges
+      description: editorGenerating
+        ? "Preparando propuesta."
+        : generationHasChanges
         ? "Hay una version nueva sin aplicar."
         : generationHasNoChanges
           ? "No hay cambio seguro."
           : textRevision
             ? "Lectura editorial abierta."
             : "Elige lectura o propuesta.",
-      status: generationHasChanges || generationHasNoChanges || textRevision ? "done" : editorHasDraft ? "active" : "pending",
+      status:
+        generationHasChanges || generationHasNoChanges || textRevision
+          ? "done"
+          : editorHasDraft || editorGenerating
+            ? "active"
+            : "pending",
     },
     {
       label: "Salida",
-      description: generationHasChanges
+      description: editorGenerating
+        ? "Esperando respuesta."
+        : generationHasChanges
         ? "Version lista para decidir."
         : generationHasNoChanges
           ? "Sin version que aceptar."
         : textRevision
           ? "Ficha pendiente de valorar."
           : "Aqui veras el resultado.",
-      status: generationHasChanges || generationHasNoChanges || textRevision ? "active" : "pending",
+      status:
+        generationHasChanges || generationHasNoChanges || textRevision || editorGenerating
+          ? "active"
+          : "pending",
     },
     {
       label: "Decision",
@@ -1510,6 +1523,14 @@ export function App() {
     setGenerationCopyStatus("");
     setEditorOutcomeNotice("");
     const draftBeforeGeneration = editorText;
+    setEditorGenerating(true);
+    setGeneration(null);
+    setComparison(null);
+    setTextRevision(null);
+    setRevisionFeedbackByCard({});
+    setEditorOriginalBeforeGeneration(draftBeforeGeneration);
+    setOriginal(draftBeforeGeneration);
+    setRevised("");
     try {
       const result = await generateText(
         draftBeforeGeneration,
@@ -1522,16 +1543,26 @@ export function App() {
           .map((term) => term.trim())
           .filter(Boolean),
       );
-      const nextComparison = await compareTexts(draftBeforeGeneration, result.output, activeContext);
+      const outputMatchesDraft =
+        normalizeComparableText(draftBeforeGeneration) === normalizeComparableText(result.output);
+      const nextComparison = outputMatchesDraft
+        ? createNoChangeComparison(draftBeforeGeneration)
+        : await compareTexts(draftBeforeGeneration, result.output, activeContext);
       setGeneration(result);
-      setEditorOriginalBeforeGeneration(draftBeforeGeneration);
-      setOriginal(draftBeforeGeneration);
       setRevised(result.output);
       setComparison(nextComparison);
-      setGeneratedTexts(await getGeneratedTexts(activeContext));
-      await refreshAuditEvents();
+      void Promise.all([getGeneratedTexts(activeContext), loadAuditEvents(auditFilter, loadedKnowledgeVersion)])
+        .then(([texts, events]) => {
+          setGeneratedTexts(texts);
+          setAuditEvents(events);
+        })
+        .catch((nextError: unknown) => {
+          setError((nextError as Error).message);
+        });
     } catch (nextError) {
       setError((nextError as Error).message);
+    } finally {
+      setEditorGenerating(false);
     }
   }
 
@@ -3025,6 +3056,7 @@ export function App() {
                   id="editorDraft"
                   onChange={(event) => handleEditorTextChange(event.target.value)}
                   placeholder="Pega o escribe aqui el texto que quieres trabajar."
+                  readOnly={editorGenerating}
                   value={editorText}
                 />
               </div>
@@ -3084,15 +3116,15 @@ export function App() {
               <div className="buttonRow">
                 <button
                   className="primaryButton editorButton"
-                  disabled={!editorHasDraft}
+                  disabled={!editorHasDraft || editorGenerating}
                   onClick={handleGenerate}
                   type="button"
                 >
-                  Crear propuesta
+                  {editorGenerating ? "Preparando..." : "Crear propuesta"}
                 </button>
                 <button
                   className="secondaryButton editorButton"
-                  disabled={!editorHasDraft}
+                  disabled={!editorHasDraft || editorGenerating}
                   onClick={handleTextRevision}
                   type="button"
                 >
@@ -3124,7 +3156,15 @@ export function App() {
             <div className="inspector outputPane">
               <span className="fieldRole">Aqui sale la respuesta</span>
               <h2>Salida</h2>
-              {generation ? (
+              {editorGenerating ? (
+                <div className="emptyOutput workingOutput">
+                  <strong>Preparando propuesta</strong>
+                  <p>
+                    Editados esta trabajando el texto. En cuanto llegue, veras la propuesta y sus
+                    cambios.
+                  </p>
+                </div>
+              ) : generation ? (
                 generationHasNoChanges ? (
                   <>
                     <div className="emptyOutput noChangeOutput">
@@ -4214,6 +4254,21 @@ function publicKeyLabel(value: string) {
 
 function normalizeComparableText(value: string) {
   return value.replace(/\s+/g, " ").trim();
+}
+
+function createNoChangeComparison(text: string): ComparisonResult {
+  const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+  return {
+    id: "comparison-local-no-change",
+    modification_score: 0,
+    adequacy_score: 1000,
+    changed_words: 0,
+    original_words: wordCount,
+    revised_words: wordCount,
+    summary: "Sin cambios detectados.",
+    dimensions: {},
+    changes: [],
+  };
 }
 
 function profileKnowledgeCardStanceLabel(stance: string) {

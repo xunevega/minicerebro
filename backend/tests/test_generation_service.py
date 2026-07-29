@@ -206,3 +206,39 @@ def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
     assert result.output != original
     assert "reescritura decidida pero fiel" in captured["input"]
     assert "Puedes compactar, reordenar" in captured["input"]
+
+
+def test_openai_request_uses_latency_controls(monkeypatch):
+    captured: dict[str, object] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+
+            class Response:
+                output_text = "Texto claro."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setenv("OPENAI_TIMEOUT_SECONDS", "9")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="Texto claro.",
+            action="rewrite",
+            context="general",
+            intensity=500,
+        ),
+        [],
+    )
+
+    assert captured["max_output_tokens"] >= 220
+    assert captured["reasoning"] == {"effort": "minimal"}
+    assert captured["store"] is False
+    assert captured["timeout"] == 9.0

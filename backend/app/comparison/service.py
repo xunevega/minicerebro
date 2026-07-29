@@ -50,7 +50,9 @@ def compare_texts(payload: ComparisonInput) -> ComparisonResult:
     stability = max(0, 1000 - round((length_delta / max(1, len(original_words))) * 1000))
     adequacy = round((stability + (1000 - modification // 2)) / 2)
 
-    if modification < 250:
+    if modification <= 20:
+        summary = "Intervencion minima: solo hay ajustes puntuales y la voz queda intacta."
+    elif modification < 250:
         summary = "Cambios leves: conserva gran parte de la formulacion original."
     elif modification < 650:
         summary = "Cambios medios: reescritura visible con continuidad reconocible."
