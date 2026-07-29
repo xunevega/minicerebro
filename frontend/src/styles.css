@@ -308,6 +308,21 @@ h3 {
   margin-bottom: 18px;
 }
 
+.compactMetricGrid {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  margin: 12px 0;
+}
+
+.compactMetricGrid .metric {
+  padding: 10px 12px;
+}
+
+.compactMetricGrid .metric strong {
+  font-size: 20px;
+}
+
 .metric {
   background: var(--soft);
   border: 1px solid var(--line);
@@ -1238,8 +1253,8 @@ textarea + .primaryButton {
   cursor: pointer;
   display: grid;
   gap: 6px;
-  min-height: 128px;
-  padding: 14px;
+  min-height: 92px;
+  padding: 12px;
   text-align: left;
 }
 
@@ -1257,13 +1272,13 @@ textarea + .primaryButton {
 
 .libraryShelf span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 14px;
 }
 
 .libraryShelf em {
   align-self: end;
   color: var(--accent);
-  font-size: 22px;
+  font-size: 18px;
   font-style: normal;
   font-weight: 800;
 }
@@ -1280,8 +1295,13 @@ textarea + .primaryButton {
   border-radius: 0;
   display: grid;
   gap: 12px;
-  grid-template-columns: minmax(0, 1fr) minmax(260px, 0.8fr) auto;
+  grid-template-columns: minmax(0, 1fr) auto;
   padding: 12px;
+}
+
+.libraryCard .phaseSummary {
+  grid-column: 1 / -1;
+  margin-bottom: 0;
 }
 
 .libraryCard strong,
@@ -1458,11 +1478,11 @@ textarea + .primaryButton {
 
 .auditItem {
   border: 1px solid #e6e0d7;
-  border-radius: 8px;
+  border-radius: 0;
   display: grid;
   gap: 10px;
   grid-template-columns: 1fr auto;
-  padding: 14px;
+  padding: 12px 14px;
 }
 
 .auditItem strong,
@@ -1473,7 +1493,7 @@ textarea + .primaryButton {
 .auditItem span,
 .auditItem time {
   color: #716a60;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .auditItem .auditTrace {
@@ -1512,7 +1532,7 @@ textarea + .primaryButton {
   display: grid;
   gap: 10px;
   grid-column: 1 / -1;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin: 0;
   padding: 12px;
 }

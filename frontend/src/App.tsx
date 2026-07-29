@@ -48,7 +48,6 @@ import {
   getKnowledgeProposals,
   getKnowledgePublicationReadiness,
   getKnowledgeQueryHistory,
-  getKnowledgeQuerySummary,
   getKnowledgeStatus,
   getKnowledgeSourceIngestionStatuses,
   getKnowledgeSources,
@@ -110,7 +109,6 @@ import type {
   KnowledgeProposal,
   KnowledgeQueryHistoryItem,
   KnowledgeQueryResult,
-  KnowledgeQuerySummary,
   KnowledgeSegment,
   KnowledgeStatus,
   KnowledgeSourceEdition,
@@ -312,8 +310,7 @@ export function App() {
   const [knowledgeQueryLimit, setKnowledgeQueryLimit] = useState(5);
   const [knowledgeResult, setKnowledgeResult] = useState<KnowledgeQueryResult | null>(null);
   const [knowledgeQueryHistory, setKnowledgeQueryHistory] = useState<KnowledgeQueryHistoryItem[]>([]);
-  const [knowledgeQuerySummary, setKnowledgeQuerySummary] = useState<KnowledgeQuerySummary | null>(null);
-  const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(20);
+  const [knowledgeQueryHistoryLimit, setKnowledgeQueryHistoryLimit] = useState(10);
   const [showKnowledgeTechnical, setShowKnowledgeTechnical] = useState(false);
   const [showSystemTechnical, setShowSystemTechnical] = useState(false);
   const [selectedLibraryArea, setSelectedLibraryArea] = useState<LibraryAreaId>("all");
@@ -510,7 +507,7 @@ export function App() {
   const writerFacingAuditEvents = auditEvents.filter(isWriterFacingAuditEvent);
   const displayedAuditEvents = showAllAuditEvents
     ? writerFacingAuditEvents
-    : writerFacingAuditEvents.slice(0, 6);
+    : writerFacingAuditEvents.slice(0, 5);
   const scoreLabelByKey = (key: string) =>
     scores.find((score) => score.key === key)?.label ?? publicKeyLabel(key);
   const generationDetailsNote =
@@ -591,9 +588,6 @@ export function App() {
       .catch((nextError: Error) => setError(nextError.message));
     getKnowledgeQueryHistory(effectiveKnowledgeVersion)
       .then(setKnowledgeQueryHistory)
-      .catch((nextError: Error) => setError(nextError.message));
-    getKnowledgeQuerySummary(effectiveKnowledgeVersion)
-      .then(setKnowledgeQuerySummary)
       .catch((nextError: Error) => setError(nextError.message));
     Promise.all([
       getKnowledgeCards(effectiveKnowledgeVersion),
@@ -936,7 +930,6 @@ export function App() {
       setKnowledgeQueryHistory(
         await getKnowledgeQueryHistory(effectiveKnowledgeVersion, knowledgeQueryHistoryLimit),
       );
-      setKnowledgeQuerySummary(await getKnowledgeQuerySummary(effectiveKnowledgeVersion));
       await refreshAuditEvents();
     } catch (nextError) {
       setError((nextError as Error).message);
@@ -1822,9 +1815,17 @@ export function App() {
 
         {active === "knowledge" && (
           <section className="panel">
-            <h2>Base de escritura</h2>
-            <details className="quietDetails">
-              <summary>Cambiar base consultada</summary>
+            <div className="versionHeader">
+              <div>
+                <h2>Fichas de escritura</h2>
+                <p className="note">
+                  Ideas publicadas para consultar mientras escribes. Tus gustos se guardan aparte.
+                </p>
+              </div>
+              <span className="statusPill">{classifiedKnowledgeCards.length} fichas</span>
+            </div>
+            <details className="quietDetails libraryStatusDetails">
+              <summary>Estado de la base</summary>
               <div className="versionToolbar">
                 <label htmlFor="knowledgeVersionSelect">Vista</label>
                 <select
@@ -1840,50 +1841,40 @@ export function App() {
                   ))}
                 </select>
               </div>
+              <div className="compactMetricGrid">
+                <Metric label="Base" value={loadedKnowledgeVersionLabel} />
+                <Metric
+                  label="Estado"
+                  value={
+                    knowledgeStatePublicLabel(
+                      knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
+                        ?.status ?? knowledge?.state,
+                    )
+                  }
+                />
+                <Metric
+                  label="Por revisar"
+                  value={
+                    pendingKnowledgeValidationCount
+                      ? `${pendingKnowledgeValidationCount} pendientes`
+                      : "Todo revisado"
+                  }
+                />
+                <Metric
+                  label="Fuentes pendientes"
+                  value={registeredOnlySourceCount ? registeredOnlySourceCount : "Ninguna"}
+                />
+              </div>
+              <p className="note">{knowledge?.sources_policy}</p>
             </details>
-            <div className="metricGrid">
-              <Metric label="Base" value={loadedKnowledgeVersionLabel} />
-              <Metric
-                label="Estado"
-                value={
-                  knowledgeStatePublicLabel(
-                    knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
-                      ?.status ?? knowledge?.state,
-                  )
-                }
-              />
-              <Metric
-                label="Materias"
-                value={
-                  knowledge?.coverage.length
-                    ? `${knowledge.coverage.length} areas`
-                    : "Sin materias cargadas"
-                }
-              />
-              <Metric
-                label="Por revisar"
-                value={
-                  pendingKnowledgeValidationCount
-                    ? `${pendingKnowledgeValidationCount} pendientes`
-                    : "Todo revisado"
-                }
-              />
-              <Metric
-                label="Fuentes pendientes"
-                value={registeredOnlySourceCount ? registeredOnlySourceCount : "Ninguna"}
-              />
-            </div>
-            <p className="note">{knowledge?.sources_policy}</p>
             <div className="proposalBox">
               <div className="versionHeader">
                 <div>
                   <h3>Estanterias</h3>
                   <p className="note">
-                    Orden bibliotecario por materia, uso y nivel. No cambia la base: solo
-                    organiza las fichas publicadas para encontrarlas mejor.
+                    Orden por materia. Elige una estanteria y abre solo la ficha que necesites.
                   </p>
                 </div>
-                <span className="statusPill">{classifiedKnowledgeCards.length} fichas</span>
               </div>
               <div className="libraryShelfGrid" aria-label="Estanterias de Biblioteca">
                 {libraryAreas.map((area) => (
@@ -3904,33 +3895,10 @@ export function App() {
         {active === "audit" && (
           <section className="panel">
             <div className="auditSection">
-              <h2>Historial de busquedas</h2>
-              <div className="metricGrid">
-                <Metric label="Consultas" value={knowledgeQuerySummary?.total_count ?? 0} />
-                <Metric label="Con resultado" value={knowledgeQuerySummary?.hit_count ?? 0} />
-                <Metric label="Sin resultado" value={knowledgeQuerySummary?.empty_count ?? 0} />
-              </div>
+              <h2>Ultimas consultas</h2>
               <p className="note">
-                Ultima consulta:{" "}
-                {knowledgeQuerySummary?.last_query_at
-                  ? formatDate(knowledgeQuerySummary.last_query_at)
-                  : "sin consultas"}
+                Lo ultimo que has buscado en la biblioteca.
               </p>
-              <div className="rowActions">
-                <select
-                  aria-label="Limite historial"
-                  onChange={(event) =>
-                    handleKnowledgeQueryHistoryLimit(Number.parseInt(event.target.value, 10))
-                  }
-                  value={knowledgeQueryHistoryLimit}
-                >
-                  {[20, 50, 100].map((limit) => (
-                    <option key={limit} value={limit}>
-                      {limit} consultas
-                    </option>
-                  ))}
-                </select>
-              </div>
               {knowledgeQueryHistory.length === 0 ? (
                 <p className="note">Todavia no hay busquedas registradas.</p>
               ) : (
@@ -3938,10 +3906,11 @@ export function App() {
                   {displayedKnowledgeQueryHistory.map((item) => (
                     <article className="auditItem" key={item.event_id}>
                       <div>
-                        <strong>Consulta en la base publicada</strong>
+                        <strong>{item.has_results ? "Consulta con ficha" : "Consulta sin ficha"}</strong>
                         <span>
-                          {item.has_results ? "con resultado" : "sin resultado"} ·{" "}
-                          {item.query_length} caracteres · limite {item.limit}
+                          {item.has_results
+                            ? `${item.card_count} ficha${item.card_count === 1 ? "" : "s"} encontrada${item.card_count === 1 ? "" : "s"}`
+                            : "No hubo ficha util para esa busqueda."}
                         </span>
                       </div>
                       <time>{formatDate(item.created_at)}</time>
@@ -3955,21 +3924,16 @@ export function App() {
                           }
                           type="button"
                         >
-                          Ver detalle
+                          Detalle
                         </button>
                         <button
                           className="ghostButton"
                           onClick={() => handleExploreKnowledgeVersion(item.version)}
                           type="button"
                         >
-                          Ver base consultada
+                          Ver base
                         </button>
                       </div>
-                      <pre>
-                        {item.has_results
-                          ? `${item.card_count} resultados encontrados.`
-                          : "No hubo ficha util para esa busqueda."}
-                      </pre>
                       {selectedKnowledgeQueryEventId === item.event_id && (
                         <dl className="auditDetail">
                           <div>
@@ -4012,7 +3976,10 @@ export function App() {
               {knowledgeQueryHistory.length > displayedKnowledgeQueryHistory.length ? (
                 <button
                   className="ghostButton"
-                  onClick={() => setShowAllKnowledgeHistory(true)}
+                  onClick={() => {
+                    setShowAllKnowledgeHistory(true);
+                    void handleKnowledgeQueryHistoryLimit(50);
+                  }}
                   type="button"
                 >
                   Ver mas consultas
@@ -4020,7 +3987,7 @@ export function App() {
               ) : null}
             </div>
             <div className="auditSection">
-              <h2>Actividad de escritura</h2>
+              <h2>Actividad reciente</h2>
               <div className="rowActions">
                 <select
                   aria-label="Filtro auditoria"
@@ -4050,11 +4017,11 @@ export function App() {
                             </span>
                           ))}
                         </div>
-                        <KnowledgeAuditTrace event={event} />
                       </div>
                       <time>{formatDate(event.created_at)}</time>
                       <details className="queryTraceBox">
-                        <summary>Ver detalle tecnico</summary>
+                        <summary>Detalle tecnico</summary>
+                        <KnowledgeAuditTrace event={event} />
                         <pre>{event.event_type}</pre>
                         <pre>{JSON.stringify(event.payload, null, 2)}</pre>
                       </details>
