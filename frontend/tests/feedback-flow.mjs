@@ -16,6 +16,10 @@ try {
   await page.getByLabel("Vista").selectOption("compare");
 
   const compareEditor = page.locator(".panel", { hasText: "Textos" });
+  await compareEditor.locator("#compareOriginal").fill("Este texto explica una idea de manera general.");
+  await compareEditor
+    .locator("#compareRevised")
+    .fill("Este texto explica una idea con mas precision y menos rodeo.");
   const compareResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -29,6 +33,8 @@ try {
   const comparePanel = page.locator(".panel", { hasText: "Comparacion" });
   await comparePanel.locator(".metric", { hasText: "Cambios detectados" }).waitFor();
   await comparePanel.locator(".metric", { hasText: "Fidelidad al borrador" }).waitFor();
+  await comparePanel.getByText("Ver cambios en color").waitFor();
+  await comparePanel.getByLabel("Resumen visual de comparacion").waitFor();
 
   const proposalResponse = page.waitForResponse(
     (response) => {

@@ -159,22 +159,22 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
   {
     value: "rewrite",
     label: "Mejorar claridad",
-    description: "Objetivo: que se entienda mejor sin cambiar la idea.",
+    description: "Reordena y limpia la formulacion sin cambiar la idea.",
   },
   {
     value: "correction",
-    label: "Corregir sin reescribir",
-    description: "Objetivo: corregir errores manteniendo tu texto.",
+    label: "Corregir",
+    description: "Corrige puntuacion, espacios y errores seguros sin reescribir.",
   },
   {
     value: "continue",
     label: "Continuar texto",
-    description: "Objetivo: seguir la idea sin cerrarla de golpe.",
+    description: "Anade un tramo nuevo manteniendo la voz del borrador.",
   },
   {
     value: "variants",
     label: "Ver alternativas",
-    description: "Objetivo: ver otros enfoques posibles.",
+    description: "Propone otro enfoque para decidir si te sirve.",
   },
 ];
 const revisionIntentions = [
@@ -502,6 +502,20 @@ export function App() {
   const generationChangeSummary = useMemo(
     () => summarizeDiffTokens(generationDiffTokens),
     [generationDiffTokens],
+  );
+  const comparisonHasVisibleDiff =
+    comparison !== null &&
+    original.trim().length > 0 &&
+    revised.trim().length > 0 &&
+    normalizeComparableText(original) !== normalizeComparableText(revised) &&
+    (comparison.modification_score ?? 0) > 0;
+  const comparisonDiffTokens = useMemo(
+    () => (comparisonHasVisibleDiff ? buildTextDiff(original, revised) : []),
+    [comparisonHasVisibleDiff, original, revised],
+  );
+  const comparisonChangeSummary = useMemo(
+    () => summarizeDiffTokens(comparisonDiffTokens),
+    [comparisonDiffTokens],
   );
   const editorFlowSteps = [
     {
@@ -3701,6 +3715,32 @@ export function App() {
                   <Metric label="Cambios detectados" value={comparison.modification_score} />
                   <Metric label="Fidelidad al borrador" value={comparison.adequacy_score} />
                   <p>{comparison.summary}</p>
+                  {comparisonDiffTokens.length ? (
+                    <details className="visualDiff" open>
+                      <summary>Ver cambios en color</summary>
+                      <div className="changeBrief">
+                        <strong>{comparisonChangeSummary.headline}</strong>
+                        <p>{comparisonChangeSummary.description}</p>
+                        <div className="changeChips" aria-label="Resumen visual de comparacion">
+                          {comparisonChangeSummary.chips.map((chip) => (
+                            <span className={`changeChip ${chip.kind}`} key={chip.label}>
+                              {chip.label}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                      <div className="diffGrid">
+                        <div className="diffPanel">
+                          <strong>Original</strong>
+                          <DiffText side="original" tokens={comparisonDiffTokens} />
+                        </div>
+                        <div className="diffPanel">
+                          <strong>Version propuesta</strong>
+                          <DiffText side="revised" tokens={comparisonDiffTokens} />
+                        </div>
+                      </div>
+                    </details>
+                  ) : null}
                   <List
                     title="Dimensiones"
                     items={Object.entries(comparison.dimensions).map(([key, value]) => `${key}: ${value}`)}
@@ -4097,6 +4137,14 @@ export function App() {
                 >
                   Ver mas consultas
                 </button>
+              ) : showAllKnowledgeHistory && knowledgeQueryHistory.length > 5 ? (
+                <button
+                  className="ghostButton"
+                  onClick={() => setShowAllKnowledgeHistory(false)}
+                  type="button"
+                >
+                  Ver menos consultas
+                </button>
               ) : null}
             </div>
             <div className="auditSection">
@@ -4149,6 +4197,14 @@ export function App() {
                   type="button"
                 >
                   Ver mas actividad
+                </button>
+              ) : showAllAuditEvents && writerFacingAuditEvents.length > 5 ? (
+                <button
+                  className="ghostButton"
+                  onClick={() => setShowAllAuditEvents(false)}
+                  type="button"
+                >
+                  Ver menos actividad
                 </button>
               ) : null}
             </div>

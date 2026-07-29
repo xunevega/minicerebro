@@ -19,9 +19,9 @@ try {
     .click();
 
   const editorPanel = page.locator(".panel", { hasText: "Borrador" });
-  const inputText = `Smoke editor persistencia ${Date.now()}.  Frase para guardar.`;
+  const inputText = ` smoke editor persistencia ${Date.now()} ,frase para guardar ? si ! `;
   await editorPanel.locator("textarea").first().fill(inputText);
-  await editorPanel.getByLabel("Objetivo").selectOption("continue");
+  await editorPanel.getByLabel("Objetivo").selectOption("correction");
   await page.getByLabel("Recorrido de escritura").getByText("Borrador").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Accion").waitFor();
 
@@ -36,7 +36,7 @@ try {
   await generationResponse;
 
   const resultPanel = page.locator(".inspector", { hasText: "Salida" });
-  await resultPanel.getByText("Propuesta de continuacion").waitFor();
+  await resultPanel.getByText("Propuesta de correccion").waitFor();
   await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByLabel("Resumen de cambios").waitFor();
@@ -57,7 +57,7 @@ try {
   );
   await page.getByRole("button", { name: "Crear propuesta" }).click();
   await regeneratedResponse;
-  await resultPanel.getByText("Propuesta de continuacion").waitFor();
+  await resultPanel.getByText("Propuesta de correccion").waitFor();
   await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByLabel("Resumen de cambios").waitFor();
@@ -243,9 +243,9 @@ try {
   if (
     !normalizedCorrectionOutput.includes("Hola, mundo.") ||
     !normalizedCorrectionOutput.includes("¿Esto funciona?") ||
-    !normalizedCorrectionOutput.includes("¡Sí!")
+    !normalizedCorrectionOutput.includes("¡Si!")
   ) {
-    throw new Error("Corregir sin reescribir no mostro una correccion visible segura.");
+    throw new Error("Corregir no mostro una correccion visible segura.");
   }
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).waitFor();
