@@ -3177,7 +3177,8 @@ export function App() {
                         <div className="comparisonSummary noChanges">
                           <strong>Sin cambios detectados</strong>
                           <span>Cambios: {generationModificationScore}</span>
-                          <span>Adecuacion: {generationAdequacyScore}</span>
+                          <span>Fidelidad: {generationAdequacyScore}</span>
+                          <p>No mide calidad literaria; mide cuanto conserva la propuesta del borrador.</p>
                         </div>
                       ) : null}
                     </div>
@@ -3233,8 +3234,9 @@ export function App() {
                       <div className="comparisonSummary">
                         <strong>Diagnostico automatico de cambios</strong>
                         <span>Cambios: {comparison.modification_score}</span>
-                        <span>Adecuacion: {comparison.adequacy_score}</span>
+                        <span>Fidelidad al borrador: {comparison.adequacy_score}</span>
                         <p>{comparison.summary}</p>
+                        <p>No mide calidad literaria; mide cuanto conserva la propuesta del borrador.</p>
                       </div>
                     ) : null}
                     {generationDiffTokens.length ? (
@@ -3452,7 +3454,7 @@ export function App() {
                   <p className="note">{labResult.generation.explanation}</p>
                   <span className="statusPill">{labResult.generation.provider}</span>
                   <Metric label="Modificacion" value={labResult.comparison.modification_score} />
-                  <Metric label="Adecuacion" value={labResult.comparison.adequacy_score} />
+                  <Metric label="Fidelidad" value={labResult.comparison.adequacy_score} />
                   <List
                     title="Aspectos simulados"
                     items={labResult.simulated_variables.map(
@@ -3468,7 +3470,7 @@ export function App() {
                   <h2>Comparacion temporal</h2>
                   <p className="note">{labComparison.summary}</p>
                   <Metric label="Modificacion temporal" value={labComparison.modification_score} />
-                  <Metric label="Adecuacion temporal" value={labComparison.adequacy_score} />
+                  <Metric label="Fidelidad temporal" value={labComparison.adequacy_score} />
                   <List
                     title="Cambios temporales"
                     items={labComparison.changes.map(
@@ -3682,7 +3684,7 @@ export function App() {
               {comparison ? (
                 <>
                   <Metric label="Cambios detectados" value={comparison.modification_score} />
-                  <Metric label="Adecuacion estimada" value={comparison.adequacy_score} />
+                  <Metric label="Fidelidad al borrador" value={comparison.adequacy_score} />
                   <p>{comparison.summary}</p>
                   <List
                     title="Dimensiones"

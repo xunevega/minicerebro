@@ -205,7 +205,8 @@ try {
   await exactSameGenerationResponse;
   await resultPanel.getByText("Sin version nueva").waitFor();
   await resultPanel.getByText("Cambios: 0").waitFor();
-  await resultPanel.getByText("Adecuacion: 1000").waitFor();
+  await resultPanel.getByText("Fidelidad: 1000").waitFor();
+  await resultPanel.getByText("No mide calidad literaria").waitFor();
   if ((await resultPanel.getByText("Ver cambios en el texto").count()) !== 0) {
     throw new Error("Una salida identica no debe mostrar comparacion visual de cambios.");
   }

@@ -33,7 +33,7 @@ try {
 
   await page.getByRole("heading", { name: "Comparacion temporal" }).waitFor();
   await page.locator(".metric", { hasText: "Modificacion temporal" }).waitFor();
-  await page.locator(".metric", { hasText: "Adecuacion temporal" }).waitFor();
+  await page.locator(".metric", { hasText: "Fidelidad temporal" }).waitFor();
   await page.getByText("Cambios temporales").waitFor();
 } finally {
   await browser.close();

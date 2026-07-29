@@ -28,7 +28,7 @@ try {
 
   const comparePanel = page.locator(".panel", { hasText: "Comparacion" });
   await comparePanel.locator(".metric", { hasText: "Cambios detectados" }).waitFor();
-  await comparePanel.locator(".metric", { hasText: "Adecuacion estimada" }).waitFor();
+  await comparePanel.locator(".metric", { hasText: "Fidelidad al borrador" }).waitFor();
 
   const proposalResponse = page.waitForResponse(
     (response) => {
