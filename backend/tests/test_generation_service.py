@@ -90,6 +90,28 @@ def test_openai_failure_falls_back_to_deterministic_generation(monkeypatch):
     assert "\n\n" in result.output
 
 
+def test_correction_uses_local_path_even_when_openai_is_configured(monkeypatch):
+    class FailingOpenAI:
+        def __init__(self):
+            raise AssertionError("Correction must not initialize OpenAI")
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", FailingOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=" hola ,mundo. esto funciona ? si ! ",
+            action="correction",
+            context="general",
+        ),
+        [],
+    )
+
+    assert result.output == "Hola, mundo. ¿Esto funciona? ¡Si!"
+    assert result.provider == "deterministic"
+    assert "Correccion local segura" in result.explanation
+
+
 def test_openai_rewrite_rejects_over_aggressive_clarity_change(monkeypatch):
     class AggressiveResponses:
         def create(self, **kwargs):

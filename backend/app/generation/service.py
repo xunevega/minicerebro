@@ -204,6 +204,9 @@ def _profile_prompt(variables: list[ScoreVariable]) -> str:
 
 
 def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable]) -> GenerationResult:
+    if payload.action == "correction":
+        return rewrite_deterministic(payload, variables)
+
     if getenv("OPENAI_API_KEY"):
         try:
             return rewrite_with_openai(payload, variables)
