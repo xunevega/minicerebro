@@ -499,6 +499,10 @@ export function App() {
         : [],
     [editorOriginalBeforeGeneration, generation?.output, generationHasChanges],
   );
+  const generationChangeSummary = useMemo(
+    () => summarizeDiffTokens(generationDiffTokens),
+    [generationDiffTokens],
+  );
   const editorFlowSteps = [
     {
       label: "Borrador",
@@ -3242,6 +3246,17 @@ export function App() {
                     {generationDiffTokens.length ? (
                       <details className="visualDiff" open>
                         <summary>Ver cambios en el texto</summary>
+                        <div className="changeBrief">
+                          <strong>{generationChangeSummary.headline}</strong>
+                          <p>{generationChangeSummary.description}</p>
+                          <div className="changeChips" aria-label="Resumen de cambios">
+                            {generationChangeSummary.chips.map((chip) => (
+                              <span className={`changeChip ${chip.kind}`} key={chip.label}>
+                                {chip.label}
+                              </span>
+                            ))}
+                          </div>
+                        </div>
                         <div className="diffGrid">
                           <div className="diffPanel">
                             <strong>Original</strong>
@@ -4749,6 +4764,12 @@ type DiffToken = {
   kind: "same" | "added" | "removed";
 };
 
+type DiffSummary = {
+  headline: string;
+  description: string;
+  chips: Array<{ label: string; kind: "added" | "removed" | "changed" }>;
+};
+
 function buildTextDiff(original: string, revised: string): DiffToken[] {
   const originalTokens = tokenizeTextForDiff(original);
   const revisedTokens = tokenizeTextForDiff(revised);
@@ -4813,6 +4834,74 @@ function mergeAdjacentDiffTokens(tokens: DiffToken[]) {
     }
     return merged;
   }, []);
+}
+
+function summarizeDiffTokens(tokens: DiffToken[]): DiffSummary {
+  const addedWords = countChangedWords(tokens, "added");
+  const removedWords = countChangedWords(tokens, "removed");
+  const totalChangedWords = addedWords + removedWords;
+  const changedPairs = Math.min(addedWords, removedWords);
+  const netAddedWords = Math.max(0, addedWords - removedWords);
+  const netRemovedWords = Math.max(0, removedWords - addedWords);
+
+  if (totalChangedWords === 0) {
+    return {
+      headline: "Sin cambios visibles",
+      description: "La propuesta conserva el borrador tal como estaba.",
+      chips: [],
+    };
+  }
+
+  const chips: DiffSummary["chips"] = [];
+  if (changedPairs > 0) {
+    chips.push({ label: `${changedPairs} sustituciones`, kind: "changed" });
+  }
+  if (netAddedWords > 0) {
+    chips.push({ label: `${netAddedWords} palabras anadidas`, kind: "added" });
+  }
+  if (netRemovedWords > 0) {
+    chips.push({ label: `${netRemovedWords} palabras retiradas`, kind: "removed" });
+  }
+
+  if (totalChangedWords <= 12) {
+    return {
+      headline: "Retoque puntual",
+      description: "La propuesta toca pocas palabras y mantiene casi todo el borrador.",
+      chips,
+    };
+  }
+  if (changedPairs >= netAddedWords + netRemovedWords) {
+    return {
+      headline: "Sustituciones de formulacion",
+      description: "La propuesta cambia palabras o giros concretos sin rehacer la estructura.",
+      chips,
+    };
+  }
+  if (netRemovedWords > netAddedWords) {
+    return {
+      headline: "Recorte visible",
+      description: "La propuesta elimina material y busca una version mas limpia o compacta.",
+      chips,
+    };
+  }
+  if (netAddedWords > netRemovedWords) {
+    return {
+      headline: "Ampliacion visible",
+      description: "La propuesta anade material y desarrolla mas el borrador.",
+      chips,
+    };
+  }
+  return {
+    headline: "Reescritura visible",
+    description: "La propuesta conserva la idea general, pero cambia una parte apreciable de la formulacion.",
+    chips,
+  };
+}
+
+function countChangedWords(tokens: DiffToken[], kind: "added" | "removed") {
+  return tokens
+    .filter((token) => token.kind === kind)
+    .reduce((total, token) => total + (token.text.match(/\S+/g)?.length ?? 0), 0);
 }
 
 function DiffText({ tokens, side }: { tokens: DiffToken[]; side: "original" | "revised" }) {

@@ -816,6 +816,55 @@ textarea + .primaryButton {
   margin-bottom: 12px;
 }
 
+.changeBrief {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 8px;
+  margin-bottom: 12px;
+  padding: 12px;
+}
+
+.changeBrief strong {
+  font-size: 18px;
+}
+
+.changeBrief p {
+  color: var(--muted);
+  font-size: 16px;
+  margin: 0;
+}
+
+.changeChips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.changeChip {
+  border: 1px solid var(--line);
+  color: #312f2b;
+  display: inline-flex;
+  font-size: 14px;
+  font-weight: 800;
+  padding: 4px 8px;
+}
+
+.changeChip.added {
+  background: #eef5ff;
+  border-color: #c9dcf3;
+}
+
+.changeChip.removed {
+  background: #fff0ed;
+  border-color: #f0cbc3;
+}
+
+.changeChip.changed {
+  background: #f5f1e8;
+  border-color: #ded5c8;
+}
+
 .diffGrid {
   display: grid;
   gap: 12px;
@@ -847,14 +896,14 @@ textarea + .primaryButton {
 }
 
 .diffToken.added {
-  background: #e4f0ff;
-  color: #183f74;
+  background: #dcecff;
+  color: #153b69;
   font-weight: 700;
 }
 
 .diffToken.removed {
-  background: #ffe4df;
-  color: #8a2d25;
+  background: #ffe2dc;
+  color: #873328;
   font-weight: 700;
   text-decoration: line-through;
   text-decoration-thickness: 1.5px;

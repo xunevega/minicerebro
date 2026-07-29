@@ -39,6 +39,7 @@ try {
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
   await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
+  await resultPanel.getByLabel("Resumen de cambios").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
   await editorPanel.locator("textarea").first().fill(`${inputText} Cambio manual.`);
   await resultPanel.getByText("Borrador actualizado. Crea una nueva propuesta").waitFor();
@@ -59,6 +60,7 @@ try {
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
   await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
+  await resultPanel.getByLabel("Resumen de cambios").waitFor();
 
   const revisionResponse = page.waitForResponse(
     (response) => {
