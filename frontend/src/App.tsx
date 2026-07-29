@@ -156,16 +156,48 @@ const tabs = [
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
 const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
-  { value: "rewrite", label: "Mejorar claridad", description: "Reordena y limpia sin cambiar la idea." },
-  { value: "correction", label: "Corregir sin reescribir", description: "Busca errores y mantiene tu texto." },
-  { value: "continue", label: "Continuar texto", description: "Sigue la idea sin cerrarla de golpe." },
-  { value: "variants", label: "Ver alternativas", description: "Propone otros enfoques posibles." },
+  {
+    value: "rewrite",
+    label: "Mejorar claridad",
+    description: "Objetivo: que se entienda mejor sin cambiar la idea.",
+  },
+  {
+    value: "correction",
+    label: "Corregir sin reescribir",
+    description: "Objetivo: corregir errores manteniendo tu texto.",
+  },
+  {
+    value: "continue",
+    label: "Continuar texto",
+    description: "Objetivo: seguir la idea sin cerrarla de golpe.",
+  },
+  {
+    value: "variants",
+    label: "Ver alternativas",
+    description: "Objetivo: ver otros enfoques posibles.",
+  },
 ];
 const revisionIntentions = [
-  { value: "claridad", label: "Claridad" },
-  { value: "estructura", label: "Estructura" },
-  { value: "tono", label: "Tono" },
-  { value: "limpieza", label: "Limpieza final" },
+  {
+    value: "claridad",
+    label: "Comprension",
+    description: "Mirada: orden, ambiguedad y facilidad de lectura.",
+  },
+  {
+    value: "estructura",
+    label: "Estructura",
+    description: "Mirada: foco, progresion y cierre.",
+  },
+  {
+    value: "tono",
+    label: "Voz y tono",
+    description: "Mirada: actitud, distancia y registro.",
+  },
+  {
+    value: "limpieza",
+    label: "Limpieza final",
+    description: "Mirada: puntuacion, repeticiones y remate.",
+  },
 ];
 const auditEventFilters = [
   { label: "Todo", eventType: "", entityType: "" },
@@ -430,6 +462,9 @@ export function App() {
   const editorFeedbackCount = Object.keys(revisionFeedbackByCard).length;
   const selectedEditorAction =
     editorActions.find((action) => action.value === editorAction) ?? editorActions[0];
+  const selectedRevisionIntention =
+    revisionIntentions.find((intention) => intention.value === revisionIntention) ??
+    revisionIntentions[0];
   const editorProposalLabel =
     {
       rewrite: "reescritura",
@@ -2987,9 +3022,9 @@ export function App() {
               </div>
               <div className="editorControls">
                 <label className="editorControl actionControl">
-                  <span className="controlLabel">Trabajo sobre el texto</span>
+                  <span className="controlLabel">Objetivo</span>
                   <select
-                    aria-label="Trabajo sobre el texto"
+                    aria-label="Objetivo del trabajo"
                     onChange={(event) => handleEditorActionChange(event.target.value as GenerationAction)}
                     value={editorAction}
                   >
@@ -3013,9 +3048,9 @@ export function App() {
                   />
                 </label>
                 <label className="editorControl revisionControl">
-                  <span className="controlLabel">Revision</span>
+                  <span className="controlLabel">Mirada</span>
                   <select
-                    aria-label="Revision"
+                    aria-label="Mirada de revision"
                     onChange={(event) => handleRevisionIntentionChange(event.target.value)}
                     value={revisionIntention}
                   >
@@ -3025,6 +3060,7 @@ export function App() {
                       </option>
                     ))}
                   </select>
+                  <span className="controlHint">{selectedRevisionIntention.description}</span>
                 </label>
                 <label className="editorControl termsControl" htmlFor="protectedTerms">
                   <span className="controlLabel">Terminos protegidos</span>
@@ -3126,7 +3162,8 @@ export function App() {
                   <>
                     <h3>Propuesta de {editorProposalLabel}</h3>
                     <p className="note">
-                      Es una propuesta creada con {selectedEditorAction.label.toLowerCase()}.
+                      Objetivo: {selectedEditorAction.label.toLowerCase()}. Mirada:{" "}
+                      {selectedRevisionIntention.label.toLowerCase()}.
                       No sustituye tu borrador hasta que pulses "Aceptar propuesta".
                     </p>
                     <textarea readOnly value={generation.output} />
@@ -3177,7 +3214,13 @@ export function App() {
                   </p>
                   <div className="metricGrid">
                     <Metric label="Base" value={knowledgeVersionPublicLabel(textRevision.version, latestPublishedKnowledgeVersion)} />
-                    <Metric label="Objetivo" value={textRevision.intention} />
+                    <Metric
+                      label="Mirada"
+                      value={
+                        revisionIntentions.find((intention) => intention.value === textRevision.intention)
+                          ?.label ?? textRevision.intention
+                      }
+                    />
                     <Metric label="Palabras" value={textRevision.word_count} />
                     <Metric label="Parrafos" value={textRevision.paragraph_count} />
                     <Metric label="Frases" value={textRevision.sentence_count} />
