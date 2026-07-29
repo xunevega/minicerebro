@@ -1867,28 +1867,18 @@ export function App() {
               </div>
               <p className="note">{knowledge?.sources_policy}</p>
             </details>
-            <div className="proposalBox">
-              <div className="versionHeader">
-                <div>
-                  <h3>Estanterias</h3>
-                  <p className="note">
-                    Orden por materia. Elige una estanteria y abre solo la ficha que necesites.
-                  </p>
-                </div>
-              </div>
-              <div className="libraryShelfGrid" aria-label="Estanterias de Biblioteca">
+            <div className="proposalBox compactLibraryBox">
+              <div className="libraryFilterBar" aria-label="Filtro de fichas">
                 {libraryAreas.map((area) => (
                   <button
                     className={
-                      selectedLibraryArea === area.id ? "libraryShelf active" : "libraryShelf"
+                      selectedLibraryArea === area.id ? "phaseBadge active" : "phaseBadge"
                     }
                     key={area.id}
                     onClick={() => setSelectedLibraryArea(area.id)}
                     type="button"
                   >
-                    <strong>{area.label}</strong>
-                    <span>{area.description}</span>
-                    <em>{libraryAreaCounts.get(area.id) ?? 0}</em>
+                    {area.label} · {libraryAreaCounts.get(area.id) ?? 0}
                   </button>
                 ))}
               </div>

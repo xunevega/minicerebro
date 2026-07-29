@@ -1245,6 +1245,28 @@ textarea + .primaryButton {
   margin: 14px 0;
 }
 
+.compactLibraryBox {
+  padding-top: 14px;
+}
+
+.libraryFilterBar {
+  align-items: center;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+
+.libraryFilterBar .phaseBadge {
+  cursor: pointer;
+}
+
+.libraryFilterBar .phaseBadge.active,
+.libraryFilterBar .phaseBadge:hover {
+  border-color: var(--ink);
+  box-shadow: inset 0 -2px 0 var(--accent);
+}
+
 .libraryShelf {
   background: #ffffff;
   border: 1px solid var(--line);
