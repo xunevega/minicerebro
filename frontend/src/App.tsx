@@ -1754,7 +1754,7 @@ export function App() {
                 type="button"
                 title={section.description}
               >
-                <Icon size={18} />
+                <Icon size={20} />
                 <span>{section.label}</span>
               </button>
             );
