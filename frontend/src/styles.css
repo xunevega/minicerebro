@@ -38,7 +38,7 @@ body {
     linear-gradient(90deg, rgba(17, 17, 17, 0.025) 1px, transparent 1px),
     var(--paper);
   background-size: 72px 72px;
-  font-size: 18px;
+  font-size: 19px;
   margin: 0;
   min-width: 320px;
 }
@@ -51,7 +51,7 @@ textarea {
 }
 
 button {
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -143,7 +143,7 @@ textarea::placeholder {
 
 .brand span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 15px;
   margin-top: 2px;
 }
 
@@ -163,7 +163,7 @@ nav {
   color: var(--muted);
   cursor: pointer;
   display: flex;
-  font-size: 18px;
+  font-size: 19px;
   gap: 7px;
   min-height: 132px;
   padding: 0 9px;
@@ -221,7 +221,7 @@ nav {
 
 .sectionMenu label {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 800;
 }
 
@@ -272,21 +272,21 @@ h2 {
 }
 
 h3 {
-  font-size: 18px;
+  font-size: 21px;
   margin-bottom: 8px;
 }
 
 .topbar p,
 .note {
   color: var(--muted);
-  font-size: 20px;
+  font-size: 21px;
   line-height: 1.35;
 }
 
 .sectionEyebrow {
   color: var(--accent);
   display: inline-block;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 800;
   letter-spacing: 0.06em;
   margin-top: 6px;
@@ -320,12 +320,12 @@ h3 {
 .meter span {
   color: var(--muted);
   display: block;
-  font-size: 13px;
+  font-size: 15px;
 }
 
 .metric strong {
   display: block;
-  font-size: 24px;
+  font-size: 27px;
   margin-top: 6px;
 }
 
@@ -365,7 +365,7 @@ textarea {
   border-radius: 0;
   display: block;
   font-family: Georgia, "Times New Roman", serif;
-  font-size: 20px;
+  font-size: 22px;
   line-height: 1.72;
   min-height: 360px;
   outline: 0;
@@ -399,7 +399,7 @@ textarea {
   border: 1px solid #c7c7c7;
   color: var(--ink);
   display: inline-flex;
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 900;
   letter-spacing: 0.02em;
   margin-bottom: 10px;
@@ -410,7 +410,7 @@ textarea {
 .draftFieldShell textarea {
   background: var(--field-bg);
   border: 1px solid #b8b8b8;
-  font-size: clamp(22px, 2.3vw, 30px);
+  font-size: clamp(23px, 2vw, 28px);
   margin-top: 0;
   min-height: clamp(460px, 45vh, 660px);
   padding: 22px;
@@ -423,11 +423,10 @@ textarea {
 
 .draftFieldShell textarea::placeholder {
   color: #77736f;
-  font-family:
-    "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: clamp(24px, 2.3vw, 30px);
-  font-weight: 700;
-  line-height: 1.4;
+  font-family: inherit;
+  font-size: inherit;
+  font-weight: 400;
+  line-height: inherit;
 }
 
 textarea + textarea,
@@ -487,7 +486,7 @@ textarea + .primaryButton {
   border-radius: 999px;
   color: var(--ink);
   display: inline-flex;
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   padding: 7px 11px;
 }
@@ -526,7 +525,7 @@ textarea + .primaryButton {
   background: #eceae4;
   color: #37332d;
   display: inline-flex;
-  font-size: 12px;
+  font-size: 14px;
   font-weight: 900;
   letter-spacing: 0.03em;
   margin-bottom: 10px;
@@ -553,7 +552,7 @@ textarea + .primaryButton {
 .contextControl label,
 .editorControls label {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 17px;
   font-weight: 700;
 }
 
@@ -614,7 +613,7 @@ textarea + .primaryButton {
   border-radius: 999px;
   color: var(--muted);
   display: inline-flex;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 800;
   height: 30px;
   justify-content: center;
@@ -622,12 +621,12 @@ textarea + .primaryButton {
 }
 
 .editorFlowStep strong {
-  font-size: 17px;
+  font-size: 20px;
 }
 
 .editorFlowStep small {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.35;
 }
 
@@ -655,7 +654,7 @@ textarea + .primaryButton {
   background: #eceae4;
   color: #37332d;
   display: inline-flex;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 900;
   letter-spacing: 0.03em;
   padding: 6px 9px;
@@ -665,7 +664,7 @@ textarea + .primaryButton {
 
 .controlHint {
   color: var(--muted);
-  font-size: 15px;
+  font-size: 17px;
   line-height: 1.35;
 }
 
@@ -708,12 +707,12 @@ textarea + .primaryButton {
 }
 
 .actionChoice strong {
-  font-size: 15px;
+  font-size: 18px;
 }
 
 .actionChoice span {
   color: var(--muted);
-  font-size: 13px;
+  font-size: 16px;
   line-height: 1.35;
 }
 
@@ -759,7 +758,7 @@ textarea + .primaryButton {
 .draftSnapshot {
   border-left: 3px solid var(--accent);
   color: var(--muted);
-  font-size: 13px;
+  font-size: 15px;
   margin: 8px 0 14px;
   padding-left: 10px;
 }
@@ -780,7 +779,7 @@ textarea + .primaryButton {
 .comparisonSummary span,
 .comparisonSummary p {
   color: var(--muted);
-  font-size: 14px;
+  font-size: 17px;
   margin: 0;
 }
 
@@ -892,14 +891,14 @@ textarea + .primaryButton {
 
 .emptyOutput strong {
   color: var(--ink);
-  font-size: clamp(22px, 2.1vw, 28px);
+  font-size: clamp(22px, 2vw, 27px);
 }
 
 .emptyOutput p {
   font-family:
     "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: clamp(24px, 2.3vw, 30px);
-  font-weight: 700;
+  font-size: clamp(21px, 1.8vw, 25px);
+  font-weight: 500;
   line-height: 1.4;
   margin: 0;
   max-width: 620px;
@@ -939,7 +938,7 @@ textarea + .primaryButton {
   color: var(--muted);
   cursor: pointer;
   display: inline-flex;
-  font-size: 13px;
+  font-size: 16px;
   font-weight: 700;
   list-style-position: inside;
 }
