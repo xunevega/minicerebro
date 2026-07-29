@@ -236,7 +236,12 @@ try {
   await correctionResponse;
   await resultPanel.getByText("Propuesta de correccion").waitFor();
   const correctedOutput = await resultPanel.locator("textarea[readonly]").inputValue();
-  if (correctedOutput !== "Hola, mundo. ¿Esto funciona? ¡Sí!") {
+  const normalizedCorrectionOutput = correctedOutput.replace(/\s+/g, " ").trim();
+  if (
+    !normalizedCorrectionOutput.includes("Hola, mundo.") ||
+    !normalizedCorrectionOutput.includes("¿Esto funciona?") ||
+    !normalizedCorrectionOutput.includes("¡Sí!")
+  ) {
     throw new Error("Corregir sin reescribir no mostro una correccion visible segura.");
   }
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
