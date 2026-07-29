@@ -1,4 +1,5 @@
 import re
+from difflib import SequenceMatcher
 from os import getenv
 
 from openai import OpenAI
@@ -11,6 +12,70 @@ PROTECTED_TOKEN_TEMPLATE = "__PROTECTED_TERM_{index}__"
 PUNCTUATION_SPACING_RE = re.compile(r"\s+([,.;:!?])")
 MISSING_SPACE_AFTER_PUNCTUATION_RE = re.compile(r"([,.;:!?])(?=\S)")
 SENTENCE_START_RE = re.compile(r"(^|[.!?]\s+)([a-záéíóúüñ])")
+
+
+def _rewrite_similarity_floor(intensity: int) -> float:
+    if intensity <= 650:
+        return 0.72
+    if intensity <= 850:
+        return 0.62
+    return 0.0
+
+
+def _is_over_rewritten(original: str, output: str, intensity: int) -> bool:
+    floor = _rewrite_similarity_floor(intensity)
+    if floor <= 0:
+        return False
+    similarity = SequenceMatcher(None, original.strip().lower(), output.strip().lower()).ratio()
+    return similarity < floor
+
+
+def _generation_contract(payload: GenerationInput) -> str:
+    if payload.action == "rewrite":
+        return """
+Objetivo: mejorar claridad de forma conservadora.
+Reglas especificas:
+- Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
+- No cambies un verbo o una expresion si el original ya se entiende.
+- No endurezcas el tono para que suene mas rotundo.
+- No resumas, no amplies y no introduzcas informacion nueva.
+- Mantén la estructura de parrafos salvo que haya una mejora claramente necesaria.
+- Si no hay una mejora segura, devuelve exactamente el texto original.
+""".strip()
+    if payload.action == "correction":
+        return """
+Objetivo: corregir sin reescribir.
+Reglas especificas:
+- Corrige solo errores seguros de ortografia, puntuacion, espacios y concordancia evidente.
+- Conserva palabras, orden y voz siempre que sea posible.
+""".strip()
+    if payload.action == "continue":
+        return """
+Objetivo: continuar el texto.
+Reglas especificas:
+- Continua la idea sin cerrarla de golpe.
+- No contradigas la posicion ni cambies la voz del fragmento.
+""".strip()
+    if payload.action == "variants":
+        return """
+Objetivo: proponer alternativas.
+Reglas especificas:
+- Ofrece alternativas diferenciadas sin borrar la intencion original.
+""".strip()
+    return "Objetivo: trabajar el texto conservando la intencion original."
+
+
+def _revision_intention_contract(intention: str) -> str:
+    if intention == "tono":
+        return (
+            "Mirada: voz y tono. Ajusta actitud, distancia y registro solo cuando sea necesario; "
+            "no conviertas una aclaracion en una version mas dura o mas editorial."
+        )
+    if intention == "estructura":
+        return "Mirada: estructura. Revisa foco, progresion y cierre sin cambiar los hechos."
+    if intention == "limpieza":
+        return "Mirada: limpieza final. Atiende puntuacion, repeticiones y remate superficial."
+    return "Mirada: comprension. Revisa orden, ambiguedad y facilidad de lectura."
 
 
 def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
@@ -180,6 +245,8 @@ Eres Minicerebro V1, una app especializada en escritura en lengua espanola.
 Accion: {payload.action}
 Contexto: {payload.context}
 Intensidad: {payload.intensity}/1000
+{_generation_contract(payload)}
+{_revision_intention_contract(payload.revision_intention)}
 Terminos protegidos: {", ".join(payload.protected_terms) or "ninguno"}
 
 Perfil efectivo:
@@ -200,13 +267,27 @@ Texto:
     output = getattr(response, "output_text", "").strip()
     if not output:
         output = payload.text
+    over_rewritten = payload.action == "rewrite" and _is_over_rewritten(
+        payload.text,
+        output,
+        payload.intensity,
+    )
+    if over_rewritten:
+        output = payload.text
+    if over_rewritten:
+        explanation = (
+            "La propuesta externa cambiaba demasiado para una mejora de claridad segura; "
+            "se conserva el borrador. No aplica aprendizaje automatico."
+        )
+    else:
+        explanation = (
+            f"Generacion LLM con {model}. Usa perfil y contexto solo para esta salida; "
+            "no aplica aprendizaje automatico."
+        )
 
     return GenerationResult(
         output=output,
-        explanation=(
-            f"Generacion LLM con {model}. Usa perfil y contexto solo para esta salida; "
-            "no aplica aprendizaje automatico."
-        ),
+        explanation=explanation,
         used_profile_variables=[item.key for item in active],
         learning_applied=False,
         provider="openai",

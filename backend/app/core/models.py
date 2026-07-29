@@ -897,6 +897,7 @@ class GenerationInput(BaseModel):
     action: str = "rewrite"
     context: str = "general"
     intensity: int = Field(default=500, ge=0, le=1000)
+    revision_intention: str = "claridad"
     protected_terms: list[str] = Field(default_factory=list)
 
 

@@ -1509,6 +1509,7 @@ export function App() {
         editorAction,
         activeContext,
         editorIntensity,
+        revisionIntention,
         protectedTerms
           .split(",")
           .map((term) => term.trim())
