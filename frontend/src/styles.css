@@ -799,6 +799,71 @@ textarea + .primaryButton {
   margin: 0;
 }
 
+.visualDiff {
+  background: #f7f7f7;
+  border: 1px solid var(--line);
+  margin: 12px 0 16px;
+  padding: 14px;
+}
+
+.visualDiff summary {
+  cursor: pointer;
+  font-size: 17px;
+  font-weight: 800;
+}
+
+.visualDiff[open] summary {
+  margin-bottom: 12px;
+}
+
+.diffGrid {
+  display: grid;
+  gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+
+.diffPanel {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 10px;
+  max-height: 320px;
+  overflow: auto;
+  padding: 14px;
+}
+
+.diffPanel > strong {
+  font-size: 15px;
+  text-transform: uppercase;
+}
+
+.diffText {
+  color: var(--ink);
+  font-family: var(--font-sans);
+  font-size: 17px;
+  line-height: 1.55;
+  margin: 0;
+  white-space: pre-wrap;
+}
+
+.diffToken.added {
+  background: #e4f0ff;
+  color: #183f74;
+  font-weight: 700;
+}
+
+.diffToken.removed {
+  background: #ffe4df;
+  color: #8a2d25;
+  font-weight: 700;
+  text-decoration: line-through;
+  text-decoration-thickness: 1.5px;
+}
+
+.diffToken.same {
+  color: var(--ink);
+}
+
 .adjustControl {
   display: grid;
   gap: 8px;
@@ -1672,6 +1737,10 @@ textarea + .primaryButton {
   }
 
   .labControls {
+    grid-template-columns: 1fr;
+  }
+
+  .diffGrid {
     grid-template-columns: 1fr;
   }
 

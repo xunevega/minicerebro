@@ -21,7 +21,7 @@ try {
   const editorPanel = page.locator(".panel", { hasText: "Borrador" });
   const inputText = `Smoke editor persistencia ${Date.now()}.  Frase para guardar.`;
   await editorPanel.locator("textarea").first().fill(inputText);
-  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("continue");
+  await editorPanel.getByLabel("Objetivo").selectOption("continue");
   await page.getByLabel("Recorrido de escritura").getByText("Borrador").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Accion").waitFor();
 
@@ -38,6 +38,7 @@ try {
   const resultPanel = page.locator(".inspector", { hasText: "Salida" });
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
   await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
+  await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
   await editorPanel.locator("textarea").first().fill(`${inputText} Cambio manual.`);
   await resultPanel.getByText("Borrador actualizado. Crea una nueva propuesta").waitFor();
@@ -57,6 +58,7 @@ try {
   await regeneratedResponse;
   await resultPanel.getByText("Propuesta de continuacion").waitFor();
   await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
+  await resultPanel.getByText("Ver cambios en el texto").waitFor();
 
   const revisionResponse = page.waitForResponse(
     (response) => {
@@ -114,7 +116,7 @@ try {
 
   const cleanText = "Texto limpio para revisar.";
   await editorPanel.locator("textarea").first().fill(cleanText);
-  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("rewrite");
+  await editorPanel.getByLabel("Objetivo").selectOption("rewrite");
   const noChangeGenerationResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -191,7 +193,7 @@ try {
     await route.fallback();
   });
   await editorPanel.locator("textarea").first().fill(exactSameText);
-  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("rewrite");
+  await editorPanel.getByLabel("Objetivo").selectOption("rewrite");
   const exactSameGenerationResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -204,6 +206,9 @@ try {
   await resultPanel.getByText("Sin version nueva").waitFor();
   await resultPanel.getByText("Cambios: 0").waitFor();
   await resultPanel.getByText("Adecuacion: 1000").waitFor();
+  if ((await resultPanel.getByText("Ver cambios en el texto").count()) !== 0) {
+    throw new Error("Una salida identica no debe mostrar comparacion visual de cambios.");
+  }
   await resultPanel.getByText("Ver detalles").click();
   await resultPanel.getByText("Aspectos tenidos en cuenta").waitFor();
   await resultPanel.getByText("Precision Lexica").waitFor();
@@ -219,7 +224,7 @@ try {
   }
 
   await editorPanel.locator("textarea").first().fill(" hola ,mundo. esto funciona ? si ! ");
-  await editorPanel.getByLabel("Trabajo sobre el texto").selectOption("correction");
+  await editorPanel.getByLabel("Objetivo").selectOption("correction");
   const correctionResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -231,9 +236,10 @@ try {
   await correctionResponse;
   await resultPanel.getByText("Propuesta de correccion").waitFor();
   const correctedOutput = await resultPanel.locator("textarea[readonly]").inputValue();
-  if (correctedOutput !== "Hola, mundo. ¿Esto funciona? ¡Si!") {
+  if (correctedOutput !== "Hola, mundo. ¿Esto funciona? ¡Sí!") {
     throw new Error("Corregir sin reescribir no mostro una correccion visible segura.");
   }
+  await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).waitFor();
 
   const textsResponse = await page.request.get(`${apiBase}/texts?context=general`, {
@@ -248,7 +254,7 @@ try {
   }
 
   await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
-  await page.getByRole("heading", { name: "Actividad de escritura" }).waitFor();
+  await page.getByRole("heading", { name: "Actividad reciente" }).waitFor();
   await page.getByText("Se trabajo un texto").first().waitFor();
   await page.getByText("Se reviso un borrador").first().waitFor();
 } finally {

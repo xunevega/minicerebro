@@ -491,6 +491,13 @@ export function App() {
   const generationAdequacyScore = generationIsSameAsDraft
     ? 1000
     : (comparison?.adequacy_score ?? 0);
+  const generationDiffTokens = useMemo(
+    () =>
+      generationHasChanges
+        ? buildTextDiff(editorOriginalBeforeGeneration, generation?.output ?? "")
+        : [],
+    [editorOriginalBeforeGeneration, generation?.output, generationHasChanges],
+  );
   const editorFlowSteps = [
     {
       label: "Borrador",
@@ -3190,6 +3197,21 @@ export function App() {
                         <p>{comparison.summary}</p>
                       </div>
                     ) : null}
+                    {generationDiffTokens.length ? (
+                      <details className="visualDiff" open>
+                        <summary>Ver cambios en el texto</summary>
+                        <div className="diffGrid">
+                          <div className="diffPanel">
+                            <strong>Original</strong>
+                            <DiffText side="original" tokens={generationDiffTokens} />
+                          </div>
+                          <div className="diffPanel">
+                            <strong>Propuesta</strong>
+                            <DiffText side="revised" tokens={generationDiffTokens} />
+                          </div>
+                        </div>
+                      </details>
+                    ) : null}
                     <details className="quietDetails">
                       <summary>Ver detalles</summary>
                       <p className="note">{generationDetailsNote}</p>
@@ -4663,6 +4685,92 @@ function canApproveProposal(proposal: KnowledgeProposal, versions: KnowledgeVers
   }
   const targetVersion = versions.find((item) => item.id === version);
   return Boolean(targetVersion && !["published", "seed"].includes(targetVersion.status));
+}
+
+type DiffToken = {
+  text: string;
+  kind: "same" | "added" | "removed";
+};
+
+function buildTextDiff(original: string, revised: string): DiffToken[] {
+  const originalTokens = tokenizeTextForDiff(original);
+  const revisedTokens = tokenizeTextForDiff(revised);
+  if (!originalTokens.length && !revisedTokens.length) {
+    return [];
+  }
+  const rows = originalTokens.length + 1;
+  const cols = revisedTokens.length + 1;
+  const table = Array.from({ length: rows }, () => new Uint16Array(cols));
+
+  for (let row = originalTokens.length - 1; row >= 0; row -= 1) {
+    for (let col = revisedTokens.length - 1; col >= 0; col -= 1) {
+      table[row][col] =
+        normalizeDiffToken(originalTokens[row]) === normalizeDiffToken(revisedTokens[col])
+          ? table[row + 1][col + 1] + 1
+          : Math.max(table[row + 1][col], table[row][col + 1]);
+    }
+  }
+
+  const tokens: DiffToken[] = [];
+  let row = 0;
+  let col = 0;
+  while (row < originalTokens.length && col < revisedTokens.length) {
+    if (normalizeDiffToken(originalTokens[row]) === normalizeDiffToken(revisedTokens[col])) {
+      tokens.push({ text: revisedTokens[col], kind: "same" });
+      row += 1;
+      col += 1;
+    } else if (table[row + 1][col] >= table[row][col + 1]) {
+      tokens.push({ text: originalTokens[row], kind: "removed" });
+      row += 1;
+    } else {
+      tokens.push({ text: revisedTokens[col], kind: "added" });
+      col += 1;
+    }
+  }
+  while (row < originalTokens.length) {
+    tokens.push({ text: originalTokens[row], kind: "removed" });
+    row += 1;
+  }
+  while (col < revisedTokens.length) {
+    tokens.push({ text: revisedTokens[col], kind: "added" });
+    col += 1;
+  }
+  return mergeAdjacentDiffTokens(tokens);
+}
+
+function tokenizeTextForDiff(value: string) {
+  return value.match(/\S+\s*/g) ?? [];
+}
+
+function normalizeDiffToken(value: string) {
+  return value.trim().toLocaleLowerCase("es");
+}
+
+function mergeAdjacentDiffTokens(tokens: DiffToken[]) {
+  return tokens.reduce<DiffToken[]>((merged, token) => {
+    const previous = merged.at(-1);
+    if (previous && previous.kind === token.kind) {
+      previous.text += token.text;
+    } else {
+      merged.push({ ...token });
+    }
+    return merged;
+  }, []);
+}
+
+function DiffText({ tokens, side }: { tokens: DiffToken[]; side: "original" | "revised" }) {
+  const visibleTokens = tokens.filter((token) =>
+    side === "original" ? token.kind !== "added" : token.kind !== "removed",
+  );
+  return (
+    <p className="diffText">
+      {visibleTokens.map((token, index) => (
+        <span className={`diffToken ${token.kind}`} key={`${side}-${index}`}>
+          {token.text}
+        </span>
+      ))}
+    </p>
+  );
 }
 
 function ValidationPill({ confidence }: { confidence: number }) {
