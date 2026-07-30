@@ -1011,14 +1011,78 @@ textarea + .primaryButton {
   margin-top: 24px;
 }
 
+.saveModeGroup {
+  display: grid;
+  gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 12px 0;
+}
+
+.saveMode {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  cursor: pointer;
+  display: grid;
+  gap: 4px;
+  padding: 12px;
+}
+
+.saveMode.active {
+  border-color: var(--ink);
+  box-shadow: inset 0 -3px 0 var(--accent);
+}
+
+.saveMode input {
+  height: 1px;
+  opacity: 0;
+  position: absolute;
+  width: 1px;
+}
+
+.saveMode span {
+  color: var(--ink);
+  font-weight: 800;
+}
+
+.saveMode small {
+  color: var(--muted);
+  font-size: 14px;
+  line-height: 1.35;
+}
+
 .preferenceItem {
   border: 1px solid #e6e0d7;
-  border-radius: 8px;
   display: grid;
   gap: 12px;
-  grid-template-columns: 1fr auto;
+  grid-template-columns: 1fr;
   margin-top: 10px;
   padding: 14px;
+}
+
+.preferenceItemBody {
+  min-width: 0;
+}
+
+.preferenceMeta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.preferenceMeta span {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  color: #716a60;
+  display: inline-flex;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1.2;
+  padding: 6px 9px;
+}
+
+.preferenceMeta span:first-child {
+  color: var(--ink);
 }
 
 .proposalBox {
@@ -1597,12 +1661,11 @@ textarea + .primaryButton {
   color: var(--ink);
 }
 
-.preferenceItem strong,
-.preferenceItem span {
+.preferenceItem strong {
   display: block;
 }
 
-.preferenceItem span {
+.preferenceItemBody > span {
   color: #716a60;
   font-size: 13px;
   margin-top: 4px;

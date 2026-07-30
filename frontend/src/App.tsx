@@ -373,6 +373,9 @@ export function App() {
   const [contradictions, setContradictions] = useState<Contradiction[]>([]);
   const [scores, setScores] = useState<ScoreVariable[]>([]);
   const [preferenceText, setPreferenceText] = useState("");
+  const [preferenceSaveMode, setPreferenceSaveMode] = useState<"proposed" | "accepted">(
+    "proposed",
+  );
   const [preference, setPreference] = useState<Preference | null>(null);
   const [preferences, setPreferences] = useState<Preference[]>([]);
   const [scoreProposal, setScoreProposal] = useState<ScoreProposal | null>(null);
@@ -985,8 +988,16 @@ export function App() {
     if (!preferenceText.trim()) return;
     try {
       const created = await createPreference(preferenceText, activeContext);
-      setPreference(created);
-      setPreferences((current) => [created, ...current]);
+      const saved =
+        preferenceSaveMode === "accepted"
+          ? await updatePreferenceStatus(created.id, "accepted")
+          : created;
+      setPreference(saved);
+      setPreferences((current) => [saved, ...current]);
+      setPreferenceText("");
+      setScoreProposal(
+        saved.status === "accepted" ? await getScoreProposal(saved.id) : null,
+      );
       setSummary(await getProfileSummary());
       await refreshAuditEvents();
     } catch (nextError) {
@@ -2937,13 +2948,43 @@ export function App() {
                 placeholder="Ejemplo: Me gusta un estilo sobrio, preciso y con ritmo."
                 value={preferenceText}
               />
+              <div className="saveModeGroup" aria-label="Como guardar este gusto">
+                <label
+                  className={
+                    preferenceSaveMode === "proposed" ? "saveMode active" : "saveMode"
+                  }
+                >
+                  <input
+                    checked={preferenceSaveMode === "proposed"}
+                    name="preferenceSaveMode"
+                    onChange={() => setPreferenceSaveMode("proposed")}
+                    type="radio"
+                  />
+                  <span>Guardar como propuesta</span>
+                  <small>Lo revisas antes de aplicarlo.</small>
+                </label>
+                <label
+                  className={
+                    preferenceSaveMode === "accepted" ? "saveMode active" : "saveMode"
+                  }
+                >
+                  <input
+                    checked={preferenceSaveMode === "accepted"}
+                    name="preferenceSaveMode"
+                    onChange={() => setPreferenceSaveMode("accepted")}
+                    type="radio"
+                  />
+                  <span>Guardar como criterio firme</span>
+                  <small>Se acepta directamente en tu criterio.</small>
+                </label>
+              </div>
               <button
                 className="primaryButton"
                 disabled={!preferenceText.trim()}
                 onClick={handlePreference}
                 type="button"
               >
-                Guardar gusto
+                {preferenceSaveMode === "accepted" ? "Guardar criterio" : "Guardar propuesta"}
               </button>
               <div className="preferenceList">
                 <h2>Gustos guardados</h2>
@@ -2952,13 +2993,13 @@ export function App() {
                 ) : (
                   preferences.map((item) => (
                     <article className="preferenceItem" key={item.id}>
-                      <div>
+                      <div className="preferenceItemBody">
                         <strong>{item.text}</strong>
-                        <span>{preferenceStatusPublicLabel(item.status)}</span>
+                        <div className="preferenceMeta">
+                          <span>{preferenceStatusPublicLabel(item.status)}</span>
+                          <span>{preferenceAdjustmentCountLabel(item)}</span>
+                        </div>
                       </div>
-                      <span className="statusPill">
-                        {item.affected_variables.length} ajustes posibles
-                      </span>
                       <div className="rowActions">
                         <button
                           className="ghostButton"
@@ -3015,13 +3056,17 @@ export function App() {
                 <>
                   <p>{preference.interpreted_as}</p>
                   <List
-                    title="Lo que podria ajustar"
+                    title={
+                      preference.status === "accepted"
+                        ? "Lo que queda como criterio"
+                        : "Lo que podria ajustar"
+                    }
                     items={preference.affected_variables.map(scoreLabelByKey)}
                   />
                   <span className="statusPill">{preferenceStatusPublicLabel(preference.status)}</span>
                 </>
               ) : (
-                <p className="note">El gusto queda pendiente hasta que lo aceptes.</p>
+                <p className="note">Elige si quieres revisarlo o guardarlo ya como criterio.</p>
               )}
               {scoreProposal ? (
                 <div className="proposalBox">
@@ -4306,11 +4351,24 @@ function isWriterFacingAuditEvent(event: AuditEvent) {
 
 function preferenceStatusPublicLabel(status: string) {
   const labels: Record<string, string> = {
+    proposed: "Propuesta",
     pending: "Pendiente de revisar",
-    accepted: "Aceptado",
+    accepted: "Criterio firme",
     rejected: "Descartado",
   };
   return labels[status] ?? status;
+}
+
+function preferenceAdjustmentCountLabel(preference: Preference) {
+  const count = preference.affected_variables.length;
+  const countLabel = count === 1 ? "1 ajuste" : `${count} ajustes`;
+  if (preference.status === "accepted") {
+    return `${countLabel} en tu criterio`;
+  }
+  if (preference.status === "rejected") {
+    return `${countLabel} descartados`;
+  }
+  return `${countLabel} posibles`;
 }
 
 function scoreProposalStatusLabel(status: string) {
