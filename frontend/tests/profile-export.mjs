@@ -27,7 +27,7 @@ try {
     .getByText("Tu criterio personal esta separado de la biblioteca publicada.")
     .waitFor();
   await exportBox.getByText("Contextos guardados").waitFor();
-  await exportBox.getByText("Ver detalle tecnico").waitFor();
+  await exportBox.getByText("Ver datos de guardado").waitFor();
 } finally {
   await browser.close();
 }

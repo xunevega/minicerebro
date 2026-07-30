@@ -224,7 +224,7 @@ const writerFacingAuditEventTypes = new Set([
 const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label: string }> = [
   { value: "liked", label: "Me gusta" },
   { value: "kept", label: "Mantener" },
-  { value: "changed", label: "Cambiar" },
+  { value: "changed", label: "No va por ahi" },
   { value: "dismissed", label: "Descartar" },
 ];
 
@@ -3210,7 +3210,7 @@ export function App() {
                         Leer con fichas
                       </button>
                       <button className="ghostButton" onClick={handleDiscardGeneratedText} type="button">
-                        Cambiar opciones
+                        Probar otra mirada
                       </button>
                       <button className="ghostButton" onClick={() => void handleCopyEditorText()} type="button">
                         Copiar borrador
@@ -3539,7 +3539,7 @@ export function App() {
                     value={editorialProfileCard.generated_text_count}
                   />
                   <Metric
-                    label="Biblioteca"
+                    label="Base publicada"
                     value={editorialProfileCard.stable_knowledge_mutated ? "revisar" : "intacta"}
                   />
                 </div>
@@ -3606,7 +3606,7 @@ export function App() {
                   }
                 />
                 <details className="queryTraceBox">
-                  <summary>Ver detalle tecnico</summary>
+                  <summary>Ver datos de guardado</summary>
                   <Metric label="Formato" value={profileExport.export_version} />
                   <p className="note">{profileExport.knowledge_policy}</p>
                 </details>
@@ -4110,7 +4110,7 @@ export function App() {
                             <dd>{item.query_length} caracteres</dd>
                           </div>
                           <div>
-                            <dt>Detalle tecnico</dt>
+                            <dt>Datos de consulta</dt>
                             <dd>
                               {item.card_count} fichas · {item.claim_count} claims ·{" "}
                               {item.evidence_count} evidencias
@@ -4352,7 +4352,7 @@ function profileKnowledgeCardStanceLabel(stance: string) {
   const labels: Record<string, string> = {
     liked: "Me gusta",
     kept: "Mantener",
-    changed: "Cambiar",
+    changed: "No va por ahi",
     dismissed: "Descartar",
   };
   return labels[stance] ?? stance;

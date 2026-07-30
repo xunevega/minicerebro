@@ -45,7 +45,7 @@ try {
   await historyItem.getByText("No hubo ficha util para esa busqueda.").waitFor({ timeout: 90000 });
   await historyItem.getByRole("button", { name: "Detalle" }).click();
   await historyItem.locator("dt", { hasText: "Base" }).waitFor();
-  await historyItem.locator("dt", { hasText: "Detalle tecnico" }).waitFor();
+  await historyItem.locator("dt", { hasText: "Datos de consulta" }).waitFor();
 } finally {
   await browser.close();
 }
