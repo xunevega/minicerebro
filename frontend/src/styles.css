@@ -1608,6 +1608,7 @@ textarea + .primaryButton {
 .auditList {
   display: grid;
   gap: 12px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   margin-bottom: 12px;
 }
 
@@ -1618,6 +1619,7 @@ textarea + .primaryButton {
 }
 
 .auditItem {
+  align-content: start;
   border: 1px solid #e6e0d7;
   border-radius: 0;
   display: grid;
@@ -1652,6 +1654,17 @@ textarea + .primaryButton {
 
 .activityBadges .phaseBadge {
   background: #ffffff;
+}
+
+.auditItem .queryTraceBox {
+  border-radius: 0;
+  grid-column: 1 / -1;
+  margin: 4px 0 0;
+  padding: 8px 10px;
+}
+
+.auditItem .queryTraceBox summary {
+  font-size: 14px;
 }
 
 .auditItem pre {
@@ -1833,6 +1846,10 @@ textarea + .primaryButton {
   }
 
   .auditItem {
+    grid-template-columns: 1fr;
+  }
+
+  .auditList {
     grid-template-columns: 1fr;
   }
 
