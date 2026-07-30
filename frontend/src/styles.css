@@ -1426,6 +1426,7 @@ textarea + .primaryButton {
 .libraryCardList {
   display: grid;
   gap: 10px;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
 }
 
 .libraryCard {
@@ -1811,6 +1812,7 @@ textarea + .primaryButton {
   .ingestionHeader,
   .ingestionMetrics,
   .gymCheckGrid,
+  .libraryCardList,
   .libraryShelfGrid,
   .libraryCard,
   .knowledgeGymPanel .metricGrid,
