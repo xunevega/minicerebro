@@ -3131,6 +3131,12 @@ export function App() {
                   />
                 </label>
               </div>
+              {editorGenerating ? (
+                <div className="workingNotice" aria-live="polite">
+                  <strong>Trabajando con OpenAI</strong>
+                  <span>Espera un momento. Los controles quedan bloqueados para no repetir la peticion.</span>
+                </div>
+              ) : null}
               <div className="buttonRow">
                 <button
                   className="primaryButton editorButton"
@@ -3138,7 +3144,7 @@ export function App() {
                   onClick={handleGenerate}
                   type="button"
                 >
-                  {editorGenerating ? "Preparando..." : "Crear propuesta"}
+                  {editorGenerating ? "Trabajando..." : "Crear propuesta"}
                 </button>
                 <button
                   className="secondaryButton editorButton"
@@ -3150,7 +3156,7 @@ export function App() {
                 </button>
                 <button
                   className="ghostButton"
-                  disabled={!editorHasDraft && !generation}
+                  disabled={editorGenerating || (!editorHasDraft && !generation)}
                   onClick={() => void handleCopyEditorText()}
                   type="button"
                 >
@@ -3158,7 +3164,7 @@ export function App() {
                 </button>
                 <button
                   className="ghostButton danger"
-                  disabled={!editorHasDraft && !generation && !textRevision}
+                  disabled={editorGenerating || (!editorHasDraft && !generation && !textRevision)}
                   onClick={handleClearEditor}
                   title={
                     !editorHasDraft && !generation && !textRevision

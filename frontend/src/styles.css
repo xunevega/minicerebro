@@ -967,6 +967,25 @@ textarea + .primaryButton {
   padding: 0 16px;
 }
 
+.workingNotice {
+  background: #ffffff;
+  border: 1px solid var(--line);
+  display: grid;
+  gap: 4px;
+  margin-top: 12px;
+  padding: 12px 14px;
+}
+
+.workingNotice strong {
+  color: var(--ink);
+  font-size: 16px;
+}
+
+.workingNotice span {
+  color: var(--muted);
+  font-size: 15px;
+}
+
 .compactRow {
   margin: 10px 0 4px;
 }
