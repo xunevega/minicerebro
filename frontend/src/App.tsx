@@ -3386,7 +3386,7 @@ export function App() {
                             handleRevisionFeedback(
                               currentRevisionStep.card_id,
                               "no_me_sirve",
-                              `No va por ahi: ${currentRevisionStep.action}`,
+                              `Descartado por mi: ${currentRevisionStep.action}`,
                             )
                           }
                           type="button"
@@ -3558,11 +3558,11 @@ export function App() {
                   }
                 />
                 <List
-                  title="Cambiar"
+                  title="No insistir en esto"
                   items={
                     editorialProfileCard.change_requests.length
-                      ? editorialProfileCard.change_requests
-                      : ["Todavia no has marcado cambios personales."]
+                      ? editorialProfileCard.change_requests.map(formatRejectedPersonalCriterion)
+                      : ["Todavia no has descartado criterios personales."]
                   }
                 />
                 <details className="queryTraceBox">
@@ -4315,6 +4315,10 @@ function scoreProposalStatusLabel(status: string) {
     empty: "Sin ajuste",
   };
   return labels[status] ?? publicKeyLabel(status);
+}
+
+function formatRejectedPersonalCriterion(value: string) {
+  return value.replace(/^(No va por ahi|Descartado por mi):\s*/i, "").trim();
 }
 
 function publicKeyLabel(value: string) {
