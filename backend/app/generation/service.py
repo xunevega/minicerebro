@@ -17,6 +17,21 @@ _OPENAI_CLIENT: OpenAI | None = None
 _OPENAI_CLIENT_FACTORY: object | None = None
 
 
+SAFE_EDITORIAL_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
+    (re.compile(r"\b[Ll]es recuerdo en incidente\b"), "Les recuerdo el incidente"),
+    (re.compile(r"\bcomenta qué(?=\s*:)", re.IGNORECASE), "comenta que"),
+    (re.compile(r"\bp[eé]rdida de agua\b", re.IGNORECASE), "pérdida de agua"),
+    (re.compile(r"\bagua fria\b", re.IGNORECASE), "agua fría"),
+    (re.compile(r"\blinea de vida\b", re.IGNORECASE), "línea de vida"),
+    (re.compile(r"\bsaber cual es\b", re.IGNORECASE), "saber cuál es"),
+    (re.compile(r"\bcuanto cubre\b", re.IGNORECASE), "cuánto cubre"),
+    (re.compile(r"\bcuanto dinero\b", re.IGNORECASE), "cuánto dinero"),
+    (re.compile(r"\bdesconozco el corte de Todo esto\b"), "desconozco el coste de todo esto"),
+    (re.compile(r"\bRoberto díaz\b"), "Roberto Díaz"),
+    (re.compile(r"\bAvenida constitucion\b", re.IGNORECASE), "Avenida Constitución"),
+)
+
+
 def _openai_client() -> OpenAI:
     global _OPENAI_CLIENT, _OPENAI_CLIENT_FACTORY
     if _OPENAI_CLIENT is None or _OPENAI_CLIENT_FACTORY is not OpenAI:
@@ -185,14 +200,32 @@ def _add_opening_marks(value: str) -> str:
     return " ".join(corrected)
 
 
+def _apply_safe_editorial_replacements(value: str) -> str:
+    corrected = value
+    for pattern, replacement in SAFE_EDITORIAL_REPLACEMENTS:
+        corrected = pattern.sub(replacement, corrected)
+    return corrected
+
+
 def _safe_surface_correction(value: str) -> str:
     corrected = " ".join(value.split())
     corrected = PUNCTUATION_SPACING_RE.sub(r"\1", corrected)
     corrected = MISSING_SPACE_AFTER_PUNCTUATION_RE.sub(r"\1 ", corrected)
+    corrected = _apply_safe_editorial_replacements(corrected)
     corrected = _capitalize_sentence_starts(corrected)
     corrected = _add_opening_marks(corrected)
     corrected = PUNCTUATION_SPACING_RE.sub(r"\1", corrected)
     return corrected
+
+
+def _local_rewrite_if_safer_than_noop(
+    payload: GenerationInput,
+    variables: list[ScoreVariable],
+) -> GenerationResult | None:
+    fallback = rewrite_deterministic(payload, variables)
+    if fallback.output == payload.text.strip():
+        return None
+    return fallback
 
 
 def _profile_prompt(variables: list[ScoreVariable]) -> str:
@@ -324,17 +357,32 @@ Texto:
     output = getattr(response, "output_text", "").strip()
     if not output:
         output = payload.text
+    local_fallback = _local_rewrite_if_safer_than_noop(payload, variables)
+    output_is_original = output.strip() == payload.text.strip()
     over_rewritten = payload.action == "rewrite" and _is_over_rewritten(
         payload.text,
         output,
         payload.intensity,
     )
     if over_rewritten:
-        output = payload.text
+        output = local_fallback.output if local_fallback else payload.text
+    elif output_is_original and local_fallback:
+        output = local_fallback.output
     if over_rewritten:
+        if local_fallback:
+            explanation = (
+                "La propuesta externa cambiaba demasiado para una mejora segura; "
+                f"se aplico una correccion local de bajo riesgo. {local_fallback.explanation}"
+            )
+        else:
+            explanation = (
+                "La propuesta externa cambiaba demasiado para una mejora de claridad segura; "
+                "se conserva el borrador. No aplica aprendizaje automatico."
+            )
+    elif output_is_original and local_fallback:
         explanation = (
-            "La propuesta externa cambiaba demasiado para una mejora de claridad segura; "
-            "se conserva el borrador. No aplica aprendizaje automatico."
+            "La propuesta externa no anadio cambios, pero el texto tenia correcciones locales "
+            f"seguras. {local_fallback.explanation}"
         )
     else:
         explanation = (

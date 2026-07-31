@@ -35,6 +35,45 @@ def test_deterministic_correction_fixes_safe_surface_errors():
     assert result.learning_applied is False
 
 
+def test_deterministic_rewrite_fixes_obvious_community_notice_errors():
+    text = (
+        "Buenos días.\n\n"
+        "Les recuerdo en incidente del ruido que generó hace poco por la perdida de agua del "
+        "mismo y que los motores siguieran encendidos.\n\n"
+        "En esta ocasión comenta qué:\n\n"
+        "1º hay que sustituir unas válvulas que no funcionan y cortar el agua fria.\n\n"
+        "4º que no hay linea de vida, que hay gancho pero no linea de vida.\n\n"
+        "Dado que desconozco el corte de Todo esto, entiendo que habrá que saber cual es "
+        "el coste total, cuanto cubre el mantenimiento y cuanto dinero extra hay que poner.\n\n"
+        "Roberto díaz 5g\n"
+        "Avenida constitucion 119"
+    )
+
+    result = service.rewrite_deterministic(
+        GenerationInput(
+            text=text,
+            action="rewrite",
+            context="general",
+            revision_intention="estructura",
+            intensity=1000,
+        ),
+        [],
+    )
+
+    assert result.output != text.strip()
+    assert "Les recuerdo el incidente" in result.output
+    assert "pérdida de agua" in result.output
+    assert "comenta que:" in result.output
+    assert "agua fría" in result.output
+    assert "línea de vida" in result.output
+    assert "desconozco el coste de todo esto" in result.output
+    assert "saber cuál es" in result.output
+    assert "cuánto cubre" in result.output
+    assert "cuánto dinero" in result.output
+    assert "Roberto Díaz" in result.output
+    assert "Avenida Constitución" in result.output
+
+
 def test_deterministic_correction_preserves_protected_terms():
     result = service.rewrite_deterministic(
         GenerationInput(
@@ -110,6 +149,49 @@ def test_correction_uses_local_path_even_when_openai_is_configured(monkeypatch):
     assert result.output == "Hola, mundo. ¿Esto funciona? ¡Si!"
     assert result.provider == "deterministic"
     assert "Correccion local segura" in result.explanation
+
+
+def test_openai_noop_uses_local_safe_correction_when_available(monkeypatch):
+    class NoopResponses:
+        def __init__(self, output: str):
+            self.output = output
+
+        def create(self, **kwargs):
+            class Response:
+                pass
+
+            response = Response()
+            response.output_text = self.output
+            return response
+
+    class NoopOpenAI:
+        def __init__(self):
+            self.responses = NoopResponses(
+                "Les recuerdo en incidente del ruido por la perdida de agua y el agua fria."
+            )
+
+    original = "Les recuerdo en incidente del ruido por la perdida de agua y el agua fria."
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", NoopOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="rewrite",
+            context="general",
+            intensity=500,
+            revision_intention="tono",
+        ),
+        [],
+    )
+
+    assert result.output != original
+    assert "Les recuerdo el incidente" in result.output
+    assert "pérdida de agua" in result.output
+    assert "agua fría" in result.output
+    assert "no anadio cambios" in result.explanation
+    assert result.provider == "openai"
 
 
 def test_openai_rewrite_rejects_over_aggressive_clarity_change(monkeypatch):
