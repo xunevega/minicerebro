@@ -8,6 +8,7 @@ from app.core.models import GenerationInput, GenerationResult, ScoreVariable
 
 
 SENTENCE_RE = re.compile(r"(?<=[.!?])\s+")
+CONTENT_TOKEN_RE = re.compile(r"[\wáéíóúüñÁÉÍÓÚÜÑ]+")
 PROTECTED_TOKEN_TEMPLATE = "__PROTECTED_TERM_{index}__"
 PUNCTUATION_SPACING_RE = re.compile(r"\s+([,.;:!?])")
 MISSING_SPACE_AFTER_PUNCTUATION_RE = re.compile(r"([,.;:!?])(?=\S)")
@@ -56,7 +57,9 @@ def _max_output_tokens(payload: GenerationInput) -> int:
     return min(2400, max(220, round(word_count * 1.6) + 120))
 
 
-def _rewrite_similarity_floor(intensity: int) -> float:
+def _rewrite_similarity_floor(intensity: int, revision_intention: str = "claridad") -> float:
+    if revision_intention == "estructura" and intensity >= 850:
+        return 0.34
     if intensity <= 650:
         return 0.72
     if intensity <= 850:
@@ -64,8 +67,35 @@ def _rewrite_similarity_floor(intensity: int) -> float:
     return 0.48
 
 
-def _is_over_rewritten(original: str, output: str, intensity: int) -> bool:
-    floor = _rewrite_similarity_floor(intensity)
+def _content_token_overlap(original: str, output: str) -> float:
+    original_tokens = {
+        token
+        for token in CONTENT_TOKEN_RE.findall(original.lower())
+        if len(token) >= 4
+    }
+    if not original_tokens:
+        return 1.0
+    output_tokens = {
+        token
+        for token in CONTENT_TOKEN_RE.findall(output.lower())
+        if len(token) >= 4
+    }
+    return len(original_tokens & output_tokens) / len(original_tokens)
+
+
+def _is_over_rewritten(
+    original: str,
+    output: str,
+    intensity: int,
+    revision_intention: str = "claridad",
+) -> bool:
+    if (
+        revision_intention == "estructura"
+        and intensity >= 850
+        and _content_token_overlap(original, output) >= 0.55
+    ):
+        return False
+    floor = _rewrite_similarity_floor(intensity, revision_intention)
     if floor <= 0:
         return False
     similarity = SequenceMatcher(None, original.strip().lower(), output.strip().lower()).ratio()
@@ -79,6 +109,10 @@ def _generation_contract(payload: GenerationInput) -> str:
 Objetivo: mejorar claridad con una reescritura decidida pero fiel.
 Reglas especificas:
 - Puedes compactar, reordenar y sustituir formulaciones torpes si mejora la lectura.
+- Si el borrador parece una nota, correo, aviso o lista de puntos, puedes convertirlo en
+  una version final clara y enviable.
+- Puedes usar saludo, cierre y lista de puntos cuando el propio borrador lo pida.
+- Explicita dudas ya presentes, pero no anadas datos nuevos.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No conviertas una atribucion en una afirmacion propia.
 - No introduzcas informacion nueva ni elimines informacion relevante.
@@ -135,7 +169,11 @@ def _revision_intention_contract(intention: str) -> str:
             "no conviertas una aclaracion en una version mas dura o mas editorial."
         )
     if intention == "estructura":
-        return "Mirada: estructura. Revisa foco, progresion y cierre sin cambiar los hechos."
+        return (
+            "Mirada: estructura. Revisa foco, progresion y cierre sin cambiar los hechos. "
+            "Si el borrador es una nota, correo o lista desordenada, ordenalo como una "
+            "comunicacion final clara y enviable."
+        )
     if intention == "limpieza":
         return "Mirada: limpieza final. Atiende puntuacion, repeticiones y remate superficial."
     return "Mirada: comprension. Revisa orden, ambiguedad y facilidad de lectura."
@@ -363,6 +401,7 @@ Texto:
         payload.text,
         output,
         payload.intensity,
+        payload.revision_intention,
     )
     if over_rewritten:
         output = local_fallback.output if local_fallback else payload.text

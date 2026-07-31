@@ -312,6 +312,102 @@ def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
     assert "Puedes compactar, reordenar" in captured["input"]
 
 
+def test_openai_prompt_allows_sendable_redraft_for_high_intensity_structure(monkeypatch):
+    captured: dict[str, str] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured["input"] = kwargs["input"]
+
+            class Response:
+                output_text = "Buenos dias:\n\nTexto ordenado para enviar."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="Buenos dias. el tecnico dice: 1 hay que arreglar valvulas 2 avisar comunidad",
+            action="rewrite",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert "nota, correo, aviso o lista de puntos" in captured["input"]
+    assert "version final clara y enviable" in captured["input"]
+    assert "comunicacion final clara y enviable" in captured["input"]
+
+
+def test_high_intensity_structure_accepts_sendable_redraft(monkeypatch):
+    class SendableResponses:
+        def create(self, **kwargs):
+            class Response:
+                output_text = (
+                    "Buenos dias:\n\n"
+                    "Acaba de pasar el tecnico encargado del acumulador de agua caliente "
+                    "situado en la cubierta.\n\n"
+                    "Les recuerdo el incidente ocurrido recientemente, cuando se produjo "
+                    "una perdida de agua o de fluido y las bombas continuaron funcionando, "
+                    "generando un ruido considerable.\n\n"
+                    "En esta ocasion, el tecnico me ha indicado que es necesario sustituir "
+                    "varias valvulas, cortar temporalmente el suministro de agua fria y "
+                    "avisar previamente a la comunidad. Tambien ha senalado que debe "
+                    "reponerse el fluido del circuito y que el ruido podria repetirse si "
+                    "no se localiza la causa de la perdida.\n\n"
+                    "Por ultimo, ha indicado que en la zona de trabajo no existe linea de vida, "
+                    "aunque si hay algun punto de anclaje.\n\n"
+                    "Dado que desconozco el alcance y el coste de estas actuaciones, entiendo "
+                    "que convendria solicitar un presupuesto detallado antes de autorizar los "
+                    "trabajos.\n\n"
+                    "Un saludo,\n\n"
+                    "Roberto Diaz"
+                )
+
+            return Response()
+
+    class SendableOpenAI:
+        def __init__(self):
+            self.responses = SendableResponses()
+
+    original = (
+        "Buenos dias. Acaba de pasar el tecnico del acumulador de agua caliente. "
+        "Les recuerdo en incidente del ruido por perdida de agua y motores encendidos. "
+        "Dice que hay que sustituir valvulas, cortar agua fria, rellenar fluido y que "
+        "el ruido puede volver. Tambien dice que no hay linea de vida. "
+        "Dado que desconozco el coste, habra que saber cuanto cubre mantenimiento. "
+        "Roberto Diaz"
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", SendableOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="rewrite",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert result.output != original
+    assert "Buenos dias:" in result.output
+    assert "presupuesto detallado" in result.output
+    assert "cambiaba demasiado" not in result.explanation
+    assert result.provider == "openai"
+
+
 def test_openai_request_uses_latency_controls(monkeypatch):
     captured: dict[str, object] = {}
 
