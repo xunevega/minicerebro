@@ -50,6 +50,8 @@ def _openai_timeout_seconds() -> float:
 
 def _max_output_tokens(payload: GenerationInput) -> int:
     word_count = len(payload.text.split())
+    if payload.action == "sendable":
+        return min(3200, max(520, round(word_count * 2.2) + 260))
     if payload.action == "continue":
         return min(900, max(220, round(word_count * 0.8) + 120))
     if payload.action == "variants":
@@ -103,6 +105,21 @@ def _is_over_rewritten(
 
 
 def _generation_contract(payload: GenerationInput) -> str:
+    if payload.action == "sendable":
+        return """
+Objetivo: convertir el borrador en un texto final listo para enviar.
+Reglas especificas:
+- Si el borrador es una nota, correo, aviso o lista de puntos, ordenalo como
+  comunicacion clara y completa.
+- Puedes anadir saludo, cierre, transiciones y lista de puntos cuando ya esten
+  implicados por el borrador.
+- Conserva todos los hechos, dudas, condiciones, nombres, direcciones, fechas,
+  responsabilidades y grado de certeza.
+- Formula las dudas como dudas y los pendientes como solicitudes de aclaracion.
+- Corrige errores seguros y mejora orden, tono y claridad.
+- No inventes costes, causas, acuerdos, datos tecnicos ni decisiones de terceros.
+- Devuelve solo la version final lista para enviar.
+""".strip()
     if payload.action == "rewrite":
         if payload.intensity >= 850:
             return """
@@ -302,10 +319,10 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
     output = original
     normalized_original = original
     paragraph_adjusted = False
-    if payload.action in {"rewrite", "correction"}:
+    if payload.action in {"rewrite", "correction", "sendable"}:
         output = _safe_surface_correction(output)
         normalized_original = output
-        if payload.action == "rewrite":
+        if payload.action in {"rewrite", "sendable"}:
             output = _paragraph_rewrite(output)
             paragraph_adjusted = output != normalized_original
         if payload.intensity > 650 and not output.endswith("."):
@@ -345,6 +362,11 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
         explanation = (
             "Variantes locales de arranque: ofrece alternativas sin aplicar aprendizaje "
             "automatico."
+        )
+    elif payload.action == "sendable":
+        explanation = (
+            "Preparacion local para enviar: aplica solo cambios seguros. Para convertir notas "
+            "en un texto final completo hace falta generacion externa."
         )
     else:
         explanation = (
@@ -397,12 +419,16 @@ Texto:
         output = payload.text
     local_fallback = _local_rewrite_if_safer_than_noop(payload, variables)
     output_is_original = output.strip() == payload.text.strip()
-    over_rewritten = payload.action == "rewrite" and _is_over_rewritten(
-        payload.text,
-        output,
-        payload.intensity,
-        payload.revision_intention,
-    )
+    over_rewritten = False
+    if payload.action == "rewrite":
+        over_rewritten = _is_over_rewritten(
+            payload.text,
+            output,
+            payload.intensity,
+            payload.revision_intention,
+        )
+    elif payload.action == "sendable":
+        over_rewritten = _content_token_overlap(payload.text, output) < 0.45
     if over_rewritten:
         output = local_fallback.output if local_fallback else payload.text
     elif output_is_original and local_fallback:

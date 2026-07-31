@@ -167,6 +167,11 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
     description: "Corrige puntuacion, espacios y errores seguros sin reescribir.",
   },
   {
+    value: "sendable",
+    label: "Preparar para enviar",
+    description: "Convierte notas o puntos en un texto listo para mandar.",
+  },
+  {
     value: "continue",
     label: "Continuar texto",
     description: "Anade un tramo nuevo manteniendo la voz del borrador.",
@@ -473,6 +478,7 @@ export function App() {
     {
       rewrite: "reescritura",
       correction: "correccion",
+      sendable: "texto para enviar",
       continue: "continuacion",
       variants: "variantes",
     }[editorAction] ?? "propuesta";
@@ -1616,6 +1622,10 @@ export function App() {
 
   function handleEditorActionChange(nextAction: GenerationAction) {
     setEditorAction(nextAction);
+    if (nextAction === "sendable") {
+      setRevisionIntention("estructura");
+      setEditorIntensity(1000);
+    }
     clearEditorOutcomeNotice("Opciones cambiadas. Crea una nueva propuesta para ver el resultado.");
   }
 
@@ -3470,6 +3480,7 @@ export function App() {
                   >
                     <option value="rewrite">Reescribir</option>
                     <option value="correction">Corregir</option>
+                    <option value="sendable">Preparar para enviar</option>
                     <option value="continue">Continuar</option>
                     <option value="variants">Variantes</option>
                   </select>

@@ -1098,12 +1098,14 @@ def generated_texts_list(
 @router.post("/generation")
 @router.post("/correction")
 @router.post("/rewrite")
+@router.post("/sendable")
 @router.post("/continue")
 @router.post("/variants")
 def generation_create(payload: GenerationInput, repository: RepositoryDep, request: Request):
     route_actions = {
         "/correction": "correction",
         "/rewrite": "rewrite",
+        "/sendable": "sendable",
         "/continue": "continue",
         "/variants": "variants",
     }

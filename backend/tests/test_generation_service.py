@@ -347,6 +347,43 @@ def test_openai_prompt_allows_sendable_redraft_for_high_intensity_structure(monk
     assert "comunicacion final clara y enviable" in captured["input"]
 
 
+def test_openai_prompt_defines_sendable_action(monkeypatch):
+    captured: dict[str, object] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+
+            class Response:
+                output_text = "Buenos dias:\n\nTexto listo para enviar.\n\nUn saludo."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="tecnico dice valvulas agua fria ruido coste comunidad",
+            action="sendable",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    prompt = str(captured["input"])
+    assert "texto final listo para enviar" in prompt
+    assert "Formula las dudas como dudas" in prompt
+    assert "No inventes costes, causas" in prompt
+    assert captured["max_output_tokens"] >= 520
+
+
 def test_high_intensity_structure_accepts_sendable_redraft(monkeypatch):
     class SendableResponses:
         def create(self, **kwargs):
@@ -404,6 +441,55 @@ def test_high_intensity_structure_accepts_sendable_redraft(monkeypatch):
     assert result.output != original
     assert "Buenos dias:" in result.output
     assert "presupuesto detallado" in result.output
+    assert "cambiaba demasiado" not in result.explanation
+    assert result.provider == "openai"
+
+
+def test_sendable_action_accepts_ordered_email_from_notes(monkeypatch):
+    class SendableResponses:
+        def create(self, **kwargs):
+            class Response:
+                output_text = (
+                    "Buenos dias:\n\n"
+                    "Acaba de pasar el tecnico encargado del acumulador de agua caliente "
+                    "situado en la cubierta.\n\n"
+                    "Segun me ha indicado, es necesario sustituir varias valvulas, cortar "
+                    "temporalmente el agua fria y avisar previamente a la comunidad.\n\n"
+                    "Tambien convendria aclarar el coste total, que parte cubre el contrato "
+                    "de mantenimiento y que importe adicional tendria que asumir la comunidad.\n\n"
+                    "Un saludo,\n\n"
+                    "Roberto Diaz"
+                )
+
+            return Response()
+
+    class SendableOpenAI:
+        def __init__(self):
+            self.responses = SendableResponses()
+
+    original = (
+        "Buenos dias tecnico acumulador cubierta valvulas agua fria avisar comunidad "
+        "coste mantenimiento dinero extra Roberto Diaz"
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", SendableOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="sendable",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert "Buenos dias:" in result.output
+    assert "agua fria" in result.output
+    assert "mantenimiento" in result.output
+    assert "Roberto Diaz" in result.output
     assert "cambiaba demasiado" not in result.explanation
     assert result.provider == "openai"
 

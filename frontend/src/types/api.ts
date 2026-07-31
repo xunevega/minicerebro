@@ -852,7 +852,7 @@ export type AuditEvent = {
   created_at: string;
 };
 
-export type GenerationAction = "rewrite" | "correction" | "continue" | "variants";
+export type GenerationAction = "rewrite" | "correction" | "sendable" | "continue" | "variants";
 
 export type GenerationResult = {
   output: string;

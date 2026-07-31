@@ -665,10 +665,13 @@ def test_generation_action_aliases_are_bound_to_their_routes():
     correction = client.post("/correction", json={"text": " Texto  con  espacios ", "context": "general"})
     assert correction.status_code == 200
 
+    sendable = client.post("/sendable", json={"text": "Nota para enviar", "context": "general"})
+    assert sendable.status_code == 200
+
     texts = client.get("/texts?context=general")
     assert texts.status_code == 200
-    actions = [item["action"] for item in texts.json()[:3]]
-    assert actions == ["correction", "continue", "variants"]
+    actions = [item["action"] for item in texts.json()[:4]]
+    assert actions == ["sendable", "correction", "continue", "variants"]
 
 
 def test_correction_endpoint_applies_visible_safe_corrections():
