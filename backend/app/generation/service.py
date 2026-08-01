@@ -143,7 +143,13 @@ Reglas especificas:
   aproximada: usalo como material de partida, no como fraseado obligatorio.
 - Puedes cambiar practicamente toda la redaccion si hace falta para que el texto
   sea claro, responsable y enviable.
-- No inventes costes, causas, acuerdos, datos tecnicos ni decisiones de terceros.
+- Puedes precisar tecnicamente lo que ya esta en el borrador cuando la informacion
+  lo permite: circuito, fluido, bombas, placas, acumulador, perdida o presion si
+  aparecen en el relato o se deducen claramente de el.
+- No inventes costes, causas cerradas, acuerdos, diagnosticos, datos tecnicos ni
+  decisiones de terceros que el usuario no haya aportado.
+- Cuando un dato tecnico no este confirmado, mantenlo como duda o solicitud de
+  aclaracion: "segun entendi", "no me quedo claro", "convendria aclarar".
 - Devuelve solo la version final lista para enviar.
 """.strip()
     if payload.action == "rewrite":
@@ -160,6 +166,8 @@ Reglas especificas:
 - Si el original es un borrador bruto, una explicacion aproximada o una nota
   desordenada, puedes rehacer casi toda la redaccion.
 - Explicita dudas ya presentes, pero no anadas datos nuevos.
+- Puedes dar forma tecnica prudente a informacion ya aportada, sin cerrar causas
+  que el borrador presenta como inciertas.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No conviertas una atribucion en una afirmacion propia.
 - No introduzcas informacion nueva ni elimines informacion relevante.
@@ -219,7 +227,8 @@ def _revision_intention_contract(intention: str) -> str:
         return (
             "Mirada: estructura. Revisa foco, progresion y cierre sin cambiar los hechos. "
             "Si el borrador es una nota, correo o lista desordenada, ordenalo como una "
-            "comunicacion final clara y enviable."
+            "comunicacion final clara y enviable. Puede dar forma tecnica prudente a "
+            "datos ya aportados, sin convertir dudas en certezas."
         )
     if intention == "limpieza":
         return "Mirada: limpieza final. Atiende puntuacion, repeticiones y remate superficial."

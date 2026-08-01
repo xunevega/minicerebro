@@ -433,7 +433,10 @@ def test_openai_prompt_defines_sendable_action(monkeypatch):
     prompt = str(captured["input"])
     assert "texto final listo para enviar" in prompt
     assert "Formula las dudas como dudas" in prompt
-    assert "No inventes costes, causas" in prompt
+    assert "Puedes precisar tecnicamente" in prompt
+    assert "circuito, fluido, bombas, placas, acumulador" in prompt
+    assert "No inventes costes, causas cerradas" in prompt
+    assert "no me quedo claro" in prompt
     assert captured["max_output_tokens"] >= 520
 
 
@@ -613,7 +616,8 @@ def test_sendable_action_allows_near_total_redraft_from_uncertain_description(mo
                     "Además, me ha indicado que debe reponerse el fluido del circuito entre las "
                     "placas solares y el acumulador. No me quedó claro si la pérdida es de agua, "
                     "de fluido o de presión, por lo que convendría que la empresa aclarase la "
-                    "causa exacta y confirmase cómo se evitará que vuelva a producirse el ruido.\n\n"
+                    "causa exacta y confirmase cómo se evitará que vuelva a producirse el ruido "
+                    "cuando las bombas continúan funcionando en esas condiciones.\n\n"
                     "Por último, señaló que en la zona donde debe trabajar no hay línea de vida, "
                     "aunque sí algún punto de anclaje. Agradecería que se comprobase este punto.\n\n"
                     "Antes de autorizar la reparación, entiendo que habría que solicitar un "
@@ -652,7 +656,9 @@ def test_sendable_action_allows_near_total_redraft_from_uncertain_description(mo
 
     assert result.output != original
     assert "Buenos días:" in result.output
+    assert "fluido del circuito entre las placas solares y el acumulador" in result.output
     assert "No me quedó claro" in result.output
+    assert "bombas continúan funcionando" in result.output
     assert "línea de vida" in result.output
     assert "mantenimiento" in result.output
     assert "Roberto Díaz" in result.output
