@@ -494,6 +494,102 @@ def test_sendable_action_accepts_ordered_email_from_notes(monkeypatch):
     assert result.provider == "openai"
 
 
+def test_sendable_action_allows_real_transformation_from_rough_notes(monkeypatch):
+    class SendableResponses:
+        def create(self, **kwargs):
+            class Response:
+                output_text = (
+                    "Buenos días:\n\n"
+                    "Acaba de pasar el técnico encargado del acumulador de agua caliente "
+                    "situado en la cubierta.\n\n"
+                    "Según me ha indicado, es necesario sustituir varias válvulas, cortar "
+                    "temporalmente el suministro de agua fría, avisar previamente a la comunidad "
+                    "e indicar mediante carteles la fecha y el horario del corte.\n\n"
+                    "También ha señalado que debe reponerse el fluido del circuito y que el ruido "
+                    "podría repetirse si no se localiza la causa de la pérdida.\n\n"
+                    "Dado que desconozco el alcance y el coste de estas actuaciones, entiendo que "
+                    "convendría solicitar un presupuesto detallado antes de autorizar los trabajos.\n\n"
+                    "Un saludo,\n\n"
+                    "Roberto Díaz"
+                )
+
+            return Response()
+
+    class SendableOpenAI:
+        def __init__(self):
+            self.responses = SendableResponses()
+
+    original = (
+        "tecnico acumulador cubierta ruido perdida motores valvulas cortar agua fria "
+        "carteles comunidad fluido placas coste mantenimiento Roberto Diaz"
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", SendableOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="sendable",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert "Buenos días:" in result.output
+    assert "presupuesto detallado" in result.output
+    assert "Roberto Díaz" in result.output
+    assert "cambiaba demasiado" not in result.explanation
+    assert result.provider == "openai"
+
+
+def test_high_intensity_rewrite_allows_substantial_clarity_change(monkeypatch):
+    class ClarityResponses:
+        def create(self, **kwargs):
+            class Response:
+                output_text = (
+                    "La escena de Guerra Mundial Z no es pura ficción. En realidad existe "
+                    "una unidad llamada Makhleket HaBakara dentro de la Dirección de Inteligencia "
+                    "Militar israelí, Aman. Su función es evaluar críticamente los supuestos "
+                    "de inteligencia y explorar escenarios improbables."
+                )
+
+            return Response()
+
+    class ClarityOpenAI:
+        def __init__(self):
+            self.responses = ClarityResponses()
+
+    original = (
+        "La escena de Guerra Mundial Z no es pura ficción. Existe realmente una unidad conocida "
+        "como Makhleket HaBakara dentro de la Dirección de Inteligencia Militar israelí (Aman), "
+        "cuya función es evaluar críticamente los supuestos de inteligencia, examinar escenarios "
+        "improbables y proponer evaluaciones adversariales."
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", ClarityOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="rewrite",
+            context="general",
+            intensity=1000,
+            revision_intention="claridad",
+        ),
+        [],
+    )
+
+    assert result.output != original
+    assert "Makhleket HaBakara" in result.output
+    assert "Aman" in result.output
+    assert "cambiaba demasiado" not in result.explanation
+    assert result.provider == "openai"
+
+
 def test_openai_request_uses_latency_controls(monkeypatch):
     captured: dict[str, object] = {}
 

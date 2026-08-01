@@ -61,12 +61,12 @@ def _max_output_tokens(payload: GenerationInput) -> int:
 
 def _rewrite_similarity_floor(intensity: int, revision_intention: str = "claridad") -> float:
     if revision_intention == "estructura" and intensity >= 850:
-        return 0.34
+        return 0.18
     if intensity <= 650:
         return 0.72
     if intensity <= 850:
-        return 0.62
-    return 0.48
+        return 0.50
+    return 0.30
 
 
 def _content_token_overlap(original: str, output: str) -> float:
@@ -85,23 +85,48 @@ def _content_token_overlap(original: str, output: str) -> float:
     return len(original_tokens & output_tokens) / len(original_tokens)
 
 
+def _anchor_tokens(value: str) -> set[str]:
+    tokens = set()
+    for token in CONTENT_TOKEN_RE.findall(value):
+        if token.isdigit() or len(token) >= 7 or token[:1].isupper():
+            tokens.add(token.lower())
+    return tokens
+
+
+def _anchor_token_overlap(original: str, output: str) -> float:
+    original_tokens = _anchor_tokens(original)
+    if not original_tokens:
+        return _content_token_overlap(original, output)
+    output_tokens = _anchor_tokens(output)
+    return len(original_tokens & output_tokens) / len(original_tokens)
+
+
 def _is_over_rewritten(
     original: str,
     output: str,
     intensity: int,
     revision_intention: str = "claridad",
 ) -> bool:
+    anchor_overlap = _anchor_token_overlap(original, output)
     if (
         revision_intention == "estructura"
         and intensity >= 850
-        and _content_token_overlap(original, output) >= 0.55
+        and anchor_overlap >= 0.35
     ):
+        return False
+    if intensity >= 850 and anchor_overlap >= 0.45:
         return False
     floor = _rewrite_similarity_floor(intensity, revision_intention)
     if floor <= 0:
         return False
     similarity = SequenceMatcher(None, original.strip().lower(), output.strip().lower()).ratio()
     return similarity < floor
+
+
+def _is_sendable_over_rewritten(original: str, output: str) -> bool:
+    if _anchor_token_overlap(original, output) >= 0.30:
+        return False
+    return _content_token_overlap(original, output) < 0.20
 
 
 def _generation_contract(payload: GenerationInput) -> str:
@@ -117,6 +142,8 @@ Reglas especificas:
   responsabilidades y grado de certeza.
 - Formula las dudas como dudas y los pendientes como solicitudes de aclaracion.
 - Corrige errores seguros y mejora orden, tono y claridad.
+- No te limites a comas, articulos o retoques superficiales: si el borrador
+  esta en bruto, transformalo de verdad en una comunicacion enviable.
 - No inventes costes, causas, acuerdos, datos tecnicos ni decisiones de terceros.
 - Devuelve solo la version final lista para enviar.
 """.strip()
@@ -129,6 +156,8 @@ Reglas especificas:
 - Si el borrador parece una nota, correo, aviso o lista de puntos, puedes convertirlo en
   una version final clara y enviable.
 - Puedes usar saludo, cierre y lista de puntos cuando el propio borrador lo pida.
+- En intensidad alta, fidelidad significa conservar hechos, intencion y dudas; no
+  conservar literalmente la misma frase.
 - Explicita dudas ya presentes, pero no anadas datos nuevos.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No conviertas una atribucion en una afirmacion propia.
@@ -428,7 +457,7 @@ Texto:
             payload.revision_intention,
         )
     elif payload.action == "sendable":
-        over_rewritten = _content_token_overlap(payload.text, output) < 0.45
+        over_rewritten = _is_sendable_over_rewritten(payload.text, output)
     if over_rewritten:
         output = local_fallback.output if local_fallback else payload.text
     elif output_is_original and local_fallback:
