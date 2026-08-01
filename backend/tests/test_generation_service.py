@@ -194,8 +194,8 @@ def test_openai_noop_uses_local_safe_correction_when_available(monkeypatch):
     assert result.provider == "openai"
 
 
-def test_openai_rewrite_rejects_over_aggressive_clarity_change(monkeypatch):
-    class AggressiveResponses:
+def test_openai_rewrite_rejects_fact_losing_clarity_change(monkeypatch):
+    class FactLosingResponses:
         def create(self, **kwargs):
             class Response:
                 output_text = (
@@ -205,9 +205,9 @@ def test_openai_rewrite_rejects_over_aggressive_clarity_change(monkeypatch):
 
             return Response()
 
-    class AggressiveOpenAI:
+    class FactLosingOpenAI:
         def __init__(self):
-            self.responses = AggressiveResponses()
+            self.responses = FactLosingResponses()
 
     original = (
         "A finales de la semana pasada, la seccion sindical de CGT en RTVE decidio "
@@ -215,7 +215,7 @@ def test_openai_rewrite_rejects_over_aggressive_clarity_change(monkeypatch):
     )
 
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
-    monkeypatch.setattr(service, "OpenAI", AggressiveOpenAI)
+    monkeypatch.setattr(service, "OpenAI", FactLosingOpenAI)
 
     result = service.rewrite_with_profile(
         GenerationInput(
@@ -229,8 +229,61 @@ def test_openai_rewrite_rejects_over_aggressive_clarity_change(monkeypatch):
     )
 
     assert result.output == original
-    assert "cambiaba demasiado" in result.explanation
+    assert "perdia datos importantes" in result.explanation
     assert result.learning_applied is False
+
+
+def test_openai_rewrite_accepts_large_change_when_facts_remain(monkeypatch):
+    class TransformingResponses:
+        def create(self, **kwargs):
+            class Response:
+                output_text = (
+                    "Buenos dias:\n\n"
+                    "Acaba de pasar el tecnico del acumulador de agua caliente de la cubierta. "
+                    "Segun ha indicado, habria que sustituir varias valvulas, cortar el agua fria "
+                    "durante unas horas, avisar a la comunidad y colocar carteles con el horario.\n\n"
+                    "Tambien ha explicado que debe reponerse el fluido del circuito entre las placas "
+                    "y el acumulador, y que el episodio de ruido podria repetirse si continua la "
+                    "perdida o la falta de presion.\n\n"
+                    "Antes de autorizar los trabajos, convendria solicitar presupuesto detallado y "
+                    "aclarar que parte cubre el mantenimiento y que importe tendria que asumir la "
+                    "comunidad.\n\n"
+                    "Un saludo,\nRoberto Diaz"
+                )
+
+            return Response()
+
+    class TransformingOpenAI:
+        def __init__(self):
+            self.responses = TransformingResponses()
+
+    original = (
+        "tecnico acumulador agua caliente cubierta ruido perdida motores valvulas cortar agua fria "
+        "carteles comunidad horas fluido placas acumulador pierde potencia agua coste mantenimiento "
+        "dinero extra Roberto Diaz"
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", TransformingOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="rewrite",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert result.output != original
+    assert "Buenos dias:" in result.output
+    assert "acumulador" in result.output
+    assert "mantenimiento" in result.output
+    assert "Roberto Diaz" in result.output
+    assert "perdia datos importantes" not in result.explanation
+    assert result.provider == "openai"
 
 
 def test_openai_prompt_includes_conservative_rewrite_and_revision_lens(monkeypatch):

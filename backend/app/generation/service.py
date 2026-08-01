@@ -1,5 +1,4 @@
 import re
-from difflib import SequenceMatcher
 from os import getenv
 
 from openai import OpenAI
@@ -59,16 +58,6 @@ def _max_output_tokens(payload: GenerationInput) -> int:
     return min(2400, max(220, round(word_count * 1.6) + 120))
 
 
-def _rewrite_similarity_floor(intensity: int, revision_intention: str = "claridad") -> float:
-    if revision_intention == "estructura" and intensity >= 850:
-        return 0.18
-    if intensity <= 650:
-        return 0.72
-    if intensity <= 850:
-        return 0.50
-    return 0.30
-
-
 def _content_token_overlap(original: str, output: str) -> float:
     original_tokens = {
         token
@@ -101,32 +90,26 @@ def _anchor_token_overlap(original: str, output: str) -> float:
     return len(original_tokens & output_tokens) / len(original_tokens)
 
 
-def _is_over_rewritten(
+def _loses_required_anchors(
     original: str,
     output: str,
     intensity: int,
     revision_intention: str = "claridad",
 ) -> bool:
     anchor_overlap = _anchor_token_overlap(original, output)
-    if (
-        revision_intention == "estructura"
-        and intensity >= 850
-        and anchor_overlap >= 0.35
-    ):
+    if revision_intention == "estructura" and intensity >= 850:
+        return anchor_overlap < 0.25 and _content_token_overlap(original, output) < 0.18
+    if intensity >= 850:
+        return anchor_overlap < 0.30 and _content_token_overlap(original, output) < 0.22
+    if anchor_overlap >= 0.35:
         return False
-    if intensity >= 850 and anchor_overlap >= 0.45:
-        return False
-    floor = _rewrite_similarity_floor(intensity, revision_intention)
-    if floor <= 0:
-        return False
-    similarity = SequenceMatcher(None, original.strip().lower(), output.strip().lower()).ratio()
-    return similarity < floor
+    return _content_token_overlap(original, output) < 0.28
 
 
-def _is_sendable_over_rewritten(original: str, output: str) -> bool:
-    if _anchor_token_overlap(original, output) >= 0.30:
+def _sendable_loses_required_anchors(original: str, output: str) -> bool:
+    if _anchor_token_overlap(original, output) >= 0.20:
         return False
-    return _content_token_overlap(original, output) < 0.20
+    return _content_token_overlap(original, output) < 0.15
 
 
 def _generation_contract(payload: GenerationInput) -> str:
@@ -448,29 +431,29 @@ Texto:
         output = payload.text
     local_fallback = _local_rewrite_if_safer_than_noop(payload, variables)
     output_is_original = output.strip() == payload.text.strip()
-    over_rewritten = False
+    loses_required_anchors = False
     if payload.action == "rewrite":
-        over_rewritten = _is_over_rewritten(
+        loses_required_anchors = _loses_required_anchors(
             payload.text,
             output,
             payload.intensity,
             payload.revision_intention,
         )
     elif payload.action == "sendable":
-        over_rewritten = _is_sendable_over_rewritten(payload.text, output)
-    if over_rewritten:
+        loses_required_anchors = _sendable_loses_required_anchors(payload.text, output)
+    if loses_required_anchors:
         output = local_fallback.output if local_fallback else payload.text
     elif output_is_original and local_fallback:
         output = local_fallback.output
-    if over_rewritten:
+    if loses_required_anchors:
         if local_fallback:
             explanation = (
-                "La propuesta externa cambiaba demasiado para una mejora segura; "
+                "La propuesta externa perdia datos importantes del borrador; "
                 f"se aplico una correccion local de bajo riesgo. {local_fallback.explanation}"
             )
         else:
             explanation = (
-                "La propuesta externa cambiaba demasiado para una mejora de claridad segura; "
+                "La propuesta externa perdia datos importantes del borrador; "
                 "se conserva el borrador. No aplica aprendizaje automatico."
             )
     elif output_is_original and local_fallback:
