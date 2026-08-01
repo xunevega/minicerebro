@@ -74,6 +74,16 @@ def _content_token_overlap(original: str, output: str) -> float:
     return len(original_tokens & output_tokens) / len(original_tokens)
 
 
+def _content_token_count(value: str) -> int:
+    return len(
+        [
+            token
+            for token in CONTENT_TOKEN_RE.findall(value.lower())
+            if len(token) >= 4
+        ]
+    )
+
+
 def _anchor_tokens(value: str) -> set[str]:
     tokens = set()
     for token in CONTENT_TOKEN_RE.findall(value):
@@ -97,19 +107,21 @@ def _loses_required_anchors(
     revision_intention: str = "claridad",
 ) -> bool:
     anchor_overlap = _anchor_token_overlap(original, output)
+    output_too_short = _content_token_count(output) < max(8, _content_token_count(original) * 0.35)
     if revision_intention == "estructura" and intensity >= 850:
-        return anchor_overlap < 0.25 and _content_token_overlap(original, output) < 0.18
+        return anchor_overlap < 0.15 and output_too_short
     if intensity >= 850:
-        return anchor_overlap < 0.30 and _content_token_overlap(original, output) < 0.22
-    if anchor_overlap >= 0.35:
-        return False
-    return _content_token_overlap(original, output) < 0.28
+        return anchor_overlap < 0.20 and output_too_short
+    if anchor_overlap >= 0.25:
+        return _content_token_overlap(original, output) < 0.45
+    return _content_token_overlap(original, output) < 0.35
 
 
 def _sendable_loses_required_anchors(original: str, output: str) -> bool:
-    if _anchor_token_overlap(original, output) >= 0.20:
+    if _anchor_token_overlap(original, output) >= 0.12:
         return False
-    return _content_token_overlap(original, output) < 0.15
+    output_too_short = _content_token_count(output) < max(10, _content_token_count(original) * 0.35)
+    return _content_token_overlap(original, output) < 0.12 and output_too_short
 
 
 def _generation_contract(payload: GenerationInput) -> str:
@@ -127,6 +139,10 @@ Reglas especificas:
 - Corrige errores seguros y mejora orden, tono y claridad.
 - No te limites a comas, articulos o retoques superficiales: si el borrador
   esta en bruto, transformalo de verdad en una comunicacion enviable.
+- El original puede estar mal escrito, incompleto o ser solo una descripcion
+  aproximada: usalo como material de partida, no como fraseado obligatorio.
+- Puedes cambiar practicamente toda la redaccion si hace falta para que el texto
+  sea claro, responsable y enviable.
 - No inventes costes, causas, acuerdos, datos tecnicos ni decisiones de terceros.
 - Devuelve solo la version final lista para enviar.
 """.strip()
@@ -141,6 +157,8 @@ Reglas especificas:
 - Puedes usar saludo, cierre y lista de puntos cuando el propio borrador lo pida.
 - En intensidad alta, fidelidad significa conservar hechos, intencion y dudas; no
   conservar literalmente la misma frase.
+- Si el original es un borrador bruto, una explicacion aproximada o una nota
+  desordenada, puedes rehacer casi toda la redaccion.
 - Explicita dudas ya presentes, pero no anadas datos nuevos.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No conviertas una atribucion en una afirmacion propia.

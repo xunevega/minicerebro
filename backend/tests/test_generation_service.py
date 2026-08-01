@@ -598,6 +598,68 @@ def test_sendable_action_allows_real_transformation_from_rough_notes(monkeypatch
     assert result.provider == "openai"
 
 
+def test_sendable_action_allows_near_total_redraft_from_uncertain_description(monkeypatch):
+    class SendableResponses:
+        def create(self, **kwargs):
+            class Response:
+                output_text = (
+                    "Buenos días:\n\n"
+                    "Acaba de pasar el técnico encargado del acumulador de agua caliente "
+                    "situado en la cubierta.\n\n"
+                    "Según me ha explicado, sería necesario sustituir varias válvulas y, para "
+                    "realizar esos trabajos, cortar temporalmente el suministro de agua fría. "
+                    "También habría que avisar previamente a la comunidad y colocar carteles con "
+                    "la fecha y el horario del corte.\n\n"
+                    "Además, me ha indicado que debe reponerse el fluido del circuito entre las "
+                    "placas solares y el acumulador. No me quedó claro si la pérdida es de agua, "
+                    "de fluido o de presión, por lo que convendría que la empresa aclarase la "
+                    "causa exacta y confirmase cómo se evitará que vuelva a producirse el ruido.\n\n"
+                    "Por último, señaló que en la zona donde debe trabajar no hay línea de vida, "
+                    "aunque sí algún punto de anclaje. Agradecería que se comprobase este punto.\n\n"
+                    "Antes de autorizar la reparación, entiendo que habría que solicitar un "
+                    "presupuesto o informe detallado que indique qué parte cubre el mantenimiento "
+                    "y qué importe adicional tendría que asumir la comunidad.\n\n"
+                    "Un saludo,\n\n"
+                    "Roberto Díaz"
+                )
+
+            return Response()
+
+    class SendableOpenAI:
+        def __init__(self):
+            self.responses = SendableResponses()
+
+    original = (
+        "tecnico acumulador tejado ruido por perdida algo agua o fluido no se motores "
+        "siguieron encendidos valvulas agua fria carteles vecinos placas lejos del acumulador "
+        "fluido motor ruido volvera no hay linea vida gancho coste mantenimiento comunidad "
+        "Roberto Diaz"
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", SendableOpenAI)
+
+    result = service.rewrite_with_profile(
+        GenerationInput(
+            text=original,
+            action="sendable",
+            context="general",
+            intensity=1000,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert result.output != original
+    assert "Buenos días:" in result.output
+    assert "No me quedó claro" in result.output
+    assert "línea de vida" in result.output
+    assert "mantenimiento" in result.output
+    assert "Roberto Díaz" in result.output
+    assert "perdia datos importantes" not in result.explanation
+    assert result.provider == "openai"
+
+
 def test_high_intensity_rewrite_allows_substantial_clarity_change(monkeypatch):
     class ClarityResponses:
         def create(self, **kwargs):
