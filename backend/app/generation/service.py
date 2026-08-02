@@ -165,6 +165,12 @@ Reglas especificas:
   conservar literalmente la misma frase.
 - Si el original es un borrador bruto, una explicacion aproximada o una nota
   desordenada, puedes rehacer casi toda la redaccion.
+- No confundas fidelidad con retoque minimo: si el texto esta mal enfocado,
+  desordenado o explicado "como se ha podido", reescribelo hasta que funcione.
+- No midas la calidad por el tamano del cambio: una reescritura grande puede
+  ser correcta si conserva hechos, dudas e intencion.
+- El usuario puede traer material bruto; tu trabajo es darle forma de texto, no
+  maquillarlo con correcciones pequenas.
 - Explicita dudas ya presentes, pero no anadas datos nuevos.
 - Puedes dar forma tecnica prudente a informacion ya aportada, sin cerrar causas
   que el borrador presenta como inciertas.
@@ -178,9 +184,14 @@ Reglas especificas:
             return """
 Objetivo: mejorar claridad con cambios moderados.
 Reglas especificas:
-- Puedes ordenar y limpiar frases pesadas si el sentido queda intacto.
+- Puedes ordenar, dividir, fusionar o sustituir frases pesadas si el sentido queda intacto.
+- Si el texto es un borrador bruto o una explicacion aproximada, no te limites a
+  articulos, comas o tildes: mejora la formulacion real.
+- No valores "cambiar poco" como bueno por si mismo; valora si el resultado
+  queda mas claro y fiel a lo que el usuario queria decir.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
-- Evita cambiar verbos o expresiones que ya sean claros.
+- Evita cambiar verbos o expresiones que ya sean claros, pero cambia los que
+  estorben a la comprension.
 - No resumas, no amplies y no introduzcas informacion nueva.
 - Si no hay una mejora clara, conserva la formulacion original.
 """.strip()
@@ -188,7 +199,8 @@ Reglas especificas:
 Objetivo: mejorar claridad de forma suave.
 Reglas especificas:
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
-- No cambies un verbo o una expresion si el original ya se entiende.
+- No cambies un verbo o una expresion si el original ya se entiende, pero no
+  confundas limpieza superficial con mejora cuando una frase esta torpe.
 - No endurezcas el tono para que suene mas rotundo.
 - No resumas, no amplies y no introduzcas informacion nueva.
 - Manten la estructura de parrafos salvo que haya una mejora claramente necesaria.

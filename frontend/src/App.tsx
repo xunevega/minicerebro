@@ -158,13 +158,13 @@ const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "n
 const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
   {
     value: "rewrite",
-    label: "Mejorar claridad",
-    description: "Reordena y limpia la formulacion sin cambiar la idea.",
+    label: "Reescribir borrador",
+    description: "Rehace el texto si hace falta, conservando hechos y dudas.",
   },
   {
     value: "correction",
-    label: "Corregir",
-    description: "Corrige puntuacion, espacios y errores seguros sin reescribir.",
+    label: "Limpiar erratas",
+    description: "Solo puntuacion, espacios y errores seguros. No reescribe.",
   },
   {
     value: "sendable",
@@ -3478,8 +3478,8 @@ export function App() {
                     onChange={(event) => setLabAction(event.target.value as GenerationAction)}
                     value={labAction}
                   >
-                    <option value="rewrite">Reescribir</option>
-                    <option value="correction">Corregir</option>
+                    <option value="rewrite">Reescribir borrador</option>
+                    <option value="correction">Limpiar erratas</option>
                     <option value="sendable">Preparar para enviar</option>
                     <option value="continue">Continuar</option>
                     <option value="variants">Variantes</option>

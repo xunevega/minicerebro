@@ -363,6 +363,46 @@ def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
     assert result.output != original
     assert "reescritura decidida pero fiel" in captured["input"]
     assert "Puedes compactar, reordenar" in captured["input"]
+    assert "No confundas fidelidad con retoque minimo" in captured["input"]
+    assert "reescritura grande puede" in captured["input"]
+    assert "ser correcta" in captured["input"]
+    assert "darle forma de texto" in captured["input"]
+    assert "maquillarlo con correcciones pequenas" in captured["input"]
+
+
+def test_medium_rewrite_prompt_does_not_equate_fidelity_with_small_edits(monkeypatch):
+    captured: dict[str, str] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured["input"] = kwargs["input"]
+
+            class Response:
+                output_text = "Texto reescrito con mejor orden."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="tecnico dice cosas del acumulador no se bien como explicarlo",
+            action="rewrite",
+            context="general",
+            intensity=700,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert "no te limites a" in captured["input"]
+    assert "articulos, comas o tildes" in captured["input"]
+    assert "No valores \"cambiar poco\" como bueno" in captured["input"]
 
 
 def test_openai_prompt_allows_sendable_redraft_for_high_intensity_structure(monkeypatch):
