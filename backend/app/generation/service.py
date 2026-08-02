@@ -187,6 +187,8 @@ Reglas especificas:
             return """
 Objetivo: convertir un borrador comunicativo en una version clara y lista para enviar.
 Reglas especificas:
+- Esta accion es editar, no corregir: toma decisiones de forma, orden y enfoque
+  cuando el borrador lo necesite.
 - Trata el original como material de partida, no como fraseado obligatorio.
 - Si el texto esta explicado de forma aproximada, ordenalo y redactalo de nuevo.
 - No te limites a comas, articulos, tildes o pequenos retoques: prepara una
@@ -211,6 +213,8 @@ Reglas especificas:
             return """
 Objetivo: mejorar claridad con una reescritura decidida pero fiel.
 Reglas especificas:
+- Esta accion es editar: puede cambiar estructura, enfoque y formulacion si eso
+  hace que el texto funcione mejor.
 - Puedes compactar, reordenar y sustituir formulaciones torpes si mejora la lectura.
 - Si el borrador parece una nota, correo, aviso o lista de puntos, puedes convertirlo en
   una version final clara y enviable.
@@ -242,6 +246,8 @@ Reglas especificas:
             return """
 Objetivo: mejorar claridad con cambios moderados.
 Reglas especificas:
+- Esta accion es editar, no limpiar: si el problema es de orden, foco o sentido,
+  actua sobre el texto completo.
 - Puedes ordenar, dividir, fusionar o sustituir frases pesadas si el sentido queda intacto.
 - Si el texto es un borrador bruto o una explicacion aproximada, no te limites a
   articulos, comas o tildes: mejora la formulacion real.
@@ -258,6 +264,8 @@ Reglas especificas:
         return """
 Objetivo: mejorar claridad de forma suave.
 Reglas especificas:
+- Esta accion es editar con baja intensidad: evita rehacer por capricho, pero no
+  la reduzcas a comas y erratas si hay una mejora real de escritura.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No cambies un verbo o una expresion si el original ya se entiende, pero no
   confundas limpieza superficial con mejora cuando una frase esta torpe.

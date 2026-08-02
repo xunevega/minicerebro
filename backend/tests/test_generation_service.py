@@ -355,6 +355,7 @@ def test_openai_prompt_includes_user_instruction_without_learning(monkeypatch):
     assert "Indicacion libre del usuario para esta salida: mas tecnico y mas formal" in captured["input"]
     assert "aplicala al angulo, tono, nivel tecnico o estructura" in captured["input"]
     assert "No la conviertas en dato nuevo ni en aprendizaje permanente" in captured["input"]
+    assert "Esta accion es editar" in captured["input"]
 
 
 def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
@@ -449,6 +450,7 @@ def test_openai_rewrite_treats_community_note_as_communicative_draft(monkeypatch
 
     assert "borrador comunicativo" in captured["input"]
     assert "version clara y lista para enviar" in captured["input"]
+    assert "Esta accion es editar, no corregir" in captured["input"]
     assert "No te limites a comas, articulos, tildes" in captured["input"]
     assert "practicamente toda la redaccion" in captured["input"]
     assert "Puedes cambiar la estructura" in captured["input"]

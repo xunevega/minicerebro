@@ -158,12 +158,12 @@ const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "n
 const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
   {
     value: "rewrite",
-    label: "Reescribir borrador",
-    description: "Rehace el texto si hace falta, conservando hechos y dudas.",
+    label: "Editar",
+    description: "Da forma al borrador: puede ordenar, rehacer y cambiar estructura sin inventar datos.",
   },
   {
     value: "correction",
-    label: "Limpiar erratas",
+    label: "Corregir",
     description: "Solo puntuacion, espacios y errores seguros. No reescribe.",
   },
   {
@@ -3171,16 +3171,16 @@ export function App() {
                   <span className="controlHint">{selectedRevisionIntention.description}</span>
                 </label>
                 <label className="editorControl instructionControl" htmlFor="userInstruction">
-                  <span className="controlLabel">Indicacion</span>
+                  <span className="controlLabel">Direccion</span>
                   <input
                     className="textInput"
                     id="userInstruction"
                     maxLength={500}
                     onChange={(event) => setUserInstruction(event.target.value)}
-                    placeholder="Mas tecnico, mas formal, menos formal..."
+                    placeholder="Mas tecnico, mas formal, menos formal, formato correo..."
                     value={userInstruction}
                   />
-                  <span className="controlHint">Orienta solo esta propuesta.</span>
+                  <span className="controlHint">Orienta sentido, tono o estilo solo para esta propuesta.</span>
                 </label>
                 <label className="editorControl termsControl" htmlFor="protectedTerms">
                   <span className="controlLabel">Terminos protegidos</span>
@@ -3299,6 +3299,7 @@ export function App() {
                     <p className="note">
                       Objetivo: {selectedEditorAction.label.toLowerCase()}. Mirada:{" "}
                       {selectedRevisionIntention.label.toLowerCase()}.
+                      {userInstruction.trim() ? ` Direccion: ${userInstruction.trim()}.` : ""}
                       No sustituye tu borrador hasta que pulses "Aceptar propuesta".
                     </p>
                     <textarea readOnly value={generation.output} />
