@@ -31,6 +31,22 @@ SAFE_EDITORIAL_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
     (re.compile(r"\bAvenida constitucion\b", re.IGNORECASE), "Avenida Constitución"),
 )
 
+COMMUNICATIVE_DRAFT_MARKERS = (
+    "buenos dias",
+    "buenas tardes",
+    "buenas noches",
+    "un saludo",
+    "quedo pendiente",
+    "les recuerdo",
+    "comunidad",
+    "tecnico",
+    "presupuesto",
+    "mantenimiento",
+    "visto bueno",
+    "1º",
+    "2º",
+)
+
 
 def _openai_client() -> OpenAI:
     global _OPENAI_CLIENT, _OPENAI_CLIENT_FACTORY
@@ -49,13 +65,27 @@ def _openai_timeout_seconds() -> float:
 
 def _max_output_tokens(payload: GenerationInput) -> int:
     word_count = len(payload.text.split())
-    if payload.action == "sendable":
+    if payload.action == "sendable" or (
+        payload.action == "rewrite" and _looks_like_communicative_draft(payload.text)
+    ):
         return min(3200, max(520, round(word_count * 2.2) + 260))
     if payload.action == "continue":
         return min(900, max(220, round(word_count * 0.8) + 120))
     if payload.action == "variants":
         return min(1600, max(420, round(word_count * 2.0) + 180))
     return min(2400, max(220, round(word_count * 1.6) + 120))
+
+
+def _strip_accents_for_matching(value: str) -> str:
+    replacements = str.maketrans("áéíóúüñÁÉÍÓÚÜÑ", "aeiouunAEIOUUN")
+    return value.translate(replacements)
+
+
+def _looks_like_communicative_draft(value: str) -> bool:
+    normalized = _strip_accents_for_matching(value).lower()
+    marker_count = sum(marker in normalized for marker in COMMUNICATIVE_DRAFT_MARKERS)
+    has_numbered_points = bool(re.search(r"(^|\n)\s*(?:\d+[º.]|-)\s+", value))
+    return marker_count >= 2 or has_numbered_points
 
 
 def _content_token_overlap(original: str, output: str) -> float:
@@ -153,6 +183,26 @@ Reglas especificas:
 - Devuelve solo la version final lista para enviar.
 """.strip()
     if payload.action == "rewrite":
+        if _looks_like_communicative_draft(payload.text):
+            return """
+Objetivo: convertir un borrador comunicativo en una version clara y lista para enviar.
+Reglas especificas:
+- Trata el original como material de partida, no como fraseado obligatorio.
+- Si el texto esta explicado de forma aproximada, ordenalo y redactalo de nuevo.
+- No te limites a comas, articulos, tildes o pequenos retoques: prepara una
+  comunicacion completa cuando el material lo permita.
+- Puedes cambiar practicamente toda la redaccion si hace falta para que el texto
+  sea claro, responsable y enviable.
+- Conserva todos los hechos, dudas, condiciones, nombres, direcciones, fechas,
+  responsabilidades y grado de certeza.
+- Formula las dudas como dudas y los pendientes como solicitudes de aclaracion.
+- Puedes precisar tecnicamente lo que ya esta en el borrador cuando la informacion
+  lo permite: circuito, fluido, bombas, placas, acumulador, perdida o presion si
+  aparecen en el relato o se deducen claramente de el.
+- No inventes costes, causas cerradas, acuerdos, diagnosticos, datos tecnicos ni
+  decisiones de terceros que el usuario no haya aportado.
+- Devuelve solo la version reescrita.
+""".strip()
         if payload.intensity >= 850:
             return """
 Objetivo: mejorar claridad con una reescritura decidida pero fiel.

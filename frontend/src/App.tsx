@@ -486,15 +486,8 @@ export function App() {
     generation !== null &&
     normalizeComparableText(generation.output) ===
       normalizeComparableText(editorOriginalBeforeGeneration);
-  const generationHasChanges =
-    generation !== null &&
-    !generationIsSameAsDraft &&
-    comparison !== null &&
-    (comparison?.modification_score ?? 0) > 0;
-  const generationHasNoChanges =
-    generation !== null &&
-    (generationIsSameAsDraft ||
-      (comparison !== null && (comparison.modification_score ?? 0) <= 0));
+  const generationHasChanges = generation !== null && !generationIsSameAsDraft;
+  const generationHasNoChanges = generation !== null && generationIsSameAsDraft;
   const generationModificationScore = generationIsSameAsDraft
     ? 0
     : (comparison?.modification_score ?? 0);

@@ -370,6 +370,54 @@ def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
     assert "maquillarlo con correcciones pequenas" in captured["input"]
 
 
+def test_openai_rewrite_treats_community_note_as_communicative_draft(monkeypatch):
+    captured: dict[str, object] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+
+            class Response:
+                output_text = (
+                    "Buenos dias:\n\n"
+                    "Acaba de pasar el tecnico encargado del acumulador de agua caliente."
+                )
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    rough_note = (
+        "Buenos dias.\n\n"
+        "Acaba de pasar el tecnico del acumulador de agua caliente.\n\n"
+        "1º hay que sustituir unas valvulas y avisar a la comunidad.\n"
+        "2º hay que rellenar fluido.\n\n"
+        "Dado que desconozco el coste, habra que pedir presupuesto."
+    )
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text=rough_note,
+            action="rewrite",
+            context="general",
+            intensity=500,
+            revision_intention="estructura",
+        ),
+        [],
+    )
+
+    assert "borrador comunicativo" in captured["input"]
+    assert "version clara y lista para enviar" in captured["input"]
+    assert "No te limites a comas, articulos, tildes" in captured["input"]
+    assert "practicamente toda la redaccion" in captured["input"]
+    assert captured["max_output_tokens"] >= 520
+
+
 def test_medium_rewrite_prompt_does_not_equate_fidelity_with_small_edits(monkeypatch):
     captured: dict[str, str] = {}
 
@@ -435,9 +483,9 @@ def test_openai_prompt_allows_sendable_redraft_for_high_intensity_structure(monk
         [],
     )
 
-    assert "nota, correo, aviso o lista de puntos" in captured["input"]
-    assert "version final clara y enviable" in captured["input"]
-    assert "comunicacion final clara y enviable" in captured["input"]
+    assert "borrador comunicativo" in captured["input"]
+    assert "version clara y lista para enviar" in captured["input"]
+    assert "No te limites a comas, articulos, tildes" in captured["input"]
 
 
 def test_openai_prompt_defines_sendable_action(monkeypatch):
