@@ -10,6 +10,11 @@
   --accent: #c80000;
   --accent-soft: #f6e9e7;
   --shadow: 0 18px 60px rgba(20, 20, 20, 0.07);
+  --text-size: 17px;
+  --small-size: 15px;
+  --label-size: 13px;
+  --title-size: 52px;
+  --section-title-size: 38px;
   color: var(--ink);
   background: var(--paper);
   font-family:
@@ -38,7 +43,7 @@ body {
     linear-gradient(90deg, rgba(17, 17, 17, 0.025) 1px, transparent 1px),
     var(--paper);
   background-size: 72px 72px;
-  font-size: 19px;
+  font-size: var(--text-size);
   margin: 0;
   min-width: 320px;
 }
@@ -51,7 +56,7 @@ textarea {
 }
 
 button {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   letter-spacing: 0;
 }
@@ -124,7 +129,7 @@ textarea::placeholder {
 
 .brandLogo {
   display: block;
-  height: 124px;
+  height: 118px;
   object-fit: contain;
   object-position: left center;
   width: 360px;
@@ -143,7 +148,7 @@ textarea::placeholder {
 
 .brand span {
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--small-size);
   margin-top: 2px;
 }
 
@@ -163,7 +168,7 @@ nav {
   color: var(--muted);
   cursor: pointer;
   display: flex;
-  font-size: 19px;
+  font-size: 16px;
   gap: 7px;
   min-height: 132px;
   padding: 0 9px;
@@ -257,36 +262,36 @@ p {
 
 h1 {
   font-family: "Libre Caslon Display", Georgia, "Times New Roman", serif;
-  font-size: clamp(44px, 5.2vw, 64px);
+  font-size: var(--title-size);
   font-weight: 400;
-  letter-spacing: -0.02em;
+  letter-spacing: 0;
   line-height: 1;
   margin-bottom: 8px;
 }
 
 h2 {
   font-family: Georgia, "Times New Roman", serif;
-  font-size: clamp(32px, 3vw, 42px);
+  font-size: var(--section-title-size);
   font-weight: 400;
   margin-bottom: 16px;
 }
 
 h3 {
-  font-size: 21px;
+  font-size: 20px;
   margin-bottom: 8px;
 }
 
 .topbar p,
 .note {
   color: var(--muted);
-  font-size: 21px;
-  line-height: 1.35;
+  font-size: var(--text-size);
+  line-height: 1.42;
 }
 
 .sectionEyebrow {
   color: var(--accent);
   display: inline-block;
-  font-size: 15px;
+  font-size: var(--small-size);
   font-weight: 800;
   letter-spacing: 0.06em;
   margin-top: 6px;
@@ -361,7 +366,7 @@ li {
   background: #f1f1f1;
   display: grid;
   gap: 0;
-  grid-template-columns: minmax(0, 1.08fr) minmax(0, 0.92fr);
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
 }
 
 .editorPane,
@@ -382,11 +387,11 @@ textarea {
   color: var(--ink);
   font-family:
     "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 17px;
-  line-height: 1.35;
+  font-size: var(--text-size);
+  line-height: 1.5;
   min-height: 360px;
   outline: 0;
-  padding: 22px 0;
+  padding: 18px 0;
   resize: vertical;
   width: 100%;
 }
@@ -396,8 +401,8 @@ textarea {
   background: var(--field-bg);
   border: 1px solid var(--line);
   margin-top: 18px;
-  min-height: clamp(420px, 42vh, 620px);
-  padding: 22px;
+  min-height: 360px;
+  padding: 18px;
 }
 
 .outputPane > textarea {
@@ -416,7 +421,7 @@ textarea {
   border: 1px solid #c7c7c7;
   color: var(--ink);
   display: inline-flex;
-  font-size: 17px;
+  font-size: var(--label-size);
   font-weight: 900;
   letter-spacing: 0.02em;
   margin-bottom: 10px;
@@ -428,8 +433,8 @@ textarea {
   background: var(--field-bg);
   border: 1px solid #b8b8b8;
   margin-top: 0;
-  min-height: clamp(460px, 45vh, 660px);
-  padding: 22px;
+  min-height: 420px;
+  padding: 18px;
 }
 
 #editorDraft {
@@ -441,9 +446,9 @@ textarea {
   color: var(--muted);
   font-family:
     "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 17px;
+  font-size: var(--text-size);
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.5;
 }
 
 textarea + textarea,
@@ -503,7 +508,7 @@ textarea + .primaryButton {
   border-radius: 999px;
   color: var(--ink);
   display: inline-flex;
-  font-size: 15px;
+  font-size: var(--small-size);
   font-weight: 700;
   padding: 7px 11px;
 }
@@ -569,7 +574,7 @@ textarea + .primaryButton {
 .contextControl label,
 .editorControls label {
   color: var(--muted);
-  font-size: 17px;
+  font-size: 15px;
   font-weight: 700;
 }
 
@@ -637,13 +642,13 @@ textarea + .primaryButton {
 }
 
 .editorFlowStep strong {
-  font-size: 20px;
+  font-size: 18px;
 }
 
 .editorFlowStep small {
   color: var(--muted);
-  font-size: 17px;
-  line-height: 1.35;
+  font-size: var(--small-size);
+  line-height: 1.4;
 }
 
 .editorFlowStep.active {
@@ -670,7 +675,7 @@ textarea + .primaryButton {
   background: #eceae4;
   color: #37332d;
   display: inline-flex;
-  font-size: 16px;
+  font-size: var(--label-size);
   font-weight: 900;
   letter-spacing: 0.03em;
   padding: 6px 9px;
@@ -680,7 +685,7 @@ textarea + .primaryButton {
 
 .controlHint {
   color: var(--muted);
-  font-size: 17px;
+  font-size: var(--small-size);
   line-height: 1.35;
 }
 
@@ -723,12 +728,12 @@ textarea + .primaryButton {
 }
 
 .actionChoice strong {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .actionChoice span {
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--text-size);
   line-height: 1.35;
 }
 
@@ -774,7 +779,7 @@ textarea + .primaryButton {
 .draftSnapshot {
   border-left: 3px solid var(--accent);
   color: var(--muted);
-  font-size: 15px;
+  font-size: var(--small-size);
   margin: 8px 0 14px;
   padding-left: 10px;
 }
@@ -795,7 +800,7 @@ textarea + .primaryButton {
 .comparisonSummary span,
 .comparisonSummary p {
   color: var(--muted);
-  font-size: 17px;
+  font-size: var(--small-size);
   margin: 0;
 }
 
@@ -808,7 +813,7 @@ textarea + .primaryButton {
 
 .visualDiff summary {
   cursor: pointer;
-  font-size: 17px;
+  font-size: var(--small-size);
   font-weight: 800;
 }
 
@@ -826,12 +831,12 @@ textarea + .primaryButton {
 }
 
 .changeBrief strong {
-  font-size: 18px;
+  font-size: 19px;
 }
 
 .changeBrief p {
   color: var(--muted);
-  font-size: 16px;
+  font-size: var(--text-size);
   margin: 0;
 }
 
@@ -889,7 +894,7 @@ textarea + .primaryButton {
 .diffText {
   color: var(--ink);
   font-family: var(--font-sans);
-  font-size: 17px;
+  font-size: var(--text-size);
   line-height: 1.55;
   margin: 0;
   white-space: pre-wrap;
@@ -1104,15 +1109,15 @@ textarea + .primaryButton {
 
 .emptyOutput strong {
   color: var(--ink);
-  font-size: clamp(20px, 1.55vw, 23px);
+  font-size: 19px;
 }
 
 .emptyOutput p {
   font-family:
     "DM Sans", Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  font-size: 17px;
+  font-size: var(--text-size);
   font-weight: 400;
-  line-height: 1.35;
+  line-height: 1.45;
   margin: 0;
   max-width: 560px;
 }
