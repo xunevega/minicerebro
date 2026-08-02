@@ -408,6 +408,7 @@ export function App() {
   const [editorAction, setEditorAction] = useState<GenerationAction>("rewrite");
   const [editorIntensity, setEditorIntensity] = useState(500);
   const [revisionIntention, setRevisionIntention] = useState("claridad");
+  const [userInstruction, setUserInstruction] = useState("");
   const [protectedTerms, setProtectedTerms] = useState("");
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
   const [editorGenerating, setEditorGenerating] = useState(false);
@@ -1566,6 +1567,7 @@ export function App() {
         activeContext,
         editorIntensity,
         revisionIntention,
+        userInstruction.trim(),
         protectedTerms
           .split(",")
           .map((term) => term.trim())
@@ -3167,6 +3169,18 @@ export function App() {
                     ))}
                   </select>
                   <span className="controlHint">{selectedRevisionIntention.description}</span>
+                </label>
+                <label className="editorControl instructionControl" htmlFor="userInstruction">
+                  <span className="controlLabel">Indicacion</span>
+                  <input
+                    className="textInput"
+                    id="userInstruction"
+                    maxLength={500}
+                    onChange={(event) => setUserInstruction(event.target.value)}
+                    placeholder="Mas tecnico, mas formal, menos formal..."
+                    value={userInstruction}
+                  />
+                  <span className="controlHint">Orienta solo esta propuesta.</span>
                 </label>
                 <label className="editorControl termsControl" htmlFor="protectedTerms">
                   <span className="controlLabel">Terminos protegidos</span>
@@ -4890,6 +4904,8 @@ function canApproveProposal(proposal: KnowledgeProposal, versions: KnowledgeVers
 type DiffToken = {
   text: string;
   kind: "same" | "added" | "removed";
+  originalText?: string;
+  revisedText?: string;
 };
 
 type DiffSummary = {
@@ -4922,7 +4938,12 @@ function buildTextDiff(original: string, revised: string): DiffToken[] {
   let col = 0;
   while (row < originalTokens.length && col < revisedTokens.length) {
     if (normalizeDiffToken(originalTokens[row]) === normalizeDiffToken(revisedTokens[col])) {
-      tokens.push({ text: revisedTokens[col], kind: "same" });
+      tokens.push({
+        text: revisedTokens[col],
+        kind: "same",
+        originalText: originalTokens[row],
+        revisedText: revisedTokens[col],
+      });
       row += 1;
       col += 1;
     } else if (table[row + 1][col] >= table[row][col + 1]) {
@@ -4949,7 +4970,12 @@ function tokenizeTextForDiff(value: string) {
 }
 
 function normalizeDiffToken(value: string) {
-  return value.trim().toLocaleLowerCase("es");
+  return value
+    .trim()
+    .toLocaleLowerCase("es")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^\p{L}\p{N}]+/gu, "");
 }
 
 function mergeAdjacentDiffTokens(tokens: DiffToken[]) {
@@ -4957,6 +4983,12 @@ function mergeAdjacentDiffTokens(tokens: DiffToken[]) {
     const previous = merged.at(-1);
     if (previous && previous.kind === token.kind) {
       previous.text += token.text;
+      if (token.originalText !== undefined) {
+        previous.originalText = `${previous.originalText ?? ""}${token.originalText}`;
+      }
+      if (token.revisedText !== undefined) {
+        previous.revisedText = `${previous.revisedText ?? ""}${token.revisedText}`;
+      }
     } else {
       merged.push({ ...token });
     }
@@ -5038,11 +5070,19 @@ function DiffText({ tokens, side }: { tokens: DiffToken[]; side: "original" | "r
   );
   return (
     <p className="diffText">
-      {visibleTokens.map((token, index) => (
-        <span className={`diffToken ${token.kind}`} key={`${side}-${index}`}>
-          {token.text}
-        </span>
-      ))}
+      {visibleTokens.map((token, index) => {
+        const text =
+          token.kind === "same"
+            ? side === "original"
+              ? (token.originalText ?? token.text)
+              : (token.revisedText ?? token.text)
+            : token.text;
+        return (
+          <span className={`diffToken ${token.kind}`} key={`${side}-${index}`}>
+            {text}
+          </span>
+        );
+      })}
     </p>
   );
 }

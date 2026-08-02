@@ -627,6 +627,7 @@ export function generateText(
   context: string,
   intensity: number,
   revisionIntention: string,
+  userInstruction: string,
   protectedTerms: string[],
 ) {
   return request<GenerationResult>("/generation", {
@@ -637,6 +638,7 @@ export function generateText(
       context,
       intensity,
       revision_intention: revisionIntention,
+      user_instruction: userInstruction,
       protected_terms: protectedTerms,
     }),
   });

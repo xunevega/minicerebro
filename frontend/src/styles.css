@@ -593,6 +593,7 @@ textarea + .primaryButton {
 .editorControls .actionControl,
 .editorControls .intensityControl,
 .editorControls .revisionControl,
+.editorControls .instructionControl,
 .editorControls .termsControl {
   grid-column: 1 / -1;
 }

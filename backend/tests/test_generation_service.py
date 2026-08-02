@@ -321,6 +321,42 @@ def test_openai_prompt_includes_conservative_rewrite_and_revision_lens(monkeypat
     assert "Mirada: voz y tono" in captured["input"]
 
 
+def test_openai_prompt_includes_user_instruction_without_learning(monkeypatch):
+    captured: dict[str, str] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured["input"] = kwargs["input"]
+
+            class Response:
+                output_text = "Texto mas tecnico."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="Texto base.",
+            action="rewrite",
+            context="general",
+            intensity=700,
+            revision_intention="estructura",
+            user_instruction="  mas tecnico y mas formal  ",
+        ),
+        [],
+    )
+
+    assert "Indicacion libre del usuario para esta salida: mas tecnico y mas formal" in captured["input"]
+    assert "aplicala al angulo, tono, nivel tecnico o estructura" in captured["input"]
+    assert "No la conviertas en dato nuevo ni en aprendizaje permanente" in captured["input"]
+
+
 def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
     captured: dict[str, str] = {}
 
@@ -415,6 +451,8 @@ def test_openai_rewrite_treats_community_note_as_communicative_draft(monkeypatch
     assert "version clara y lista para enviar" in captured["input"]
     assert "No te limites a comas, articulos, tildes" in captured["input"]
     assert "practicamente toda la redaccion" in captured["input"]
+    assert "Puedes cambiar la estructura" in captured["input"]
+    assert "mas tecnico, mas formal, menos formal" in captured["input"]
     assert captured["max_output_tokens"] >= 520
 
 

@@ -193,6 +193,10 @@ Reglas especificas:
   comunicacion completa cuando el material lo permita.
 - Puedes cambiar practicamente toda la redaccion si hace falta para que el texto
   sea claro, responsable y enviable.
+- Puedes cambiar la estructura: convertir una lista pobre en secciones, agrupar
+  motivos, separar dudas, crear cierre o priorizar lo importante para el lector.
+- Si el usuario pide mas tecnico, mas formal, menos formal, mas directo u otro
+  angulo, aplica esa indicacion sin inventar informacion.
 - Conserva todos los hechos, dudas, condiciones, nombres, direcciones, fechas,
   responsabilidades y grado de certeza.
 - Formula las dudas como dudas y los pendientes como solicitudes de aclaracion.
@@ -211,6 +215,10 @@ Reglas especificas:
 - Si el borrador parece una nota, correo, aviso o lista de puntos, puedes convertirlo en
   una version final clara y enviable.
 - Puedes usar saludo, cierre y lista de puntos cuando el propio borrador lo pida.
+- Puedes cambiar la arquitectura del texto cuando ayude: orden de parrafos,
+  apartados, enumeraciones, foco inicial y cierre.
+- Si el usuario da una indicacion concreta de angulo, aplicala como prioridad de
+  esta salida.
 - En intensidad alta, fidelidad significa conservar hechos, intencion y dudas; no
   conservar literalmente la misma frase.
 - Si el original es un borrador bruto, una explicacion aproximada o una nota
@@ -244,6 +252,8 @@ Reglas especificas:
   estorben a la comprension.
 - No resumas, no amplies y no introduzcas informacion nueva.
 - Si no hay una mejora clara, conserva la formulacion original.
+- Si el usuario da una indicacion libre, usala para orientar el angulo sin
+  convertirla en dato nuevo.
 """.strip()
         return """
 Objetivo: mejorar claridad de forma suave.
@@ -254,6 +264,8 @@ Reglas especificas:
 - No endurezcas el tono para que suene mas rotundo.
 - No resumas, no amplies y no introduzcas informacion nueva.
 - Manten la estructura de parrafos salvo que haya una mejora claramente necesaria.
+- Si el usuario da una indicacion libre, puede orientar tono, registro o angulo
+  sin convertirse en aprendizaje permanente.
 - Si no hay una mejora segura, devuelve exactamente el texto original.
 """.strip()
     if payload.action == "correction":
@@ -295,6 +307,18 @@ def _revision_intention_contract(intention: str) -> str:
     if intention == "limpieza":
         return "Mirada: limpieza final. Atiende puntuacion, repeticiones y remate superficial."
     return "Mirada: comprension. Revisa orden, ambiguedad y facilidad de lectura."
+
+
+def _user_instruction_contract(payload: GenerationInput) -> str:
+    instruction = " ".join(payload.user_instruction.split())
+    if not instruction:
+        return "Indicacion libre del usuario: ninguna."
+    return (
+        "Indicacion libre del usuario para esta salida: "
+        f"{instruction}\n"
+        "Prioridad: aplicala al angulo, tono, nivel tecnico o estructura del texto. "
+        "No la conviertas en dato nuevo ni en aprendizaje permanente."
+    )
 
 
 def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
@@ -492,6 +516,7 @@ Contexto: {payload.context}
 Intensidad: {payload.intensity}/1000
 {_generation_contract(payload)}
 {_revision_intention_contract(payload.revision_intention)}
+{_user_instruction_contract(payload)}
 Terminos protegidos: {", ".join(payload.protected_terms) or "ninguno"}
 
 Perfil efectivo:

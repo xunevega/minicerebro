@@ -898,6 +898,7 @@ class GenerationInput(BaseModel):
     context: str = "general"
     intensity: int = Field(default=500, ge=0, le=1000)
     revision_intention: str = "claridad"
+    user_instruction: str = Field(default="", max_length=500)
     protected_terms: list[str] = Field(default_factory=list)
 
 
