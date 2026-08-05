@@ -355,6 +355,9 @@ def test_default_edit_prompt_allows_sentence_reformulation(monkeypatch):
     assert "editar no significa conservar el fraseo original" in captured["input"]
     assert "Puedes mover frases de lugar" in captured["input"]
     assert "eliminar repeticiones claras" in captured["input"]
+    assert "no la mantengas solo por fidelidad" in captured["input"]
+    assert "integrala una sola vez" in captured["input"]
+    assert "coloca antes la idea principal" in captured["input"]
     assert "No te limites a corregir faltas" in captured["input"]
 
 

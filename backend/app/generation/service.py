@@ -274,6 +274,10 @@ Reglas especificas:
   aunque no tengan errores gramaticales.
 - Puedes ordenar, mover de lugar, dividir, fusionar, sustituir o eliminar frases
   redundantes si el sentido queda intacto.
+- Si una frase repite una idea ya dicha sin aportar matiz nuevo, eliminala o
+  fusiona su informacion con la frase que corresponda.
+- Si la idea principal aparece tarde o una frase esta fuera de lugar, recolocala
+  donde ayude mas a la comprension.
 - Si el texto es un borrador bruto o una explicacion aproximada, no te limites a
   articulos, comas o tildes: mejora la formulacion real.
 - No valores "cambiar poco" como bueno por si mismo; valora si el resultado
@@ -295,6 +299,10 @@ Reglas especificas:
   poco natural; editar no significa conservar el fraseo original.
 - Puedes mover frases de lugar o eliminar repeticiones claras cuando ayude a que
   el texto fluya mejor.
+- Si detectas una repeticion clara, no la mantengas solo por fidelidad: elimina
+  la frase repetida o integrala una sola vez.
+- Si el orden actual debilita la lectura, coloca antes la idea principal o mueve
+  la frase al punto donde tenga mas sentido.
 - No te limites a corregir faltas: reformula con prudencia cuando mejore la
   comprension sin cambiar hechos.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
