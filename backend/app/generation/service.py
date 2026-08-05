@@ -270,7 +270,10 @@ Objetivo: mejorar claridad con cambios moderados.
 Reglas especificas:
 - Esta accion es editar, no limpiar: si el problema es de orden, foco o sentido,
   actua sobre el texto completo.
-- Puedes ordenar, dividir, fusionar o sustituir frases pesadas si el sentido queda intacto.
+- Puedes reescribir frases completas cuando ganen claridad, naturalidad o ritmo,
+  aunque no tengan errores gramaticales.
+- Puedes ordenar, mover de lugar, dividir, fusionar, sustituir o eliminar frases
+  redundantes si el sentido queda intacto.
 - Si el texto es un borrador bruto o una explicacion aproximada, no te limites a
   articulos, comas o tildes: mejora la formulacion real.
 - No valores "cambiar poco" como bueno por si mismo; valora si el resultado
@@ -288,6 +291,12 @@ Objetivo: mejorar claridad de forma suave.
 Reglas especificas:
 - Esta accion es editar con baja intensidad: evita rehacer por capricho, pero no
   la reduzcas a comas y erratas si hay una mejora real de escritura.
+- Puedes cambiar una frase completa si la frase actual suena torpe, confusa o
+  poco natural; editar no significa conservar el fraseo original.
+- Puedes mover frases de lugar o eliminar repeticiones claras cuando ayude a que
+  el texto fluya mejor.
+- No te limites a corregir faltas: reformula con prudencia cuando mejore la
+  comprension sin cambiar hechos.
 - Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
 - No cambies un verbo o una expresion si el original ya se entiende, pero no
   confundas limpieza superficial con mejora cuando una frase esta torpe.

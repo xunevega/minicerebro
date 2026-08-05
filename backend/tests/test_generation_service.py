@@ -321,6 +321,43 @@ def test_openai_prompt_includes_conservative_rewrite_and_revision_lens(monkeypat
     assert "Mirada: voz y tono" in captured["input"]
 
 
+def test_default_edit_prompt_allows_sentence_reformulation(monkeypatch):
+    captured: dict[str, str] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured["input"] = kwargs["input"]
+
+            class Response:
+                output_text = "Este texto necesita una formulacion mas natural."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="Este texto esta ahi pero no acaba de ir como deberia.",
+            action="rewrite",
+            context="general",
+            intensity=500,
+            revision_intention="claridad",
+        ),
+        [],
+    )
+
+    assert "Puedes cambiar una frase completa" in captured["input"]
+    assert "editar no significa conservar el fraseo original" in captured["input"]
+    assert "Puedes mover frases de lugar" in captured["input"]
+    assert "eliminar repeticiones claras" in captured["input"]
+    assert "No te limites a corregir faltas" in captured["input"]
+
+
 def test_openai_prompt_includes_user_instruction_without_learning(monkeypatch):
     captured: dict[str, str] = {}
 
