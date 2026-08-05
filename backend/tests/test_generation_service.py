@@ -2,7 +2,11 @@ from datetime import UTC, datetime
 
 from app.core.models import GenerationInput, ScoreVariable
 from app.generation import service
-from app.generation.service import _protect_terms, _restore_terms
+from app.generation.service import (
+    _protect_terms,
+    _remove_redundant_repetition_markers,
+    _restore_terms,
+)
 
 
 def test_protected_terms_ignore_partial_words():
@@ -18,6 +22,24 @@ def test_protected_terms_preserve_original_casing():
 
     assert "Mayoría" not in protected
     assert _restore_terms(protected, replacements) == "La Mayoría decide."
+
+
+def test_remove_redundant_repetition_marker_sentence():
+    result = _remove_redundant_repetition_markers(
+        "El texto no termina de funcionar como deberia. "
+        "Repito: el texto no acaba de ir como corresponde."
+    )
+
+    assert result == "El texto no termina de funcionar como deberia."
+
+
+def test_keep_repetition_marker_when_it_adds_new_information():
+    result = _remove_redundant_repetition_markers(
+        "El texto no termina de funcionar como deberia. "
+        "Repito: falta mencionar el presupuesto de mantenimiento."
+    )
+
+    assert "falta mencionar el presupuesto" in result
 
 
 def test_deterministic_correction_fixes_safe_surface_errors():

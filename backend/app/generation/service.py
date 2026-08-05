@@ -12,6 +12,10 @@ PROTECTED_TOKEN_TEMPLATE = "__PROTECTED_TERM_{index}__"
 PUNCTUATION_SPACING_RE = re.compile(r"\s+([,.;:!?])")
 MISSING_SPACE_AFTER_PUNCTUATION_RE = re.compile(r"([,.;:!?])(?=\S)")
 SENTENCE_START_RE = re.compile(r"(^|[.!?]\s+)([a-záéíóúüñ])")
+REPETITION_MARKER_RE = re.compile(
+    r"^\s*(?:repito|como decia|como decía|vuelvo a decir)\s*[:,;.-]\s*(.+)$",
+    re.IGNORECASE,
+)
 DEFAULT_OPENAI_TIMEOUT_SECONDS = 25.0
 _OPENAI_CLIENT: OpenAI | None = None
 _OPENAI_CLIENT_FACTORY: object | None = None
@@ -384,6 +388,23 @@ def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
     return "\n\n".join(paragraphs)
 
 
+def _remove_redundant_repetition_markers(value: str) -> str:
+    sentences = SENTENCE_RE.split(value)
+    if len(sentences) < 2:
+        return value
+
+    kept: list[str] = []
+    for sentence in sentences:
+        marker_match = REPETITION_MARKER_RE.match(sentence)
+        if marker_match and kept:
+            repeated_body = marker_match.group(1)
+            prior_text = " ".join(kept)
+            if _content_token_overlap(repeated_body, prior_text) >= 0.35:
+                continue
+        kept.append(sentence)
+    return " ".join(kept).strip()
+
+
 def _protect_terms(value: str, terms: list[str]) -> tuple[str, list[tuple[str, str]]]:
     protected = value
     replacements: list[tuple[str, str]] = []
@@ -594,6 +615,8 @@ Texto:
     output = getattr(response, "output_text", "").strip()
     if not output:
         output = payload.text
+    if payload.action == "rewrite":
+        output = _remove_redundant_repetition_markers(output)
     local_fallback = _local_rewrite_if_safer_than_noop(payload, variables)
     output_is_original = output.strip() == payload.text.strip()
     loses_required_anchors = False
