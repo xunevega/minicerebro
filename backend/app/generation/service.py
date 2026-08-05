@@ -276,6 +276,8 @@ Reglas especificas:
   redundantes si el sentido queda intacto.
 - Si una frase repite una idea ya dicha sin aportar matiz nuevo, eliminala o
   fusiona su informacion con la frase que corresponda.
+- Si el borrador usa marcadores como "repito", "como decia" o "vuelvo a decir"
+  solo para repetir una idea, elimina el marcador y conserva la idea una sola vez.
 - Si la idea principal aparece tarde o una frase esta fuera de lugar, recolocala
   donde ayude mas a la comprension.
 - Si el texto es un borrador bruto o una explicacion aproximada, no te limites a
@@ -301,6 +303,8 @@ Reglas especificas:
   el texto fluya mejor.
 - Si detectas una repeticion clara, no la mantengas solo por fidelidad: elimina
   la frase repetida o integrala una sola vez.
+- No conserves marcadores de repeticion como "repito", "como decia" o "vuelvo a
+  decir" cuando solo indican que el borrador esta duplicando una idea.
 - Si el orden actual debilita la lectura, coloca antes la idea principal o mueve
   la frase al punto donde tenga mas sentido.
 - No te limites a corregir faltas: reformula con prudencia cuando mejore la

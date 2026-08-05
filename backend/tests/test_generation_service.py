@@ -358,6 +358,7 @@ def test_default_edit_prompt_allows_sentence_reformulation(monkeypatch):
     assert "no la mantengas solo por fidelidad" in captured["input"]
     assert "integrala una sola vez" in captured["input"]
     assert "coloca antes la idea principal" in captured["input"]
+    assert "No conserves marcadores de repeticion" in captured["input"]
     assert "No te limites a corregir faltas" in captured["input"]
 
 
