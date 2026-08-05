@@ -5034,7 +5034,7 @@ function summarizeDiffTokens(tokens: DiffToken[]): DiffSummary {
   if (changedPairs >= netAddedWords + netRemovedWords) {
     return {
       headline: "Sustituciones de formulacion",
-      description: "La propuesta cambia palabras o giros concretos sin rehacer la estructura.",
+      description: "La propuesta cambia palabras, giros o bloques del borrador.",
       chips,
     };
   }

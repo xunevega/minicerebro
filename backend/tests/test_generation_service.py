@@ -356,6 +356,9 @@ def test_openai_prompt_includes_user_instruction_without_learning(monkeypatch):
     assert "aplicala al angulo, tono, nivel tecnico o estructura" in captured["input"]
     assert "No la conviertas en dato nuevo ni en aprendizaje permanente" in captured["input"]
     assert "Esta accion es editar" in captured["input"]
+    assert "editar la estructura del borrador" in captured["input"]
+    assert "material de partida, no como arquitectura obligatoria" in captured["input"]
+    assert "no en conservar el mismo orden" in captured["input"]
 
 
 def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
@@ -478,19 +481,20 @@ def test_medium_rewrite_prompt_does_not_equate_fidelity_with_small_edits(monkeyp
     monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
 
     service.rewrite_with_profile(
-        GenerationInput(
-            text="tecnico dice cosas del acumulador no se bien como explicarlo",
-            action="rewrite",
-            context="general",
-            intensity=700,
-            revision_intention="estructura",
-        ),
+            GenerationInput(
+                text="Bestiario de un alcoholico. Uno pasa procesos. Luego te excluyen y sigues mejor.",
+                action="rewrite",
+                context="general",
+                intensity=700,
+                revision_intention="estructura",
+            ),
         [],
     )
 
-    assert "no te limites a" in captured["input"]
-    assert "articulos, comas o tildes" in captured["input"]
-    assert "No valores \"cambiar poco\" como bueno" in captured["input"]
+    assert "no la reduzcas a" in captured["input"]
+    assert "comas, articulos, sinonimos o retoques frase a frase" in captured["input"]
+    assert "no como arquitectura obligatoria" in captured["input"]
+    assert "Manten la estructura de parrafos" not in captured["input"]
 
 
 def test_openai_prompt_allows_sendable_redraft_for_high_intensity_structure(monkeypatch):

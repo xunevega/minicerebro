@@ -209,6 +209,28 @@ Reglas especificas:
   decisiones de terceros que el usuario no haya aportado.
 - Devuelve solo la version reescrita.
 """.strip()
+        if payload.revision_intention == "estructura":
+            return """
+Objetivo: editar la estructura del borrador para que el texto funcione mejor.
+Reglas especificas:
+- Esta accion es editar estructura, no corregir superficie: no la reduzcas a
+  comas, articulos, sinonimos o retoques frase a frase.
+- Trata el original como material de partida, no como arquitectura obligatoria.
+- Puedes cambiar el orden de ideas, dividir o fusionar parrafos, crear entrada,
+  separar contexto de peticion, convertir bloques confusos en secciones y cerrar
+  con una conclusion clara cuando el propio borrador lo pida.
+- Si el texto es una nota, desahogo, apunte o lista de ideas, puedes convertirlo
+  en una version organizada y lista para usar.
+- La fidelidad consiste en conservar hechos, intencion, dudas, grado de certeza,
+  nombres, fechas, atribuciones y responsabilidad; no en conservar el mismo orden.
+- Si el usuario da una direccion libre, usala como angulo estructural prioritario
+  para esta salida sin inventar informacion.
+- Puedes dar forma tecnica prudente a informacion ya aportada, sin cerrar causas
+  que el borrador presenta como inciertas.
+- No inventes hechos, causas, acuerdos, diagnosticos, datos tecnicos ni decisiones
+  de terceros que el usuario no haya aportado.
+- Devuelve solo la version editada.
+""".strip()
         if payload.intensity >= 850:
             return """
 Objetivo: mejorar claridad con una reescritura decidida pero fiel.
