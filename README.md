@@ -4,12 +4,17 @@ Aplicacion especializada en escritura en lengua espanola. La V1 implementa el co
 
 ## Limite de seguridad V1
 
-Editados V1 es una aplicacion local-first para desarrollo y uso en localhost. No debe exponerse a internet, dominios publicos ni redes abiertas sin anadir antes:
+En local, Editados puede funcionar sin cuenta (`AUTH_REQUIRED=false`).
 
-- autenticacion;
-- secretos propios fuera de los valores de desarrollo;
-- CORS de produccion;
-- rate limiting, especialmente para `/generation`, `/correction`, `/rewrite`, `/continue` y `/variants`.
+En produccion (Railway) el backend exige:
+
+- autenticacion por cuenta (registro / entrada);
+- un perfil por usuario, nunca el perfil `default` compartido;
+- la primera cuenta (o `ADMIN_EMAIL`) puede publicar conocimiento; el resto no;
+- `SESSION_SECRET` propio (si falta, se deriva de `DATABASE_URL`);
+- CORS solo con el origen del frontend, sin localhost;
+- rate limiting en generacion y en intentos de entrada;
+- `/docs` y `/openapi.json` apagados.
 
 El `docker-compose.yml` liga PostgreSQL a `127.0.0.1` y usa credenciales de desarrollo. Son aceptables solo para entorno local.
 
@@ -69,6 +74,9 @@ Variables necesarias en el servicio backend:
 ```bash
 DATABASE_URL=postgresql://...
 CORS_ALLOW_ORIGINS=https://<tu-frontend>.up.railway.app
+SESSION_SECRET=<cadena larga aleatoria>
+APP_ENV=production
+ADMIN_EMAIL=<correo-del-operador>
 ```
 
 Variable opcional para generacion real:
@@ -109,6 +117,8 @@ Pre-deploy command: vacio
 Custom Start Command: vacio
 ```
 
+`npm start` sirve `dist/` con cabeceras de seguridad y fallback SPA (`server.mjs`), no `vite preview`.
+
 Tras cada bloque fuerte de cambios, verificar en produccion:
 
 ```bash
@@ -116,7 +126,8 @@ curl https://<backend>.up.railway.app/health
 curl https://<backend>.up.railway.app/knowledge/status
 curl -X POST https://<backend>.up.railway.app/knowledge/query \
   -H 'Content-Type: application/json' \
-  -d '{"query":"tema estructura externa interna forma contenido comentario critico texto literario","version":"latest","limit":3}'
+  -d '{"query":"tema estructura","version":"latest","limit":3}'
+# sin cuenta debe responder 401
 ```
 
 Con los dominios actuales de Railway tambien puede ejecutarse:

@@ -87,14 +87,13 @@ def test_security_status_declares_v1_production_limits_without_secret_values(mon
     assert payload["security_model"] == "local-first"
     assert payload["internet_exposure"] == "not_ready_without_additional_controls"
     assert payload["implemented_controls"]["cors"] == "configured_allowlist"
+    assert payload["implemented_controls"]["authentication"] == "optional_local"
+    assert payload["implemented_controls"]["rate_limiting"] == "generation_and_auth"
     assert "authentication" in payload["missing_production_controls"]
-    assert "rate_limiting" in payload["missing_production_controls"]
     assert payload["cors"]["production_origin_count"] == 1
     assert payload["cors"]["wildcard_allowed"] is False
-    assert payload["secrets"] == {
-        "database_url_configured": True,
-        "openai_api_key_configured": True,
-    }
+    assert payload["secrets"]["database_url_configured"] is True
+    assert payload["secrets"]["openai_api_key_configured"] is True
     assert "secret-pass" not in str(payload)
     assert "sk-secret-value" not in str(payload)
 

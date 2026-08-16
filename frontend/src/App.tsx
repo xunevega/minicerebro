@@ -80,6 +80,9 @@ import {
   simulateLab,
   updatePreferenceStatus,
   updateScore,
+  getAuthStatus,
+  logoutAccount,
+  type AuthStatus,
 } from "./services/api";
 import type {
   AuditEvent,
@@ -135,6 +138,8 @@ import type {
   TextRevisionResult,
   V1Screen,
 } from "./types/api";
+import { AuthScreen } from "./AuthScreen";
+import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
 
 const tabs = [
   { id: "knowledge", label: "Biblioteca", icon: BookOpen },
@@ -146,7 +151,7 @@ const tabs = [
   { id: "compare", label: "Comparar", icon: GitCompare },
   { id: "rules", label: "Reglas", icon: ShieldCheck },
   { id: "persistence", label: "Guardado", icon: Database },
-  { id: "cerebro", label: "Auditoria", icon: Search },
+  { id: "cerebro", label: "Auditoría", icon: Search },
   { id: "acceptance", label: "Checklist", icon: ClipboardCheck },
   { id: "closure", label: "Cierre", icon: Flag },
   { id: "roadmap", label: "Plan", icon: Route },
@@ -155,6 +160,14 @@ const tabs = [
 ] as const;
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
+const contextLabels: Record<(typeof contexts)[number], string> = {
+  general: "general",
+  ensayo: "ensayo",
+  articulo: "artículo",
+  tecnico: "técnico",
+  publicitario: "publicitario",
+  narrativa: "narrativa",
+};
 const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
   {
     value: "rewrite",
@@ -164,7 +177,7 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
   {
     value: "correction",
     label: "Corregir",
-    description: "Solo puntuacion, espacios y errores seguros. No reescribe.",
+    description: "Solo puntuación, espacios y errores seguros. No reescribe.",
   },
   {
     value: "sendable",
@@ -174,7 +187,7 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
   {
     value: "continue",
     label: "Continuar texto",
-    description: "Anade un tramo nuevo manteniendo la voz del borrador.",
+    description: "Añade un tramo nuevo manteniendo la voz del borrador.",
   },
   {
     value: "variants",
@@ -185,13 +198,13 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
 const revisionIntentions = [
   {
     value: "claridad",
-    label: "Comprension",
-    description: "Mirada: orden, ambiguedad y facilidad de lectura.",
+    label: "Comprensión",
+    description: "Mirada: orden, ambigüedad y facilidad de lectura.",
   },
   {
     value: "estructura",
     label: "Estructura",
-    description: "Mirada: foco, progresion y cierre.",
+    description: "Mirada: foco, progresión y cierre.",
   },
   {
     value: "tono",
@@ -201,13 +214,13 @@ const revisionIntentions = [
   {
     value: "limpieza",
     label: "Limpieza final",
-    description: "Mirada: puntuacion, repeticiones y remate.",
+    description: "Mirada: puntuación, repeticiones y remate.",
   },
 ];
 const auditEventFilters = [
   { label: "Todo", eventType: "", entityType: "" },
   {
-    label: "Busquedas",
+    label: "Búsquedas",
     eventType: "knowledge.query.executed",
     entityType: "knowledge_version",
   },
@@ -235,13 +248,13 @@ const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label
 
 const libraryAreas = [
   { id: "all", label: "Todo", description: "Todas las fichas publicadas." },
-  { id: "gramatica", label: "Gramatica", description: "Sintaxis, concordancia y estructura de frase." },
-  { id: "ortografia", label: "Ortografia", description: "Tildes, signos, mayusculas y puntuacion." },
-  { id: "lexico", label: "Lexico", description: "Palabra precisa, sinonimia, registro y uso." },
-  { id: "estilo", label: "Estilo", description: "Claridad, ritmo, tono y parrafo." },
-  { id: "retorica", label: "Retorica", description: "Argumentacion, ethos, pathos, logos y discurso." },
+  { id: "gramatica", label: "Gramática", description: "Sintaxis, concordancia y estructura de frase." },
+  { id: "ortografia", label: "Ortografía", description: "Tildes, signos, mayúsculas y puntuación." },
+  { id: "lexico", label: "Léxico", description: "Palabra precisa, sinonimia, registro y uso." },
+  { id: "estilo", label: "Estilo", description: "Claridad, ritmo, tono y párrafo." },
+  { id: "retorica", label: "Retórica", description: "Argumentación, ethos, pathos, logos y discurso." },
   { id: "narrativa", label: "Narrativa", description: "Escena, voz, personaje, trama y punto de vista." },
-  { id: "revision", label: "Revision", description: "Correccion, reescritura y taller de borrador." },
+  { id: "revision", label: "Revisión", description: "Corrección, reescritura y taller de borrador." },
 ] as const;
 
 type LibraryAreaId = (typeof libraryAreas)[number]["id"];
@@ -299,7 +312,7 @@ const mainSections: Array<{
   {
     id: "technical",
     label: "Sistema",
-    description: "Guardado, auditoria y controles internos.",
+    description: "Guardado, auditoría y controles internos.",
     icon: ShieldCheck,
     defaultTab: "persistence",
     tabs: ["persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
@@ -307,7 +320,41 @@ const mainSections: Array<{
 ];
 
 export function App() {
-  const [active, setActive] = useState<TabId>("editor");
+  const [auth, setAuth] = useState<AuthStatus | null>(null);
+
+  useEffect(() => {
+    getAuthStatus()
+      .then(setAuth)
+      .catch(() =>
+        setAuth({ auth_required: false, user: null, profile_id: "default" }),
+      );
+  }, []);
+
+  if (!auth) {
+    return (
+      <main className="authShell">
+        <p>Cargando Editados…</p>
+      </main>
+    );
+  }
+
+  if (auth.auth_required && !auth.user) {
+    return <AuthScreen onReady={setAuth} />;
+  }
+
+  return <AppShell auth={auth} onAuthChange={setAuth} />;
+}
+
+function AppShell({
+  auth,
+  onAuthChange,
+}: {
+  auth: AuthStatus;
+  onAuthChange: (status: AuthStatus) => void;
+}) {
+  const [active, setActive] = useState<TabId>(
+    () => defaultTabForPath(window.location.pathname) as TabId,
+  );
   const [activeContext, setActiveContext] = useState("general");
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
@@ -419,14 +466,14 @@ export function App() {
     Record<string, RevisionFeedbackResult>
   >({});
   const [revisionFeedbackBusyCard, setRevisionFeedbackBusyCard] = useState<string | null>(null);
-  const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
+  const [labText, setLabText] = useState("Prueba aquí una frase antes de consolidar cambios.");
   const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
   const [labIntensity, setLabIntensity] = useState(500);
   const [labOverrideKey, setLabOverrideKey] = useState("");
   const [labOverrideDelta, setLabOverrideDelta] = useState(0);
   const [labResult, setLabResult] = useState<LabSimulationResult | null>(null);
   const [labComparisonText, setLabComparisonText] = useState(
-    "Prueba aqui una variante para compararla sin guardar.",
+    "Prueba aquí una variante para compararla sin guardar.",
   );
   const [labComparison, setLabComparison] = useState<ComparisonResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
@@ -437,6 +484,23 @@ export function App() {
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const showInternalNavigation = new URLSearchParams(window.location.search).get("internal") === "1";
+  const canManageKnowledge = !auth.auth_required || auth.user?.role === "admin";
+
+  useEffect(() => {
+    const onPop = () => setActive(defaultTabForPath(window.location.pathname) as TabId);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    const section =
+      mainSections.find((item) => item.tabs.includes(active)) ?? mainSections[0];
+    const path = sectionPaths[section.id as keyof typeof sectionPaths];
+    if (path && window.location.pathname !== path) {
+      window.history.replaceState({}, "", path + window.location.search);
+    }
+    document.title = titleForSection(section.label);
+  }, [active]);
   const activeTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
   const activeSection =
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
@@ -1840,30 +1904,56 @@ export function App() {
 
   return (
     <main className="appShell">
-      <header className="sidebar" aria-label="Navegacion principal">
+      <a className="skip" href="#contenido">
+        Saltar al contenido
+      </a>
+      <header className="sidebar" aria-label="Navegación principal">
         <div className="brand">
-          <img className="brandLogo" src="/editados-logo.png" alt="Editados" />
+          <a className="brandLink" href="/escribir" onClick={(event) => {
+            event.preventDefault();
+            window.history.pushState({}, "", "/escribir" + window.location.search);
+            setActive("editor");
+          }}>
+            <img className="brandLogo" src="/editados-logo.svg" alt="Editados" />
+          </a>
         </div>
         <nav>
           {visibleMainSections.map((section) => {
             const Icon = section.icon;
+            const href = sectionPaths[section.id as keyof typeof sectionPaths];
             return (
-              <button
+              <a
                 className={activeSection.id === section.id ? "tab active" : "tab"}
+                href={href}
                 key={section.id}
-                onClick={() => setActive(section.defaultTab)}
-                type="button"
+                onClick={(event) => {
+                  event.preventDefault();
+                  window.history.pushState({}, "", href + window.location.search);
+                  setActive(section.defaultTab);
+                }}
                 title={section.description}
               >
                 <Icon size={20} />
                 <span>{section.label}</span>
-              </button>
+              </a>
             );
           })}
         </nav>
+        {auth.user ? (
+          <button
+            className="textButton logoutButton"
+            onClick={async () => {
+              await logoutAccount();
+              onAuthChange({ auth_required: true, user: null, profile_id: "default" });
+            }}
+            type="button"
+          >
+            Salir
+          </button>
+        ) : null}
       </header>
 
-      <section className="workspace">
+      <section className="workspace" id="contenido">
         <header className="topbar">
           <div>
             <h1>{activeSection.label}</h1>
@@ -1881,7 +1971,7 @@ export function App() {
             >
               {contexts.map((context) => (
                 <option key={context} value={context}>
-                  {context}
+                  {contextLabels[context]}
                 </option>
               ))}
             </select>
@@ -2134,9 +2224,10 @@ export function App() {
                     ))}
                   </div>
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
-                    Cuanto te sirve
+                    Cuánto te sirve
                   </label>
                   <input
+                    aria-label="Cuánto te sirve esta ficha"
                     id="profileKnowledgeCardScore"
                     max="1000"
                     min="0"
@@ -2473,6 +2564,8 @@ export function App() {
                 ))}
               </div>
             </div>
+            {canManageKnowledge ? (
+            <>
             <div className="proposalBox">
               <h3>Crear lote de ingestion</h3>
               <p className="note">
@@ -2716,6 +2809,8 @@ export function App() {
                 </>
               ) : null}
             </div>
+            </>
+            ) : null}
             <div className="knowledgeGrid">
               {knowledgeSources.map((source) => (
                 <article className="knowledgeItem" key={source.id}>
@@ -3123,7 +3218,7 @@ export function App() {
                   aria-label="Borrador"
                   id="editorDraft"
                   onChange={(event) => handleEditorTextChange(event.target.value)}
-                  placeholder="Pega o escribe aqui el texto que quieres trabajar."
+                  placeholder="Pega o escribe aquí el texto que quieres trabajar."
                   readOnly={editorGenerating}
                   value={editorText}
                 />
@@ -3145,8 +3240,12 @@ export function App() {
                   <span className="controlHint">{selectedEditorAction.description}</span>
                 </label>
                 <label className="editorControl intensityControl">
-                  <span className="controlLabel">Intensidad: {editorIntensity}</span>
+                  <span className="controlLabel">Intensidad: {editorIntensity} de 1000</span>
                   <input
+                    aria-label="Intensidad de edición"
+                    aria-valuemax={1000}
+                    aria-valuemin={0}
+                    aria-valuenow={editorIntensity}
                     max={1000}
                     min={0}
                     onChange={(event) => setEditorIntensity(Number.parseInt(event.target.value, 10))}
@@ -3158,7 +3257,7 @@ export function App() {
                 <label className="editorControl revisionControl">
                   <span className="controlLabel">Mirada</span>
                   <select
-                    aria-label="Mirada de revision"
+                    aria-label="Mirada de revisión"
                     onChange={(event) => handleRevisionIntentionChange(event.target.value)}
                     value={revisionIntention}
                   >
@@ -3171,19 +3270,19 @@ export function App() {
                   <span className="controlHint">{selectedRevisionIntention.description}</span>
                 </label>
                 <label className="editorControl instructionControl" htmlFor="userInstruction">
-                  <span className="controlLabel">Direccion</span>
+                  <span className="controlLabel">Dirección</span>
                   <input
                     className="textInput"
                     id="userInstruction"
                     maxLength={500}
                     onChange={(event) => setUserInstruction(event.target.value)}
-                    placeholder="Mas tecnico, mas formal, menos formal, formato correo..."
+                    placeholder="Más técnico, más formal, menos formal, formato correo..."
                     value={userInstruction}
                   />
                   <span className="controlHint">Orienta sentido, tono o estilo solo para esta propuesta.</span>
                 </label>
                 <label className="editorControl termsControl" htmlFor="protectedTerms">
-                  <span className="controlLabel">Terminos protegidos</span>
+                  <span className="controlLabel">Términos protegidos</span>
                   <input
                     className="textInput"
                     id="protectedTerms"
@@ -3196,7 +3295,7 @@ export function App() {
               {editorGenerating ? (
                 <div className="workingNotice" aria-live="polite">
                   <strong>Trabajando con OpenAI</strong>
-                  <span>Espera un momento. Los controles quedan bloqueados para no repetir la peticion.</span>
+                  <span>Espera un momento. Los controles quedan bloqueados para no repetir la petición.</span>
                 </div>
               ) : null}
               <div className="buttonRow">
@@ -3762,7 +3861,7 @@ export function App() {
               <textarea
                 id="compareOriginal"
                 onChange={(event) => setOriginal(event.target.value)}
-                placeholder="Pega aqui el texto original."
+                placeholder="Pega aquí el texto original."
                 value={original}
               />
               <label className="fieldLabel" htmlFor="compareRevised">
@@ -3771,7 +3870,7 @@ export function App() {
               <textarea
                 id="compareRevised"
                 onChange={(event) => setRevised(event.target.value)}
-                placeholder="Pega aqui la version que quieres comparar."
+                placeholder="Pega aquí la versión que quieres comparar."
                 value={revised}
               />
               <button className="primaryButton" onClick={handleCompare} type="button">
@@ -4323,16 +4422,16 @@ function auditEntityPublicLabel(entityType: string) {
 function auditHumanSummary(event: AuditEvent) {
   const payload = event.payload ?? {};
   if (event.event_type === "text.generated") {
-    return `Se trabajo un texto con la accion ${stringPayloadValue(payload.action, "generar")} en contexto ${stringPayloadValue(payload.context, "general")}.`;
+    return `Se trabajó un texto con la acción ${stringPayloadValue(payload.action, "generar")} en contexto ${stringPayloadValue(payload.context, "general")}.`;
   }
   if (event.event_type === "text.revision.executed") {
-    return `Se reviso un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} usando la biblioteca publicada.`;
+    return `Se revisó un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} usando la biblioteca publicada.`;
   }
   if (event.event_type === "text.revision.feedback_recorded") {
-    return `Se guardo tu decision sobre una ficha de revision: ${stringPayloadValue(payload.stance, "feedback")}.`;
+    return `Se guardó tu decisión sobre una ficha de revisión: ${stringPayloadValue(payload.stance, "feedback")}.`;
   }
   if (event.event_type === "profile.knowledge_card.updated") {
-    return "Se actualizo tu criterio personal sobre una ficha.";
+    return "Se actualizó tu criterio personal sobre una ficha.";
   }
   if (event.event_type === "score.updated") {
     return `Se ajusto un peso del perfil en ${stringPayloadValue(payload.context, "general")}.`;
@@ -4465,7 +4564,7 @@ function revisionStepApplication(cardId: string) {
     "card-revision-de-parrafo":
       "Revisa cada parrafo como una unidad: una idea, un apoyo y una transicion visible.",
     "card-revision-de-frase":
-      "Elige una frase larga, acerca sujeto y verbo, recorta incisos y deja una accion clara.",
+      "Elige una frase larga, acerca sujeto y verbo, recorta incisos y deja una acción clara.",
     "card-revision-de-tono":
       "Compara inicio y final: ajusta distancia, registro y ritmo para que parezcan del mismo texto.",
     "card-limpieza-final":

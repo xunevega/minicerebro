@@ -79,16 +79,61 @@ import type {
 } from "../types/api";
 
 const API_BASE = import.meta.env.VITE_API_BASE ?? "http://127.0.0.1:8000";
+const TOKEN_KEY = "editados_session";
+
+export type AuthUser = {
+  id: string;
+  email: string;
+  name: string;
+  profile_id: string;
+  role: string;
+};
+
+export type AuthStatus = {
+  auth_required: boolean;
+  user: AuthUser | null;
+  profile_id: string;
+};
+
+export type AuthSession = {
+  token: string;
+  user: AuthUser;
+};
+
+export function getAuthToken(): string | null {
+  try {
+    return localStorage.getItem(TOKEN_KEY);
+  } catch {
+    return null;
+  }
+}
+
+export function setAuthToken(token: string | null): void {
+  try {
+    if (token) localStorage.setItem(TOKEN_KEY, token);
+    else localStorage.removeItem(TOKEN_KEY);
+  } catch {
+    /* ignore quota / private mode */
+  }
+}
 
 async function request<T>(path: string, init?: RequestInit): Promise<T> {
   const headers = new Headers(init?.headers);
   if (init?.body && !headers.has("Content-Type")) {
     headers.set("Content-Type", "application/json");
   }
+  const token = getAuthToken();
+  if (token && !headers.has("Authorization")) {
+    headers.set("Authorization", `Bearer ${token}`);
+  }
   const response = await fetch(`${API_BASE}${path}`, {
     ...init,
     headers,
   });
+
+  if (response.status === 401) {
+    setAuthToken(null);
+  }
 
   if (!response.ok) {
     throw new Error(`API ${response.status}: ${await response.text()}`);
@@ -99,6 +144,32 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   return response.json() as Promise<T>;
+}
+
+export function getAuthStatus() {
+  return request<AuthStatus>("/auth/me");
+}
+
+export function registerAccount(email: string, password: string, name: string) {
+  return request<AuthSession>("/auth/register", {
+    method: "POST",
+    body: JSON.stringify({ email, password, name }),
+  });
+}
+
+export function loginAccount(email: string, password: string) {
+  return request<AuthSession>("/auth/login", {
+    method: "POST",
+    body: JSON.stringify({ email, password }),
+  });
+}
+
+export async function logoutAccount() {
+  try {
+    await request<{ status: string }>("/auth/logout", { method: "POST" });
+  } finally {
+    setAuthToken(null);
+  }
 }
 
 export function getKnowledgeStatus() {
