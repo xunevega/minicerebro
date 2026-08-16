@@ -6617,6 +6617,24 @@ def test_knowledge_query_resolves_latest_to_current_published_version():
     assert empty_payload["retrieval_trace"]["selected_claims"] == []
 
 
+def test_knowledge_query_explains_why_a_card_ranked():
+    response = client.post(
+        "/knowledge/query",
+        json={"query": "complemento directo", "version": "latest", "limit": 3},
+    )
+    assert response.status_code == 200
+    payload = response.json()
+    ranking = next(item for item in payload["ranking"] if item["card_id"] == "card-complemento-directo")
+    reasons = " ".join(ranking["reasons"]).lower()
+    assert "complemento" in reasons
+    assert ranking["factors"]["subject_boost"] == 0.25
+    retrieved = next(
+        item for item in payload["retrieved_cards"] if item["card_id"] == "card-complemento-directo"
+    )
+    assert retrieved["reasons"] == ranking["reasons"]
+    assert "gramática" in payload["retrieval_trace"]["suggested_subjects"]
+
+
 def test_knowledge_query_understands_natural_editorial_terms_without_slugs():
     dialogue_response = client.post(
         "/knowledge/query",

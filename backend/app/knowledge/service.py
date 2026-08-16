@@ -19,11 +19,11 @@ from app.core.models import (
     KnowledgeQueryInterpretation,
     KnowledgeQueryResult,
     KnowledgeRelation,
-    RetrievedKnowledgeCard,
     KnowledgeSource,
     KnowledgeSourceEdition,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
+    RetrievedKnowledgeCard,
 )
 from app.knowledge.contracts import (
     DEFAULT_SOURCE_EDITION,
@@ -42,6 +42,7 @@ from app.knowledge.contracts import (
     VERSIONED_OBJECT_TYPES,
     ingestion_blockers,
 )
+
 
 def versioning_policy() -> KnowledgeVersioningPolicy:
     return KnowledgeVersioningPolicy(
@@ -656,6 +657,15 @@ QUERY_TERM_EXPANSIONS = {
     "transicion": {"puente", "estructura"},
 }
 
+QUERY_SUBJECTS: tuple[tuple[str, set[str]], ...] = (
+    ("puntuación", {"coma", "punto", "puntuacion", "tilde", "acento", "signo"}),
+    ("tono", {"tono", "registro", "formal", "distancia", "voz"}),
+    ("párrafo", {"parrafo", "parrafos", "bloque", "progresion"}),
+    ("gramática", {"gramatica", "sintaxis", "complemento", "sujeto", "concordancia"}),
+    ("léxico", {"lexico", "palabra", "sinonimo", "precision", "termino"}),
+    ("revisión", {"revision", "reescritura", "borrador", "correccion"}),
+)
+
 EDITORIAL_REVISION_ROUTE = [
     "card-diagnostico-de-reescritura",
     "card-revision-estructural",
@@ -716,6 +726,25 @@ def _query_terms(normalized_query: str) -> set[str]:
 
 def _expanded_query_terms(terms: set[str]) -> dict[str, set[str]]:
     return {term: {term, *QUERY_TERM_EXPANSIONS.get(term, set())} for term in terms}
+
+
+def _matched_query_terms(terms: set[str], haystack: str) -> list[str]:
+    normalized_haystack = _normalize_query(haystack)
+    haystack_terms = set(normalized_haystack.replace("-", " ").replace("/", " ").split())
+    matched: list[str] = []
+    for term, alternatives in _expanded_query_terms(terms).items():
+        if (
+            term in normalized_haystack
+            or alternatives & haystack_terms
+            or any(alternative in normalized_haystack for alternative in alternatives - {term})
+        ):
+            matched.append(term)
+    return matched
+
+
+def _subjects_in_text(blob: str) -> list[str]:
+    normalized = _normalize_query(blob)
+    return [label for label, keywords in QUERY_SUBJECTS if any(keyword in normalized for keyword in keywords)]
 
 
 def _detect_query_types(normalized_query: str) -> list[str]:
@@ -992,6 +1021,11 @@ def query_knowledge(
         )
         concept_match = _text_match_score(terms, haystack)
         core_match = _text_match_score(terms, core_haystack)
+        matched_terms = _matched_query_terms(terms, haystack)
+        query_subjects = _subjects_in_text(normalized_query)
+        card_subjects = _subjects_in_text(haystack)
+        subject_overlap = [subject for subject in query_subjects if subject in card_subjects]
+        subject_boost = 0.25 if subject_overlap and core_match > 0 else 0.0
         normalized_core_haystack = _normalize_query(core_haystack)
         natural_term_boost = 0.0
         if {"charla", "conversacion", "conversaciones"} & terms and "dialogo" in normalized_core_haystack:
@@ -1048,6 +1082,8 @@ def query_knowledge(
             "relation_score": round(relation_score, 3),
             "natural_term_boost": round(natural_term_boost, 3),
             "diagnostic_family_boost": round(diagnostic_family_boost, 3),
+            "subject_boost": round(subject_boost, 3),
+            "matched_term_count": len(matched_terms),
             "version_score": round(version_score, 3),
             "status_score": round(status_score, 3),
         }
@@ -1068,18 +1104,20 @@ def query_knowledge(
             3,
         )
         reasons = []
-        if concept_match:
-            reasons.append("coincidencia conceptual con consulta normalizada")
-        if linked_claims:
-            reasons.append("contiene claims aplicables")
+        if matched_terms:
+            reasons.append("Coincide con: " + ", ".join(matched_terms[:4]))
+        if subject_overlap:
+            reasons.append("Materia: " + ", ".join(subject_overlap))
+        elif card_subjects:
+            reasons.append("Materia: " + card_subjects[0])
         if linked_evidence:
-            reasons.append("conserva evidencias trazables")
+            reasons.append(f"{len(linked_evidence)} apoyos trazables")
         if linked_sources:
-            reasons.append("identifica fuentes de respaldo")
+            reasons.append(f"Fuente: {linked_sources[0].name}")
         if relation_paths:
-            reasons.append("expansion controlada por relaciones")
+            reasons.append("Expansión por relaciones publicadas")
         if editorial_revision_query and card.id in EDITORIAL_REVISION_ROUTE_ORDER:
-            reasons.append("orden editorial por capas de revision")
+            reasons.append("Orden editorial por capas de revisión")
         return score, factors, reasons, relation_paths
 
     evaluated_cards = []
@@ -1099,19 +1137,21 @@ def query_knowledge(
 
     def evaluation_sort_key(
         item: tuple[KnowledgeCard, float, dict, list[str], list[str]],
-    ) -> tuple[float, float, str]:
+    ) -> tuple[float, float, float, str]:
         card, score, factors, _, _ = item
+        subject = -float(factors.get("subject_boost") or 0)
         if editorial_revision_query:
             route_order = factors.get("editorial_route_order")
             if route_order is not None:
-                return (route_order, -score, card.id)
-        return (999.0, -score, card.id)
+                return (route_order, -score, subject, card.id)
+        return (999.0, -score, subject, card.id)
 
-    def ranking_sort_key(item: dict) -> tuple[float, float, str]:
+    def ranking_sort_key(item: dict) -> tuple[float, float, float, str]:
         route_order = item["factors"].get("editorial_route_order")
+        subject = -float(item["factors"].get("subject_boost") or 0)
         if editorial_revision_query and route_order is not None:
-            return (route_order, -item["final_score"], item["card_id"])
-        return (999.0, -item["final_score"], item["card_id"])
+            return (route_order, -item["final_score"], subject, item["card_id"])
+        return (999.0, -item["final_score"], subject, item["card_id"])
 
     ranked_evaluations = sorted(evaluated_cards, key=evaluation_sort_key)[: payload.limit]
     ranked_cards = [item[0] for item in ranked_evaluations]
@@ -1207,6 +1247,7 @@ def query_knowledge(
         retrieval_trace={
             "original_query_preserved_in_response": True,
             "normalized_query": normalized_query,
+            "suggested_subjects": _subjects_in_text(normalized_query),
             "requested_version": requested_version,
             "resolved_version": resolved_version,
             "filters": {

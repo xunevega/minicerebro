@@ -139,6 +139,14 @@ import type {
   V1Screen,
 } from "./types/api";
 import { AuthScreen } from "./AuthScreen";
+import {
+  classifyKnowledgeCard,
+  libraryAreaLabel,
+  libraryAreaRank,
+  libraryAreas,
+  querySuggestions,
+  type LibraryAreaId,
+} from "./library";
 import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
 
 const tabs = [
@@ -245,25 +253,6 @@ const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label
   { value: "changed", label: "No va por ahi" },
   { value: "dismissed", label: "Descartar" },
 ];
-
-const libraryAreas = [
-  { id: "all", label: "Todo", description: "Todas las fichas publicadas." },
-  { id: "gramatica", label: "Gramática", description: "Sintaxis, concordancia y estructura de frase." },
-  { id: "ortografia", label: "Ortografía", description: "Tildes, signos, mayúsculas y puntuación." },
-  { id: "lexico", label: "Léxico", description: "Palabra precisa, sinonimia, registro y uso." },
-  { id: "estilo", label: "Estilo", description: "Claridad, ritmo, tono y párrafo." },
-  { id: "retorica", label: "Retórica", description: "Argumentación, ethos, pathos, logos y discurso." },
-  { id: "narrativa", label: "Narrativa", description: "Escena, voz, personaje, trama y punto de vista." },
-  { id: "revision", label: "Revisión", description: "Corrección, reescritura y taller de borrador." },
-] as const;
-
-type LibraryAreaId = (typeof libraryAreas)[number]["id"];
-
-type LibraryClassification = {
-  area: Exclude<LibraryAreaId, "all">;
-  use: string;
-  level: string;
-};
 
 type TabId = (typeof tabs)[number]["id"];
 const systemDefaultTabs: TabId[] = ["persistence"];
@@ -1115,7 +1104,7 @@ function AppShell({
 
   async function handleCreateManualIngestionFlow() {
     if (!manualIngestionSourceIdValue) {
-      setError("No hay fuente disponible para ingestion manual.");
+      setError("No hay fuente disponible para ingestión manual.");
       return;
     }
     setManualIngestionBusy(true);
@@ -1338,7 +1327,7 @@ function AppShell({
 
   async function handleCheckPublicationReadiness(version = publicationTargetVersion) {
     if (!version) {
-      setError("Selecciona una version candidata para comprobar publicacion.");
+      setError("Selecciona una versión candidata para comprobar publicación.");
       return null;
     }
     setError(null);
@@ -1378,7 +1367,7 @@ function AppShell({
 
   async function handlePublishCandidateVersion() {
     if (!publicationTargetVersion) {
-      setError("Selecciona una version candidata para publicar.");
+      setError("Selecciona una versión candidata para publicar.");
       return;
     }
     setPublicationBusy(true);
@@ -2134,7 +2123,7 @@ function AppShell({
                   <div>
                     <h3>Ficha editorial</h3>
                     <p className="note">
-                      Una ficha es una ayuda de escritura: resume una idea util y conserva sus
+                      Una ficha es una ayuda de escritura: resume una idea útil y conserva sus
                       apoyos sin mezclarla con tus gustos personales.
                     </p>
                   </div>
@@ -2163,12 +2152,12 @@ function AppShell({
                       value={classifyKnowledgeCard(selectedKnowledgeCard).level}
                     />
                     <Metric
-                      label="Revision"
+                      label="Revisión"
                       value={validationLabel(selectedKnowledgeCard.confidence)}
                     />
                   </div>
                   <List title="Cuando usarla" items={payloadList(selectedKnowledgeCard.payload.contexts)} />
-                  <List title="Senales para detectarla" items={payloadList(selectedKnowledgeCard.payload.signals)} />
+                  <List title="Señales para detectarla" items={payloadList(selectedKnowledgeCard.payload.signals)} />
                   <List title="Cuidado con" items={payloadList(selectedKnowledgeCard.payload.risks)} />
                   <List
                     title="Fuentes"
@@ -2179,11 +2168,11 @@ function AppShell({
                     }
                   />
                   <details className="queryTraceBox">
-                    <summary>Ver trazabilidad tecnica</summary>
+                    <summary>Ver trazabilidad técnica</summary>
                     <div className="metricGrid">
                       <Metric label="ID" value={selectedKnowledgeCard.id} />
                       <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
-                      <Metric label="Version" value={selectedKnowledgeCard.version} />
+                      <Metric label="Versión" value={selectedKnowledgeCard.version} />
                       <Metric label="Ideas" value={selectedKnowledgeCardClaims.length} />
                     </div>
                     <List
@@ -2387,7 +2376,7 @@ function AppShell({
                   </div>
                 </>
               ) : (
-                <p className="note">Cargando revision de la base.</p>
+                <p className="note">Cargando revisión de la base.</p>
               )}
             </div>
             <div className="buttonRow">
@@ -2396,7 +2385,7 @@ function AppShell({
                 onClick={() => setShowKnowledgeTechnical((current) => !current)}
                 type="button"
               >
-                {showKnowledgeTechnical ? "Ocultar modo tecnico" : "Ver modo tecnico"}
+                {showKnowledgeTechnical ? "Ocultar modo técnico" : "Ver modo técnico"}
               </button>
             </div>
             {showKnowledgeTechnical ? (
@@ -2404,8 +2393,8 @@ function AppShell({
             <div className="proposalBox">
               <h3>Versiones de la base</h3>
               <p className="note">
-                Detalle tecnico de versiones: se muestra aqui para trazabilidad y recuperacion
-                historica, no como recorrido normal de lectura.
+                Detalle técnico de versiones: se muestra aquí para trazabilidad y recuperación
+                histórica, no como recorrido normal de lectura.
               </p>
               <div className="versionList">
                 {orderedKnowledgeVersions.map((version, index) => {
@@ -2580,14 +2569,27 @@ function AppShell({
             {canManageKnowledge ? (
             <>
             <div className="proposalBox">
-              <h3>Crear lote de ingestion</h3>
+              <h3>Ritmo de publicación</h3>
               <p className="note">
-                Crea el recorrido interno fuente-edicion-indice-segmento-extraccion-propuestas.
+                1) elige fuente, 2) crea lote, 3) congela candidato, 4) publica solo si pasa los
+                controles.
+              </p>
+              <div className="pipelineTrace" aria-label="Ritmo de publicación">
+                <span className="pipelineStep">1. Fuente</span>
+                <span className="pipelineStep">2. Lote</span>
+                <span className="pipelineStep">3. Candidato</span>
+                <span className="pipelineStep">4. Publicar</span>
+              </div>
+            </div>
+            <div className="proposalBox">
+              <h3>Crear lote de ingestión</h3>
+              <p className="note">
+                Crea el recorrido interno fuente-edición-índice-segmento-extracción-propuestas.
                 Solo un candidato real permite aprobar propuestas; publicar sigue separado.
               </p>
               <div className="rowActions">
                 <select
-                  aria-label="Fuente para ingestion manual"
+                  aria-label="Fuente para ingestión manual"
                   onChange={(event) => setManualIngestionSourceId(event.target.value)}
                   value={manualIngestionSourceId || manualIngestionSourceIdValue}
                 >
@@ -2638,16 +2640,16 @@ function AppShell({
               </div>
               <div className="pipelineTrace">
                 <span className={manualIngestionEdition ? "pipelineStep done" : "pipelineStep"}>
-                  Edicion
+                  Edición
                 </span>
                 <span className={manualIngestionIndexEntry ? "pipelineStep done" : "pipelineStep"}>
-                  Indice
+                  Índice
                 </span>
                 <span className={manualIngestionSegment ? "pipelineStep done" : "pipelineStep"}>
                   Segmento
                 </span>
                 <span className={manualIngestionExtraction ? "pipelineStep done" : "pipelineStep"}>
-                  Extraccion
+                  Extracción
                 </span>
                 <span className={manualIngestionProposals.length ? "pipelineStep done" : "pipelineStep"}>
                   Propuestas
@@ -2655,9 +2657,9 @@ function AppShell({
               </div>
               {manualIngestionExtraction ? (
                 <div className="metricGrid">
-                  <Metric label="Edicion" value={manualIngestionEdition?.id ?? "Pendiente"} />
+                  <Metric label="Edición" value={manualIngestionEdition?.id ?? "Pendiente"} />
                   <Metric label="Segmento" value={manualIngestionSegment?.id ?? "Pendiente"} />
-                  <Metric label="Extraccion" value={manualIngestionExtraction.status} />
+                  <Metric label="Extracción" value={manualIngestionExtraction.status} />
                   <Metric label="Propuestas" value={manualIngestionProposals.length} />
                   <Metric label="Destino" value={manualProposalTargetVersion} />
                 </div>
@@ -2694,7 +2696,7 @@ function AppShell({
                       {!canApproveProposal(proposal, knowledgeVersions) &&
                       proposal.status === "proposed" ? (
                         <p className="note">
-                          Aprobar requiere una version candidata real; rechazar no modifica la base
+                          Aprobar requiere una versión candidata real; rechazar no modifica la base
                           publicada.
                         </p>
                       ) : null}
@@ -2704,10 +2706,10 @@ function AppShell({
               ) : null}
             </div>
             <div className="proposalBox">
-              <h3>Publicacion de la base</h3>
+              <h3>Publicación de la base</h3>
               <p className="note">
-                Crear candidato congela una version revisable. Publicar solo activa una version si
-                la revision pasa todos los controles.
+                Crear candidato congela una versión revisable. Publicar solo activa una versión si
+                la revisión pasa todos los controles.
               </p>
               <div className="rowActions">
                 <input
@@ -2717,7 +2719,7 @@ function AppShell({
                   value={candidateVersionId}
                 />
                 <select
-                  aria-label="Version base del candidato"
+                  aria-label="Versión base del candidato"
                   onChange={(event) => setCandidateBaseVersion(event.target.value)}
                   value={candidateBaseVersion}
                 >
@@ -2777,7 +2779,7 @@ function AppShell({
                   onClick={() => void handleCheckPublicationReadiness()}
                   title={
                     !publicationTargetVersion
-                      ? "Selecciona una version candidata para revisar."
+                      ? "Selecciona una versión candidata para revisar."
                       : undefined
                   }
                   type="button"
@@ -2917,15 +2919,30 @@ function AppShell({
             ) : null}
             <div className="proposalBox">
               <h3>Consultar la base</h3>
-              <p className="note">Busca una idea en la base publicada.</p>
+              <p className="note">Busca una idea en la base publicada. No sale a internet.</p>
+              <div className="libraryFilterBar" aria-label="Materias sugeridas">
+                {querySuggestions.map((suggestion) => (
+                  <button
+                    className={
+                      knowledgeQuery === suggestion.query ? "phaseBadge active" : "phaseBadge"
+                    }
+                    key={suggestion.id}
+                    onClick={() => setKnowledgeQuery(suggestion.query)}
+                    type="button"
+                  >
+                    {suggestion.label}
+                  </button>
+                ))}
+              </div>
               <div className="rowActions">
                 <input
+                  aria-label="Consulta en la biblioteca"
                   className="textInput"
                   onChange={(event) => setKnowledgeQuery(event.target.value)}
                   value={knowledgeQuery}
                 />
                 <select
-                  aria-label="Limite de resultados"
+                  aria-label="Límite de resultados"
                   onChange={(event) => setKnowledgeQueryLimit(Number.parseInt(event.target.value, 10))}
                   value={knowledgeQueryLimit}
                 >
@@ -2962,7 +2979,7 @@ function AppShell({
                     />
                   </div>
                   <details className="queryTraceBox">
-                    <summary>Ver detalle tecnico</summary>
+                    <summary>Ver detalle técnico</summary>
                     <div className="metricGrid">
                       <Metric label="Base recuperada" value={knowledgeResult.resolved_version} />
                       <Metric label="Fuentes" value={knowledgeResult.sources.length} />
@@ -2995,12 +3012,16 @@ function AppShell({
                         const cardEvidence = knowledgeResult.evidence.filter((item) =>
                           cardEvidenceIds.has(item.id),
                         );
+                        const rankingReasons = rankingReasonsForCard(knowledgeResult, card.id);
 
                         return (
                           <article className="knowledgeItem" key={card.id}>
                             <strong>{card.name}</strong>
                             <span>{card.definition}</span>
                             <ValidationPill confidence={card.confidence} />
+                            {rankingReasons.length ? (
+                              <List title="Por qué sale" items={rankingReasons} />
+                            ) : null}
                             <List
                               title="Ideas que usa"
                               items={cardClaims.map(
@@ -3030,9 +3051,9 @@ function AppShell({
                     </div>
                   ) : (
                     <article className="knowledgeItem">
-                      <strong>No hay ficha para esa busqueda</strong>
+                      <strong>No hay ficha para esa búsqueda</strong>
                       <span>
-                        Prueba con otra palabra, una materia mas amplia o revisa las estanterias.
+                        Prueba con otra palabra, una materia más amplia o revisa las estanterías.
                       </span>
                     </article>
                   )}
@@ -3040,7 +3061,7 @@ function AppShell({
               ) : null}
             </div>
             <List title="Materias cubiertas" items={knowledge?.coverage ?? []} />
-            <List title="Limites actuales" items={knowledge?.gaps ?? []} />
+            <List title="Límites actuales" items={knowledge?.gaps ?? []} />
           </section>
         )}
 
@@ -3497,7 +3518,7 @@ function AppShell({
                       }
                     />
                     <Metric label="Palabras" value={textRevision.word_count} />
-                    <Metric label="Parrafos" value={textRevision.paragraph_count} />
+                    <Metric label="Párrafos" value={textRevision.paragraph_count} />
                     <Metric label="Frases" value={textRevision.sentence_count} />
                   </div>
                   {decidedRevisionCount > 0 ? (
@@ -3531,19 +3552,19 @@ function AppShell({
                       </p>
                       <div className="revisionStepGrid">
                         <div>
-                          <span className="revisionLabel">Por que aplica</span>
+                          <span className="revisionLabel">Por qué aplica</span>
                           <p>{currentRevisionStep.finding}</p>
                         </div>
                         <div>
-                          <span className="revisionLabel">Que haria</span>
+                          <span className="revisionLabel">Qué haría</span>
                           <p>{currentRevisionStep.action}</p>
                         </div>
                         <div>
-                          <span className="revisionLabel">Como probarlo</span>
+                          <span className="revisionLabel">Cómo probarlo</span>
                           <p>{revisionStepApplication(currentRevisionStep.card_id)}</p>
                         </div>
                       </div>
-                      <List title="Senales miradas" items={currentRevisionStep.signals.slice(0, 3)} />
+                      <List title="Señales miradas" items={currentRevisionStep.signals.slice(0, 3)} />
                       <List title="Cuidado con" items={currentRevisionStep.risks.slice(0, 2)} />
                       <div className="buttonRow compactRow" aria-label={`Decision sobre ${currentRevisionStep.label}`}>
                         <button
@@ -4230,12 +4251,12 @@ function AppShell({
         {active === "audit" && (
           <section className="panel">
             <div className="auditSection">
-              <h2>Ultimas consultas</h2>
+              <h2>Últimas consultas</h2>
               <p className="note">
-                Lo ultimo que has buscado en la biblioteca.
+                Lo último que has buscado en la biblioteca.
               </p>
               {knowledgeQueryHistory.length === 0 ? (
-                <p className="note">Todavia no hay busquedas registradas.</p>
+                <p className="note">Todavía no hay búsquedas registradas.</p>
               ) : (
                 <div className="auditList">
                   {displayedKnowledgeQueryHistory.map((item) => (
@@ -4245,7 +4266,7 @@ function AppShell({
                         <span>
                           {item.has_results
                             ? `${item.card_count} ficha${item.card_count === 1 ? "" : "s"} encontrada${item.card_count === 1 ? "" : "s"}`
-                            : "No hubo ficha util para esa busqueda."}
+                            : "No hubo ficha útil para esa búsqueda."}
                         </span>
                       </div>
                       <time>{formatDate(item.created_at)}</time>
@@ -4284,7 +4305,7 @@ function AppShell({
                             <dd>{item.has_results ? "con resultado" : "sin resultado"}</dd>
                           </div>
                           <div>
-                            <dt>Limite</dt>
+                            <dt>Límite</dt>
                             <dd>{item.limit}</dd>
                           </div>
                           <div>
@@ -4299,7 +4320,7 @@ function AppShell({
                             </dd>
                           </div>
                           <div>
-                            <dt>Validacion</dt>
+                            <dt>Validación</dt>
                             <dd>{item.pending_validation_count} pendientes</dd>
                           </div>
                         </dl>
@@ -4363,7 +4384,7 @@ function AppShell({
                       </div>
                       <time>{formatDate(event.created_at)}</time>
                       <details className="queryTraceBox">
-                        <summary>Detalle tecnico</summary>
+                        <summary>Detalle técnico</summary>
                         <KnowledgeAuditTrace event={event} />
                         <pre>{event.event_type}</pre>
                         <pre>{JSON.stringify(event.payload, null, 2)}</pre>
@@ -4698,21 +4719,21 @@ const INGESTION_PHASE_LABELS: Record<string, string> = {
   validated: "validada",
   reviewed: "revisada",
   proposed: "propuesta",
-  extracted: "extraida",
+  extracted: "extraída",
   segmented: "segmentada",
   indexed: "indexada",
-  edition_registered: "con edicion",
+  edition_registered: "con edición",
   registered: "registrada",
 };
 
 const INGESTION_BLOCKER_LABELS: Record<string, string> = {
-  missing_edition: "sin edicion",
-  missing_index: "sin indice",
+  missing_edition: "sin edición",
+  missing_index: "sin índice",
   missing_segments: "sin segmentos",
-  missing_completed_extraction: "sin extraccion",
+  missing_completed_extraction: "sin extracción",
   missing_proposals: "sin propuestas",
   missing_materialized_knowledge: "sin conocimiento",
-  missing_publication: "sin publicacion",
+  missing_publication: "sin publicación",
 };
 
 function ingestionPhaseLabel(phase: string) {
@@ -4721,211 +4742,6 @@ function ingestionPhaseLabel(phase: string) {
 
 function ingestionBlockerLabel(blocker: string) {
   return INGESTION_BLOCKER_LABELS[blocker] ?? blocker;
-}
-
-function classifyKnowledgeCard(card: KnowledgeCard): LibraryClassification {
-  const text = normalizeLibraryText(`${card.name} ${card.definition} ${card.card_type}`);
-  const payloadText = normalizeLibraryText(JSON.stringify(card.payload ?? {}));
-  const searchableText = `${text} ${payloadText}`;
-
-  let area: LibraryClassification["area"] = "estilo";
-  if (
-    containsAny(searchableText, [
-      "coma",
-      "punto",
-      "tilde",
-      "acentuacion",
-      "mayuscula",
-      "comillas",
-      "raya",
-      "cursiva",
-      "sigla",
-      "abreviatura",
-      "versalita",
-      "ortografia",
-      "puntuacion",
-    ])
-  ) {
-    area = "ortografia";
-  } else if (
-    containsAny(searchableText, [
-      "complemento",
-      "subordinada",
-      "sujeto",
-      "predicado",
-      "atributo",
-      "concordancia",
-      "dequeismo",
-      "queismo",
-      "gramatica",
-      "sintaxis",
-      "lengua",
-      "habla",
-      "competencia linguistica",
-    ])
-  ) {
-    area = "gramatica";
-  } else if (
-    containsAny(searchableText, [
-      "sinon",
-      "anton",
-      "lexic",
-      "palabra",
-      "registro",
-      "campo semantico",
-      "familia lexica",
-      "colocacion",
-      "extranjerismo",
-      "corpus",
-      "terminologia",
-      "significante",
-      "significado",
-    ])
-  ) {
-    area = "lexico";
-  } else if (
-    containsAny(searchableText, [
-      "retorica",
-      "ethos",
-      "pathos",
-      "logos",
-      "inventio",
-      "dispositio",
-      "elocutio",
-      "actio",
-      "memoria",
-      "entimema",
-      "auditorio",
-      "argument",
-    ])
-  ) {
-    area = "retorica";
-  } else if (
-    containsAny(searchableText, [
-      "narr",
-      "escena",
-      "personaje",
-      "trama",
-      "analepsis",
-      "prolepsis",
-      "focalizacion",
-      "mimesis",
-      "mythos",
-      "punto de vista",
-      "voz narrativa",
-      "dialogo",
-      "subtexto",
-      "tension",
-      "conflicto",
-      "arco",
-      "revelacion",
-      "promesa",
-    ])
-  ) {
-    area = "narrativa";
-  } else if (
-    containsAny(searchableText, [
-      "revision",
-      "reescritura",
-      "correccion",
-      "borrador",
-      "taller",
-      "cierre",
-      "entrada y salida",
-    ])
-  ) {
-    area = "revision";
-  }
-
-  return {
-    area,
-    use: classifyLibraryUse(searchableText, area),
-    level: classifyLibraryLevel(searchableText, area),
-  };
-}
-
-function classifyLibraryUse(text: string, area: LibraryClassification["area"]) {
-  if (containsAny(text, ["correccion", "coma", "tilde", "concordancia", "dequeismo", "queismo"])) {
-    return "corregir";
-  }
-  if (containsAny(text, ["sinon", "anton", "palabra", "lexic", "matiz", "precision"])) {
-    return "precisar";
-  }
-  if (containsAny(text, ["escena", "personaje", "trama", "narr", "dialogo"])) {
-    return "narrar";
-  }
-  if (containsAny(text, ["retorica", "argument", "ethos", "pathos", "logos"])) {
-    return "argumentar";
-  }
-  if (containsAny(text, ["revision", "reescritura", "borrador", "correccion de estilo"])) {
-    return "revisar";
-  }
-  if (area === "ortografia" || area === "gramatica") {
-    return "corregir";
-  }
-  return "aclarar";
-}
-
-function classifyLibraryLevel(text: string, area: LibraryClassification["area"]) {
-  if (
-    containsAny(text, [
-      "generativa",
-      "narratologia",
-      "ortotipografia",
-      "retorica",
-      "formalismo",
-      "estructuralismo",
-      "diacronia",
-      "sincronia",
-    ])
-  ) {
-    return "avanzado";
-  }
-  if (
-    containsAny(text, [
-      "escena",
-      "revision",
-      "reescritura",
-      "voz del autor",
-      "no ficcion",
-      "taller",
-    ])
-  ) {
-    return "taller";
-  }
-  if (
-    containsAny(text, [
-      "coma",
-      "sujeto",
-      "predicado",
-      "complemento",
-      "tilde",
-      "mayuscula",
-      "claridad",
-    ])
-  ) {
-    return "basico";
-  }
-  return area === "retorica" || area === "narrativa" ? "avanzado" : "medio";
-}
-
-function libraryAreaRank(area: LibraryAreaId) {
-  return libraryAreas.findIndex((item) => item.id === area);
-}
-
-function libraryAreaLabel(area: LibraryClassification["area"]) {
-  return libraryAreas.find((item) => item.id === area)?.label ?? area;
-}
-
-function normalizeLibraryText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function containsAny(value: string, needles: string[]) {
-  return needles.some((needle) => value.includes(needle));
 }
 
 function knowledgeVersionRank(versionId: string) {
@@ -4945,16 +4761,16 @@ function knowledgeVersionPublicLabel(versionId: string, latestVersionId: string)
     return "Base inicial congelada";
   }
   if (rank !== Number.MAX_SAFE_INTEGER) {
-    return `Base historica ${rank}`;
+    return `Base histórica ${rank}`;
   }
-  return "Base historica";
+  return "Base histórica";
 }
 
 function knowledgeStatePublicLabel(state?: string) {
   const labels: Record<string, string> = {
     published: "Lista",
     validated: "Revisada",
-    candidate: "En revision",
+    candidate: "En revisión",
     draft: "Borrador",
     seed: "Inicial",
     deprecated: "Retirada",
@@ -4984,13 +4800,13 @@ function versionDeltaLabel(label: string, delta: number) {
 function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
   return [
     { label: "Fuente", done: status?.is_registered ?? false },
-    { label: "Edicion", done: status?.has_edition ?? false },
-    { label: "Indice", done: status?.has_index ?? false },
+    { label: "Edición", done: status?.has_edition ?? false },
+    { label: "Índice", done: status?.has_index ?? false },
     { label: "Segmento", done: status?.has_segments ?? false },
-    { label: "Extraccion", done: status?.has_extractions ?? false },
+    { label: "Extracción", done: status?.has_extractions ?? false },
     { label: "Propuestas", done: status?.has_proposals ?? false },
     { label: "Objetos", done: status?.has_materialized_knowledge ?? false },
-    { label: "Publicacion", done: status?.is_published ?? false },
+    { label: "Publicación", done: status?.is_published ?? false },
   ];
 }
 
@@ -4999,6 +4815,14 @@ function queryRelationPaths(result: KnowledgeQueryResult) {
     card.relation_paths.length
       ? card.relation_paths.map((path) => `${card.name}: ${path}`)
       : [`${card.name}: sin relaciones adicionales`],
+  );
+}
+
+function rankingReasonsForCard(result: KnowledgeQueryResult, cardId: string) {
+  return (
+    result.ranking.find((item) => item.card_id === cardId)?.reasons ??
+    result.retrieved_cards.find((item) => item.card_id === cardId)?.reasons ??
+    []
   );
 }
 

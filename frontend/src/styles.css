@@ -1527,7 +1527,9 @@ textarea + .primaryButton {
 }
 
 .libraryFilterBar .phaseBadge {
+  appearance: none;
   cursor: pointer;
+  font: inherit;
 }
 
 .libraryFilterBar .phaseBadge.active,
