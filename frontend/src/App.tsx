@@ -80,6 +80,9 @@ import {
   simulateLab,
   updatePreferenceStatus,
   updateScore,
+  getAuthStatus,
+  logoutAccount,
+  type AuthStatus,
 } from "./services/api";
 import type {
   AuditEvent,
@@ -135,6 +138,16 @@ import type {
   TextRevisionResult,
   V1Screen,
 } from "./types/api";
+import { AuthScreen } from "./AuthScreen";
+import {
+  classifyKnowledgeCard,
+  libraryAreaLabel,
+  libraryAreaRank,
+  libraryAreas,
+  querySuggestions,
+  type LibraryAreaId,
+} from "./library";
+import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
 
 const tabs = [
   { id: "knowledge", label: "Biblioteca", icon: BookOpen },
@@ -146,7 +159,7 @@ const tabs = [
   { id: "compare", label: "Comparar", icon: GitCompare },
   { id: "rules", label: "Reglas", icon: ShieldCheck },
   { id: "persistence", label: "Guardado", icon: Database },
-  { id: "cerebro", label: "Auditoria", icon: Search },
+  { id: "cerebro", label: "Auditoría", icon: Search },
   { id: "acceptance", label: "Checklist", icon: ClipboardCheck },
   { id: "closure", label: "Cierre", icon: Flag },
   { id: "roadmap", label: "Plan", icon: Route },
@@ -155,6 +168,14 @@ const tabs = [
 ] as const;
 
 const contexts = ["general", "ensayo", "articulo", "tecnico", "publicitario", "narrativa"] as const;
+const contextLabels: Record<(typeof contexts)[number], string> = {
+  general: "general",
+  ensayo: "ensayo",
+  articulo: "artículo",
+  tecnico: "técnico",
+  publicitario: "publicitario",
+  narrativa: "narrativa",
+};
 const editorActions: Array<{ value: GenerationAction; label: string; description: string }> = [
   {
     value: "rewrite",
@@ -164,7 +185,7 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
   {
     value: "correction",
     label: "Corregir",
-    description: "Solo puntuacion, espacios y errores seguros. No reescribe.",
+    description: "Solo puntuación, espacios y errores seguros. No reescribe.",
   },
   {
     value: "sendable",
@@ -174,7 +195,7 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
   {
     value: "continue",
     label: "Continuar texto",
-    description: "Anade un tramo nuevo manteniendo la voz del borrador.",
+    description: "Añade un tramo nuevo manteniendo la voz del borrador.",
   },
   {
     value: "variants",
@@ -185,13 +206,13 @@ const editorActions: Array<{ value: GenerationAction; label: string; description
 const revisionIntentions = [
   {
     value: "claridad",
-    label: "Comprension",
-    description: "Mirada: orden, ambiguedad y facilidad de lectura.",
+    label: "Comprensión",
+    description: "Mirada: orden, ambigüedad y facilidad de lectura.",
   },
   {
     value: "estructura",
     label: "Estructura",
-    description: "Mirada: foco, progresion y cierre.",
+    description: "Mirada: foco, progresión y cierre.",
   },
   {
     value: "tono",
@@ -201,13 +222,13 @@ const revisionIntentions = [
   {
     value: "limpieza",
     label: "Limpieza final",
-    description: "Mirada: puntuacion, repeticiones y remate.",
+    description: "Mirada: puntuación, repeticiones y remate.",
   },
 ];
 const auditEventFilters = [
   { label: "Todo", eventType: "", entityType: "" },
   {
-    label: "Busquedas",
+    label: "Búsquedas",
     eventType: "knowledge.query.executed",
     entityType: "knowledge_version",
   },
@@ -232,25 +253,6 @@ const userKnowledgeCardStances: Array<{ value: ProfileKnowledgeCardStance; label
   { value: "changed", label: "No va por ahi" },
   { value: "dismissed", label: "Descartar" },
 ];
-
-const libraryAreas = [
-  { id: "all", label: "Todo", description: "Todas las fichas publicadas." },
-  { id: "gramatica", label: "Gramatica", description: "Sintaxis, concordancia y estructura de frase." },
-  { id: "ortografia", label: "Ortografia", description: "Tildes, signos, mayusculas y puntuacion." },
-  { id: "lexico", label: "Lexico", description: "Palabra precisa, sinonimia, registro y uso." },
-  { id: "estilo", label: "Estilo", description: "Claridad, ritmo, tono y parrafo." },
-  { id: "retorica", label: "Retorica", description: "Argumentacion, ethos, pathos, logos y discurso." },
-  { id: "narrativa", label: "Narrativa", description: "Escena, voz, personaje, trama y punto de vista." },
-  { id: "revision", label: "Revision", description: "Correccion, reescritura y taller de borrador." },
-] as const;
-
-type LibraryAreaId = (typeof libraryAreas)[number]["id"];
-
-type LibraryClassification = {
-  area: Exclude<LibraryAreaId, "all">;
-  use: string;
-  level: string;
-};
 
 type TabId = (typeof tabs)[number]["id"];
 const systemDefaultTabs: TabId[] = ["persistence"];
@@ -299,7 +301,7 @@ const mainSections: Array<{
   {
     id: "technical",
     label: "Sistema",
-    description: "Guardado, auditoria y controles internos.",
+    description: "Guardado, auditoría y controles internos.",
     icon: ShieldCheck,
     defaultTab: "persistence",
     tabs: ["persistence", "screens", "rules", "closure", "roadmap", "cerebro", "acceptance"],
@@ -307,7 +309,41 @@ const mainSections: Array<{
 ];
 
 export function App() {
-  const [active, setActive] = useState<TabId>("editor");
+  const [auth, setAuth] = useState<AuthStatus | null>(null);
+
+  useEffect(() => {
+    getAuthStatus()
+      .then(setAuth)
+      .catch(() =>
+        setAuth({ auth_required: false, user: null, profile_id: "default" }),
+      );
+  }, []);
+
+  if (!auth) {
+    return (
+      <main className="authShell">
+        <p>Cargando Editados…</p>
+      </main>
+    );
+  }
+
+  if (auth.auth_required && !auth.user) {
+    return <AuthScreen onReady={setAuth} />;
+  }
+
+  return <AppShell auth={auth} onAuthChange={setAuth} />;
+}
+
+function AppShell({
+  auth,
+  onAuthChange,
+}: {
+  auth: AuthStatus;
+  onAuthChange: (status: AuthStatus) => void;
+}) {
+  const [active, setActive] = useState<TabId>(
+    () => defaultTabForPath(window.location.pathname) as TabId,
+  );
   const [activeContext, setActiveContext] = useState("general");
   const [knowledge, setKnowledge] = useState<KnowledgeStatus | null>(null);
   const [knowledgeCards, setKnowledgeCards] = useState<KnowledgeCard[]>([]);
@@ -419,14 +455,14 @@ export function App() {
     Record<string, RevisionFeedbackResult>
   >({});
   const [revisionFeedbackBusyCard, setRevisionFeedbackBusyCard] = useState<string | null>(null);
-  const [labText, setLabText] = useState("Prueba aqui una frase antes de consolidar cambios.");
+  const [labText, setLabText] = useState("Prueba aquí una frase antes de consolidar cambios.");
   const [labAction, setLabAction] = useState<GenerationAction>("rewrite");
   const [labIntensity, setLabIntensity] = useState(500);
   const [labOverrideKey, setLabOverrideKey] = useState("");
   const [labOverrideDelta, setLabOverrideDelta] = useState(0);
   const [labResult, setLabResult] = useState<LabSimulationResult | null>(null);
   const [labComparisonText, setLabComparisonText] = useState(
-    "Prueba aqui una variante para compararla sin guardar.",
+    "Prueba aquí una variante para compararla sin guardar.",
   );
   const [labComparison, setLabComparison] = useState<ComparisonResult | null>(null);
   const [auditEvents, setAuditEvents] = useState<AuditEvent[]>([]);
@@ -437,6 +473,23 @@ export function App() {
   const [savingScoreKey, setSavingScoreKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const showInternalNavigation = new URLSearchParams(window.location.search).get("internal") === "1";
+  const canManageKnowledge = !auth.auth_required || auth.user?.role === "admin";
+
+  useEffect(() => {
+    const onPop = () => setActive(defaultTabForPath(window.location.pathname) as TabId);
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
+
+  useEffect(() => {
+    const section =
+      mainSections.find((item) => item.tabs.includes(active)) ?? mainSections[0];
+    const path = sectionPaths[section.id as keyof typeof sectionPaths];
+    if (path && window.location.pathname !== path) {
+      window.history.replaceState({}, "", path + window.location.search);
+    }
+    document.title = titleForSection(section.label);
+  }, [active]);
   const activeTab = tabs.find((tab) => tab.id === active) ?? tabs[0];
   const activeSection =
     mainSections.find((section) => section.tabs.includes(active)) ?? mainSections[2];
@@ -1051,7 +1104,7 @@ export function App() {
 
   async function handleCreateManualIngestionFlow() {
     if (!manualIngestionSourceIdValue) {
-      setError("No hay fuente disponible para ingestion manual.");
+      setError("No hay fuente disponible para ingestión manual.");
       return;
     }
     setManualIngestionBusy(true);
@@ -1274,7 +1327,7 @@ export function App() {
 
   async function handleCheckPublicationReadiness(version = publicationTargetVersion) {
     if (!version) {
-      setError("Selecciona una version candidata para comprobar publicacion.");
+      setError("Selecciona una versión candidata para comprobar publicación.");
       return null;
     }
     setError(null);
@@ -1314,7 +1367,7 @@ export function App() {
 
   async function handlePublishCandidateVersion() {
     if (!publicationTargetVersion) {
-      setError("Selecciona una version candidata para publicar.");
+      setError("Selecciona una versión candidata para publicar.");
       return;
     }
     setPublicationBusy(true);
@@ -1753,6 +1806,19 @@ export function App() {
         user_score: stance === "me_sirve" || stance === "mantiene_esto" ? 780 : 420,
       });
       setRevisionFeedbackByCard((previous) => ({ ...previous, [cardId]: result }));
+      if (stance === "me_sirve" || stance === "no_me_sirve") {
+        const learned = await createPreference(feedback, activeContext);
+        const saved =
+          stance === "me_sirve"
+            ? await updatePreferenceStatus(learned.id, "accepted")
+            : await updatePreferenceStatus(learned.id, "rejected");
+        setPreferences((current) => [saved, ...current.filter((item) => item.id !== saved.id)]);
+        setEditorOutcomeNotice(
+          stance === "me_sirve"
+            ? "Este criterio queda en Gustos y se aplica a tu perfil."
+            : "Queda anotado en Gustos que esto no te sirve.",
+        );
+      }
       if (
         stance === "me_sirve" &&
         result.score_proposal.status === "pending_review" &&
@@ -1840,30 +1906,56 @@ export function App() {
 
   return (
     <main className="appShell">
-      <header className="sidebar" aria-label="Navegacion principal">
+      <a className="skip" href="#contenido">
+        Saltar al contenido
+      </a>
+      <header className="sidebar" aria-label="Navegación principal">
         <div className="brand">
-          <img className="brandLogo" src="/editados-logo.png" alt="Editados" />
+          <a className="brandLink" href="/escribir" onClick={(event) => {
+            event.preventDefault();
+            window.history.pushState({}, "", "/escribir" + window.location.search);
+            setActive("editor");
+          }}>
+            <img className="brandLogo" src="/editados-logo.svg" alt="Editados" />
+          </a>
         </div>
         <nav>
           {visibleMainSections.map((section) => {
             const Icon = section.icon;
+            const href = sectionPaths[section.id as keyof typeof sectionPaths];
             return (
-              <button
+              <a
                 className={activeSection.id === section.id ? "tab active" : "tab"}
+                href={href}
                 key={section.id}
-                onClick={() => setActive(section.defaultTab)}
-                type="button"
+                onClick={(event) => {
+                  event.preventDefault();
+                  window.history.pushState({}, "", href + window.location.search);
+                  setActive(section.defaultTab);
+                }}
                 title={section.description}
               >
                 <Icon size={20} />
                 <span>{section.label}</span>
-              </button>
+              </a>
             );
           })}
         </nav>
+        {auth.user ? (
+          <button
+            className="textButton logoutButton"
+            onClick={async () => {
+              await logoutAccount();
+              onAuthChange({ auth_required: true, user: null, profile_id: "default" });
+            }}
+            type="button"
+          >
+            Salir
+          </button>
+        ) : null}
       </header>
 
-      <section className="workspace">
+      <section className="workspace" id="contenido">
         <header className="topbar">
           <div>
             <h1>{activeSection.label}</h1>
@@ -1881,7 +1973,7 @@ export function App() {
             >
               {contexts.map((context) => (
                 <option key={context} value={context}>
-                  {context}
+                  {contextLabels[context]}
                 </option>
               ))}
             </select>
@@ -2031,7 +2123,7 @@ export function App() {
                   <div>
                     <h3>Ficha editorial</h3>
                     <p className="note">
-                      Una ficha es una ayuda de escritura: resume una idea util y conserva sus
+                      Una ficha es una ayuda de escritura: resume una idea útil y conserva sus
                       apoyos sin mezclarla con tus gustos personales.
                     </p>
                   </div>
@@ -2060,12 +2152,12 @@ export function App() {
                       value={classifyKnowledgeCard(selectedKnowledgeCard).level}
                     />
                     <Metric
-                      label="Revision"
+                      label="Revisión"
                       value={validationLabel(selectedKnowledgeCard.confidence)}
                     />
                   </div>
                   <List title="Cuando usarla" items={payloadList(selectedKnowledgeCard.payload.contexts)} />
-                  <List title="Senales para detectarla" items={payloadList(selectedKnowledgeCard.payload.signals)} />
+                  <List title="Señales para detectarla" items={payloadList(selectedKnowledgeCard.payload.signals)} />
                   <List title="Cuidado con" items={payloadList(selectedKnowledgeCard.payload.risks)} />
                   <List
                     title="Fuentes"
@@ -2076,11 +2168,11 @@ export function App() {
                     }
                   />
                   <details className="queryTraceBox">
-                    <summary>Ver trazabilidad tecnica</summary>
+                    <summary>Ver trazabilidad técnica</summary>
                     <div className="metricGrid">
                       <Metric label="ID" value={selectedKnowledgeCard.id} />
                       <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
-                      <Metric label="Version" value={selectedKnowledgeCard.version} />
+                      <Metric label="Versión" value={selectedKnowledgeCard.version} />
                       <Metric label="Ideas" value={selectedKnowledgeCardClaims.length} />
                     </div>
                     <List
@@ -2134,9 +2226,10 @@ export function App() {
                     ))}
                   </div>
                   <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
-                    Cuanto te sirve
+                    Cuánto te sirve
                   </label>
                   <input
+                    aria-label="Cuánto te sirve esta ficha"
                     id="profileKnowledgeCardScore"
                     max="1000"
                     min="0"
@@ -2283,7 +2376,7 @@ export function App() {
                   </div>
                 </>
               ) : (
-                <p className="note">Cargando revision de la base.</p>
+                <p className="note">Cargando revisión de la base.</p>
               )}
             </div>
             <div className="buttonRow">
@@ -2292,7 +2385,7 @@ export function App() {
                 onClick={() => setShowKnowledgeTechnical((current) => !current)}
                 type="button"
               >
-                {showKnowledgeTechnical ? "Ocultar modo tecnico" : "Ver modo tecnico"}
+                {showKnowledgeTechnical ? "Ocultar modo técnico" : "Ver modo técnico"}
               </button>
             </div>
             {showKnowledgeTechnical ? (
@@ -2300,8 +2393,8 @@ export function App() {
             <div className="proposalBox">
               <h3>Versiones de la base</h3>
               <p className="note">
-                Detalle tecnico de versiones: se muestra aqui para trazabilidad y recuperacion
-                historica, no como recorrido normal de lectura.
+                Detalle técnico de versiones: se muestra aquí para trazabilidad y recuperación
+                histórica, no como recorrido normal de lectura.
               </p>
               <div className="versionList">
                 {orderedKnowledgeVersions.map((version, index) => {
@@ -2473,15 +2566,30 @@ export function App() {
                 ))}
               </div>
             </div>
+            {canManageKnowledge ? (
+            <>
             <div className="proposalBox">
-              <h3>Crear lote de ingestion</h3>
+              <h3>Ritmo de publicación</h3>
               <p className="note">
-                Crea el recorrido interno fuente-edicion-indice-segmento-extraccion-propuestas.
+                1) elige fuente, 2) crea lote, 3) congela candidato, 4) publica solo si pasa los
+                controles.
+              </p>
+              <div className="pipelineTrace" aria-label="Ritmo de publicación">
+                <span className="pipelineStep">1. Fuente</span>
+                <span className="pipelineStep">2. Lote</span>
+                <span className="pipelineStep">3. Candidato</span>
+                <span className="pipelineStep">4. Publicar</span>
+              </div>
+            </div>
+            <div className="proposalBox">
+              <h3>Crear lote de ingestión</h3>
+              <p className="note">
+                Crea el recorrido interno fuente-edición-índice-segmento-extracción-propuestas.
                 Solo un candidato real permite aprobar propuestas; publicar sigue separado.
               </p>
               <div className="rowActions">
                 <select
-                  aria-label="Fuente para ingestion manual"
+                  aria-label="Fuente para ingestión manual"
                   onChange={(event) => setManualIngestionSourceId(event.target.value)}
                   value={manualIngestionSourceId || manualIngestionSourceIdValue}
                 >
@@ -2532,16 +2640,16 @@ export function App() {
               </div>
               <div className="pipelineTrace">
                 <span className={manualIngestionEdition ? "pipelineStep done" : "pipelineStep"}>
-                  Edicion
+                  Edición
                 </span>
                 <span className={manualIngestionIndexEntry ? "pipelineStep done" : "pipelineStep"}>
-                  Indice
+                  Índice
                 </span>
                 <span className={manualIngestionSegment ? "pipelineStep done" : "pipelineStep"}>
                   Segmento
                 </span>
                 <span className={manualIngestionExtraction ? "pipelineStep done" : "pipelineStep"}>
-                  Extraccion
+                  Extracción
                 </span>
                 <span className={manualIngestionProposals.length ? "pipelineStep done" : "pipelineStep"}>
                   Propuestas
@@ -2549,9 +2657,9 @@ export function App() {
               </div>
               {manualIngestionExtraction ? (
                 <div className="metricGrid">
-                  <Metric label="Edicion" value={manualIngestionEdition?.id ?? "Pendiente"} />
+                  <Metric label="Edición" value={manualIngestionEdition?.id ?? "Pendiente"} />
                   <Metric label="Segmento" value={manualIngestionSegment?.id ?? "Pendiente"} />
-                  <Metric label="Extraccion" value={manualIngestionExtraction.status} />
+                  <Metric label="Extracción" value={manualIngestionExtraction.status} />
                   <Metric label="Propuestas" value={manualIngestionProposals.length} />
                   <Metric label="Destino" value={manualProposalTargetVersion} />
                 </div>
@@ -2588,7 +2696,7 @@ export function App() {
                       {!canApproveProposal(proposal, knowledgeVersions) &&
                       proposal.status === "proposed" ? (
                         <p className="note">
-                          Aprobar requiere una version candidata real; rechazar no modifica la base
+                          Aprobar requiere una versión candidata real; rechazar no modifica la base
                           publicada.
                         </p>
                       ) : null}
@@ -2598,10 +2706,10 @@ export function App() {
               ) : null}
             </div>
             <div className="proposalBox">
-              <h3>Publicacion de la base</h3>
+              <h3>Publicación de la base</h3>
               <p className="note">
-                Crear candidato congela una version revisable. Publicar solo activa una version si
-                la revision pasa todos los controles.
+                Crear candidato congela una versión revisable. Publicar solo activa una versión si
+                la revisión pasa todos los controles.
               </p>
               <div className="rowActions">
                 <input
@@ -2611,7 +2719,7 @@ export function App() {
                   value={candidateVersionId}
                 />
                 <select
-                  aria-label="Version base del candidato"
+                  aria-label="Versión base del candidato"
                   onChange={(event) => setCandidateBaseVersion(event.target.value)}
                   value={candidateBaseVersion}
                 >
@@ -2671,7 +2779,7 @@ export function App() {
                   onClick={() => void handleCheckPublicationReadiness()}
                   title={
                     !publicationTargetVersion
-                      ? "Selecciona una version candidata para revisar."
+                      ? "Selecciona una versión candidata para revisar."
                       : undefined
                   }
                   type="button"
@@ -2716,6 +2824,8 @@ export function App() {
                 </>
               ) : null}
             </div>
+            </>
+            ) : null}
             <div className="knowledgeGrid">
               {knowledgeSources.map((source) => (
                 <article className="knowledgeItem" key={source.id}>
@@ -2809,15 +2919,30 @@ export function App() {
             ) : null}
             <div className="proposalBox">
               <h3>Consultar la base</h3>
-              <p className="note">Busca una idea en la base publicada.</p>
+              <p className="note">Busca una idea en la base publicada. No sale a internet.</p>
+              <div className="libraryFilterBar" aria-label="Materias sugeridas">
+                {querySuggestions.map((suggestion) => (
+                  <button
+                    className={
+                      knowledgeQuery === suggestion.query ? "phaseBadge active" : "phaseBadge"
+                    }
+                    key={suggestion.id}
+                    onClick={() => setKnowledgeQuery(suggestion.query)}
+                    type="button"
+                  >
+                    {suggestion.label}
+                  </button>
+                ))}
+              </div>
               <div className="rowActions">
                 <input
+                  aria-label="Consulta en la biblioteca"
                   className="textInput"
                   onChange={(event) => setKnowledgeQuery(event.target.value)}
                   value={knowledgeQuery}
                 />
                 <select
-                  aria-label="Limite de resultados"
+                  aria-label="Límite de resultados"
                   onChange={(event) => setKnowledgeQueryLimit(Number.parseInt(event.target.value, 10))}
                   value={knowledgeQueryLimit}
                 >
@@ -2854,7 +2979,7 @@ export function App() {
                     />
                   </div>
                   <details className="queryTraceBox">
-                    <summary>Ver detalle tecnico</summary>
+                    <summary>Ver detalle técnico</summary>
                     <div className="metricGrid">
                       <Metric label="Base recuperada" value={knowledgeResult.resolved_version} />
                       <Metric label="Fuentes" value={knowledgeResult.sources.length} />
@@ -2887,12 +3012,16 @@ export function App() {
                         const cardEvidence = knowledgeResult.evidence.filter((item) =>
                           cardEvidenceIds.has(item.id),
                         );
+                        const rankingReasons = rankingReasonsForCard(knowledgeResult, card.id);
 
                         return (
                           <article className="knowledgeItem" key={card.id}>
                             <strong>{card.name}</strong>
                             <span>{card.definition}</span>
                             <ValidationPill confidence={card.confidence} />
+                            {rankingReasons.length ? (
+                              <List title="Por qué sale" items={rankingReasons} />
+                            ) : null}
                             <List
                               title="Ideas que usa"
                               items={cardClaims.map(
@@ -2922,9 +3051,9 @@ export function App() {
                     </div>
                   ) : (
                     <article className="knowledgeItem">
-                      <strong>No hay ficha para esa busqueda</strong>
+                      <strong>No hay ficha para esa búsqueda</strong>
                       <span>
-                        Prueba con otra palabra, una materia mas amplia o revisa las estanterias.
+                        Prueba con otra palabra, una materia más amplia o revisa las estanterías.
                       </span>
                     </article>
                   )}
@@ -2932,7 +3061,7 @@ export function App() {
               ) : null}
             </div>
             <List title="Materias cubiertas" items={knowledge?.coverage ?? []} />
-            <List title="Limites actuales" items={knowledge?.gaps ?? []} />
+            <List title="Límites actuales" items={knowledge?.gaps ?? []} />
           </section>
         )}
 
@@ -3123,7 +3252,7 @@ export function App() {
                   aria-label="Borrador"
                   id="editorDraft"
                   onChange={(event) => handleEditorTextChange(event.target.value)}
-                  placeholder="Pega o escribe aqui el texto que quieres trabajar."
+                  placeholder="Pega o escribe aquí el texto que quieres trabajar."
                   readOnly={editorGenerating}
                   value={editorText}
                 />
@@ -3145,8 +3274,12 @@ export function App() {
                   <span className="controlHint">{selectedEditorAction.description}</span>
                 </label>
                 <label className="editorControl intensityControl">
-                  <span className="controlLabel">Intensidad: {editorIntensity}</span>
+                  <span className="controlLabel">Intensidad: {editorIntensity} de 1000</span>
                   <input
+                    aria-label="Intensidad de edición"
+                    aria-valuemax={1000}
+                    aria-valuemin={0}
+                    aria-valuenow={editorIntensity}
                     max={1000}
                     min={0}
                     onChange={(event) => setEditorIntensity(Number.parseInt(event.target.value, 10))}
@@ -3158,7 +3291,7 @@ export function App() {
                 <label className="editorControl revisionControl">
                   <span className="controlLabel">Mirada</span>
                   <select
-                    aria-label="Mirada de revision"
+                    aria-label="Mirada de revisión"
                     onChange={(event) => handleRevisionIntentionChange(event.target.value)}
                     value={revisionIntention}
                   >
@@ -3171,19 +3304,19 @@ export function App() {
                   <span className="controlHint">{selectedRevisionIntention.description}</span>
                 </label>
                 <label className="editorControl instructionControl" htmlFor="userInstruction">
-                  <span className="controlLabel">Direccion</span>
+                  <span className="controlLabel">Dirección</span>
                   <input
                     className="textInput"
                     id="userInstruction"
                     maxLength={500}
                     onChange={(event) => setUserInstruction(event.target.value)}
-                    placeholder="Mas tecnico, mas formal, menos formal, formato correo..."
+                    placeholder="Más técnico, más formal, menos formal, formato correo..."
                     value={userInstruction}
                   />
                   <span className="controlHint">Orienta sentido, tono o estilo solo para esta propuesta.</span>
                 </label>
                 <label className="editorControl termsControl" htmlFor="protectedTerms">
-                  <span className="controlLabel">Terminos protegidos</span>
+                  <span className="controlLabel">Términos protegidos</span>
                   <input
                     className="textInput"
                     id="protectedTerms"
@@ -3196,7 +3329,7 @@ export function App() {
               {editorGenerating ? (
                 <div className="workingNotice" aria-live="polite">
                   <strong>Trabajando con OpenAI</strong>
-                  <span>Espera un momento. Los controles quedan bloqueados para no repetir la peticion.</span>
+                  <span>Espera un momento. Los controles quedan bloqueados para no repetir la petición.</span>
                 </div>
               ) : null}
               <div className="buttonRow">
@@ -3385,7 +3518,7 @@ export function App() {
                       }
                     />
                     <Metric label="Palabras" value={textRevision.word_count} />
-                    <Metric label="Parrafos" value={textRevision.paragraph_count} />
+                    <Metric label="Párrafos" value={textRevision.paragraph_count} />
                     <Metric label="Frases" value={textRevision.sentence_count} />
                   </div>
                   {decidedRevisionCount > 0 ? (
@@ -3419,19 +3552,19 @@ export function App() {
                       </p>
                       <div className="revisionStepGrid">
                         <div>
-                          <span className="revisionLabel">Por que aplica</span>
+                          <span className="revisionLabel">Por qué aplica</span>
                           <p>{currentRevisionStep.finding}</p>
                         </div>
                         <div>
-                          <span className="revisionLabel">Que haria</span>
+                          <span className="revisionLabel">Qué haría</span>
                           <p>{currentRevisionStep.action}</p>
                         </div>
                         <div>
-                          <span className="revisionLabel">Como probarlo</span>
+                          <span className="revisionLabel">Cómo probarlo</span>
                           <p>{revisionStepApplication(currentRevisionStep.card_id)}</p>
                         </div>
                       </div>
-                      <List title="Senales miradas" items={currentRevisionStep.signals.slice(0, 3)} />
+                      <List title="Señales miradas" items={currentRevisionStep.signals.slice(0, 3)} />
                       <List title="Cuidado con" items={currentRevisionStep.risks.slice(0, 2)} />
                       <div className="buttonRow compactRow" aria-label={`Decision sobre ${currentRevisionStep.label}`}>
                         <button
@@ -3762,7 +3895,7 @@ export function App() {
               <textarea
                 id="compareOriginal"
                 onChange={(event) => setOriginal(event.target.value)}
-                placeholder="Pega aqui el texto original."
+                placeholder="Pega aquí el texto original."
                 value={original}
               />
               <label className="fieldLabel" htmlFor="compareRevised">
@@ -3771,7 +3904,7 @@ export function App() {
               <textarea
                 id="compareRevised"
                 onChange={(event) => setRevised(event.target.value)}
-                placeholder="Pega aqui la version que quieres comparar."
+                placeholder="Pega aquí la versión que quieres comparar."
                 value={revised}
               />
               <button className="primaryButton" onClick={handleCompare} type="button">
@@ -4118,12 +4251,12 @@ export function App() {
         {active === "audit" && (
           <section className="panel">
             <div className="auditSection">
-              <h2>Ultimas consultas</h2>
+              <h2>Últimas consultas</h2>
               <p className="note">
-                Lo ultimo que has buscado en la biblioteca.
+                Lo último que has buscado en la biblioteca.
               </p>
               {knowledgeQueryHistory.length === 0 ? (
-                <p className="note">Todavia no hay busquedas registradas.</p>
+                <p className="note">Todavía no hay búsquedas registradas.</p>
               ) : (
                 <div className="auditList">
                   {displayedKnowledgeQueryHistory.map((item) => (
@@ -4133,7 +4266,7 @@ export function App() {
                         <span>
                           {item.has_results
                             ? `${item.card_count} ficha${item.card_count === 1 ? "" : "s"} encontrada${item.card_count === 1 ? "" : "s"}`
-                            : "No hubo ficha util para esa busqueda."}
+                            : "No hubo ficha útil para esa búsqueda."}
                         </span>
                       </div>
                       <time>{formatDate(item.created_at)}</time>
@@ -4172,7 +4305,7 @@ export function App() {
                             <dd>{item.has_results ? "con resultado" : "sin resultado"}</dd>
                           </div>
                           <div>
-                            <dt>Limite</dt>
+                            <dt>Límite</dt>
                             <dd>{item.limit}</dd>
                           </div>
                           <div>
@@ -4187,7 +4320,7 @@ export function App() {
                             </dd>
                           </div>
                           <div>
-                            <dt>Validacion</dt>
+                            <dt>Validación</dt>
                             <dd>{item.pending_validation_count} pendientes</dd>
                           </div>
                         </dl>
@@ -4251,7 +4384,7 @@ export function App() {
                       </div>
                       <time>{formatDate(event.created_at)}</time>
                       <details className="queryTraceBox">
-                        <summary>Detalle tecnico</summary>
+                        <summary>Detalle técnico</summary>
                         <KnowledgeAuditTrace event={event} />
                         <pre>{event.event_type}</pre>
                         <pre>{JSON.stringify(event.payload, null, 2)}</pre>
@@ -4323,16 +4456,16 @@ function auditEntityPublicLabel(entityType: string) {
 function auditHumanSummary(event: AuditEvent) {
   const payload = event.payload ?? {};
   if (event.event_type === "text.generated") {
-    return `Se trabajo un texto con la accion ${stringPayloadValue(payload.action, "generar")} en contexto ${stringPayloadValue(payload.context, "general")}.`;
+    return `Se trabajó un texto con la acción ${stringPayloadValue(payload.action, "generar")} en contexto ${stringPayloadValue(payload.context, "general")}.`;
   }
   if (event.event_type === "text.revision.executed") {
-    return `Se reviso un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} usando la biblioteca publicada.`;
+    return `Se revisó un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} usando la biblioteca publicada.`;
   }
   if (event.event_type === "text.revision.feedback_recorded") {
-    return `Se guardo tu decision sobre una ficha de revision: ${stringPayloadValue(payload.stance, "feedback")}.`;
+    return `Se guardó tu decisión sobre una ficha de revisión: ${stringPayloadValue(payload.stance, "feedback")}.`;
   }
   if (event.event_type === "profile.knowledge_card.updated") {
-    return "Se actualizo tu criterio personal sobre una ficha.";
+    return "Se actualizó tu criterio personal sobre una ficha.";
   }
   if (event.event_type === "score.updated") {
     return `Se ajusto un peso del perfil en ${stringPayloadValue(payload.context, "general")}.`;
@@ -4465,7 +4598,7 @@ function revisionStepApplication(cardId: string) {
     "card-revision-de-parrafo":
       "Revisa cada parrafo como una unidad: una idea, un apoyo y una transicion visible.",
     "card-revision-de-frase":
-      "Elige una frase larga, acerca sujeto y verbo, recorta incisos y deja una accion clara.",
+      "Elige una frase larga, acerca sujeto y verbo, recorta incisos y deja una acción clara.",
     "card-revision-de-tono":
       "Compara inicio y final: ajusta distancia, registro y ritmo para que parezcan del mismo texto.",
     "card-limpieza-final":
@@ -4586,21 +4719,21 @@ const INGESTION_PHASE_LABELS: Record<string, string> = {
   validated: "validada",
   reviewed: "revisada",
   proposed: "propuesta",
-  extracted: "extraida",
+  extracted: "extraída",
   segmented: "segmentada",
   indexed: "indexada",
-  edition_registered: "con edicion",
+  edition_registered: "con edición",
   registered: "registrada",
 };
 
 const INGESTION_BLOCKER_LABELS: Record<string, string> = {
-  missing_edition: "sin edicion",
-  missing_index: "sin indice",
+  missing_edition: "sin edición",
+  missing_index: "sin índice",
   missing_segments: "sin segmentos",
-  missing_completed_extraction: "sin extraccion",
+  missing_completed_extraction: "sin extracción",
   missing_proposals: "sin propuestas",
   missing_materialized_knowledge: "sin conocimiento",
-  missing_publication: "sin publicacion",
+  missing_publication: "sin publicación",
 };
 
 function ingestionPhaseLabel(phase: string) {
@@ -4609,211 +4742,6 @@ function ingestionPhaseLabel(phase: string) {
 
 function ingestionBlockerLabel(blocker: string) {
   return INGESTION_BLOCKER_LABELS[blocker] ?? blocker;
-}
-
-function classifyKnowledgeCard(card: KnowledgeCard): LibraryClassification {
-  const text = normalizeLibraryText(`${card.name} ${card.definition} ${card.card_type}`);
-  const payloadText = normalizeLibraryText(JSON.stringify(card.payload ?? {}));
-  const searchableText = `${text} ${payloadText}`;
-
-  let area: LibraryClassification["area"] = "estilo";
-  if (
-    containsAny(searchableText, [
-      "coma",
-      "punto",
-      "tilde",
-      "acentuacion",
-      "mayuscula",
-      "comillas",
-      "raya",
-      "cursiva",
-      "sigla",
-      "abreviatura",
-      "versalita",
-      "ortografia",
-      "puntuacion",
-    ])
-  ) {
-    area = "ortografia";
-  } else if (
-    containsAny(searchableText, [
-      "complemento",
-      "subordinada",
-      "sujeto",
-      "predicado",
-      "atributo",
-      "concordancia",
-      "dequeismo",
-      "queismo",
-      "gramatica",
-      "sintaxis",
-      "lengua",
-      "habla",
-      "competencia linguistica",
-    ])
-  ) {
-    area = "gramatica";
-  } else if (
-    containsAny(searchableText, [
-      "sinon",
-      "anton",
-      "lexic",
-      "palabra",
-      "registro",
-      "campo semantico",
-      "familia lexica",
-      "colocacion",
-      "extranjerismo",
-      "corpus",
-      "terminologia",
-      "significante",
-      "significado",
-    ])
-  ) {
-    area = "lexico";
-  } else if (
-    containsAny(searchableText, [
-      "retorica",
-      "ethos",
-      "pathos",
-      "logos",
-      "inventio",
-      "dispositio",
-      "elocutio",
-      "actio",
-      "memoria",
-      "entimema",
-      "auditorio",
-      "argument",
-    ])
-  ) {
-    area = "retorica";
-  } else if (
-    containsAny(searchableText, [
-      "narr",
-      "escena",
-      "personaje",
-      "trama",
-      "analepsis",
-      "prolepsis",
-      "focalizacion",
-      "mimesis",
-      "mythos",
-      "punto de vista",
-      "voz narrativa",
-      "dialogo",
-      "subtexto",
-      "tension",
-      "conflicto",
-      "arco",
-      "revelacion",
-      "promesa",
-    ])
-  ) {
-    area = "narrativa";
-  } else if (
-    containsAny(searchableText, [
-      "revision",
-      "reescritura",
-      "correccion",
-      "borrador",
-      "taller",
-      "cierre",
-      "entrada y salida",
-    ])
-  ) {
-    area = "revision";
-  }
-
-  return {
-    area,
-    use: classifyLibraryUse(searchableText, area),
-    level: classifyLibraryLevel(searchableText, area),
-  };
-}
-
-function classifyLibraryUse(text: string, area: LibraryClassification["area"]) {
-  if (containsAny(text, ["correccion", "coma", "tilde", "concordancia", "dequeismo", "queismo"])) {
-    return "corregir";
-  }
-  if (containsAny(text, ["sinon", "anton", "palabra", "lexic", "matiz", "precision"])) {
-    return "precisar";
-  }
-  if (containsAny(text, ["escena", "personaje", "trama", "narr", "dialogo"])) {
-    return "narrar";
-  }
-  if (containsAny(text, ["retorica", "argument", "ethos", "pathos", "logos"])) {
-    return "argumentar";
-  }
-  if (containsAny(text, ["revision", "reescritura", "borrador", "correccion de estilo"])) {
-    return "revisar";
-  }
-  if (area === "ortografia" || area === "gramatica") {
-    return "corregir";
-  }
-  return "aclarar";
-}
-
-function classifyLibraryLevel(text: string, area: LibraryClassification["area"]) {
-  if (
-    containsAny(text, [
-      "generativa",
-      "narratologia",
-      "ortotipografia",
-      "retorica",
-      "formalismo",
-      "estructuralismo",
-      "diacronia",
-      "sincronia",
-    ])
-  ) {
-    return "avanzado";
-  }
-  if (
-    containsAny(text, [
-      "escena",
-      "revision",
-      "reescritura",
-      "voz del autor",
-      "no ficcion",
-      "taller",
-    ])
-  ) {
-    return "taller";
-  }
-  if (
-    containsAny(text, [
-      "coma",
-      "sujeto",
-      "predicado",
-      "complemento",
-      "tilde",
-      "mayuscula",
-      "claridad",
-    ])
-  ) {
-    return "basico";
-  }
-  return area === "retorica" || area === "narrativa" ? "avanzado" : "medio";
-}
-
-function libraryAreaRank(area: LibraryAreaId) {
-  return libraryAreas.findIndex((item) => item.id === area);
-}
-
-function libraryAreaLabel(area: LibraryClassification["area"]) {
-  return libraryAreas.find((item) => item.id === area)?.label ?? area;
-}
-
-function normalizeLibraryText(value: string) {
-  return value
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .toLowerCase();
-}
-
-function containsAny(value: string, needles: string[]) {
-  return needles.some((needle) => value.includes(needle));
 }
 
 function knowledgeVersionRank(versionId: string) {
@@ -4833,16 +4761,16 @@ function knowledgeVersionPublicLabel(versionId: string, latestVersionId: string)
     return "Base inicial congelada";
   }
   if (rank !== Number.MAX_SAFE_INTEGER) {
-    return `Base historica ${rank}`;
+    return `Base histórica ${rank}`;
   }
-  return "Base historica";
+  return "Base histórica";
 }
 
 function knowledgeStatePublicLabel(state?: string) {
   const labels: Record<string, string> = {
     published: "Lista",
     validated: "Revisada",
-    candidate: "En revision",
+    candidate: "En revisión",
     draft: "Borrador",
     seed: "Inicial",
     deprecated: "Retirada",
@@ -4872,13 +4800,13 @@ function versionDeltaLabel(label: string, delta: number) {
 function pipelineSteps(status?: KnowledgeSourceIngestionStatus) {
   return [
     { label: "Fuente", done: status?.is_registered ?? false },
-    { label: "Edicion", done: status?.has_edition ?? false },
-    { label: "Indice", done: status?.has_index ?? false },
+    { label: "Edición", done: status?.has_edition ?? false },
+    { label: "Índice", done: status?.has_index ?? false },
     { label: "Segmento", done: status?.has_segments ?? false },
-    { label: "Extraccion", done: status?.has_extractions ?? false },
+    { label: "Extracción", done: status?.has_extractions ?? false },
     { label: "Propuestas", done: status?.has_proposals ?? false },
     { label: "Objetos", done: status?.has_materialized_knowledge ?? false },
-    { label: "Publicacion", done: status?.is_published ?? false },
+    { label: "Publicación", done: status?.is_published ?? false },
   ];
 }
 
@@ -4887,6 +4815,14 @@ function queryRelationPaths(result: KnowledgeQueryResult) {
     card.relation_paths.length
       ? card.relation_paths.map((path) => `${card.name}: ${path}`)
       : [`${card.name}: sin relaciones adicionales`],
+  );
+}
+
+function rankingReasonsForCard(result: KnowledgeQueryResult, cardId: string) {
+  return (
+    result.ranking.find((item) => item.card_id === cardId)?.reasons ??
+    result.retrieved_cards.find((item) => item.card_id === cardId)?.reasons ??
+    []
   );
 }
 

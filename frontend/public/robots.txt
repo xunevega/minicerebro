@@ -1,0 +1,5 @@
+User-agent: *
+Disallow: /criterio
+Disallow: /historial
+Allow: /
+Sitemap: https://frontend-production-834c.up.railway.app/sitemap.xml

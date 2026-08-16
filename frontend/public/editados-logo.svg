@@ -1,0 +1,5 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 64" role="img" aria-label="Editados">
+  <text x="0" y="48" font-family="Georgia, serif" font-size="44">editados</text>
+  <path d="M118 10l8 6-8 6" fill="none" stroke="#c80000" stroke-width="3"/>
+  <path d="M118 54l8-6-8-6" fill="none" stroke="#c80000" stroke-width="3"/>
+</svg>

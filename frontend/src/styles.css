@@ -154,6 +154,73 @@ nav {
   justify-content: flex-end;
 }
 
+.skip {
+  background: var(--ink);
+  color: var(--paper);
+  left: 12px;
+  padding: 8px 12px;
+  position: absolute;
+  top: -40px;
+  z-index: 40;
+}
+
+.skip:focus {
+  top: 12px;
+}
+
+a.tab {
+  text-decoration: none;
+}
+
+.brandLink {
+  color: inherit;
+  display: inline-flex;
+}
+
+.logoutButton {
+  justify-self: end;
+}
+
+.authShell {
+  align-items: center;
+  display: grid;
+  min-height: 100vh;
+  padding: 48px 24px;
+}
+
+.authCard {
+  margin: 0 auto;
+  max-width: 28rem;
+}
+
+.brandWord {
+  font-family: "Libre Caslon Display", Georgia, serif;
+  font-size: 2rem;
+  margin: 0 0 12px;
+}
+
+.authForm {
+  display: grid;
+  gap: 14px;
+  margin: 24px 0 12px;
+}
+
+.authForm label {
+  display: grid;
+  gap: 6px;
+  font-size: 0.95rem;
+}
+
+.textButton {
+  background: transparent;
+  border: 0;
+  color: var(--muted);
+  cursor: pointer;
+  padding: 0;
+  text-decoration: underline;
+  text-underline-offset: 0.18em;
+}
+
 .tab {
   align-items: center;
   background: transparent;
@@ -1460,7 +1527,9 @@ textarea + .primaryButton {
 }
 
 .libraryFilterBar .phaseBadge {
+  appearance: none;
   cursor: pointer;
+  font: inherit;
 }
 
 .libraryFilterBar .phaseBadge.active,

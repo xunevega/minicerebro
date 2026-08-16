@@ -6,12 +6,20 @@ from uuid import UUID
 
 from fastapi import APIRouter, Depends, HTTPException, Request
 
+from app.acceptance.service import v1_acceptance_criteria
+from app.api.deps import get_actor, get_repository, resolve_profile_id
+from app.cerebro_audit.service import cerebro_audit_candidates, cerebro_audit_gates
+from app.closure.service import (
+    closure_conditions,
+    contract_boundaries,
+    expected_answer_lines,
+    technical_closure_criteria,
+)
 from app.comparison.service import compare_texts
-from app.core.repository import Repository
 from app.core.models import (
-    ApplyScoreProposalInput,
-    ApplyProfileKnowledgeCardScoreInput,
     AcceptanceCriterion,
+    ApplyProfileKnowledgeCardScoreInput,
+    ApplyScoreProposalInput,
     CerebroAuditCandidate,
     CerebroAuditGate,
     ClosureCondition,
@@ -21,34 +29,36 @@ from app.core.models import (
     DecisionEvaluation,
     DecisionEvaluationInput,
     DecisionRule,
+    EditorialProfileCard,
+    ExpectedAnswerLine,
     FeedbackDecisionInput,
     FeedbackProposalInput,
     GeneratedText,
     GenerationInput,
-    KnowledgeCard,
     KnowledgeCandidateVersionCreate,
+    KnowledgeCard,
     KnowledgeClaim,
     KnowledgeEvidenceItem,
     KnowledgeExtractionRun,
     KnowledgeExtractionRunCreate,
     KnowledgeGymReport,
+    KnowledgeIndexEntry,
+    KnowledgeIndexEntryCreate,
     KnowledgeIngestionBatch,
     KnowledgeIngestionBatchExport,
     KnowledgeIngestionPolicy,
     KnowledgeIngestionReadiness,
-    KnowledgeIndexEntry,
-    KnowledgeIndexEntryCreate,
     KnowledgeNode,
     KnowledgeObjectRevision,
-    KnowledgePublicationPolicy,
-    KnowledgePublicationCreate,
-    KnowledgePublicationReadiness,
     KnowledgeProposal,
     KnowledgeProposalCreate,
     KnowledgeProposalDecision,
+    KnowledgePublicationCreate,
+    KnowledgePublicationPolicy,
+    KnowledgePublicationReadiness,
     KnowledgeQueryContract,
-    KnowledgeQueryInput,
     KnowledgeQueryHistoryItem,
+    KnowledgeQueryInput,
     KnowledgeQueryInterpretation,
     KnowledgeQueryResult,
     KnowledgeQuerySummary,
@@ -63,37 +73,33 @@ from app.core.models import (
     KnowledgeStatus,
     KnowledgeVersion,
     KnowledgeVersioningPolicy,
-    EditorialProfileCard,
+    LabSimulationInput,
+    LabSimulationResult,
+    ObservabilityMetric,
+    PersistenceDomain,
+    PreferenceInput,
+    PreferencePatch,
     ProfileExport,
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
     ProfileKnowledgeCardScoreProposal,
     RevisionFeedbackInput,
     RevisionFeedbackResult,
-    LabSimulationInput,
-    LabSimulationResult,
-    ObservabilityMetric,
-    PreferenceInput,
-    PreferencePatch,
-    PersistenceDomain,
     ScorePatch,
-    ExpectedAnswerLine,
     TechnicalClosureCriterion,
     TechnicalRoadmapPhase,
     TextRevisionInput,
     TextRevisionResult,
     V1Screen,
 )
-from app.api.deps import get_repository
-from app.acceptance.service import v1_acceptance_criteria
-from app.cerebro_audit.service import cerebro_audit_candidates, cerebro_audit_gates
-from app.closure.service import (
-    closure_conditions,
-    contract_boundaries,
-    expected_answer_lines,
-    technical_closure_criteria,
+from app.core.repository import Repository
+from app.core.security import (
+    Actor,
+    auth_required,
+    docs_enabled,
+    is_production,
+    localhost_cors_allowed,
 )
-from app.core.seeds import DEFAULT_PROFILE_ID
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import rewrite_with_profile
@@ -104,8 +110,9 @@ from app.roadmap.service import technical_roadmap
 from app.scoring.service import apply_manual_override, score_out
 from app.ui.service import v1_screens
 
-router = APIRouter()
+router = APIRouter(dependencies=[Depends(get_actor)])
 RepositoryDep = Annotated[Repository, Depends(get_repository)]
+ActorDep = Annotated[Actor, Depends(get_actor)]
 
 
 def ensure_knowledge_version(repository: Repository, version: str | None) -> None:
@@ -128,21 +135,28 @@ def security_status():
         if not origin.startswith("http://localhost")
         and not origin.startswith("http://127.0.0.1")
     ]
+    missing: list[str] = []
+    if not auth_required():
+        missing.append("authentication")
+    if is_production() and not getenv("SESSION_SECRET", "").strip():
+        missing.append("explicit_session_secret")
+    implemented = {
+        "cors": "configured_allowlist",
+        "sql_injection": "sqlalchemy_orm",
+        "secret_redaction": "status_endpoint_does_not_expose_secret_values",
+        "authentication": "required" if auth_required() else "optional_local",
+        "rate_limiting": "generation_and_auth",
+        "docs": "enabled" if docs_enabled() else "disabled",
+    }
     return {
-        "security_model": "local-first",
-        "internet_exposure": "not_ready_without_additional_controls",
-        "implemented_controls": {
-            "cors": "configured_allowlist",
-            "sql_injection": "sqlalchemy_orm",
-            "secret_redaction": "status_endpoint_does_not_expose_secret_values",
-        },
-        "missing_production_controls": [
-            "authentication",
-            "production_secrets_policy",
-            "rate_limiting",
-        ],
+        "security_model": "authenticated" if auth_required() else "local-first",
+        "internet_exposure": (
+            "ready_with_authentication" if auth_required() else "not_ready_without_additional_controls"
+        ),
+        "implemented_controls": implemented,
+        "missing_production_controls": missing,
         "cors": {
-            "localhost_allowed": True,
+            "localhost_allowed": localhost_cors_allowed(),
             "configured_origin_count": len(configured_origins),
             "production_origin_count": len(production_origins),
             "wildcard_allowed": "*" in configured_origins,
@@ -150,10 +164,11 @@ def security_status():
         "secrets": {
             "database_url_configured": bool(getenv("DATABASE_URL")),
             "openai_api_key_configured": bool(getenv("OPENAI_API_KEY")),
+            "session_secret_configured": bool(getenv("SESSION_SECRET")),
         },
         "policy": (
-            "Minicerebro V1 no debe exponerse a internet sin autenticacion, "
-            "secretos propios, CORS de produccion y rate limiting."
+            "En produccion Editados exige cuenta, rate limiting en generacion "
+            "y CORS sin localhost. /docs queda apagado."
         ),
     }
 
@@ -607,17 +622,25 @@ def knowledge_query_interpretation(
 
 
 @router.post("/knowledge/query")
-def knowledge_query(payload: KnowledgeQueryInput, repository: RepositoryDep) -> KnowledgeQueryResult:
+def knowledge_query(
+    payload: KnowledgeQueryInput,
+    repository: RepositoryDep,
+    actor: ActorDep,
+) -> KnowledgeQueryResult:
     try:
-        return repository.query_knowledge(payload)
+        return repository.query_knowledge(payload, profile_id=actor.profile_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 
 
 @router.post("/revision")
-def text_revision(payload: TextRevisionInput, repository: RepositoryDep) -> TextRevisionResult:
+def text_revision(
+    payload: TextRevisionInput,
+    repository: RepositoryDep,
+    actor: ActorDep,
+) -> TextRevisionResult:
     try:
-        return repository.review_text(DEFAULT_PROFILE_ID, payload)
+        return repository.review_text(actor.profile_id, payload)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Profile or knowledge version not found") from exc
 
@@ -627,9 +650,10 @@ def profile_text_revision(
     profile_id: str,
     payload: TextRevisionInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ) -> TextRevisionResult:
     try:
-        return repository.review_text(profile_id, payload)
+        return repository.review_text(resolve_profile_id(profile_id, actor), payload)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Profile or knowledge version not found") from exc
 
@@ -645,12 +669,17 @@ def knowledge_gym(repository: RepositoryDep, version: str = "latest") -> Knowled
 @router.get("/knowledge/query-history")
 def knowledge_query_history(
     repository: RepositoryDep,
+    actor: ActorDep,
     version: str = "knowledge-v0",
     limit: int = 20,
 ) -> list[KnowledgeQueryHistoryItem]:
     bounded_limit = max(1, min(limit, 100))
     try:
-        return repository.list_knowledge_query_history(version, bounded_limit)
+        return repository.list_knowledge_query_history(
+            version,
+            bounded_limit,
+            profile_id=actor.profile_id if actor.authenticated or auth_required() else None,
+        )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 
@@ -658,10 +687,14 @@ def knowledge_query_history(
 @router.get("/knowledge/query-summary")
 def knowledge_query_summary(
     repository: RepositoryDep,
+    actor: ActorDep,
     version: str = "knowledge-v0",
 ) -> KnowledgeQuerySummary:
     try:
-        return repository.get_knowledge_query_summary(version)
+        return repository.get_knowledge_query_summary(
+            version,
+            profile_id=actor.profile_id if actor.authenticated or auth_required() else None,
+        )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Knowledge version not found") from exc
 
@@ -680,9 +713,10 @@ def decisions_rules() -> list[DecisionRule]:
 def decision_evaluate(
     payload: DecisionEvaluationInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ) -> DecisionEvaluation:
-    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
-    contradictions = repository.contradictions(DEFAULT_PROFILE_ID, payload.context)
+    variables = repository.get_context_variables(actor.profile_id, payload.context)
+    contradictions = repository.contradictions(actor.profile_id, payload.context)
     return evaluate_decision_state(payload.context, variables, contradictions)
 
 
@@ -742,42 +776,47 @@ def preferences_interpret(payload: PreferenceInput):
 
 
 @router.post("/preferences")
-def preferences_create(payload: PreferenceInput, repository: RepositoryDep):
+def preferences_create(payload: PreferenceInput, repository: RepositoryDep, actor: ActorDep):
     started_at = perf_counter()
     preference = interpret_preference(payload)
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
-    return repository.add_preference(DEFAULT_PROFILE_ID, preference, duration_ms=duration_ms)
+    return repository.add_preference(actor.profile_id, preference, duration_ms=duration_ms)
 
 
 @router.get("/preferences")
-def preferences_list(repository: RepositoryDep, context: str | None = None):
+def preferences_list(repository: RepositoryDep, actor: ActorDep, context: str | None = None):
     if context:
-        return repository.list_preferences_for_context(DEFAULT_PROFILE_ID, context)
-    return repository.list_preferences(DEFAULT_PROFILE_ID)
+        return repository.list_preferences_for_context(actor.profile_id, context)
+    return repository.list_preferences(actor.profile_id)
 
 
 @router.patch("/preferences/{preference_id}")
-def preferences_patch(preference_id: UUID, payload: PreferencePatch, repository: RepositoryDep):
+def preferences_patch(
+    preference_id: UUID,
+    payload: PreferencePatch,
+    repository: RepositoryDep,
+    actor: ActorDep,
+):
     try:
         return repository.update_preference_status(
-            DEFAULT_PROFILE_ID, preference_id, payload.status
+            actor.profile_id, preference_id, payload.status
         )
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Preference not found") from exc
 
 
 @router.delete("/preferences/{preference_id}", status_code=204)
-def preferences_delete(preference_id: UUID, repository: RepositoryDep):
+def preferences_delete(preference_id: UUID, repository: RepositoryDep, actor: ActorDep):
     try:
-        repository.delete_preference(DEFAULT_PROFILE_ID, preference_id)
+        repository.delete_preference(actor.profile_id, preference_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Preference not found") from exc
 
 
 @router.get("/preferences/{preference_id}/score-proposal")
-def preference_score_proposal(preference_id: UUID, repository: RepositoryDep):
+def preference_score_proposal(preference_id: UUID, repository: RepositoryDep, actor: ActorDep):
     try:
-        preference = repository.get_preference(DEFAULT_PROFILE_ID, preference_id)
+        preference = repository.get_preference(actor.profile_id, preference_id)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Preference not found") from exc
     return build_score_proposal(preference)
@@ -785,12 +824,15 @@ def preference_score_proposal(preference_id: UUID, repository: RepositoryDep):
 
 @router.post("/preferences/{preference_id}/score-proposal/apply")
 def preference_score_proposal_apply(
-    preference_id: UUID, payload: ApplyScoreProposalInput, repository: RepositoryDep
+    preference_id: UUID,
+    payload: ApplyScoreProposalInput,
+    repository: RepositoryDep,
+    actor: ActorDep,
 ):
     try:
-        preference = repository.get_preference(DEFAULT_PROFILE_ID, preference_id)
+        preference = repository.get_preference(actor.profile_id, preference_id)
         proposal = build_score_proposal(preference)
-        updated = repository.apply_score_proposal(DEFAULT_PROFILE_ID, proposal, payload.reason)
+        updated = repository.apply_score_proposal(actor.profile_id, proposal, payload.reason)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Preference not found") from exc
     except ValueError as exc:
@@ -799,7 +841,8 @@ def preference_score_proposal_apply(
 
 
 @router.get("/profiles/{profile_id}")
-def profile_get(profile_id: str, repository: RepositoryDep):
+def profile_get(profile_id: str, repository: RepositoryDep, actor: ActorDep):
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.get_profile(profile_id)
     except KeyError as exc:
@@ -807,7 +850,8 @@ def profile_get(profile_id: str, repository: RepositoryDep):
 
 
 @router.get("/profiles/{profile_id}/export")
-def profile_export(profile_id: str, repository: RepositoryDep) -> ProfileExport:
+def profile_export(profile_id: str, repository: RepositoryDep, actor: ActorDep) -> ProfileExport:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         profile = repository.get_profile(profile_id)
     except KeyError as exc:
@@ -842,8 +886,8 @@ def profile_export(profile_id: str, repository: RepositoryDep) -> ProfileExport:
 
 
 @router.get("/profiles/{profile_id}/summary")
-def profile_summary(profile_id: str, repository: RepositoryDep):
-    profile = profile_get(profile_id, repository)
+def profile_summary(profile_id: str, repository: RepositoryDep, actor: ActorDep):
+    profile = profile_get(profile_id, repository, actor)
     return {
         "profile_id": profile.id,
         "summary": profile.summary,
@@ -856,8 +900,10 @@ def profile_summary(profile_id: str, repository: RepositoryDep):
 def profile_editorial_card(
     profile_id: str,
     repository: RepositoryDep,
+    actor: ActorDep,
     context: str = "general",
 ) -> EditorialProfileCard:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.editorial_profile_card(profile_id, context)
     except KeyError as exc:
@@ -868,7 +914,9 @@ def profile_editorial_card(
 def profile_knowledge_cards(
     profile_id: str,
     repository: RepositoryDep,
+    actor: ActorDep,
 ) -> list[ProfileKnowledgeCard]:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.list_profile_knowledge_cards(profile_id)
     except KeyError as exc:
@@ -880,8 +928,10 @@ def profile_knowledge_card(
     profile_id: str,
     card_id: str,
     repository: RepositoryDep,
+    actor: ActorDep,
     knowledge_version: str = "knowledge-v0",
 ) -> ProfileKnowledgeCard:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.get_profile_knowledge_card(profile_id, card_id, knowledge_version)
     except KeyError as exc:
@@ -894,7 +944,9 @@ def profile_knowledge_card_upsert(
     card_id: str,
     payload: ProfileKnowledgeCardInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ) -> ProfileKnowledgeCard:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.upsert_profile_knowledge_card(profile_id, card_id, payload)
     except KeyError as exc:
@@ -906,8 +958,12 @@ def revision_feedback_default_profile(
     card_id: str,
     payload: RevisionFeedbackInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ) -> RevisionFeedbackResult:
-    return revision_feedback(DEFAULT_PROFILE_ID, card_id, payload, repository)
+    try:
+        return repository.record_revision_feedback(actor.profile_id, card_id, payload)
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Profile, knowledge card or version not found") from exc
 
 
 @router.post("/profiles/{profile_id}/revision-feedback/{card_id}")
@@ -916,7 +972,9 @@ def revision_feedback(
     card_id: str,
     payload: RevisionFeedbackInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ) -> RevisionFeedbackResult:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.record_revision_feedback(profile_id, card_id, payload)
     except KeyError as exc:
@@ -928,9 +986,11 @@ def profile_knowledge_card_score_proposal(
     profile_id: str,
     card_id: str,
     repository: RepositoryDep,
+    actor: ActorDep,
     knowledge_version: str = "knowledge-v0",
     context: str = "general",
 ) -> ProfileKnowledgeCardScoreProposal:
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.build_profile_knowledge_card_score_proposal(
             profile_id,
@@ -948,9 +1008,11 @@ def profile_knowledge_card_score_proposal_apply(
     card_id: str,
     payload: ApplyProfileKnowledgeCardScoreInput,
     repository: RepositoryDep,
+    actor: ActorDep,
     knowledge_version: str = "knowledge-v0",
     context: str = "general",
 ):
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         proposal = repository.build_profile_knowledge_card_score_proposal(
             profile_id,
@@ -973,7 +1035,8 @@ def profile_knowledge_card_score_proposal_apply(
 
 
 @router.get("/profiles/{profile_id}/scores")
-def profile_scores(profile_id: str, repository: RepositoryDep, context: str = "general"):
+def profile_scores(profile_id: str, repository: RepositoryDep, actor: ActorDep, context: str = "general"):
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         variables = repository.get_context_variables(profile_id, context)
     except KeyError as exc:
@@ -982,7 +1045,8 @@ def profile_scores(profile_id: str, repository: RepositoryDep, context: str = "g
 
 
 @router.get("/profiles/{profile_id}/statistics")
-def profile_statistics(profile_id: str, repository: RepositoryDep, context: str = "general"):
+def profile_statistics(profile_id: str, repository: RepositoryDep, actor: ActorDep, context: str = "general"):
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         return repository.profile_statistics(profile_id, context)
     except KeyError as exc:
@@ -990,7 +1054,8 @@ def profile_statistics(profile_id: str, repository: RepositoryDep, context: str 
 
 
 @router.get("/profiles/{profile_id}/contradictions")
-def profile_contradictions(profile_id: str, repository: RepositoryDep, context: str = "general"):
+def profile_contradictions(profile_id: str, repository: RepositoryDep, actor: ActorDep, context: str = "general"):
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         repository.get_profile(profile_id)
     except KeyError as exc:
@@ -1004,8 +1069,10 @@ def profile_score_patch(
     variable_key: str,
     payload: ScorePatch,
     repository: RepositoryDep,
+    actor: ActorDep,
     context: str = "general",
 ):
+    profile_id = resolve_profile_id(profile_id, actor)
     try:
         variables = repository.get_context_variables(profile_id, context)
     except KeyError as exc:
@@ -1037,21 +1104,22 @@ def comparison_feedback_create(
     comparison_id: UUID,
     payload: FeedbackProposalInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ):
     try:
         comparison = repository.get_comparison(comparison_id)
-        variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+        variables = repository.get_context_variables(actor.profile_id, payload.context)
         proposal = build_feedback_proposal(comparison, variables, payload.context)
         if payload.note:
             proposal.rationale.append(payload.note)
-        return repository.add_feedback_proposal(DEFAULT_PROFILE_ID, proposal)
+        return repository.add_feedback_proposal(actor.profile_id, proposal)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Comparison not found") from exc
 
 
 @router.get("/feedback/proposals")
-def feedback_proposals_list(repository: RepositoryDep):
-    return repository.list_feedback_proposals(DEFAULT_PROFILE_ID)
+def feedback_proposals_list(repository: RepositoryDep, actor: ActorDep):
+    return repository.list_feedback_proposals(actor.profile_id)
 
 
 @router.patch("/feedback/proposals/{proposal_id}")
@@ -1059,9 +1127,10 @@ def feedback_proposal_decide(
     proposal_id: UUID,
     payload: FeedbackDecisionInput,
     repository: RepositoryDep,
+    actor: ActorDep,
 ):
     try:
-        return repository.decide_feedback_proposal(DEFAULT_PROFILE_ID, proposal_id, payload)
+        return repository.decide_feedback_proposal(actor.profile_id, proposal_id, payload)
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Feedback proposal not found") from exc
     except ValueError as exc:
@@ -1071,6 +1140,7 @@ def feedback_proposal_decide(
 @router.get("/audit/events")
 def audit_events(
     repository: RepositoryDep,
+    actor: ActorDep,
     limit: int = 50,
     event_type: str | None = None,
     entity_type: str | None = None,
@@ -1082,17 +1152,19 @@ def audit_events(
         event_type=event_type,
         entity_type=entity_type,
         entity_id=entity_id,
+        profile_id=actor.profile_id if actor.authenticated or auth_required() else None,
     )
 
 
 @router.get("/texts")
 def generated_texts_list(
     repository: RepositoryDep,
+    actor: ActorDep,
     context: str | None = None,
     limit: int = 50,
 ):
     bounded_limit = max(1, min(limit, 100))
-    return repository.list_generated_texts(DEFAULT_PROFILE_ID, bounded_limit, context)
+    return repository.list_generated_texts(actor.profile_id, bounded_limit, context)
 
 
 @router.post("/generation")
@@ -1101,7 +1173,12 @@ def generated_texts_list(
 @router.post("/sendable")
 @router.post("/continue")
 @router.post("/variants")
-def generation_create(payload: GenerationInput, repository: RepositoryDep, request: Request):
+def generation_create(
+    payload: GenerationInput,
+    repository: RepositoryDep,
+    request: Request,
+    actor: ActorDep,
+):
     route_actions = {
         "/correction": "correction",
         "/rewrite": "rewrite",
@@ -1111,13 +1188,13 @@ def generation_create(payload: GenerationInput, repository: RepositoryDep, reque
     }
     action = route_actions.get(request.url.path, payload.action)
     generation_input = payload.model_copy(update={"action": action})
-    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, generation_input.context)
+    variables = repository.get_context_variables(actor.profile_id, generation_input.context)
     started_at = perf_counter()
     generation = rewrite_with_profile(generation_input, variables)
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
-            profile_id=DEFAULT_PROFILE_ID,
+            profile_id=actor.profile_id,
             context=generation_input.context,
             action=generation_input.action,
             input_text=generation_input.text,
@@ -1132,8 +1209,8 @@ def generation_create(payload: GenerationInput, repository: RepositoryDep, reque
 
 
 @router.post("/lab/simulate")
-def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep) -> LabSimulationResult:
-    variables = repository.get_context_variables(DEFAULT_PROFILE_ID, payload.context)
+def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: ActorDep) -> LabSimulationResult:
+    variables = repository.get_context_variables(actor.profile_id, payload.context)
     deltas = {override.variable_key: override.delta for override in payload.overrides}
     simulated_variables = [
         variable.model_copy(

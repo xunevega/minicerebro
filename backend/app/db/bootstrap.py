@@ -1,13 +1,13 @@
-from datetime import UTC, datetime
 import os
+from datetime import UTC, datetime
 from pathlib import Path
 from threading import Lock
 
-from alembic import command
 from alembic.config import Config
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+from alembic import command
 from app.core.seeds import DEFAULT_PROFILE_ID, seed_variables
 from app.db.models import (
     KnowledgeVersionRecord,
@@ -44,20 +44,21 @@ def ensure_seed_data(session: Session) -> None:
         session.commit()
 
 
-def ensure_profile_seed_data(session: Session) -> None:
-    profile = session.get(ProfileRecord, DEFAULT_PROFILE_ID)
+def ensure_named_profile(session: Session, profile_id: str, name: str) -> ProfileRecord:
+    profile = session.get(ProfileRecord, profile_id)
     if profile is None:
         profile = ProfileRecord(
-            id=DEFAULT_PROFILE_ID,
-            name="Perfil inicial",
+            id=profile_id,
+            name=name,
             language="es",
-            summary="Perfil semilla con baja confianza. Las preferencias requieren revision explicita.",
+            summary="Perfil personal. Las preferencias requieren revision explicita.",
             updated_at=datetime.now(UTC),
         )
         session.add(profile)
+        session.flush()
 
     existing_variables = session.scalars(
-        select(ScoreVariableRecord).where(ScoreVariableRecord.profile_id == DEFAULT_PROFILE_ID)
+        select(ScoreVariableRecord).where(ScoreVariableRecord.profile_id == profile_id)
     ).all()
     existing_keys = {variable.key for variable in existing_variables}
 
@@ -66,7 +67,7 @@ def ensure_profile_seed_data(session: Session) -> None:
             continue
         session.add(
             ScoreVariableRecord(
-                profile_id=DEFAULT_PROFILE_ID,
+                profile_id=profile_id,
                 key=variable.key,
                 label=variable.label,
                 category=variable.category,
@@ -78,6 +79,11 @@ def ensure_profile_seed_data(session: Session) -> None:
                 updated_at=variable.updated_at,
             )
         )
+    return profile
+
+
+def ensure_profile_seed_data(session: Session) -> None:
+    ensure_named_profile(session, DEFAULT_PROFILE_ID, "Perfil inicial")
 
 
 def has_published_knowledge_snapshot(session: Session) -> bool:
