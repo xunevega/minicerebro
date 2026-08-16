@@ -1,11 +1,11 @@
 from app.core.models import KnowledgeSource, KnowledgeSourceEdition
 
 
-LATEST_KNOWLEDGE_VERSION = "knowledge-v51"
+LATEST_KNOWLEDGE_VERSION = "knowledge-v52"
 KNOWLEDGE_VERSION_IDS = [
     "knowledge-v0",
     "knowledge-v1",
-    *[f"knowledge-v{version}" for version in range(2, 51)],
+    *[f"knowledge-v{version}" for version in range(2, 52)],
     LATEST_KNOWLEDGE_VERSION,
 ]
 

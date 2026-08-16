@@ -343,6 +343,60 @@ def test_openai_prompt_includes_conservative_rewrite_and_revision_lens(monkeypat
     assert "Mirada: voz y tono" in captured["input"]
 
 
+def test_openai_prompt_includes_published_knowledge_notes(monkeypatch):
+    captured: dict[str, str] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured["input"] = kwargs["input"]
+
+            class Response:
+                output_text = "Texto claro."
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
+
+    service.rewrite_with_profile(
+        GenerationInput(
+            text="Le vi en la esquina.",
+            action="rewrite",
+            context="general",
+        ),
+        [],
+        knowledge_notes=[
+            ("Leismo, laismo y loismo", "Criterio para elegir le, la o lo segun funcion y zona.")
+        ],
+    )
+
+    assert "Fichas publicadas de la base" in captured["input"]
+    assert "Leismo, laismo y loismo" in captured["input"]
+    assert "no las cites como autoridad externa" in captured["input"]
+
+
+def test_knowledge_notes_do_not_change_deterministic_rewrite():
+    payload = GenerationInput(
+        text="Primera frase. Segunda frase. Tercera frase. Cuarta frase.",
+        action="rewrite",
+        context="general",
+    )
+    without_notes = service.rewrite_deterministic(payload, [])
+    with_notes = service.rewrite_with_profile(
+        payload,
+        [],
+        knowledge_notes=[("Uso vivo", "El diccionario de uso ordena acepciones por empleo real.")],
+    )
+
+    assert with_notes.output == without_notes.output
+    assert with_notes.learning_applied is False
+    assert with_notes.provider == "deterministic"
+
+
 def test_default_edit_prompt_allows_sentence_reformulation(monkeypatch):
     captured: dict[str, str] = {}
 
