@@ -97,7 +97,7 @@ def test_current_alembic_data_migration_uses_shared_snapshot_loader() -> None:
         root_dir
         / "alembic"
         / "versions"
-        / "20260728_0022_seed_knowledge_v51_snapshot.py"
+        / "20260816_0024_seed_knowledge_v52_snapshot.py"
     ).read_text()
 
     assert "from app.knowledge.snapshot_data import load_knowledge_seed_snapshot" in migration_source
@@ -136,7 +136,7 @@ def test_snapshot_migration_generator_uses_shared_snapshot_loader(tmp_path) -> N
         cwd=repo_root,
     )
 
-    generated = tmp_path / "20260728_0099_seed_knowledge_v51_snapshot.py"
+    generated = tmp_path / "20260728_0099_seed_knowledge_v52_snapshot.py"
     migration_source = generated.read_text()
 
     assert "from app.knowledge.snapshot_data import load_knowledge_seed_snapshot" in migration_source

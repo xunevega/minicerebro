@@ -488,13 +488,28 @@ def _profile_prompt(variables: list[ScoreVariable]) -> str:
     return "\n".join(lines)
 
 
-def rewrite_with_profile(payload: GenerationInput, variables: list[ScoreVariable]) -> GenerationResult:
+def _knowledge_notes_contract(notes: list[tuple[str, str]]) -> str:
+    if not notes:
+        return ""
+    lines = [
+        "Fichas publicadas de la base (solo lectura; no aprendas ni busques fuera):",
+        *[f"- {name}: {definition}" for name, definition in notes],
+    ]
+    return "\n".join(lines)
+
+
+def rewrite_with_profile(
+    payload: GenerationInput,
+    variables: list[ScoreVariable],
+    knowledge_notes: list[tuple[str, str]] | None = None,
+) -> GenerationResult:
+    notes = knowledge_notes or []
     if payload.action == "correction":
         return rewrite_deterministic(payload, variables)
 
     if getenv("OPENAI_API_KEY"):
         try:
-            return rewrite_with_openai(payload, variables)
+            return rewrite_with_openai(payload, variables, knowledge_notes=notes)
         except Exception:
             fallback = rewrite_deterministic(payload, variables)
             return fallback.model_copy(
@@ -578,9 +593,14 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
     )
 
 
-def rewrite_with_openai(payload: GenerationInput, variables: list[ScoreVariable]) -> GenerationResult:
+def rewrite_with_openai(
+    payload: GenerationInput,
+    variables: list[ScoreVariable],
+    knowledge_notes: list[tuple[str, str]] | None = None,
+) -> GenerationResult:
     active = sorted(variables, key=lambda item: item.effective_value, reverse=True)[:5]
     model = getenv("OPENAI_MODEL", "gpt-5-mini")
+    notes_block = _knowledge_notes_contract(knowledge_notes or [])
     prompt = f"""
 Eres Minicerebro V1, una app especializada en escritura en lengua espanola.
 Accion: {payload.action}
@@ -593,11 +613,13 @@ Terminos protegidos: {", ".join(payload.protected_terms) or "ninguno"}
 
 Perfil efectivo:
 {_profile_prompt(active)}
+{notes_block}
 
 Reglas:
 - No aprendas nada.
 - No afirmes que has actualizado el perfil.
 - Respeta los terminos protegidos literalmente.
+- Usa las fichas publicadas solo como criterio de oficio; no las cites como autoridad externa ni copies articulos.
 - Devuelve solo el texto resultante, sin explicaciones externas.
 
 Texto:

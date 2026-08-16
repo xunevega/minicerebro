@@ -1167,6 +1167,32 @@ def generated_texts_list(
     return repository.list_generated_texts(actor.profile_id, bounded_limit, context)
 
 
+def _published_knowledge_notes(
+    repository,
+    payload: GenerationInput,
+    profile_id: str,
+) -> list[tuple[str, str]]:
+    if payload.action == "correction":
+        return []
+    parts = [
+        payload.revision_intention,
+        payload.action,
+        payload.user_instruction,
+        payload.text[:280],
+    ]
+    query = " ".join(part.strip() for part in parts if part and part.strip())
+    if not query:
+        return []
+    try:
+        result = repository.query_knowledge(
+            KnowledgeQueryInput(query=query[:500], version="latest", limit=5),
+            profile_id=profile_id,
+        )
+    except KeyError:
+        return []
+    return [(card.name, card.definition) for card in result.cards]
+
+
 @router.post("/generation")
 @router.post("/correction")
 @router.post("/rewrite")
@@ -1189,8 +1215,9 @@ def generation_create(
     action = route_actions.get(request.url.path, payload.action)
     generation_input = payload.model_copy(update={"action": action})
     variables = repository.get_context_variables(actor.profile_id, generation_input.context)
+    knowledge_notes = _published_knowledge_notes(repository, generation_input, actor.profile_id)
     started_at = perf_counter()
-    generation = rewrite_with_profile(generation_input, variables)
+    generation = rewrite_with_profile(generation_input, variables, knowledge_notes=knowledge_notes)
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
@@ -1230,7 +1257,8 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
         intensity=payload.intensity,
         protected_terms=payload.protected_terms,
     )
-    generation = rewrite_with_profile(generation_input, simulated_variables)
+    knowledge_notes = _published_knowledge_notes(repository, generation_input, actor.profile_id)
+    generation = rewrite_with_profile(generation_input, simulated_variables, knowledge_notes=knowledge_notes)
     comparison = compare_texts(
         ComparisonInput(
             original=payload.text,

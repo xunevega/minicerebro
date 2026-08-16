@@ -21,8 +21,16 @@ client = TestClient(app)
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
 
-CURRENT_PUBLISHED_VERSION = "knowledge-v51"
+CURRENT_PUBLISHED_VERSION = "knowledge-v52"
 CURRENT_PUBLISHED_COUNTS = {
+    "source_count": 28,
+    "node_count": 293,
+    "evidence_count": 291,
+    "claim_count": 291,
+    "card_count": 291,
+}
+FROZEN_V51_VERSION = "knowledge-v51"
+FROZEN_V51_COUNTS = {
     "source_count": 26,
     "node_count": 237,
     "evidence_count": 235,
@@ -38,9 +46,15 @@ def test_current_published_knowledge_version_is_frozen_before_data_migration() -
     versions = {item["id"]: item for item in response.json()}
     current = versions[CURRENT_PUBLISHED_VERSION]
     assert current["status"] == "published"
-    assert current["published_at"] == "2026-07-27T17:00:00+00:00"
+    assert current["published_at"] == "2026-08-16T15:00:00+00:00"
     for field, expected_count in CURRENT_PUBLISHED_COUNTS.items():
         assert current[field] == expected_count
+
+    frozen_v51 = versions[FROZEN_V51_VERSION]
+    assert frozen_v51["status"] == "published"
+    assert frozen_v51["published_at"] == "2026-07-27T17:00:00+00:00"
+    for field, expected_count in FROZEN_V51_COUNTS.items():
+        assert frozen_v51[field] == expected_count
 
     with SessionLocal() as session:
         snapshot = session.get(KnowledgeVersionSnapshotRecord, CURRENT_PUBLISHED_VERSION)
@@ -63,6 +77,8 @@ def test_current_published_knowledge_version_is_frozen_before_data_migration() -
         "card-uniformidad-editorial",
         "card-problema-dominante-del-borrador",
         "card-promesa-de-lectura",
+        "card-leismo-laismo-loismo",
+        "card-uso-vivo",
     } <= set(snapshot.card_ids)
 
 
@@ -108,19 +124,16 @@ def test_current_published_queries_are_frozen_before_data_migration() -> None:
     for query, expected_cards in cases:
         response = client.post(
             "/knowledge/query",
-            json={"query": query, "version": CURRENT_PUBLISHED_VERSION, "limit": 10},
+            json={"query": query, "version": FROZEN_V51_VERSION, "limit": 10},
         )
 
         assert response.status_code == 200
         payload = response.json()
-        assert payload["requested_version"] == CURRENT_PUBLISHED_VERSION
-        assert payload["resolved_version"] == CURRENT_PUBLISHED_VERSION
-        assert payload["version"] == CURRENT_PUBLISHED_VERSION
+        assert payload["requested_version"] == FROZEN_V51_VERSION
+        assert payload["resolved_version"] == FROZEN_V51_VERSION
+        assert payload["version"] == FROZEN_V51_VERSION
         assert payload["status"] == "ok"
         assert expected_cards & {card["id"] for card in payload["cards"]}
-        assert {card["version"] for card in payload["cards"]} == {CURRENT_PUBLISHED_VERSION}
-        assert {claim["version"] for claim in payload["claims"]} == {CURRENT_PUBLISHED_VERSION}
-        assert {item["version"] for item in payload["evidence"]} == {CURRENT_PUBLISHED_VERSION}
 
 
 def test_current_published_snapshot_export_is_reproducible(tmp_path) -> None:
@@ -192,23 +205,23 @@ def test_alembic_data_migration_loads_current_snapshot_without_runtime_seed(tmp_
     with engine.connect() as connection:
         version = connection.execute(
             text("select status, published_at from knowledge_versions where id = :version"),
-            {"version": CURRENT_PUBLISHED_VERSION},
+            {"version": FROZEN_V51_VERSION},
         ).one()
         snapshot = connection.execute(
             text(
                 "select source_ids, node_ids, evidence_ids, claim_ids, card_ids "
                 "from knowledge_version_snapshots where version_id = :version"
             ),
-            {"version": CURRENT_PUBLISHED_VERSION},
+            {"version": FROZEN_V51_VERSION},
         ).one()
 
     assert version.status == "published"
     assert version.published_at == "2026-07-27T17:00:00+00:00"
-    assert len(json.loads(snapshot.source_ids)) == CURRENT_PUBLISHED_COUNTS["source_count"]
-    assert len(json.loads(snapshot.node_ids)) == CURRENT_PUBLISHED_COUNTS["node_count"]
-    assert len(json.loads(snapshot.evidence_ids)) == CURRENT_PUBLISHED_COUNTS["evidence_count"]
-    assert len(json.loads(snapshot.claim_ids)) == CURRENT_PUBLISHED_COUNTS["claim_count"]
-    assert len(json.loads(snapshot.card_ids)) == CURRENT_PUBLISHED_COUNTS["card_count"]
+    assert len(json.loads(snapshot.source_ids)) == FROZEN_V51_COUNTS["source_count"]
+    assert len(json.loads(snapshot.node_ids)) == FROZEN_V51_COUNTS["node_count"]
+    assert len(json.loads(snapshot.evidence_ids)) == FROZEN_V51_COUNTS["evidence_count"]
+    assert len(json.loads(snapshot.claim_ids)) == FROZEN_V51_COUNTS["claim_count"]
+    assert len(json.loads(snapshot.card_ids)) == FROZEN_V51_COUNTS["card_count"]
 
 
 def test_runtime_seed_skips_knowledge_when_alembic_snapshot_exists(tmp_path, monkeypatch) -> None:

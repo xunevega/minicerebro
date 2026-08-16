@@ -88,7 +88,7 @@ __all__ = [
     "seed_sources",
     "seed_versions",
 ]
-for _version_number in range(2, 52):
+for _version_number in range(2, 53):
     __all__.append(f"KNOWLEDGE_V{_version_number}_VERSION")
     __all__.append(f"KNOWLEDGE_V{_version_number}_PUBLISHED_AT")
 
@@ -96,7 +96,7 @@ KNOWLEDGE_VERSION = "knowledge-v0"
 PUBLISHED_KNOWLEDGE_VERSION = "knowledge-v1"
 LATEST_PUBLISHED_KNOWLEDGE_VERSION = LATEST_KNOWLEDGE_VERSION
 
-for _version_number in range(2, 52):
+for _version_number in range(2, 53):
     globals()[f"KNOWLEDGE_V{_version_number}_VERSION"] = f"knowledge-v{_version_number}"
 
 _PUBLISHED_AT_BY_VERSION = {
@@ -108,7 +108,7 @@ _PUBLISHED_AT_BY_VERSION = {
 
 KNOWLEDGE_PUBLISHED_AT = _PUBLISHED_AT_BY_VERSION.get(KNOWLEDGE_VERSION, "2026-07-21")
 KNOWLEDGE_V1_PUBLISHED_AT = _PUBLISHED_AT_BY_VERSION.get(PUBLISHED_KNOWLEDGE_VERSION, "2026-07-22")
-for _version_number in range(2, 52):
+for _version_number in range(2, 53):
     _version_id = f"knowledge-v{_version_number}"
     globals()[f"KNOWLEDGE_V{_version_number}_PUBLISHED_AT"] = _PUBLISHED_AT_BY_VERSION.get(
         _version_id,
