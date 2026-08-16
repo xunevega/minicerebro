@@ -76,8 +76,7 @@ def get_actor(
             "/audit",
             "/feedback",
             "/comparisons",
-            "/knowledge/query-history",
-            "/knowledge/query-summary",
+            "/knowledge",
         )
     )
     if needs_session and not actor.authenticated:

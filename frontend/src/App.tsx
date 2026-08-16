@@ -1817,6 +1817,19 @@ function AppShell({
         user_score: stance === "me_sirve" || stance === "mantiene_esto" ? 780 : 420,
       });
       setRevisionFeedbackByCard((previous) => ({ ...previous, [cardId]: result }));
+      if (stance === "me_sirve" || stance === "no_me_sirve") {
+        const learned = await createPreference(feedback, activeContext);
+        const saved =
+          stance === "me_sirve"
+            ? await updatePreferenceStatus(learned.id, "accepted")
+            : await updatePreferenceStatus(learned.id, "rejected");
+        setPreferences((current) => [saved, ...current.filter((item) => item.id !== saved.id)]);
+        setEditorOutcomeNotice(
+          stance === "me_sirve"
+            ? "Este criterio queda en Gustos y se aplica a tu perfil."
+            : "Queda anotado en Gustos que esto no te sirve.",
+        );
+      }
       if (
         stance === "me_sirve" &&
         result.score_proposal.status === "pending_review" &&

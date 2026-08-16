@@ -17,6 +17,7 @@ AUTH_PUBLIC_PATHS = {
     "/",
     "/health",
     "/security/status",
+    "/knowledge/status",
     "/auth/register",
     "/auth/login",
     "/auth/me",

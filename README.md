@@ -10,7 +10,7 @@ En produccion (Railway) el backend exige:
 
 - autenticacion por cuenta (registro / entrada);
 - un perfil por usuario, nunca el perfil `default` compartido;
-- la primera cuenta (o `ADMIN_EMAIL`) puede publicar conocimiento; el resto no;
+- solo `ADMIN_EMAIL` puede publicar conocimiento; el resto no;
 - `SESSION_SECRET` propio (si falta, se deriva de `DATABASE_URL`);
 - CORS solo con el origen del frontend, sin localhost;
 - rate limiting en generacion y en intentos de entrada;

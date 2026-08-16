@@ -4,7 +4,7 @@ from uuid import uuid4
 
 from fastapi import HTTPException, Request, status
 from pydantic import BaseModel, Field
-from sqlalchemy import func, select
+from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.core.security import (
@@ -75,11 +75,8 @@ def _admin_email() -> str:
     return getenv("ADMIN_EMAIL", "").strip().lower()
 
 
-def _initial_role(session: Session, email: str) -> str:
+def _initial_role(email: str) -> str:
     if _admin_email() and email == _admin_email():
-        return "admin"
-    user_count = session.scalar(select(func.count()).select_from(UserRecord)) or 0
-    if user_count == 0:
         return "admin"
     return "user"
 
@@ -107,7 +104,7 @@ def register_user(session: Session, payload: RegisterInput, request: Request) ->
         name=name,
         password_hash=hash_password(payload.password),
         profile_id=profile_id,
-        role=_initial_role(session, email),
+        role=_initial_role(email),
         created_at=datetime.now(UTC),
     )
     session.add(user)

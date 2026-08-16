@@ -121,6 +121,12 @@ from app.knowledge.service import (
 )
 
 
+def _audit_query_for_profile(query, profile_id: str | None):
+    if not profile_id:
+        return query
+    return query.where(AuditEventRecord.payload["profile_id"].as_string() == profile_id)
+
+
 def evidence_from_record(record: EvidenceRecord) -> Evidence:
     return Evidence(
         id=UUID(record.id),
@@ -2828,7 +2834,7 @@ class Repository:
     ) -> list[KnowledgeQueryHistoryItem]:
         if self.session.get(KnowledgeVersionRecord, version) is None:
             raise KeyError(version)
-        records = self.session.scalars(
+        query = (
             select(AuditEventRecord)
             .where(
                 AuditEventRecord.event_type == "knowledge.query.executed",
@@ -2836,16 +2842,10 @@ class Repository:
                 AuditEventRecord.entity_id == version,
             )
             .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
-            .limit(limit * 5 if profile_id else limit)
-        ).all()
-        items = [knowledge_query_history_from_record(record) for record in records]
-        if profile_id:
-            items = [
-                knowledge_query_history_from_record(record)
-                for record in records
-                if (record.payload or {}).get("profile_id") == profile_id
-            ]
-        return items[:limit]
+            .limit(limit)
+        )
+        records = self.session.scalars(_audit_query_for_profile(query, profile_id)).all()
+        return [knowledge_query_history_from_record(record) for record in records]
 
     def get_knowledge_query_summary(
         self,
@@ -2854,7 +2854,7 @@ class Repository:
     ) -> KnowledgeQuerySummary:
         if self.session.get(KnowledgeVersionRecord, version) is None:
             raise KeyError(version)
-        records = self.session.scalars(
+        query = (
             select(AuditEventRecord)
             .where(
                 AuditEventRecord.event_type == "knowledge.query.executed",
@@ -2862,11 +2862,8 @@ class Repository:
                 AuditEventRecord.entity_id == version,
             )
             .order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc())
-        ).all()
-        if profile_id:
-            records = [
-                record for record in records if (record.payload or {}).get("profile_id") == profile_id
-            ]
+        )
+        records = self.session.scalars(_audit_query_for_profile(query, profile_id)).all()
         history = [knowledge_query_history_from_record(record) for record in records]
         empty_count = sum(1 for item in history if item.card_count == 0)
         return KnowledgeQuerySummary(
@@ -3520,18 +3517,11 @@ class Repository:
             query = query.where(AuditEventRecord.entity_type == entity_type)
         if entity_id:
             query = query.where(AuditEventRecord.entity_id == entity_id)
+        query = _audit_query_for_profile(query, profile_id)
         records = self.session.scalars(
-            query.order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc()).limit(
-                limit * 5 if profile_id else limit
-            )
+            query.order_by(AuditEventRecord.created_at.desc(), AuditEventRecord.id.desc()).limit(limit)
         ).all()
-        if profile_id:
-            records = [
-                record
-                for record in records
-                if (record.payload or {}).get("profile_id") == profile_id
-            ]
-        return [audit_event_from_record(record) for record in records[:limit]]
+        return [audit_event_from_record(record) for record in records]
 
     def profile_statistics(self, profile_id: str, context: str) -> ProfileStatistics:
         variables = self.get_context_variables(profile_id, context)

@@ -11,7 +11,15 @@ def test_register_login_and_profile_isolation(monkeypatch):
     monkeypatch.setenv("APP_ENV", "production")
     monkeypatch.setenv("CORS_ALLOW_LOCALHOST", "false")
     monkeypatch.setenv("ENABLE_DOCS", "false")
+    monkeypatch.setenv("ADMIN_EMAIL", "ana@example.com")
     security._rate_buckets.clear()
+
+    outsider = client.post(
+        "/auth/register",
+        json={"email": "primera@example.com", "password": "password12", "name": "Primera"},
+    )
+    assert outsider.status_code == 200, outsider.text
+    assert outsider.json()["user"]["role"] == "user"
 
     first = client.post(
         "/auth/register",
@@ -53,6 +61,10 @@ def test_register_login_and_profile_isolation(monkeypatch):
 
     anonymous = client.get("/preferences")
     assert anonymous.status_code == 401
+    assert client.get("/knowledge/status").status_code == 200
+    assert client.get("/knowledge/cards").status_code == 401
+    cards = client.get("/knowledge/cards", headers={"Authorization": f"Bearer {second_token}"})
+    assert cards.status_code == 200
 
     forbidden_write = client.post(
         "/knowledge/candidates",
