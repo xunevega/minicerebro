@@ -16,9 +16,19 @@ REPETITION_MARKER_RE = re.compile(
     r"^\s*(?:repito|como decia|como decía|vuelvo a decir)\s*[:,;.-]\s*(.+)$",
     re.IGNORECASE,
 )
-DEFAULT_OPENAI_TIMEOUT_SECONDS = 25.0
+DEFAULT_OPENAI_TIMEOUT_SECONDS = 60.0
+DEFAULT_REASONING_EFFORT = "medium"
+REASONING_EFFORTS = ("minimal", "low", "medium", "high")
+# En la Responses API el razonamiento consume tokens de max_output_tokens.
+# Sin este margen, un texto corto agota el presupuesto pensando y la salida
+# llega vacia: el usuario veia "el mismo texto" sin saber por que.
+REASONING_TOKEN_BUDGET = {"minimal": 0, "low": 1500, "medium": 4000, "high": 10000}
 _OPENAI_CLIENT: OpenAI | None = None
 _OPENAI_CLIENT_FACTORY: object | None = None
+
+
+class GenerationUnavailable(RuntimeError):
+    """El modelo externo no ha devuelto una propuesta utilizable."""
 
 
 SAFE_EDITORIAL_REPLACEMENTS: tuple[tuple[re.Pattern[str], str], ...] = (
@@ -67,7 +77,16 @@ def _openai_timeout_seconds() -> float:
         return DEFAULT_OPENAI_TIMEOUT_SECONDS
 
 
+def _reasoning_effort() -> str:
+    effort = getenv("OPENAI_REASONING_EFFORT", DEFAULT_REASONING_EFFORT).strip().lower()
+    return effort if effort in REASONING_EFFORTS else DEFAULT_REASONING_EFFORT
+
+
 def _max_output_tokens(payload: GenerationInput) -> int:
+    return _visible_output_tokens(payload) + REASONING_TOKEN_BUDGET[_reasoning_effort()]
+
+
+def _visible_output_tokens(payload: GenerationInput) -> int:
     word_count = len(payload.text.split())
     if payload.action == "sendable" or (
         payload.action == "rewrite" and _looks_like_communicative_draft(payload.text)
@@ -325,10 +344,25 @@ Reglas especificas:
 """.strip()
     if payload.action == "correction":
         return """
-Objetivo: corregir sin reescribir.
-Reglas especificas:
-- Corrige solo errores seguros de ortografia, puntuacion, espacios y concordancia evidente.
-- Conserva palabras, orden y voz siempre que sea posible.
+Objetivo: corregir errores de norma del espanol sin cambiar el estilo del autor.
+Que corriges siempre (segun la norma academica RAE/ASALE):
+- Ortografia: tildes, grafias, mayusculas, signos de apertura, siglas y cifras.
+- Puntuacion: comas que separan sujeto y verbo, incisos sin cerrar, punto y coma,
+  dos puntos, puntuacion del dialogo.
+- Gramatica: concordancia, regimen preposicional, dequeismo y queismo, leismo,
+  laismo y loismo, gerundio de posterioridad, "habian" impersonal, tiempos
+  verbales incoherentes, pronombres y relativos mal usados.
+- Subordinadas mal construidas: oraciones que se rompen, relativos sin
+  antecedente claro, construcciones que no cierran.
+- Impropiedades lexicas evidentes: palabras usadas con un significado que no tienen.
+Como corriges:
+- Una subordinada mal construida esta mal, sea larga o corta. Corrigela
+  respetando la forma que eligio el autor: si escribe frases largas, deja la
+  frase larga pero bien construida; si escribe frases cortas, puedes partirla.
+- No cambies vocabulario, orden ni ritmo cuando no hay error. Una frase correcta
+  que te parezca mejorable no se toca: eso es estilo, no correccion.
+- Respeta el habla de los personajes en el dialogo y las licencias evidentes.
+- Si no hay ningun error, devuelve el texto tal cual.
 """.strip()
     if payload.action == "continue":
         return """
@@ -504,24 +538,20 @@ def rewrite_with_profile(
     knowledge_notes: list[tuple[str, str]] | None = None,
 ) -> GenerationResult:
     notes = knowledge_notes or []
-    if payload.action == "correction":
+    if not getenv("OPENAI_API_KEY"):
+        # Modo local de desarrollo: sin modelo solo hay correcciones de superficie.
         return rewrite_deterministic(payload, variables)
 
-    if getenv("OPENAI_API_KEY"):
-        try:
-            return rewrite_with_openai(payload, variables, knowledge_notes=notes)
-        except Exception:
-            fallback = rewrite_deterministic(payload, variables)
-            return fallback.model_copy(
-                update={
-                    "explanation": (
-                        "No se pudo completar la generacion externa. "
-                        f"{fallback.explanation}"
-                    )
-                }
-            )
-
-    return rewrite_deterministic(payload, variables)
+    try:
+        return rewrite_with_openai(payload, variables, knowledge_notes=notes)
+    except GenerationUnavailable:
+        raise
+    except Exception as exc:
+        # Antes este fallo se tapaba devolviendo el texto casi igual o variantes
+        # falsas. Ahora se avisa: es mejor un error claro que una propuesta vacia.
+        raise GenerationUnavailable(
+            "No se ha podido contactar con el modelo de escritura. Tu texto no se ha modificado."
+        ) from exc
 
 
 def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariable]) -> GenerationResult:
@@ -630,13 +660,20 @@ Texto:
         model=model,
         input=prompt,
         max_output_tokens=_max_output_tokens(payload),
-        reasoning={"effort": "minimal"},
+        reasoning={"effort": _reasoning_effort()},
         store=False,
         timeout=_openai_timeout_seconds(),
     )
-    output = getattr(response, "output_text", "").strip()
+    output = (getattr(response, "output_text", "") or "").strip()
+    if getattr(response, "status", None) == "incomplete":
+        raise GenerationUnavailable(
+            "El modelo no termino la propuesta (texto demasiado largo o limite agotado). "
+            "Prueba con un fragmento mas corto. Tu texto no se ha modificado."
+        )
     if not output:
-        output = payload.text
+        raise GenerationUnavailable(
+            "El modelo devolvio una respuesta vacia. Tu texto no se ha modificado."
+        )
     if payload.action == "rewrite":
         output = _remove_redundant_repetition_markers(output)
     local_fallback = _local_rewrite_if_safer_than_noop(payload, variables)
@@ -670,6 +707,13 @@ Texto:
         explanation = (
             "La propuesta externa no anadio cambios, pero el texto tenia correcciones locales "
             f"seguras. {local_fallback.explanation}"
+        )
+    elif payload.action == "correction" and output_is_original:
+        explanation = f"Correccion con {model}: no se han encontrado errores de norma."
+    elif payload.action == "correction":
+        explanation = (
+            f"Correccion con {model}: errores de ortografia, puntuacion o gramatica "
+            "corregidos sin cambiar el estilo."
         )
     else:
         explanation = (

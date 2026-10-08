@@ -1,3 +1,4 @@
+import pytest
 from datetime import UTC, datetime
 
 from app.core.models import GenerationInput, ScoreVariable
@@ -111,7 +112,7 @@ def test_deterministic_correction_preserves_protected_terms():
     assert result.output == "¿La Mayoría, decide?"
 
 
-def test_openai_failure_falls_back_to_deterministic_generation(monkeypatch):
+def test_openai_failure_is_reported_instead_of_silent_fallback(monkeypatch):
     class FailingResponses:
         def create(self, **kwargs):
             raise RuntimeError("rate limit")
@@ -120,44 +121,94 @@ def test_openai_failure_falls_back_to_deterministic_generation(monkeypatch):
         def __init__(self):
             self.responses = FailingResponses()
 
-    variable = ScoreVariable(
-        key="dinamismo",
-        label="Dinamismo",
-        category="tono",
-        calculated_value=500,
-        manual_adjustment=0,
-        confidence=0.5,
-        context="general",
-        evidence_count=0,
-        updated_at=datetime.now(UTC),
-    )
-
     monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
     monkeypatch.setattr(service, "OpenAI", FailingOpenAI)
+
+    with pytest.raises(service.GenerationUnavailable) as error:
+        service.rewrite_with_profile(
+            GenerationInput(
+                text="Primera frase. Segunda frase. Tercera frase. Cuarta frase.",
+                action="rewrite",
+                context="general",
+            ),
+            [],
+        )
+
+    assert "no se ha modificado" in str(error.value)
+
+
+def test_empty_or_incomplete_model_output_is_reported(monkeypatch):
+    class Responses:
+        def __init__(self, output, status):
+            self.output = output
+            self.status = status
+
+        def create(self, **kwargs):
+            class Response:
+                pass
+
+            response = Response()
+            response.output_text = self.output
+            response.status = self.status
+            return response
+
+    for output, status in (("", "completed"), ("Texto a medias", "incomplete")):
+
+        class StubOpenAI:
+            def __init__(self, output=output, status=status):
+                self.responses = Responses(output, status)
+
+        monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+        monkeypatch.setattr(service, "OpenAI", StubOpenAI)
+
+        with pytest.raises(service.GenerationUnavailable):
+            service.rewrite_with_profile(
+                GenerationInput(text="Texto de prueba.", action="correction", context="general"),
+                [],
+            )
+
+
+def test_correction_uses_model_with_grammar_contract_and_knowledge(monkeypatch):
+    captured: dict[str, object] = {}
+
+    class CapturingResponses:
+        def create(self, **kwargs):
+            captured.update(kwargs)
+
+            class Response:
+                output_text = "Había muchos problemas y lo vi en la esquina."
+                status = "completed"
+
+            return Response()
+
+    class CapturingOpenAI:
+        def __init__(self):
+            self.responses = CapturingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(service, "OpenAI", CapturingOpenAI)
 
     result = service.rewrite_with_profile(
         GenerationInput(
-            text="Primera frase. Segunda frase. Tercera frase. Cuarta frase.",
-            action="rewrite",
+            text="Habian muchos problemas y le vi en la esquina.",
+            action="correction",
             context="general",
         ),
-        [variable],
+        [],
+        knowledge_notes=[("Haber impersonal", "Se usa en singular: había muchos problemas.")],
     )
 
-    assert result.provider == "deterministic"
-    assert result.learning_applied is False
-    assert "No se pudo completar la generacion externa" in result.explanation
-    assert "Reescritura estructural local" in result.explanation
-    assert "\n\n" in result.output
+    prompt = str(captured["input"])
+    assert result.provider == "openai"
+    assert result.output == "Había muchos problemas y lo vi en la esquina."
+    assert "dequeismo" in prompt and "leismo" in prompt
+    assert "Subordinadas mal construidas" in prompt
+    assert "Haber impersonal" in prompt
+    assert "Correccion con" in result.explanation
 
 
-def test_correction_uses_local_path_even_when_openai_is_configured(monkeypatch):
-    class FailingOpenAI:
-        def __init__(self):
-            raise AssertionError("Correction must not initialize OpenAI")
-
-    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
-    monkeypatch.setattr(service, "OpenAI", FailingOpenAI)
+def test_correction_without_api_key_stays_local(monkeypatch):
+    monkeypatch.delenv("OPENAI_API_KEY", raising=False)
 
     result = service.rewrite_with_profile(
         GenerationInput(
@@ -170,7 +221,6 @@ def test_correction_uses_local_path_even_when_openai_is_configured(monkeypatch):
 
     assert result.output == "Hola, mundo. ¿Esto funciona? ¡Si!"
     assert result.provider == "deterministic"
-    assert "Correccion local segura" in result.explanation
 
 
 def test_openai_noop_uses_local_safe_correction_when_available(monkeypatch):
@@ -990,7 +1040,8 @@ def test_openai_request_uses_latency_controls(monkeypatch):
         [],
     )
 
-    assert captured["max_output_tokens"] >= 220
-    assert captured["reasoning"] == {"effort": "minimal"}
+    # El razonamiento consume tokens de salida: el presupuesto debe incluirlo.
+    assert captured["max_output_tokens"] >= 220 + service.REASONING_TOKEN_BUDGET["medium"]
+    assert captured["reasoning"] == {"effort": "medium"}
     assert captured["store"] is False
     assert captured["timeout"] == 9.0
