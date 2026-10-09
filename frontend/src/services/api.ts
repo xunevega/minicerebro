@@ -136,7 +136,17 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
   }
 
   if (!response.ok) {
-    throw new Error(`API ${response.status}: ${await response.text()}`);
+    const body = await response.text();
+    let message = `API ${response.status}: ${body}`;
+    try {
+      const parsed = JSON.parse(body) as { detail?: unknown };
+      if (typeof parsed.detail === "string" && parsed.detail.trim()) {
+        message = parsed.detail;
+      }
+    } catch {
+      // El cuerpo no es JSON: se conserva el mensaje original.
+    }
+    throw new Error(message);
   }
 
   if (response.status === 204) {

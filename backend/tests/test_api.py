@@ -742,7 +742,8 @@ def test_generation_rewrite_reads_published_cards_without_mutating_knowledge():
         for event in client.get("/audit/events").json()
         if event["id"] not in before_correction
     ]
-    assert all(event["event_type"] != "knowledge.query.executed" for event in correction_events)
+    # La correccion tambien consulta las fichas publicadas.
+    assert any(event["event_type"] == "knowledge.query.executed" for event in correction_events)
 
 
 def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledge():
@@ -7559,3 +7560,23 @@ def test_technical_closure_and_contract_boundaries_are_exposed():
     assert sections[22]["status"] == "not_defined_in_v1"
     assert "V2" not in sections[21]["next_step"]
     assert "V2" not in sections[22]["next_step"]
+
+
+def test_generation_reports_model_failure_as_503(monkeypatch):
+    from app.generation import service as generation_service
+
+    class FailingResponses:
+        def create(self, **kwargs):
+            raise RuntimeError("timeout")
+
+    class FailingOpenAI:
+        def __init__(self):
+            self.responses = FailingResponses()
+
+    monkeypatch.setenv("OPENAI_API_KEY", "sk-test")
+    monkeypatch.setattr(generation_service, "OpenAI", FailingOpenAI)
+
+    response = client.post("/correction", json={"text": "Habian muchos problemas.", "context": "general"})
+
+    assert response.status_code == 503
+    assert "no se ha modificado" in response.json()["detail"]

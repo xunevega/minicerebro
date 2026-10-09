@@ -102,7 +102,7 @@ from app.core.security import (
 )
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
-from app.generation.service import rewrite_with_profile
+from app.generation.service import GenerationUnavailable, rewrite_with_profile
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
@@ -1172,8 +1172,6 @@ def _published_knowledge_notes(
     payload: GenerationInput,
     profile_id: str,
 ) -> list[tuple[str, str]]:
-    if payload.action == "correction":
-        return []
     parts = [
         payload.revision_intention,
         payload.action,
@@ -1191,6 +1189,13 @@ def _published_knowledge_notes(
     except KeyError:
         return []
     return [(card.name, card.definition) for card in result.cards]
+
+
+def _generate_or_503(generation_input, variables, knowledge_notes):
+    try:
+        return rewrite_with_profile(generation_input, variables, knowledge_notes=knowledge_notes)
+    except GenerationUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
 
 
 @router.post("/generation")
@@ -1217,7 +1222,7 @@ def generation_create(
     variables = repository.get_context_variables(actor.profile_id, generation_input.context)
     knowledge_notes = _published_knowledge_notes(repository, generation_input, actor.profile_id)
     started_at = perf_counter()
-    generation = rewrite_with_profile(generation_input, variables, knowledge_notes=knowledge_notes)
+    generation = _generate_or_503(generation_input, variables, knowledge_notes)
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
@@ -1258,7 +1263,7 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
         protected_terms=payload.protected_terms,
     )
     knowledge_notes = _published_knowledge_notes(repository, generation_input, actor.profile_id)
-    generation = rewrite_with_profile(generation_input, simulated_variables, knowledge_notes=knowledge_notes)
+    generation = _generate_or_503(generation_input, simulated_variables, knowledge_notes)
     comparison = compare_texts(
         ComparisonInput(
             original=payload.text,
