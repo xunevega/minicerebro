@@ -2020,3 +2020,106 @@ textarea + .primaryButton {
     padding-top: 18px;
   }
 }
+
+/* Revisar por bloques */
+.reviewPanel {
+  display: grid;
+  gap: 14px;
+}
+
+.reviewOverview,
+.reviewReveal {
+  border: 1px solid var(--line);
+  padding: 14px 16px;
+  background: var(--paper);
+}
+
+.reviewOverview h3,
+.reviewReveal h3 {
+  margin: 0 0 6px;
+}
+
+.reviewBlock {
+  border: 1px solid var(--line);
+  border-left: 4px solid var(--line);
+  padding: 12px 14px;
+  display: grid;
+  gap: 8px;
+  background: var(--paper);
+}
+
+.reviewBlock.hasProblem {
+  border-left-color: var(--accent);
+}
+
+.reviewBlock header {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.diagnosisTag {
+  font-size: 0.8rem;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--accent-soft);
+  color: var(--ink);
+}
+
+.diagnosisTag.ok {
+  background: transparent;
+  border: 1px solid var(--line);
+  color: var(--muted);
+}
+
+.diagnosisText {
+  margin: 0;
+}
+
+.blockOriginal {
+  margin: 6px 0 0;
+  color: var(--muted);
+  white-space: pre-wrap;
+}
+
+.reviewOptions {
+  display: grid;
+  gap: 8px;
+}
+
+.reviewOption {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 4px 10px;
+  border: 1px solid var(--line);
+  padding: 10px 12px;
+  cursor: pointer;
+}
+
+.reviewOption input {
+  grid-row: span 2;
+  margin-top: 4px;
+}
+
+.reviewOption.selected {
+  border-color: var(--ink);
+}
+
+.reviewOption .optionHead {
+  font-weight: 600;
+}
+
+.reviewOption .optionText {
+  white-space: pre-wrap;
+}
+
+.revealItem {
+  border-top: 1px solid var(--line);
+  padding-top: 10px;
+  margin-top: 10px;
+}
+
+.revealItem.trap strong {
+  color: var(--accent);
+}

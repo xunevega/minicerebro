@@ -13,7 +13,9 @@ import type {
   ExpectedAnswerLine,
   FeedbackProposal,
   FeedbackStatus,
+  BlockReviewResult,
   GeneratedText,
+  ReviewChoice,
   GenerationAction,
   GenerationResult,
   KnowledgeCandidateVersionCreate,
@@ -722,6 +724,39 @@ export function generateText(
       user_instruction: userInstruction,
       protected_terms: protectedTerms,
     }),
+  });
+}
+
+export function reviewBlocks(
+  text: string,
+  context: string,
+  genre: string,
+  intensity: number,
+  userInstruction: string,
+  protectedTerms: string[],
+) {
+  return request<BlockReviewResult>("/review", {
+    method: "POST",
+    body: JSON.stringify({
+      text,
+      context,
+      genre,
+      intensity,
+      user_instruction: userInstruction,
+      protected_terms: protectedTerms,
+    }),
+  });
+}
+
+export function saveReviewChoices(
+  context: string,
+  genre: string,
+  intensity: number,
+  choices: ReviewChoice[],
+) {
+  return request<{ recorded: number; learning_applied: boolean }>("/review/choices", {
+    method: "POST",
+    body: JSON.stringify({ context, genre, intensity, choices }),
   });
 }
 

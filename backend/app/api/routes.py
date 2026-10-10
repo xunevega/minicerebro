@@ -17,6 +17,9 @@ from app.closure.service import (
 )
 from app.comparison.service import compare_texts
 from app.core.models import (
+    BlockReviewInput,
+    BlockReviewResult,
+    ReviewChoicesInput,
     AcceptanceCriterion,
     ApplyProfileKnowledgeCardScoreInput,
     ApplyScoreProposalInput,
@@ -103,6 +106,7 @@ from app.core.security import (
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import GenerationUnavailable, rewrite_with_profile
+from app.review.service import ReviewTooLong, review_blocks
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
@@ -1282,3 +1286,62 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
 @router.post("/lab/compare")
 def lab_compare(payload: ComparisonInput) -> ComparisonResult:
     return compare_texts(payload)
+
+
+@router.post("/review")
+def block_review(payload: BlockReviewInput, repository: RepositoryDep, actor: ActorDep) -> BlockReviewResult:
+    """Revisar: diagnostico de editor por bloques con alternativas y loco Ivan."""
+    notes = _published_knowledge_notes(
+        repository,
+        GenerationInput(
+            text=payload.text,
+            action="review",
+            context=payload.context,
+            intensity=payload.intensity,
+            revision_intention="estructura",
+            user_instruction=payload.user_instruction,
+        ),
+        actor.profile_id,
+    )
+    started_at = perf_counter()
+    try:
+        result = review_blocks(payload, knowledge_notes=notes)
+    except ReviewTooLong as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    except GenerationUnavailable as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+    repository.add_audit_event(
+        "text.review.executed",
+        "profile",
+        actor.profile_id,
+        {
+            "context": payload.context,
+            "genre": payload.genre,
+            "intensity": payload.intensity,
+            "word_count": result.word_count,
+            "block_count": len(result.blocks),
+            "problem_blocks": sum(1 for block in result.blocks if block.has_problem),
+            "probe_blocks": result.probe_blocks,
+            "duration_ms": max(0, round((perf_counter() - started_at) * 1000)),
+        },
+    )
+    repository.session.commit()
+    return result
+
+
+@router.post("/review/choices")
+def record_review_choices(payload: ReviewChoicesInput, repository: RepositoryDep, actor: ActorDep) -> dict:
+    """Registra que alternativa eligio el autor en cada bloque (base del aprendizaje)."""
+    repository.add_audit_event(
+        "review.choices.recorded",
+        "profile",
+        actor.profile_id,
+        {
+            "context": payload.context,
+            "genre": payload.genre,
+            "intensity": payload.intensity,
+            "choices": [choice.model_dump() for choice in payload.choices],
+        },
+    )
+    repository.session.commit()
+    return {"recorded": len(payload.choices), "learning_applied": False}
