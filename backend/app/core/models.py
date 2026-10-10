@@ -910,6 +910,65 @@ class GenerationResult(BaseModel):
     provider: str = "deterministic"
 
 
+class BlockReviewInput(BaseModel):
+    text: str = Field(min_length=1, max_length=12000)
+    context: str = "general"
+    genre: str = Field(default="", max_length=300)
+    intensity: int = Field(default=500, ge=0, le=1000)
+    user_instruction: str = Field(default="", max_length=500)
+    protected_terms: list[str] = Field(default_factory=list)
+
+
+class ReviewDiagnosis(BaseModel):
+    kind: str
+    explanation: str
+
+
+class ReviewAlternative(BaseModel):
+    label: str
+    approach: str
+    text: str
+    # Loco Ivan: se revela al autor despues de elegir, nunca antes.
+    probe: bool = False
+    probe_kind: str = ""
+    probe_reveal: str = ""
+
+
+class ReviewBlock(BaseModel):
+    index: int
+    original: str
+    has_problem: bool
+    diagnoses: list[ReviewDiagnosis] = Field(default_factory=list)
+    alternatives: list[ReviewAlternative] = Field(default_factory=list)
+
+
+class BlockReviewResult(BaseModel):
+    overview: str
+    blocks: list[ReviewBlock]
+    word_count: int
+    provider: str = "openai"
+    model: str = ""
+    probe_blocks: list[int] = Field(default_factory=list)
+    learning_applied: bool = False
+
+
+class ReviewChoice(BaseModel):
+    block_index: int
+    chosen: str = Field(pattern="^(A|B|C|mantener)$")
+    diagnosis_kinds: list[str] = Field(default_factory=list)
+    approach: str = ""
+    probe: bool = False
+    probe_kind: str = ""
+    kept_after_reveal: bool = True
+
+
+class ReviewChoicesInput(BaseModel):
+    context: str = "general"
+    genre: str = ""
+    intensity: int = Field(default=500, ge=0, le=1000)
+    choices: list[ReviewChoice]
+
+
 class GeneratedText(BaseModel):
     id: UUID = Field(default_factory=uuid4)
     profile_id: str

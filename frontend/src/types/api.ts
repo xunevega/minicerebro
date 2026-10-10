@@ -994,3 +994,45 @@ export type ContractBoundary = {
   reason: string;
   next_step: string;
 };
+
+export type ReviewDiagnosis = {
+  kind: string;
+  explanation: string;
+};
+
+export type ReviewAlternative = {
+  label: "A" | "B" | "C";
+  approach: string;
+  text: string;
+  probe: boolean;
+  probe_kind: string;
+  probe_reveal: string;
+};
+
+export type ReviewBlock = {
+  index: number;
+  original: string;
+  has_problem: boolean;
+  diagnoses: ReviewDiagnosis[];
+  alternatives: ReviewAlternative[];
+};
+
+export type BlockReviewResult = {
+  overview: string;
+  blocks: ReviewBlock[];
+  word_count: number;
+  provider: string;
+  model: string;
+  probe_blocks: number[];
+  learning_applied: boolean;
+};
+
+export type ReviewChoice = {
+  block_index: number;
+  chosen: "A" | "B" | "C" | "mantener";
+  diagnosis_kinds: string[];
+  approach: string;
+  probe: boolean;
+  probe_kind: string;
+  kept_after_reveal: boolean;
+};

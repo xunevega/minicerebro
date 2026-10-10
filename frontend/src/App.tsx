@@ -74,7 +74,9 @@ import {
   registerKnowledgeSegments,
   registerKnowledgeSourceEdition,
   rejectKnowledgeProposal,
+  reviewBlocks,
   reviewText,
+  saveReviewChoices,
   saveRevisionFeedback,
   saveProfileKnowledgeCard,
   simulateLab,
@@ -137,8 +139,11 @@ import type {
   TechnicalRoadmapPhase,
   TextRevisionResult,
   V1Screen,
+  BlockReviewResult,
+  ReviewChoice,
 } from "./types/api";
 import { AuthScreen } from "./AuthScreen";
+import { ReviewPanel } from "./ReviewPanel";
 import {
   classifyKnowledgeCard,
   libraryAreaLabel,
@@ -446,6 +451,9 @@ function AppShell({
   const [revisionIntention, setRevisionIntention] = useState("claridad");
   const [userInstruction, setUserInstruction] = useState("");
   const [protectedTerms, setProtectedTerms] = useState("");
+  const [textGenre, setTextGenre] = useState("");
+  const [blockReview, setBlockReview] = useState<BlockReviewResult | null>(null);
+  const [blockReviewing, setBlockReviewing] = useState(false);
   const [generation, setGeneration] = useState<GenerationResult | null>(null);
   const [editorGenerating, setEditorGenerating] = useState(false);
   const [generationCopyStatus, setGenerationCopyStatus] = useState("");
@@ -1748,7 +1756,41 @@ function AppShell({
     }
   }
 
+  async function handleBlockReview() {
+    setError(null);
+    setBlockReviewing(true);
+    setBlockReview(null);
+    setGeneration(null);
+    setComparison(null);
+    setTextRevision(null);
+    try {
+      const result = await reviewBlocks(
+        editorText,
+        activeContext,
+        textGenre.trim(),
+        editorIntensity,
+        userInstruction.trim(),
+        protectedTerms
+          .split(",")
+          .map((term) => term.trim())
+          .filter(Boolean),
+      );
+      setBlockReview(result);
+    } catch (nextError) {
+      setError((nextError as Error).message);
+    } finally {
+      setBlockReviewing(false);
+    }
+  }
+
+  function handleRecordReviewChoices(choices: ReviewChoice[]) {
+    void saveReviewChoices(activeContext, textGenre.trim(), editorIntensity, choices).catch((nextError: unknown) => {
+      setError((nextError as Error).message);
+    });
+  }
+
   function handleClearEditor() {
+    setBlockReview(null);
     setEditorText("");
     setEditorOriginalBeforeGeneration("");
     setGeneration(null);
@@ -3322,6 +3364,16 @@ function AppShell({
                   />
                   <span className="controlHint">Orienta sentido, tono o estilo solo para esta propuesta.</span>
                 </label>
+                <label className="editorControl termsControl" htmlFor="textGenre">
+                  <span className="controlLabel">Tipo de texto</span>
+                  <input
+                    className="textInput"
+                    id="textGenre"
+                    onChange={(event) => setTextGenre(event.target.value)}
+                    placeholder="Ej.: ensayo de opinión; cuento infantil con tono gótico"
+                    value={textGenre}
+                  />
+                </label>
                 <label className="editorControl termsControl" htmlFor="protectedTerms">
                   <span className="controlLabel">Términos protegidos</span>
                   <input
@@ -3347,6 +3399,15 @@ function AppShell({
                   type="button"
                 >
                   {editorGenerating ? "Trabajando..." : "Crear propuesta"}
+                </button>
+                <button
+                  className="primaryButton editorButton"
+                  disabled={!editorHasDraft || editorGenerating || blockReviewing}
+                  onClick={() => void handleBlockReview()}
+                  title="Lectura de editor por bloques: diagnostica párrafos e ideas y te da opciones"
+                  type="button"
+                >
+                  {blockReviewing ? "Revisando..." : "Revisar por bloques"}
                 </button>
                 <button
                   className="secondaryButton editorButton"
@@ -3382,6 +3443,20 @@ function AppShell({
             <div className="inspector outputPane">
               <span className="fieldRole">Aqui sale la respuesta</span>
               <h2>Salida</h2>
+              {blockReviewing ? (
+                <div className="emptyOutput workingOutput">
+                  <strong>Leyendo como un editor</strong>
+                  <p>Editados está revisando bloque a bloque. Puede tardar un minuto.</p>
+                </div>
+              ) : blockReview ? (
+                <ReviewPanel
+                  onApply={(text) => setEditorText(text)}
+                  onChoicesRecorded={handleRecordReviewChoices}
+                  onClose={() => setBlockReview(null)}
+                  result={blockReview}
+                />
+              ) : (
+              <>
               {editorGenerating ? (
                 <div className="emptyOutput workingOutput">
                   <strong>Preparando propuesta</strong>
@@ -3610,6 +3685,8 @@ function AppShell({
                   </p>
                 </div>
               ) : null}
+              </>
+              )}
             </div>
           </section>
         )}
