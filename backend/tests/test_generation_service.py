@@ -1045,3 +1045,22 @@ def test_openai_request_uses_latency_controls(monkeypatch):
     assert captured["reasoning"] == {"effort": "medium"}
     assert captured["store"] is False
     assert captured["timeout"] == 9.0
+
+
+def test_repetition_filter_keeps_paragraph_breaks():
+    text = "Primer parrafo. Sigue.\n\nAhi comienza el silencio.\n\nTercer parrafo."
+
+    assert _remove_redundant_repetition_markers(text) == text
+
+
+def test_repetition_filter_keeps_paragraphs_when_removing_a_repeat():
+    text = (
+        "El texto no termina de funcionar como deberia.\n\n"
+        "Repito: el texto no acaba de ir como corresponde. Otra idea distinta."
+    )
+
+    result = _remove_redundant_repetition_markers(text)
+
+    assert "Repito" not in result
+    assert result.startswith("El texto no termina de funcionar como deberia.")
+    assert "Otra idea distinta." in result
