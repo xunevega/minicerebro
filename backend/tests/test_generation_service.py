@@ -388,8 +388,8 @@ def test_openai_prompt_includes_conservative_rewrite_and_revision_lens(monkeypat
         [],
     )
 
-    assert "mejorar claridad de forma suave" in captured["input"]
-    assert "Conserva hechos, sujetos, matices" in captured["input"]
+    assert "aclarar y simplificar (intensidad media)" in captured["input"]
+    assert "Nunca elimines informacion ni matices de sentido" in captured["input"]
     assert "Mirada: voz y tono" in captured["input"]
 
 
@@ -477,15 +477,12 @@ def test_default_edit_prompt_allows_sentence_reformulation(monkeypatch):
         [],
     )
 
-    assert "Puedes cambiar una frase completa" in captured["input"]
-    assert "editar no significa conservar el fraseo original" in captured["input"]
-    assert "Puedes mover frases de lugar" in captured["input"]
-    assert "eliminar repeticiones claras" in captured["input"]
-    assert "no la mantengas solo por fidelidad" in captured["input"]
-    assert "integrala una sola vez" in captured["input"]
-    assert "coloca antes la idea principal" in captured["input"]
-    assert "No conserves marcadores de repeticion" in captured["input"]
-    assert "No te limites a corregir faltas" in captured["input"]
+    prompt = captured["input"]
+    assert "La simplificacion debe notarse" in prompt
+    assert "elimina solo redundancias" in prompt
+    assert "transformarlos si la frase gana" in prompt
+    assert "puedes cambiar palabras para pulir la prosa" in prompt
+    assert "conserva los saltos de parrafo" in prompt
 
 
 def test_openai_prompt_includes_user_instruction_without_learning(monkeypatch):
@@ -568,13 +565,11 @@ def test_openai_prompt_allows_decided_rewrite_at_high_intensity(monkeypatch):
     )
 
     assert result.output != original
-    assert "reescritura decidida pero fiel" in captured["input"]
-    assert "Puedes compactar, reordenar" in captured["input"]
-    assert "No confundas fidelidad con retoque minimo" in captured["input"]
-    assert "reescritura grande puede" in captured["input"]
-    assert "ser correcta" in captured["input"]
-    assert "darle forma de texto" in captured["input"]
-    assert "maquillarlo con correcciones pequenas" in captured["input"]
+    prompt = captured["input"]
+    assert "reescritura con impacto (intensidad alta)" in prompt
+    assert "arranques que enganchen, cierres que resuenen" in prompt
+    assert "partir o fundir parrafos" in prompt
+    assert "Nunca elimines informacion ni matices de sentido" in prompt
 
 
 def test_openai_rewrite_treats_community_note_as_communicative_draft(monkeypatch):
@@ -1064,3 +1059,10 @@ def test_repetition_filter_keeps_paragraphs_when_removing_a_repeat():
     assert "Repito" not in result
     assert result.startswith("El texto no termina de funcionar como deberia.")
     assert "Otra idea distinta." in result
+
+
+def test_edit_contract_changes_objective_by_intensity():
+    assert "retoque (intensidad baja)" in service._edit_contract(200)
+    assert "aclarar y simplificar (intensidad media)" in service._edit_contract(500)
+    assert "reescritura con impacto (intensidad alta)" in service._edit_contract(800)
+    assert "Si el texto ya esta bien, cambia muy poco" in service._edit_contract(0)

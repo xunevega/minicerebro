@@ -3287,6 +3287,13 @@ function AppShell({
                     type="range"
                     value={editorIntensity}
                   />
+                  <span className="controlHint">
+                    {editorIntensity >= 750
+                      ? "Alta: reescritura con impacto."
+                      : editorIntensity >= 400
+                        ? "Media: aclarar y simplificar."
+                        : "Baja: retoques."}
+                  </span>
                 </label>
                 <label className="editorControl revisionControl">
                   <span className="controlLabel">Mirada</span>
