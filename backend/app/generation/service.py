@@ -254,94 +254,7 @@ Reglas especificas:
   de terceros que el usuario no haya aportado.
 - Devuelve solo la version editada.
 """.strip()
-        if payload.intensity >= 850:
-            return """
-Objetivo: mejorar claridad con una reescritura decidida pero fiel.
-Reglas especificas:
-- Esta accion es editar: puede cambiar estructura, enfoque y formulacion si eso
-  hace que el texto funcione mejor.
-- Puedes compactar, reordenar y sustituir formulaciones torpes si mejora la lectura.
-- Si el borrador parece una nota, correo, aviso o lista de puntos, puedes convertirlo en
-  una version final clara y enviable.
-- Puedes usar saludo, cierre y lista de puntos cuando el propio borrador lo pida.
-- Puedes cambiar la arquitectura del texto cuando ayude: orden de parrafos,
-  apartados, enumeraciones, foco inicial y cierre.
-- Si el usuario da una indicacion concreta de angulo, aplicala como prioridad de
-  esta salida.
-- En intensidad alta, fidelidad significa conservar hechos, intencion y dudas; no
-  conservar literalmente la misma frase.
-- Si el original es un borrador bruto, una explicacion aproximada o una nota
-  desordenada, puedes rehacer casi toda la redaccion.
-- No confundas fidelidad con retoque minimo: si el texto esta mal enfocado,
-  desordenado o explicado "como se ha podido", reescribelo hasta que funcione.
-- No midas la calidad por el tamano del cambio: una reescritura grande puede
-  ser correcta si conserva hechos, dudas e intencion.
-- El usuario puede traer material bruto; tu trabajo es darle forma de texto, no
-  maquillarlo con correcciones pequenas.
-- Explicita dudas ya presentes, pero no anadas datos nuevos.
-- Puedes dar forma tecnica prudente a informacion ya aportada, sin cerrar causas
-  que el borrador presenta como inciertas.
-- Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
-- No conviertas una atribucion en una afirmacion propia.
-- No introduzcas informacion nueva ni elimines informacion relevante.
-- No endurezcas el tono para que suene mas rotundo.
-- Si un cambio altera el sentido, conserva la formulacion original.
-""".strip()
-        if payload.intensity >= 650:
-            return """
-Objetivo: mejorar claridad con cambios moderados.
-Reglas especificas:
-- Esta accion es editar, no limpiar: si el problema es de orden, foco o sentido,
-  actua sobre el texto completo.
-- Puedes reescribir frases completas cuando ganen claridad, naturalidad o ritmo,
-  aunque no tengan errores gramaticales.
-- Puedes ordenar, mover de lugar, dividir, fusionar, sustituir o eliminar frases
-  redundantes si el sentido queda intacto.
-- Si una frase repite una idea ya dicha sin aportar matiz nuevo, eliminala o
-  fusiona su informacion con la frase que corresponda.
-- Si el borrador usa marcadores como "repito", "como decia" o "vuelvo a decir"
-  solo para repetir una idea, elimina el marcador y conserva la idea una sola vez.
-- Si la idea principal aparece tarde o una frase esta fuera de lugar, recolocala
-  donde ayude mas a la comprension.
-- Si el texto es un borrador bruto o una explicacion aproximada, no te limites a
-  articulos, comas o tildes: mejora la formulacion real.
-- No valores "cambiar poco" como bueno por si mismo; valora si el resultado
-  queda mas claro y fiel a lo que el usuario queria decir.
-- Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
-- Evita cambiar verbos o expresiones que ya sean claros, pero cambia los que
-  estorben a la comprension.
-- No resumas, no amplies y no introduzcas informacion nueva.
-- Si no hay una mejora clara, conserva la formulacion original.
-- Si el usuario da una indicacion libre, usala para orientar el angulo sin
-  convertirla en dato nuevo.
-""".strip()
-        return """
-Objetivo: mejorar claridad de forma suave.
-Reglas especificas:
-- Esta accion es editar con baja intensidad: evita rehacer por capricho, pero no
-  la reduzcas a comas y erratas si hay una mejora real de escritura.
-- Puedes cambiar una frase completa si la frase actual suena torpe, confusa o
-  poco natural; editar no significa conservar el fraseo original.
-- Puedes mover frases de lugar o eliminar repeticiones claras cuando ayude a que
-  el texto fluya mejor.
-- Si detectas una repeticion clara, no la mantengas solo por fidelidad: elimina
-  la frase repetida o integrala una sola vez.
-- No conserves marcadores de repeticion como "repito", "como decia" o "vuelvo a
-  decir" cuando solo indican que el borrador esta duplicando una idea.
-- Si el orden actual debilita la lectura, coloca antes la idea principal o mueve
-  la frase al punto donde tenga mas sentido.
-- No te limites a corregir faltas: reformula con prudencia cuando mejore la
-  comprension sin cambiar hechos.
-- Conserva hechos, sujetos, matices, grado de certeza, causalidad y atribuciones.
-- No cambies un verbo o una expresion si el original ya se entiende, pero no
-  confundas limpieza superficial con mejora cuando una frase esta torpe.
-- No endurezcas el tono para que suene mas rotundo.
-- No resumas, no amplies y no introduzcas informacion nueva.
-- Manten la estructura de parrafos salvo que haya una mejora claramente necesaria.
-- Si el usuario da una indicacion libre, puede orientar tono, registro o angulo
-  sin convertirse en aprendizaje permanente.
-- Si no hay una mejora segura, devuelve exactamente el texto original.
-""".strip()
+        return _edit_contract(payload.intensity)
     if payload.action == "correction":
         return """
 Objetivo: corregir errores de norma del espanol sin cambiar el estilo del autor.
@@ -362,6 +275,8 @@ Como corriges:
 - No cambies vocabulario, orden ni ritmo cuando no hay error. Una frase correcta
   que te parezca mejorable no se toca: eso es estilo, no correccion.
 - Respeta el habla de los personajes en el dialogo y las licencias evidentes.
+- Una forma admitida por la norma no es un error aunque exista otra
+  preferible: no la cambies.
 - Si no hay ningun error, devuelve el texto tal cual.
 """.strip()
     if payload.action == "continue":
@@ -378,6 +293,57 @@ Reglas especificas:
 - Ofrece alternativas diferenciadas sin borrar la intencion original.
 """.strip()
     return "Objetivo: trabajar el texto conservando la intencion original."
+
+
+# Criterio editorial de "Editar" (docs/CRITERIO_EDITORIAL.md). Decidido por el
+# autor: el objetivo depende de la intensidad; solo se recortan redundancias;
+# los recursos pueden quitarse si la frase gana; el lexico puede pulirse.
+EDIT_COMMON_RULES = """
+Criterio comun a cualquier intensidad:
+- Recortar: elimina solo redundancias (ideas repetidas, palabras de relleno).
+  Nunca elimines informacion ni matices de sentido: agentes ("por los
+  ciudadanos"), cronologia ("despues"), atribuciones ("Mill insistio") ni el
+  tiempo verbal de una idea atribuida a otro ("debia" no pasa a "debe").
+- Recursos expresivos (anafora, paralelismo, repeticion enfatica): puedes
+  quitarlos o transformarlos si la frase gana claridad o fuerza.
+- Lexico: puedes cambiar palabras para pulir la prosa.
+- Norma: no introduzcas errores ni empeores la puntuacion o la concordancia.
+- Parrafos: conserva los saltos de parrafo y las frases aisladas en su propio
+  parrafo, salvo que la intensidad alta justifique reorganizarlos.
+- Conserva hechos, tesis, nombres, citas y grado de certeza.
+- Devuelve solo el texto editado.
+""".strip()
+
+
+def _edit_contract(intensity: int) -> str:
+    if intensity >= 750:
+        objective = """
+Objetivo: reescritura con impacto (intensidad alta).
+- El texto debe ganar fuerza: arranques que enganchen, cierres que resuenen,
+  frases mas rotundas y un ritmo que sostenga la lectura.
+- Puedes reformular frases enteras, reordenar ideas dentro del fragmento,
+  partir o fundir parrafos y cambiar la arquitectura si el texto gana.
+- No midas el exito por cuanto se parece al original, sino por cuanto mejor
+  funciona sin perder lo que dice.
+""".strip()
+    elif intensity >= 400:
+        objective = """
+Objetivo: aclarar y simplificar (intensidad media).
+- El texto debe quedar mas directo y facil de leer.
+- Simplifica frases largas o enredadas, elimina redundancias, cambia
+  construcciones torpes y ajusta el orden de las frases si mejora la lectura.
+- La simplificacion debe notarse: no te limites a retoques de palabras sueltas.
+- Manten la estructura de parrafos.
+""".strip()
+    else:
+        objective = """
+Objetivo: retoque (intensidad baja).
+- Pule la prosa sin reescribirla: palabras mas precisas, una frase torpe
+  resuelta, alguna redundancia fuera.
+- Conserva la estructura de frases y parrafos.
+- Si el texto ya esta bien, cambia muy poco.
+""".strip()
+    return f"{objective}\n{EDIT_COMMON_RULES}"
 
 
 def _revision_intention_contract(intention: str) -> str:
