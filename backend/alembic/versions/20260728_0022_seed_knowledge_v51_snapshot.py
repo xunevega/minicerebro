@@ -10,6 +10,7 @@ from collections.abc import Sequence
 
 from alembic import op
 import sqlalchemy as sa
+from sqlalchemy.schema import sort_tables
 
 from app.knowledge.snapshot_data import load_knowledge_seed_snapshot
 
@@ -26,8 +27,15 @@ def upgrade() -> None:
     bind = op.get_bind()
     metadata = sa.MetaData()
 
-    for table_name, rows in snapshot["tables"].items():
-        table = sa.Table(table_name, metadata, autoload_with=bind)
+    # Insertar en orden de dependencias (claves foraneas). En orden alfabetico,
+    # knowledge_cards entraba antes que knowledge_versions y PostgreSQL rechazaba
+    # la migracion en una base nueva; SQLite no comprueba las FK y no lo detectaba.
+    tables = {
+        table_name: sa.Table(table_name, metadata, autoload_with=bind)
+        for table_name in snapshot["tables"]
+    }
+    for table in sort_tables(tables.values()):
+        rows = snapshot["tables"][table.name]
         primary_key = next(iter(table.primary_key.columns))
         for row in rows:
             exists = bind.execute(
