@@ -423,20 +423,26 @@ def _paragraph_rewrite(value: str, sentences_per_paragraph: int = 3) -> str:
 
 
 def _remove_redundant_repetition_markers(value: str) -> str:
-    sentences = SENTENCE_RE.split(value)
-    if len(sentences) < 2:
+    # Conserva los separadores originales (saltos de parrafo incluidos). Antes se
+    # unia todo con espacios y cada "Editar" fundia el texto en un solo parrafo.
+    parts = re.split(r"((?<=[.!?])\s+)", value)
+    sentences = parts[0::2]
+    separators = parts[1::2]
+    if len(sentences) < 2 or not any(REPETITION_MARKER_RE.match(s) for s in sentences):
         return value
 
     kept: list[str] = []
-    for sentence in sentences:
+    for index, sentence in enumerate(sentences):
         marker_match = REPETITION_MARKER_RE.match(sentence)
         if marker_match and kept:
             repeated_body = marker_match.group(1)
-            prior_text = " ".join(kept)
+            prior_text = " ".join(kept[0::2])
             if _content_token_overlap(repeated_body, prior_text) >= 0.35:
                 continue
+        if kept:
+            kept.append(separators[index - 1] if index - 1 < len(separators) else " ")
         kept.append(sentence)
-    return " ".join(kept).strip()
+    return "".join(kept).strip()
 
 
 def _protect_terms(value: str, terms: list[str]) -> tuple[str, list[tuple[str, str]]]:
