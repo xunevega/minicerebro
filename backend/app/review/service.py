@@ -215,7 +215,7 @@ Texto, dividido en bloques numerados:
 
 def review_blocks(
     payload: BlockReviewInput,
-    knowledge_notes: list[tuple[str, str]] | None = None,
+    knowledge_notes: str | list[tuple[str, str]] | None = None,
     rng: random.Random | None = None,
 ) -> BlockReviewResult:
     blocks = split_blocks(payload.text)

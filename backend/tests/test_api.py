@@ -724,12 +724,13 @@ def test_generation_rewrite_reads_published_cards_without_mutating_knowledge():
         for event in client.get("/audit/events").json()
         if event["id"] not in before_ids
     ]
-    assert any(event["event_type"] == "knowledge.query.executed" for event in new_events)
-    query_event = next(
-        event for event in new_events if event["event_type"] == "knowledge.query.executed"
+    # Las fichas se eligen por diagnóstico y se registra cuáles, nunca el texto.
+    selected_event = next(
+        event for event in new_events if event["event_type"] == "oficio.fichas.selected"
     )
-    assert query_event["payload"]["limit"] == 5
-    assert "Habian muchos problemas" not in str(query_event["payload"])
+    selected_ids = [item["id"] for item in selected_event["payload"]["fichas"]]
+    assert "haber-impersonal" in selected_ids
+    assert "Habian muchos problemas" not in str(selected_event["payload"])
 
     before_correction = {event["id"] for event in client.get("/audit/events").json()}
     correction = client.post(
@@ -742,8 +743,8 @@ def test_generation_rewrite_reads_published_cards_without_mutating_knowledge():
         for event in client.get("/audit/events").json()
         if event["id"] not in before_correction
     ]
-    # La correccion tambien consulta las fichas publicadas.
-    assert any(event["event_type"] == "knowledge.query.executed" for event in correction_events)
+    # La corrección también recibe fichas de oficio (solo de norma).
+    assert any(event["event_type"] == "oficio.fichas.selected" for event in correction_events)
 
 
 def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledge():

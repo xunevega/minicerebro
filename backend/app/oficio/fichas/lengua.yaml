@@ -1,0 +1,425 @@
+# Rama 1 · La lengua como material: norma y uso.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+- id: formas-admitidas
+  rama: lengua
+  nombre: Formas admitidas no son errores
+  regla: >-
+    Si la norma admite dos formas, la que eligió el autor no se corrige aunque la otra
+    sea más frecuente o se considere preferible.
+  aplica: >-
+    Siempre que se corrige. Casos típicos: «antes que» y «antes de que», «después que» y
+    «después de que», «le» como complemento directo de persona masculina singular,
+    el verbo en singular o plural con sujetos unidos por «o», «confiar en que» con
+    indicativo o subjuntivo.
+  no_aplica: >-
+    Cuando la forma del autor es un error claro según la norma; entonces se corrige.
+  ejemplos:
+    - mal: "«Antes que llegue» corregido a «Antes de que llegue»."
+      bien: "«Antes que llegue» se deja como está."
+      porque: "Las dos construcciones son correctas."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «antes», «después», «leísmo», «concordancia»"
+  base:
+    acciones: [correction]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: voz-del-autor
+      criterio: "No es estilo, es norma; pero el resultado coincide: no se toca."
+
+- id: dequeismo
+  rama: lengua
+  nombre: Dequeísmo
+  regla: >-
+    No se pone «de» delante de «que» cuando el verbo o la expresión no lo exigen. Prueba:
+    sustituir «que…» por «eso». Si queda «pienso eso», no lleva «de»; si queda «me acuerdo
+    de eso», sí.
+  aplica: >-
+    Verbos de pensamiento, lengua o percepción (pensar, creer, opinar, decir, considerar,
+    imaginar, suponer) y expresiones como «es posible que», «es seguro que».
+  no_aplica: >-
+    Verbos y expresiones que sí rigen «de»: acordarse de, darse cuenta de, estar seguro de,
+    convencerse de, tratarse de. Ahí quitar el «de» crea el error contrario (queísmo).
+  ejemplos:
+    - mal: "Pienso de que no vendrá."
+      bien: "Pienso que no vendrá."
+      porque: "«Pienso eso», no «pienso de eso»."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «dequeísmo»"
+  senales:
+    - patron: '\b(pienso|piensa|piensan|pensaba|creo|cree|creen|creía|opino|opina|considero|considera|dijo|dije|dijeron|imagino|supongo|me parece|le parece|es posible|es probable|es seguro|resulta)\s+de\s+que\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: queismo
+      criterio: "Aplica la prueba de «eso» antes de quitar o poner «de»."
+
+- id: queismo
+  rama: lengua
+  nombre: Queísmo
+  regla: >-
+    Se mantiene «de» delante de «que» cuando el verbo, el nombre o la locución lo exigen.
+    Prueba: «me di cuenta de eso» → «me di cuenta de que».
+  aplica: >-
+    Darse cuenta de, acordarse de, estar seguro de, tener la seguridad de, a pesar de,
+    a fin de, con el fin de, en caso de, convencer de.
+  no_aplica: >-
+    «Antes que» y «después que» también son correctos sin «de». No se añade «de» a verbos
+    que no lo rigen (eso sería dequeísmo).
+  ejemplos:
+    - mal: "Me di cuenta que nadie escuchaba."
+      bien: "Me di cuenta de que nadie escuchaba."
+      porque: "«Darse cuenta de algo»."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «queísmo»"
+  senales:
+    - patron: '\b(cuenta|acuerdo|acuerda|acordaba|seguro|segura|seguros|seguras|seguridad|pesar|fin|caso)\s+que\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: dequeismo
+      criterio: "Aplica la prueba de «eso» antes de quitar o poner «de»."
+
+- id: haber-impersonal
+  rama: lengua
+  nombre: Haber impersonal en singular
+  regla: >-
+    «Haber» con sentido de existencia es impersonal: va siempre en tercera persona del
+    singular, aunque lo que existe sea plural.
+  aplica: >-
+    «Había muchas personas», «hubo protestas», «habrá cambios», «puede haber errores».
+  no_aplica: >-
+    Cuando «haber» es auxiliar de un tiempo compuesto («habían llegado»), concuerda con su
+    sujeto. Tampoco afecta a «haber sido» o «haber hecho» en infinitivo.
+  ejemplos:
+    - mal: "Habían muchas dudas sobre el proyecto."
+      bien: "Había muchas dudas sobre el proyecto."
+      porque: "«Muchas dudas» no es sujeto; es lo que existe."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «haber», apartado de uso impersonal"
+  senales:
+    - patron: '\b(habían|habrán|hubieron|habrían|hayan)\s+(muchos|muchas|varios|varias|pocos|pocas|unos|unas|demasiados|demasiadas|bastantes|tantos|tantas|\d+)\b'
+
+- id: concordancia-sujeto-coordinado
+  rama: lengua
+  nombre: Concordancia con sujetos coordinados
+  regla: >-
+    Con sujetos unidos por «y», el verbo va en plural. Con sujetos unidos por «o», va en
+    plural si se suman y puede ir en singular si son alternativas que se excluyen.
+  aplica: >-
+    Enumeraciones que hacen de sujeto, sobre todo cuando el verbo queda lejos.
+  no_aplica: >-
+    No se corrige un singular con «o» excluyente («Juan o Pedro vendrá»): es correcto.
+    Tampoco cuando los sujetos coordinados forman una unidad («la compra y venta de
+    pisos ha subido»).
+  ejemplos:
+    - mal: "El gobierno y la oposición ha pactado."
+      bien: "El gobierno y la oposición han pactado."
+      porque: "Sujeto coordinado con «y», verbo en plural."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «concordancia»"
+  base:
+    acciones: [correction]
+
+- id: deber-deber-de
+  rama: lengua
+  nombre: «Deber» y «deber de»
+  regla: >-
+    «Deber + infinitivo» expresa obligación. «Deber de + infinitivo» expresa suposición o
+    probabilidad. Para obligación no se usa «deber de».
+  aplica: >-
+    «Debes de pagar» con sentido de obligación pasa a «debes pagar».
+  no_aplica: >-
+    La suposición también se admite sin «de» («debe de tener treinta años» o «debe tener
+    treinta años»): no se corrige.
+  ejemplos:
+    - mal: "Los alumnos deben de entregar el trabajo el lunes."
+      bien: "Los alumnos deben entregar el trabajo el lunes."
+      porque: "Es una obligación, no una suposición."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «deber»"
+  senales:
+    - patron: '\b(debo|debes|debe|debemos|debéis|deben|debía|debían|deberá|deberán)\s+de\s+\w+'
+
+- id: laismo-loismo
+  rama: lengua
+  nombre: Laísmo y loísmo
+  regla: >-
+    El complemento indirecto se expresa con «le» y «les», sea masculino o femenino. «La»,
+    «las», «lo» y «los» son de complemento directo.
+  aplica: >-
+    «La dije la verdad» pasa a «le dije la verdad»; «los di un regalo» pasa a «les di un
+    regalo».
+  no_aplica: >-
+    Cuando «la» o «lo» son complemento directo («la carta, la di ayer») son correctos.
+  ejemplos:
+    - mal: "A María la dije que esperara."
+      bien: "A María le dije que esperara."
+      porque: "«Que esperara» es lo dicho (directo); María es a quien se dice (indirecto)."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «laísmo», «loísmo»"
+  senales:
+    - patron: '\b(la|las)\s+(dije|dijo|dijeron|dijimos|pregunté|preguntó|pidió|pedí|conté|contó|regalé|regaló|escribí|escribió|mandé|mandó)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: leismo
+
+- id: leismo
+  rama: lengua
+  nombre: Leísmo
+  regla: >-
+    El complemento directo se expresa con «lo», «la», «los», «las». El uso de «le» como
+    complemento directo solo se admite para persona masculina singular.
+  aplica: >-
+    «Le vi» referido a una mujer o a una cosa pasa a «la vi» o «lo vi». «Les» como directo
+    plural se desaconseja.
+  no_aplica: >-
+    «Le vi» referido a un hombre está admitido: no se corrige.
+  ejemplos:
+    - mal: "El libro le compré ayer."
+      bien: "El libro lo compré ayer."
+      porque: "Complemento directo de cosa: «lo»."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «leísmo»"
+  relaciones:
+    - tipo: requiere
+      ficha: formas-admitidas
+
+- id: gerundio-posterioridad
+  rama: lengua
+  nombre: Gerundio de posterioridad
+  regla: >-
+    El gerundio expresa una acción simultánea o inmediatamente anterior a la del verbo
+    principal. No debe expresar una consecuencia posterior; para eso se usa otra oración.
+  aplica: >-
+    «Firmó el contrato, cobrando al mes siguiente» pasa a «Firmó el contrato y cobró al mes
+    siguiente».
+  no_aplica: >-
+    Posterioridad inmediata, casi simultánea («Salió dando un portazo»), o gerundio de
+    modo («Llegó corriendo»): son correctos.
+  ejemplos:
+    - mal: "Se cayó por la escalera, rompiéndose la pierna días después."
+      bien: "Se cayó por la escalera y días después supo que se había roto la pierna."
+      porque: "El gerundio no puede presentar un hecho claramente posterior."
+  fuente:
+    obra: "Nueva gramática de la lengua española (RAE y ASALE, 2009)"
+    localizador: "capítulo del gerundio y sus construcciones"
+  senales:
+    - patron: ',\s+\w+(ando|iendo)(se|le|les|lo|la|los|las)?\s+(después|luego|más tarde|posteriormente|al\s+\w+\s+siguiente)\b'
+
+- id: coma-sujeto-verbo
+  rama: lengua
+  nombre: Coma entre sujeto y verbo
+  regla: >-
+    No se escribe coma entre el sujeto y el verbo, aunque el sujeto sea largo.
+  aplica: >-
+    Sujetos extensos o enumeraciones que hacen de sujeto.
+  no_aplica: >-
+    Cuando entre sujeto y verbo hay un inciso, que va entre dos comas («Ana, como sabes,
+    no vendrá»); o cuando el sujeto acaba en «etcétera».
+  ejemplos:
+    - mal: "Los vecinos que llevan años quejándose del ruido, han presentado una denuncia."
+      bien: "Los vecinos que llevan años quejándose del ruido han presentado una denuncia."
+      porque: "La coma separa el sujeto de su verbo."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, la coma"
+  base:
+    acciones: [correction]
+    miradas: [limpieza]
+
+- id: tilde-solo-demostrativos
+  rama: lengua
+  nombre: «Solo» y demostrativos sin tilde
+  regla: >-
+    «Solo» y los demostrativos («este», «ese», «aquel» y sus formas) se escriben sin tilde.
+    Solo se admite la tilde cuando, a juicio de quien escribe, hay riesgo real de
+    ambigüedad.
+  aplica: >-
+    «Sólo quería verte» pasa a «Solo quería verte»; «ésta es la casa» pasa a «esta es la
+    casa».
+  no_aplica: >-
+    Si la frase es realmente ambigua sin tilde («Trabaja sólo los domingos» frente a
+    «trabaja solo»), la tilde del autor se respeta.
+  ejemplos:
+    - mal: "Éste es el único que sólo pide paciencia."
+      bien: "Este es el único que solo pide paciencia."
+      porque: "No hay ambigüedad posible."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. II, tilde diacrítica; precisión de la RAE de 2023 sobre «solo»"
+  senales:
+    - patron: '\b(sólo|éste|ésta|éstos|éstas|ése|ésa|ésos|ésas|aquél|aquélla|aquéllos|aquéllas)\b'
+      tambien_sin_tildes: false
+  relaciones:
+    - tipo: requiere
+      ficha: formas-admitidas
+
+- id: a-nivel-de
+  rama: lengua
+  nombre: «A nivel de» y «en base a»
+  regla: >-
+    «A nivel de» solo cuando hay niveles reales (altura, jerarquía). Si significa «en
+    cuanto a», «en el ámbito de» o «entre», se sustituye. «En base a» se cambia por «a
+    partir de», «sobre la base de», «basándose en», «según» o «en función de».
+  aplica: >-
+    «A nivel de empresa» pasa a «en la empresa»; «en base a los datos» pasa a «según los
+    datos».
+  no_aplica: >-
+    «A nivel del mar», «a nivel de dirección general» (jerarquía real).
+  ejemplos:
+    - mal: "A nivel de comunicación, el equipo ha mejorado en base a la formación."
+      bien: "El equipo se comunica mejor gracias a la formación."
+      porque: "No hay niveles, y la relación es de causa."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «nivel» y «base»"
+  senales:
+    - patron: '\ba nivel de\b'
+    - patron: '\ben base a\b'
+  relaciones:
+    - tipo: requiere
+      ficha: muletillas-y-comodines
+
+- id: infinitivo-introductor
+  rama: lengua
+  nombre: Infinitivo introductor
+  regla: >-
+    El infinitivo no puede funcionar como verbo principal de una oración independiente.
+    «Decir que…», «señalar que…» al comienzo de oración necesitan un verbo conjugado.
+  aplica: >-
+    «Señalar que la reunión se aplaza» pasa a «Hay que señalar que la reunión se aplaza» o
+    «La reunión se aplaza».
+  no_aplica: >-
+    Títulos, instrucciones y enumeraciones de tareas («Revisar el contrato», «Abrir la
+    puerta») son correctos.
+  ejemplos:
+    - mal: "Por último, recordar que el plazo acaba el viernes."
+      bien: "Por último, recordamos que el plazo acaba el viernes."
+      porque: "La oración necesita un verbo conjugado."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «infinitivo»"
+  senales:
+    - patron: '(^|[.:]\s+|por último,\s+|para terminar,\s+)(decir|señalar|destacar|añadir|indicar|recordar|subrayar|comentar)\s+que\b'
+
+- id: mayusculas-dias-meses
+  rama: lengua
+  nombre: Minúscula en días, meses y cargos
+  regla: >-
+    Días de la semana, meses, estaciones, gentilicios, idiomas y cargos se escriben con
+    minúscula, salvo al comienzo de oración o en un título.
+  aplica: >-
+    «El Lunes 3 de Marzo» pasa a «el lunes 3 de marzo»; «el Presidente del Gobierno» pasa
+    a «el presidente del Gobierno».
+  no_aplica: >-
+    Nombres de instituciones y organismos («el Gobierno», «el Ministerio de Sanidad»), y
+    cualquier palabra al principio de oración.
+  ejemplos:
+    - mal: "La reunión será el Martes de la segunda semana de Septiembre."
+      bien: "La reunión será el martes de la segunda semana de septiembre."
+      porque: "Días y meses son nombres comunes."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. IV, mayúsculas y minúsculas"
+  senales:
+    - patron: '(?<=[a-záéíóúñ,] )(Lunes|Martes|Miércoles|Jueves|Viernes|Sábado|Domingo|Enero|Febrero|Marzo|Abril|Mayo|Junio|Julio|Agosto|Septiembre|Setiembre|Octubre|Noviembre|Diciembre)\b'
+      sensible_mayusculas: true
+
+- id: comillas
+  rama: lengua
+  nombre: Comillas en español
+  regla: >-
+    En español se usan primero las comillas angulares («»), después las inglesas (“”) dentro
+    de ellas, y por último las simples (‘’). El punto va detrás de las comillas de cierre.
+  aplica: >-
+    Citas, palabras usadas con sentido especial, títulos de partes de obras.
+  no_aplica: >-
+    Si el autor usa sistemáticamente comillas inglesas, es admisible: se unifican, no se
+    cambian una a una de forma incoherente.
+  ejemplos:
+    - mal: "Dijo \"ya voy\". Y no vino."
+      bien: "Dijo «ya voy». Y no vino."
+      porque: "Las comillas angulares son las de primer nivel en español."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, las comillas"
+  senales:
+    - patron: '"[^"\n]+"'
+  base:
+    miradas: [limpieza]
+
+- id: porque-por-que
+  rama: lengua
+  nombre: Porque, por qué, porqué, por que
+  regla: >-
+    «Porque» introduce una causa. «Por qué» pregunta, directa o indirectamente. «Porqué» es
+    un sustantivo («el porqué»). «Por que» es preposición más relativo («la razón por (la)
+    que») o preposición más conjunción («optó por que vinieran»).
+  aplica: >-
+    Siempre que aparezca cualquiera de las cuatro formas.
+  no_aplica: >-
+    Nada: las cuatro tienen usos distintos y no intercambiables.
+  ejemplos:
+    - mal: "No sé porque se fue."
+      bien: "No sé por qué se fue."
+      porque: "Es una pregunta indirecta."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «porque», «por qué», «porqué», «por que»"
+  senales:
+    - patron: '\b(no sé|no sabe|no saben|no sabía|pregunta|preguntó|explica|explicar|entiendo|entiende)\s+porque\b'
+
+- id: sustituir-a-por
+  rama: lengua
+  nombre: «Sustituir» y «reemplazar»
+  regla: >-
+    «Sustituir A por B»: A deja su sitio a B. «B sustituye a A»: B ocupa el sitio de A. Cambiar
+    el orden o la preposición invierte el sentido.
+  aplica: >-
+    Comprobar que, tras editar, sigue siendo la misma cosa la que sale y la que entra.
+  no_aplica: >-
+    «Sustituir a alguien» en el sentido de hacer sus veces («sustituye al director») es
+    correcto.
+  ejemplos:
+    - mal: "El consenso sustituye el examen."
+      bien: "El consenso sustituye al examen."
+      porque: "El consenso ocupa el lugar del examen; sin «a» parece que lo cambia por otra cosa."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «sustituir»"
+  senales:
+    - patron: '\b(sustituy\w*|sustitui\w*|reemplaz\w*)\b'
+
+- id: tiempo-ideas-atribuidas
+  rama: composicion
+  nombre: Tiempo verbal de lo que dijo otro
+  regla: >-
+    Cuando se refiere lo que dijo, pensó o sostuvo otra persona, se mantiene el tiempo verbal
+    con que el autor lo presenta. Pasar «debía» a «debe» convierte la idea de otro en
+    afirmación vigente del autor.
+  aplica: >-
+    Estilo indirecto y paráfrasis de autores, documentos o personajes: «Mill sostuvo que la
+    libertad debía protegerse».
+  no_aplica: >-
+    Si el autor ya la presenta en presente porque la considera vigente, se deja así.
+  ejemplos:
+    - mal: "Mill sostuvo que la libertad debe protegerse también frente a la sociedad."
+      bien: "Mill sostuvo que la libertad debía protegerse también frente a la sociedad."
+      porque: "El original atribuía la idea a Mill en su tiempo; el presente la hace del autor."
+  fuente:
+    obra: "Nueva gramática de la lengua española (RAE y ASALE, 2009)"
+    localizador: "capítulos del tiempo verbal, correlación de tiempos"
+  senales:
+    - patron: '\b(insistió|sostuvo|afirmó|dijo|escribió|advirtió|temía|creía|pensaba|defendió|señaló|argumentó)\b[^.]{0,80}\b(debía|podía|era|había|tenía|iba)\b'
+  base:
+    acciones: [rewrite]
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos

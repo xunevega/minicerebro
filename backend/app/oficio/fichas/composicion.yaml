@@ -1,0 +1,442 @@
+# Ramas 2 y 3 · Recursos expresivos y composición.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+- id: matices-protegidos
+  rama: composicion
+  nombre: Matices protegidos
+  regla: >-
+    Simplificar no es quitar matices. Modalizadores y cuantificadores (necesariamente,
+    siempre, casi, a menudo, completamente, solo, puede, suele), marcas de cronología
+    (después, todavía), conectores, analogías y miembros de enumeraciones se conservan o
+    se cambian por un equivalente exacto, nunca se suprimen.
+  aplica: >-
+    Toda edición, en cualquier intensidad. Ante la duda entre recortar y conservar, se
+    conserva.
+  no_aplica: >-
+    Intensificadores de relleno («muy», «realmente», «mucho» sin función) sí pueden
+    quitarse.
+  ejemplos:
+    - mal: "Muchas personas no cambian de opinión."
+      bien: "Muchas personas no cambian necesariamente de opinión."
+      porque: "Sin «necesariamente», el texto afirma algo que el autor no afirma."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos»"
+  base:
+    acciones: [rewrite, sendable, review]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: redundancia-real
+      criterio: "Si no está claro que algo sea redundante, es matiz y se queda."
+    - tipo: prioridad_sobre
+      ficha: claridad-y-orden
+      criterio: "Una frase más clara que dice otra cosa no es una mejora."
+
+- id: redundancia-real
+  rama: composicion
+  nombre: Redundancia real
+  regla: >-
+    Se recorta lo que repite sin añadir: pleonasmos («subir arriba»), dos palabras que dicen
+    lo mismo, ideas que ya se han dicho en el mismo párrafo, fórmulas vacías («en el día de
+    hoy»).
+  aplica: >-
+    Cuando al quitar el elemento la frase dice exactamente lo mismo.
+  no_aplica: >-
+    Repeticiones con función (énfasis, anáfora, ritmo, claridad de referencia) y
+    cualquier palabra que cambie el grado de certeza, el tiempo o el alcance.
+  ejemplos:
+    - mal: "En el día de hoy volvemos a repetir que la reunión es totalmente gratuita."
+      bien: "Hoy repetimos que la reunión es gratuita."
+      porque: "«En el día de hoy», «volver a» y «totalmente» no añaden nada."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (palabras vacías y repeticiones)"
+  senales:
+    - patron: '\b(subir arriba|bajar abajo|salir afuera|entrar adentro|volver a repetir|lapso de tiempo|en el día de hoy|totalmente gratis|totalmente gratuito|totalmente gratuita|hace \w+ años atrás|prever de antemano|planificar de antemano|resultado final|accidente fortuito|sorpresa inesperada)\b'
+  base:
+    acciones: [rewrite]
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos
+
+- id: analogias-y-comparaciones
+  rama: composicion
+  nombre: Analogías y comparaciones
+  regla: >-
+    Una analogía («del mismo modo que», «al igual que») relaciona dos ideas. Al editarla
+    debe seguir siendo comparación: no se convierte en una afirmación añadida («tampoco»,
+    punto y coma) ni se cambia el término que se compara.
+  aplica: >-
+    Frases con «del mismo modo que», «de la misma manera que», «al igual que», «así como»,
+    «igual que».
+  no_aplica: >-
+    Puede reformularse la comparación («como…», «igual que…») si sigue comparando lo mismo.
+  ejemplos:
+    - mal: "Ser elegido no hace justo a un gobierno; tampoco garantiza un buen resultado."
+      bien: "Ser elegido no hace justo a un gobierno, del mismo modo que cumplir un procedimiento no garantiza un buen resultado."
+      porque: "En la versión mala, «tampoco» atribuye la segunda idea al primer sujeto."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos»"
+  senales:
+    - patron: '\b(del mismo modo que|de la misma manera que|de igual modo que|al igual que|así como)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos
+
+- id: enumeraciones-argumentales
+  rama: composicion
+  nombre: Enumeraciones con valor argumental
+  regla: >-
+    En una enumeración cada miembro puede llevar una parte de la tesis. No se reduce a uno
+    ni se fusionan miembros distintos.
+  aplica: >-
+    Series de verbos, adjetivos o nombres coordinados: «excluye, consiente o permite», «su
+    moral y sus preferencias».
+  no_aplica: >-
+    Series de sinónimos sin matiz distinto («claro, nítido y diáfano») pueden reducirse.
+  ejemplos:
+    - mal: "Nadie se ve como parte de una fuerza que excluye."
+      bien: "Nadie se ve como parte de una fuerza que excluye, consiente o permite."
+      porque: "«Consiente» y «permite» son la complicidad pasiva que sostiene el argumento."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos»"
+  senales:
+    - patron: '\b\w+, \w+,? (y|o|ni|e|u) \w+\b'
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos
+
+- id: conectores-logicos
+  rama: composicion
+  nombre: Conectores lógicos
+  regla: >-
+    Los conectores (sin embargo, por tanto, en realidad, precisamente, de hecho, incluso)
+    muestran cómo se relacionan las ideas. Al editar se conservan o se sustituyen por otro
+    del mismo valor; si faltan donde la relación no es evidente, se añade uno.
+  aplica: >-
+    Párrafos argumentativos y explicativos; transiciones entre párrafos.
+  no_aplica: >-
+    Conectores amontonados o puestos por costumbre en cada frase («además… además… por
+    otro lado…») pueden aligerarse si la relación sigue siendo evidente.
+  ejemplos:
+    - mal: "Existe una tendencia a dar la discusión por cerrada."
+      bien: "Sin embargo, existe una tendencia a dar la discusión por cerrada."
+      porque: "El párrafo anterior decía lo contrario; sin el conector se pierde el giro."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de los marcadores textuales"
+  senales:
+    - patron: '\b(sin embargo|no obstante|por tanto|por lo tanto|en realidad|de hecho|precisamente|en cambio|por consiguiente)\b'
+  base:
+    miradas: [comprension, estructura]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: redundancia-real
+      criterio: "Un conector con función no es redundante."
+
+- id: claridad-y-orden
+  rama: composicion
+  nombre: Claridad y orden de la frase
+  regla: >-
+    Una frase se entiende mejor cuando el sujeto está cerca de su verbo, lo conocido va
+    antes que lo nuevo y los incisos no separan lo que va unido.
+  aplica: >-
+    Frases que obligan a releer: sujeto lejos del verbo, incisos encadenados, información
+    principal al final de una subordinada.
+  no_aplica: >-
+    Una frase larga bien construida no se parte por ser larga; se parte solo si se pierde
+    el hilo. El hipérbaton buscado en prosa literaria se respeta.
+  ejemplos:
+    - mal: "La propuesta, que según los técnicos que la revisaron en marzo, cuando aún no había presupuesto, era viable, fue rechazada."
+      bien: "Los técnicos que revisaron la propuesta en marzo, cuando aún no había presupuesto, la consideraron viable. Aun así, fue rechazada."
+      porque: "El sujeto quedaba separado de su verbo por dos incisos."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las frases"
+  metricas: [frase_larga]
+  base:
+    miradas: [comprension]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "En ensayo y textos profesionales gana la claridad; en narrativa, la voz."
+
+- id: referencia-ambigua
+  rama: composicion
+  nombre: Referencias ambiguas
+  regla: >-
+    Cada pronombre o posesivo («él», «lo», «su», «este») debe remitir sin duda a una sola
+    palabra. Si hay dos candidatos, se repite el nombre o se reordena.
+  aplica: >-
+    Frases con dos personas o dos cosas del mismo género y número.
+  no_aplica: >-
+    Si el contexto deja claro el referente, no se repite el nombre: la repetición
+    innecesaria es otro defecto.
+  ejemplos:
+    - mal: "Ana habló con Lucía cuando volvió de su viaje."
+      bien: "Ana habló con Lucía cuando esta volvió de su viaje."
+      porque: "Sin «esta», no se sabe quién volvió ni de qué viaje."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las frases (ambigüedad)"
+  base:
+    miradas: [comprension]
+
+- id: parrafo-y-progresion
+  rama: composicion
+  nombre: Párrafo y progresión
+  regla: >-
+    Cada párrafo desarrolla una idea, y cada párrafo nuevo avanza respecto al anterior:
+    añade, matiza, opone o concluye. Si dos párrafos dicen lo mismo, sobra uno; si uno dice
+    dos cosas, se parte.
+  aplica: >-
+    Revisión de estructura y de bloques.
+  no_aplica: >-
+    Párrafos de una sola frase usados como golpe o pausa («Ahí comienza el silencio de la
+    mayoría.») son un recurso; no se funden con el siguiente.
+  ejemplos:
+    - mal: "Dos párrafos seguidos que explican con otras palabras que la mayoría calla."
+      bien: "Un párrafo que lo explica y otro que muestra por qué calla."
+      porque: "El segundo debe avanzar, no repetir."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de los párrafos"
+  base:
+    miradas: [estructura]
+    acciones: [review]
+
+- id: arranque-y-cierre
+  rama: composicion
+  nombre: Arranque y cierre
+  regla: >-
+    El arranque sitúa al lector en el asunto sin preámbulos; el cierre remata o abre, pero
+    no resume lo que acaba de leerse.
+  aplica: >-
+    Primer y último párrafo; mirada de estructura e intensidad alta.
+  no_aplica: >-
+    Cierres que recogen una imagen o una frase del inicio a propósito (estructura circular)
+    son un recurso, no un resumen.
+  ejemplos:
+    - mal: "En este texto vamos a hablar de la democracia y de sus problemas."
+      bien: "La democracia resolvió un problema antiguo y dejó otro sin resolver."
+      porque: "El primero anuncia; el segundo empieza."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Editar», intensidad alta"
+  base:
+    miradas: [estructura]
+
+- id: nominalizacion-y-verbos-comodin
+  rama: composicion
+  nombre: Nominalizaciones y verbos comodín
+  regla: >-
+    Se prefiere el verbo pleno a la construcción con verbo comodín más sustantivo:
+    «revisar» mejor que «realizar la revisión».
+  aplica: >-
+    «Realizar», «efectuar», «llevar a cabo», «proceder a», «hacer entrega», «dar comienzo»,
+    «tener lugar» seguidos de un sustantivo que ya es una acción.
+  no_aplica: >-
+    Cuando el sustantivo aporta algo que el verbo no («hacer una revisión exhaustiva» puede
+    pasar a «revisar a fondo», pero no siempre conviene en lenguaje técnico o jurídico).
+  ejemplos:
+    - mal: "Se procedió a la realización de una evaluación de los riesgos."
+      bien: "Se evaluaron los riesgos."
+      porque: "Tres sustantivos de acción donde basta un verbo."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (verbos)"
+  senales:
+    - patron: '\b(realiz\w+|efectu\w+|llev\w+ a cabo|proced\w+ a|hac\w+ entrega|d\w+ comienzo|tuvo lugar|tendrá lugar|tiene lugar)\b'
+
+- id: pasiva-en-espanol
+  rama: composicion
+  nombre: Pasiva en español
+  regla: >-
+    La pasiva con «ser» es correcta, pero en español es menos frecuente que en inglés. Si el
+    agente no importa, suele sonar mejor la pasiva refleja («se aprobó la ley»); si importa,
+    la activa («el Parlamento aprobó la ley»).
+  aplica: >-
+    Textos con pasivas perifrásticas encadenadas que suenan a traducción.
+  no_aplica: >-
+    No se aplica la regla anglosajona de eliminar toda pasiva. Una pasiva que pone el foco
+    en lo afectado («El acusado fue absuelto») o que es habitual en el registro (jurídico,
+    periodístico) se respeta.
+  ejemplos:
+    - mal: "El informe fue redactado por el equipo y fue enviado por la dirección."
+      bien: "El equipo redactó el informe y la dirección lo envió."
+      porque: "Dos pasivas seguidas con agente expreso; la activa es más natural."
+  fuente:
+    obra: "Nueva gramática de la lengua española (RAE y ASALE, 2009)"
+    localizador: "capítulo de las construcciones pasivas"
+  senales:
+    - patron: '\b(fue|fueron|ha sido|han sido|será|serán|había sido|habían sido)\s+\w+(ado|ada|ados|adas|ido|ida|idos|idas)\s+por\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "Si el autor usa la pasiva para poner el foco, se respeta."
+
+- id: repeticion-torpe
+  rama: composicion
+  nombre: Repetición torpe
+  regla: >-
+    La misma palabra con significado pleno repetida a poca distancia, sin intención, se
+    sustituye por un sinónimo exacto, un pronombre o una reformulación.
+  aplica: >-
+    Palabras de contenido (nombres, verbos, adjetivos) repetidas en la misma frase o en
+    frases contiguas.
+  no_aplica: >-
+    Términos técnicos que deben mantenerse idénticos, repeticiones que evitan ambigüedad y
+    repeticiones con función expresiva (ver repetición enfática).
+  ejemplos:
+    - mal: "El problema del proyecto es que el proyecto no tiene presupuesto para el problema."
+      bien: "El proyecto no tiene presupuesto para resolver ese problema."
+      porque: "Dos repeticiones sin función."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (repeticiones)"
+  metricas: [repeticion_cercana]
+  base:
+    miradas: [limpieza]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: repeticion-enfatica
+      criterio: "Si la repetición está en posición paralela (inicio de frases o miembros), es recurso."
+
+- id: repeticion-enfatica
+  rama: recursos
+  nombre: Anáfora, paralelismo y repetición enfática
+  regla: >-
+    La repetición buscada (misma palabra al inicio de frases, estructuras paralelas) da
+    ritmo y énfasis. Puede quitarse o transformarse solo si la frase gana claridad o fuerza.
+  aplica: >-
+    Series como «nuevas prohibiciones, nuevas palabras y nuevas categorías» o frases
+    consecutivas que empiezan igual.
+  no_aplica: >-
+    Si la repetición es accidental, no es recurso: ver repetición torpe.
+  ejemplos:
+    - mal: "Ese silencio aparece cuando se discuten los detalles y no la premisa, o al preguntar cómo aplicar una medida y no si debe aplicarse."
+      bien: "Ese silencio aparece cuando se discuten todos los detalles excepto la premisa; cuando se pregunta cómo aplicar una medida, pero no si debería aplicarse."
+      porque: "La anáfora «cuando…» marca la acumulación; tratarla como repetición torpe la deshace."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Recursos expresivos»"
+  metricas: [anafora]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: repeticion-torpe
+      criterio: "Si la repetición está en posición paralela (inicio de frases o miembros), es recurso."
+
+- id: muletillas-y-comodines
+  rama: voz
+  nombre: Muletillas y palabras comodín
+  regla: >-
+    Palabras que valen para todo («cosa», «tema», «aspecto», «de alguna manera»,
+    «básicamente») se sustituyen por la palabra exacta o se quitan si no dicen nada.
+  aplica: >-
+    Prosa expositiva y profesional; borradores que acumulan comodines.
+  no_aplica: >-
+    Diálogos y voces de personaje, donde la muletilla caracteriza a quien habla.
+  ejemplos:
+    - mal: "El tema de la financiación es una cosa que de alguna manera hay que abordar."
+      bien: "Hay que resolver cómo se financia."
+      porque: "«Tema», «cosa» y «de alguna manera» ocultan qué se quiere decir."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (palabras comodín)"
+  senales:
+    - patron: '\b(el tema de|la cosa es|una cosa que|de alguna manera|de alguna forma|en cierto modo|básicamente|literalmente|a día de hoy)\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "En diálogos y voces de personaje, la muletilla es caracterización."
+
+- id: topicos-y-frases-hechas
+  rama: voz
+  nombre: Tópicos y frases hechas
+  regla: >-
+    La frase hecha que se escribe sin pensar («en pleno siglo XXI», «poner en valor», «no es
+    baladí») sustituye una idea por un sonido. Se cambia por lo que se quería decir.
+  aplica: >-
+    Ensayo, artículo, texto profesional.
+  no_aplica: >-
+    Uso irónico o deliberado, y voces de personaje.
+  ejemplos:
+    - mal: "En pleno siglo XXI, no es baladí poner en valor la lectura."
+      bien: "Leer sigue importando, aunque compita con todo lo demás."
+      porque: "Tres tópicos seguidos; ninguno dice nada propio."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», rama voz y estilo (enemigos)"
+  senales:
+    - patron: '\b(en pleno siglo xxi|poner en valor|pone en valor|no es baladí|a todas luces|en aras de|cabe destacar|huelga decir|ni que decir tiene|hoy en día más que nunca|a nivel global)\b'
+
+- id: adjetivo-delimitador
+  rama: voz
+  nombre: Adjetivo delimitador y adjetivo de adorno
+  regla: >-
+    El adjetivo que acota el sentido (injusticias «históricas», mayoría «silenciosa») es
+    contenido y se conserva. El que solo decora («importante», «fundamental», «gran») puede
+    quitarse si la frase dice lo mismo sin él.
+  aplica: >-
+    Edición en intensidad media y alta.
+  no_aplica: >-
+    En prosa literaria, el adjetivo de color o de ritmo forma parte de la voz.
+  ejemplos:
+    - mal: "Las grandes injusticias no se explican solo por dirigentes fanáticos."
+      bien: "Las grandes injusticias históricas no se explican solo por dirigentes fanáticos."
+      porque: "«Históricas» sitúa el ejemplo que viene después; sin él, el párrafo pierde su marco."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos»"
+  base:
+    acciones: [rewrite]
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos
+
+- id: registro-coherente
+  rama: voz
+  nombre: Registro coherente
+  regla: >-
+    Un texto mantiene el mismo registro de principio a fin. Una palabra demasiado solemne,
+    técnica o coloquial para el resto rompe el tono.
+  aplica: >-
+    Mirada de tono; textos profesionales y ensayo.
+  no_aplica: >-
+    Cambios de registro buscados (cita, ironía, voz de personaje).
+  ejemplos:
+    - mal: "Le escribo para solicitar la documentación, que me corre bastante prisa, la verdad."
+      bien: "Le escribo para solicitar la documentación; la necesito con urgencia."
+      porque: "El final cae en lo coloquial en un correo formal."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de la adecuación y el registro"
+  base:
+    miradas: [tono]
+    acciones: [sendable]
+
+- id: voz-del-autor
+  rama: voz
+  nombre: Voz del autor
+  regla: >-
+    El léxico personal, la sintaxis reconocible y las obsesiones del autor se conservan.
+    Editar es mejorar su texto, no acercarlo a la prosa media.
+  aplica: >-
+    Toda edición; con más peso en narrativa, textos literarios y ensayo personal.
+  no_aplica: >-
+    Cuando la marca personal es un error de norma o una ambigüedad real, se corrige igual.
+  ejemplos:
+    - mal: "Cambiar «hacer de tripas corazón», que el autor usa adrede, por «esforzarse»."
+      bien: "Conservar la expresión y mejorar lo que la rodea."
+      porque: "La expresión es suya y no es un error."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», rama voz y estilo"
+  base:
+    acciones: [rewrite, review]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: claridad-y-orden
+      criterio: "En ensayo y textos profesionales gana la claridad; en narrativa, la voz."

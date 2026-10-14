@@ -901,6 +901,7 @@ class GenerationInput(BaseModel):
     revision_intention: str = "claridad"
     user_instruction: str = Field(default="", max_length=500)
     protected_terms: list[str] = Field(default_factory=list)
+    genre: str = Field(default="", max_length=300)
 
 
 class GenerationResult(BaseModel):
@@ -909,6 +910,7 @@ class GenerationResult(BaseModel):
     used_profile_variables: list[str]
     learning_applied: bool = False
     provider: str = "deterministic"
+    used_fichas: list[str] = Field(default_factory=list)
 
 
 class BlockReviewInput(BaseModel):

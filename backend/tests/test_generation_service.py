@@ -426,7 +426,7 @@ def test_openai_prompt_includes_published_knowledge_notes(monkeypatch):
 
     assert "Fichas publicadas de la base" in captured["input"]
     assert "Leismo, laismo y loismo" in captured["input"]
-    assert "no las cites como autoridad externa" in captured["input"]
+    assert "no las menciones ni las cites en la salida" in captured["input"]
 
 
 def test_knowledge_notes_do_not_change_deterministic_rewrite():

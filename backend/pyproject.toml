@@ -12,6 +12,7 @@ dependencies = [
   "psycopg[binary]>=3.2.0",
   "python-dotenv>=1.0.0",
   "openai>=2.0.0",
+  "PyYAML>=6.0",
 ]
 
 [project.optional-dependencies]
@@ -28,6 +29,9 @@ pythonpath = ["."]
 [tool.setuptools.packages.find]
 include = ["app*"]
 exclude = ["alembic*"]
+
+[tool.setuptools.package-data]
+"app.oficio" = ["fichas/*.yaml"]
 
 [tool.ruff]
 line-length = 100
