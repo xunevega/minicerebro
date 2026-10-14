@@ -211,7 +211,7 @@
     obra: "Nueva gramática de la lengua española (RAE y ASALE, 2009)"
     localizador: "capítulo del gerundio y sus construcciones"
   senales:
-    - patron: ',\s+\w+(ando|iendo)(se|le|les|lo|la|los|las)?\s+(después|luego|más tarde|posteriormente|al\s+\w+\s+siguiente)\b'
+    - patron: ',\s+\w+(ando|iendo|ándo|iéndo)(se|le|les|lo|la|los|las)?\b[^.;:]{0,40}\b(después|luego|más tarde|posteriormente|al día siguiente|al año siguiente)\b'
 
 - id: coma-sujeto-verbo
   rama: lengua
@@ -378,6 +378,7 @@
 
 - id: sustituir-a-por
   rama: lengua
+  protege: true
   nombre: «Sustituir» y «reemplazar»
   regla: >-
     «Sustituir A por B»: A deja su sitio a B. «B sustituye a A»: B ocupa el sitio de A. Cambiar
@@ -396,9 +397,11 @@
     localizador: "s. v. «sustituir»"
   senales:
     - patron: '\b(sustituy\w*|sustitui\w*|reemplaz\w*)\b'
+      tipo: vigilancia
 
 - id: tiempo-ideas-atribuidas
   rama: composicion
+  protege: true
   nombre: Tiempo verbal de lo que dijo otro
   regla: >-
     Cuando se refiere lo que dijo, pensó o sostuvo otra persona, se mantiene el tiempo verbal
@@ -418,6 +421,7 @@
     localizador: "capítulos del tiempo verbal, correlación de tiempos"
   senales:
     - patron: '\b(insistió|sostuvo|afirmó|dijo|escribió|advirtió|temía|creía|pensaba|defendió|señaló|argumentó)\b[^.]{0,80}\b(debía|podía|era|había|tenía|iba)\b'
+      tipo: vigilancia
   base:
     acciones: [rewrite]
   relaciones:

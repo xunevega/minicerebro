@@ -1,0 +1,475 @@
+# Rama 1 · La lengua como material: gramática, ortografía de palabras y léxico.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+- id: pasiva-refleja-concordancia
+  rama: lengua
+  nombre: Concordancia en «se venden pisos»
+  regla: >-
+    En la pasiva refleja el verbo concuerda con lo que se vende, se alquila o se busca:
+    «se venden pisos», «se alquilan habitaciones», «se necesitan camareros».
+  aplica: >-
+    Verbo en singular con sustantivo plural sin preposición.
+  no_aplica: >-
+    Con «a» delante de personas la construcción es impersonal y el verbo va en singular:
+    «se busca a los responsables».
+  ejemplos:
+    - mal: "Se vende pisos y se alquila locales."
+      bien: "Se venden pisos y se alquilan locales."
+      porque: "«Pisos» y «locales» son el sujeto: plural."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «se», apartado de pasiva refleja"
+  senales:
+    - patron: '\bse\s+(vende|alquila|necesita|busca|arregla|repara|ofrece|compra|traspasa|imparte|da)\s+(pisos|casas|coches|camareros|habitaciones|ordenadores|locales|plazas|clases|cursos|productos|servicios|trabajos|viviendas|muebles)\b'
+
+- id: hace-anos
+  rama: lengua
+  nombre: «Hace años», no «hacen años»
+  regla: >-
+    «Hacer» referido al tiempo transcurrido o al clima es impersonal y va en singular:
+    «hace años», «hacía días», «hará dos semanas».
+  aplica: >-
+    «Hacen tres años» pasa a «hace tres años».
+  no_aplica: >-
+    Cuando «hacer» tiene sujeto («los niños hacen deberes») concuerda normalmente.
+  ejemplos:
+    - mal: "Hacen ya cinco años que se fue."
+      bien: "Hace ya cinco años que se fue."
+      porque: "Hacer de tiempo: impersonal."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «hacer», usos impersonales"
+  senales:
+    - patron: '\b(hacen|hacían|harán|hicieron)\s+(ya\s+)?(\d+|muchos|pocos|varios|unos|dos|tres|cuatro|cinco|seis|siete|ocho|nueve|diez|veinte|cien)\s+(años|días|meses|semanas|siglos|horas|minutos)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: haber-impersonal
+
+- id: detras-mio
+  rama: lengua
+  nombre: «Detrás de mí», no «detrás mío»
+  regla: >-
+    Con adverbios de lugar se usa «de» más pronombre: «detrás de mí», «delante de ella»,
+    «cerca de nosotros». La forma con posesivo («detrás mío») es propia de la lengua
+    coloquial y se evita en la escrita cuidada.
+  aplica: >-
+    detrás, delante, encima, debajo, cerca, enfrente, alrededor, dentro, fuera, lejos.
+  no_aplica: >-
+    Diálogos y voces de personaje donde la forma coloquial caracteriza.
+  ejemplos:
+    - mal: "Se sentó detrás mío y delante suya había otra silla."
+      bien: "Se sentó detrás de mí y delante de ella había otra silla."
+      porque: "Adverbio de lugar más «de» y pronombre."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «detrás» y «delante»"
+  senales:
+    - patron: '\b(detrás|delante|encima|debajo|cerca|enfrente|alrededor|dentro|fuera|lejos)\s+(mío|mía|tuyo|tuya|suyo|suya|nuestro|nuestra|vuestro|vuestra)\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "En diálogo, la forma coloquial puede ser caracterización."
+
+- id: el-agua-esta-agua
+  rama: lengua
+  nombre: «El agua», pero «esta agua»
+  regla: >-
+    Los sustantivos femeninos que empiezan por «a» tónica llevan «el» y «un» en singular
+    («el agua», «un arma»), pero siguen siendo femeninos: «esta agua», «toda el agua»,
+    «mucha hambre», «el agua fría».
+  aplica: >-
+    Demostrativos, cuantificadores y adjetivos que acompañan a agua, arma, alma, hambre,
+    águila, área, aula, hacha, ave, ancla, habla.
+  no_aplica: >-
+    El artículo «el» y «un» en singular inmediatamente delante sí son correctos.
+  ejemplos:
+    - mal: "Este agua está frío y tengo mucho hambre."
+      bien: "Esta agua está fría y tengo mucha hambre."
+      porque: "Siguen siendo sustantivos femeninos."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «el», apartado sobre sustantivos con «a» tónica"
+  senales:
+    - patron: '\b(este|ese|aquel|mucho|poco|todo el|otro|nuevo|primer)\s+(agua|arma|alma|hambre|águila|área|aula|hacha|ave|ancla|habla|hada)\b'
+    - patron: '\b(el|un)\s+(agua|arma|alma|área|aula|hacha|ave)\s+(frío|limpio|nuevo|sucio|pequeño|blanco|negro|oscuro|claro)\b'
+
+- id: cuanto-mas
+  rama: lengua
+  nombre: «Cuanto más», no «contra más»
+  regla: >-
+    Las construcciones proporcionales se forman con «cuanto más… más» o «mientras más…
+    más». «Contra más» es coloquial y se evita en la escritura cuidada.
+  aplica: >-
+    «Contra más lo pienso, menos lo entiendo».
+  no_aplica: >-
+    Voces de personaje coloquiales.
+  ejemplos:
+    - mal: "Contra más lees, más vocabulario tienes."
+      bien: "Cuanto más lees, más vocabulario tienes."
+      porque: "Correlación proporcional culta."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «contra»"
+  senales:
+    - patron: '\b(contra|contri)\s+más\b'
+
+- id: locuciones-desaconsejadas
+  rama: lengua
+  nombre: Locuciones desaconsejadas
+  regla: >-
+    En la escritura cuidada se prefieren «desde mi punto de vista» a «bajo mi punto de
+    vista», «en relación con» o «con relación a» a «en relación a», «de acuerdo con» a
+    «de acuerdo a», y «con la mayor brevedad» a «a la mayor brevedad».
+  aplica: >-
+    Textos profesionales, ensayo y correspondencia.
+  no_aplica: >-
+    «De acuerdo a» está extendido y admitido en América; en textos de esa variedad no se
+    corrige.
+  ejemplos:
+    - mal: "Bajo mi punto de vista, y en relación a su consulta, contestaremos a la mayor brevedad."
+      bien: "Desde mi punto de vista, y en relación con su consulta, contestaremos con la mayor brevedad."
+      porque: "Locuciones preferidas en la norma culta."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «punto», «relación», «acuerdo» y «brevedad»"
+  senales:
+    - patron: '\bbajo\s+(mi|su|tu|nuestro|vuestro)\s+punto\s+de\s+vista\b'
+    - patron: '\ben relación a\b'
+    - patron: '\ba la mayor brevedad\b'
+  relaciones:
+    - tipo: requiere
+      ficha: a-nivel-de
+
+- id: que-galicado
+  rama: lengua
+  nombre: «Es por eso que» y el «que» galicado
+  regla: >-
+    En las oraciones con «ser» que destacan una circunstancia, el relativo concuerda con
+    ella: «es por eso por lo que», «fue entonces cuando», «es aquí donde». «Es por eso que»
+    se considera galicismo y en la escritura cuidada se evita; muchas veces basta «por
+    eso».
+  aplica: >-
+    «Es por eso que», «fue así que», «es aquí que», «fue entonces que».
+  no_aplica: >-
+    Está extendido en América y en registros informales; en voces de personaje se respeta.
+  ejemplos:
+    - mal: "Es por eso que decidimos esperar."
+      bien: "Por eso decidimos esperar."
+      porque: "Se evita el «que» galicado; la versión directa es más limpia."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «que», apartado de «que» galicado"
+  senales:
+    - patron: '\b(es|fue|era|será) (por eso|por ello|por esto|así|entonces|aquí|allí|ahí) que\b'
+
+- id: gerundio-adjetivo
+  rama: lengua
+  nombre: Gerundio como adjetivo
+  regla: >-
+    El gerundio no funciona como adjetivo de un sustantivo: «una caja conteniendo libros»
+    pasa a «una caja que contiene libros»; «la ley regulando el alquiler» pasa a «la ley
+    que regula el alquiler».
+  aplica: >-
+    Sustantivo seguido de gerundio que describe una cualidad o contenido.
+  no_aplica: >-
+    Pies de foto y títulos («Niños jugando en el parque») y gerundios con verbos de
+    percepción o representación («La vi llorando»).
+  ejemplos:
+    - mal: "Se aprobó un decreto regulando los horarios."
+      bien: "Se aprobó un decreto que regula los horarios."
+      porque: "El gerundio no puede describir al sustantivo."
+  fuente:
+    obra: "Nueva gramática de la lengua española (RAE y ASALE, 2009)"
+    localizador: "capítulo del gerundio, gerundio predicativo y adjetival"
+  senales:
+    - patron: '\b(caja|carta|ley|decreto|paquete|documento|sobre|bolsa|lista|orden|norma|informe|correo|mensaje|contrato|resolución)\s+\w+(ando|iendo)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: gerundio-posterioridad
+
+- id: gerundismo
+  rama: lengua
+  nombre: «Estaremos enviando»
+  regla: >-
+    La perífrasis «estar + gerundio» expresa una acción en curso. Usarla para una acción
+    puntual de futuro («le estaremos enviando la factura») es un calco que se evita: «le
+    enviaremos la factura».
+  aplica: >-
+    Futuros y fórmulas de atención al cliente con «estaremos», «estaré», «vamos a estar».
+  no_aplica: >-
+    Acciones que realmente durarán un tiempo: «Mañana a esta hora estaré volando».
+  ejemplos:
+    - mal: "Le estaremos llamando para confirmar la cita."
+      bien: "Le llamaremos para confirmar la cita."
+      porque: "Acción puntual: futuro simple."
+  fuente:
+    obra: "Fundéu RAE"
+    localizador: "recomendación «gerundismo»"
+  senales:
+    - patron: '\b(estaremos|estaré|estará|estarán|vamos a estar|voy a estar|va a estar)\s+\w+(ando|iendo)\b'
+  generos: [correo, email, informe, aviso, carta, nota, profesional, ensayo, opinión, opinion, artículo, articulo]
+
+- id: imperativo-plural
+  rama: lengua
+  nombre: «Callad», no «callar»
+  regla: >-
+    El imperativo de vosotros termina en -d («callad», «venid»); con el pronombre «os»
+    pierde la -d («sentaos», «marchaos»). El infinitivo con valor de orden solo se usa en
+    instrucciones generales e impersonales («No fumar»).
+  aplica: >-
+    Órdenes dirigidas a varias personas en diálogos y textos.
+  no_aplica: >-
+    Carteles e instrucciones generales; el infinitivo precedido de «a» («¡A callar!»).
+  ejemplos:
+    - mal: "¡Callar todos y sentaros!"
+      bien: "¡Callad todos y sentaos!"
+      porque: "Orden a vosotros: imperativo, no infinitivo."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «imperativo»"
+  senales:
+    - patron: '¡\s*(Callar|Venir|Escuchar|Mirar|Esperar|Salir|Entrar|Correr|Parar|Sentaros|Callaros|Levantaros|Marcharos|Acostaros|Quedaros)\b'
+      sensible_mayusculas: true
+    - patron: '\b(y|e)\s+(sentaros|callaros|levantaros|marcharos|acostaros|quedaros)\s*!'
+
+- id: formas-verbales-vulgares
+  rama: lengua
+  nombre: Formas verbales no normativas
+  regla: >-
+    Se usan las formas cultas de los verbos irregulares: «haya» (no «haiga»), «anduvo»
+    (no «andó»), «conduje» (no «conducí»), «satisfizo» (no «satisfació»), y en segunda
+    persona del pretérito sin -s final: «dijiste», «fuiste», «hiciste».
+  aplica: >-
+    Narración y textos formales.
+  no_aplica: >-
+    Diálogos que reproducen a propósito el habla de un personaje.
+  ejemplos:
+    - mal: "Cuando andó hasta allí, dijistes que no haiga prisa."
+      bien: "Cuando anduvo hasta allí, dijiste que no hubiera prisa."
+      porque: "Formas irregulares cultas."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «haber», «andar», «conducir», «satisfacer» y apéndice de conjugación"
+  senales:
+    - patron: '\b(haiga|haigan|andé|andó|andaron|conducí|condució|conducieron|satisfació|satisfaciera|dijistes|fuistes|vinistes|hicistes|estuvistes|tuvistes|pusistes|quisistes|supistes|trajistes|cantastes|hablastes)\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "En diálogo, la forma popular puede ser caracterización buscada."
+
+- id: el-mismo-pronombre
+  rama: lengua
+  nombre: «El mismo» como pronombre
+  regla: >-
+    Usar «el mismo», «la misma» para remitir a algo ya dicho («revisó el contrato y firmó
+    el mismo») es propio del lenguaje burocrático y se evita: basta un pronombre, un
+    posesivo o repetir el nombre.
+  aplica: >-
+    «El mismo», «del mismo», «al mismo» como sustitutos de un sustantivo anterior.
+  no_aplica: >-
+    Con valor de identidad («llevaba el mismo abrigo que ayer») es correcto.
+  ejemplos:
+    - mal: "Se revisó el informe y se aprobó el mismo sin cambios."
+      bien: "Se revisó el informe y se aprobó sin cambios."
+      porque: "«El mismo» sobra; el sujeto ya está claro."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «mismo»"
+  senales:
+    - patron: '\b(el|la|los|las|del|al|de la|de los|de las)\s+mism[oa]s?\s*[.,;:)]'
+    - patron: '\b(aprobó|firmó|revisó|presentó|envió|leyó|entregó|publicó|aprobaron|firmaron|revisaron|presentaron|enviaron)\s+(el|la|los|las)\s+mism[oa]s?\b'
+  relaciones:
+    - tipo: requiere
+      ficha: lenguaje-administrativo
+
+- id: medio-invariable
+  rama: lengua
+  nombre: «Medio dormida», no «media dormida»
+  regla: >-
+    «Medio» delante de un adjetivo o participio es adverbio y no varía: «medio dormida»,
+    «medio abiertas».
+  aplica: >-
+    «Media», «medios», «medias» delante de adjetivos.
+  no_aplica: >-
+    Delante de sustantivos es adjetivo y sí concuerda: «media hora», «medias tintas».
+  ejemplos:
+    - mal: "Llegó media dormida y con las ventanas medias abiertas."
+      bien: "Llegó medio dormida y con las ventanas medio abiertas."
+      porque: "«Medio» modifica al adjetivo: no concuerda."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «medio»"
+  senales:
+    - patron: '\b(media|medias|medios)\s+(dormid[ao]s?|cansad[ao]s?|muert[ao]s?|loc[ao]s?|desnud[ao]s?|abiert[ao]s?|cerrad[ao]s?|vací[ao]s?|llen[ao]s?|rot[ao]s?|enfadad[ao]s?|aburrid[ao]s?|perdid[ao]s?|tumbad[ao]s?|escondid[ao]s?)\b'
+
+- id: homofonos-frecuentes
+  rama: lengua
+  nombre: Palabras que suenan igual
+  regla: >-
+    Hay que distinguir las palabras que suenan igual y se escriben distinto: «a ver»
+    (mirar) y «haber» (verbo); «hecho» (de hacer) y «echo» (de echar); «haya» (de haber),
+    «halla» (de hallar) y «allá»; «vaya» (de ir) y «valla» (cerca); «tuvo» (de tener) y
+    «tubo» (cilindro); «vez» y «ves».
+  aplica: >-
+    Construcciones donde la grafía cambia el verbo o el sentido.
+  no_aplica: >-
+    Juegos de palabras deliberados.
+  ejemplos:
+    - mal: "Haber si vienes; ya lo he echo, aunque no halla sido fácil."
+      bien: "A ver si vienes; ya lo he hecho, aunque no haya sido fácil."
+      porque: "Cada forma corresponde a otro verbo."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. I, homófonos con b/v, h y ll/y"
+  senales:
+    - patron: '\bhaber\s+(si|qué|cómo|cuándo|dónde)\b'
+    - patron: '\ba\s+ver\s+(sido|hecho|estado|tenido|dicho|ido|visto|podido|querido|llegado)\b'
+    - patron: '\b(he|has|ha|hemos|habéis|han|había|habían|haber|has)\s+echo\b'
+    - patron: '\b(que|aunque|ojalá|cuando)\s+halla\s+(sido|hecho|estado|tenido|dicho|ido|podido|llegado)\b'
+    - patron: '\b(que|ojalá)\s+valla\b'
+    - patron: '\btubo\s+(que|lugar|razón|miedo|suerte|tiempo)\b'
+    - patron: '\b(a|otra|cada|una|tal|alguna|de)\s+ves\b'
+
+- id: palabras-juntas-separadas
+  rama: lengua
+  nombre: Juntas o separadas
+  regla: >-
+    «Sobre todo» (especialmente) va separado; «sobretodo» es un abrigo. «Aparte» (además,
+    separado) va junto; «a parte» es «a una parte». «Asimismo» o «así mismo» (también);
+    nunca «asímismo». «Los demás» (los otros) va junto; «de más» significa «de sobra».
+  aplica: >-
+    Formas como «sobretodo», «a parte de eso», «asímismo», «los de más».
+  no_aplica: >-
+    «Estar de más» y «de más edad» van separados y son correctos.
+  ejemplos:
+    - mal: "Asímismo, y sobretodo, a parte de los de más gastos, hay que pagar el alquiler."
+      bien: "Asimismo, y sobre todo, aparte de los demás gastos, hay que pagar el alquiler."
+      porque: "Cada forma tiene su escritura fija."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «sobre», «aparte», «asimismo» y «demás»"
+  senales:
+    - patron: '\bsobretodo\b'
+    - patron: '\ba parte de (eso|esto|ello|que|todo|lo)\b'
+    - patron: '\basímismo\b'
+      tambien_sin_tildes: false
+    - patron: '\b(los|las|lo)\s+de\s+más\b(?!\s+(edad|tiempo|peso|valor|categoría|altura|nivel))'
+
+- id: aun-tilde
+  rama: lengua
+  nombre: «Aún» y «aun»
+  regla: >-
+    «Aún» lleva tilde cuando equivale a «todavía». «Aun», sin tilde, equivale a «incluso»,
+    «hasta» o, con gerundio o participio, a «aunque»: «aun así», «aun sabiéndolo».
+  aplica: >-
+    Toda aparición de «aun» o «aún».
+  no_aplica: >-
+    Nada: la elección depende siempre del sentido.
+  ejemplos:
+    - mal: "Aún así, aun no ha llegado."
+      bien: "Aun así, aún no ha llegado."
+      porque: "«Aun así» es «incluso así»; «aún no» es «todavía no»."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. II, tilde diacrítica de «aún»"
+  senales:
+    - patron: '\baún\s+(así|cuando|sabiendo|siendo|teniendo|pudiendo|habiendo)\b'
+      tambien_sin_tildes: false
+    - patron: '\baun\s+(no|sigue|siguen|queda|quedan|está|están|es|hay|tengo|tiene)\b'
+      tambien_sin_tildes: false
+
+- id: sino-si-no
+  rama: lengua
+  nombre: «Sino» y «si no»
+  regla: >-
+    «Sino» contrapone tras una negación: «No es rojo, sino azul». «Si no» es condición más
+    negación: «Si no vienes, me voy».
+  aplica: >-
+    Toda contraposición tras «no».
+  no_aplica: >-
+    «Sino» como sustantivo (destino) es otra palabra.
+  ejemplos:
+    - mal: "No lo hizo por dinero si no por orgullo."
+      bien: "No lo hizo por dinero, sino por orgullo."
+      porque: "Contrapone dos términos tras una negación."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «sino» y «si»"
+  senales:
+    - patron: '\bno\b[^.;:?!]{1,50}\bsi no\s+(por|que|a|en|de|el|la|los|las|un|una|para|con)\b'
+
+- id: prever-proveer
+  rama: lengua
+  nombre: «Prever», «proveer» y otros verbos confundidos
+  regla: >-
+    «Prever» (ver con anticipación) se conjuga como «ver»: «prevé», «previó», «previendo»;
+    no existe «preveer». «Infligir» es causar un daño o castigo; «infringir» es incumplir
+    una norma. «Inflingir» no existe.
+  aplica: >-
+    Formas como «preveer», «preveyó», «inflingir», «infligir una norma».
+  no_aplica: >-
+    «Proveer» (abastecer) sí es correcto con sus formas: «proveyó».
+  ejemplos:
+    - mal: "No supo preveer que infligía la normativa."
+      bien: "No supo prever que infringía la normativa."
+      porque: "«Prever» como «ver»; la norma se infringe."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «prever», «infligir» e «infringir»"
+  senales:
+    - patron: '\bpreve(er|yó|yeron|yendo|ía|ían)\b|\bprevee[ns]?\b'
+    - patron: '\binfling\w*'
+    - patron: '\binflig\w*\s+(la|las|el|los|una|un)\s+(norma|normas|normativa|ley|leyes|reglamento|regla|reglas)\b'
+    - patron: '\binfring\w*\s+(un|una|el|la)?\s*(castigo|daño|derrota|herida|pena|sufrimiento|correctivo)\b'
+
+- id: impropiedades-lexicas
+  rama: lengua
+  nombre: Palabras usadas con un sentido que no tienen
+  regla: >-
+    «Detentar» es ejercer algo ilegítimamente (para lo legítimo, «ostentar» u «ocupar»).
+    «Adolecer de» es padecer un defecto, no carecer. «Cesar» es intransitivo: alguien
+    cesa; a alguien se le destituye. «Lapso» ya es tiempo: «lapso de tiempo» es redundante.
+  aplica: >-
+    Prosa expositiva, periodística y profesional.
+  no_aplica: >-
+    Si «detentar» se usa a propósito para un poder ilegítimo, es correcto.
+  ejemplos:
+    - mal: "Detenta el récord mundial y el Gobierno lo cesó del cargo."
+      bien: "Ostenta el récord mundial y el Gobierno lo destituyó del cargo."
+      porque: "Cada verbo tiene su significado preciso."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «detentar», «adolecer» y «cesar»"
+  senales:
+    - patron: '\bdetent\w+\s+(el|la|los|las)\s+(cargo|título|récord|presidencia|liderato|liderazgo|marca)\b'
+    - patron: '\b(cesó|cesaron|cesa|cesan|cesar|cesado)\s+(al?|la|los|las)\s+(director|directora|ministro|ministra|presidente|presidenta|entrenador|entrenadora|responsable|jefe|jefa|consejero|consejera)\b'
+    - patron: '\b(lo|la|le|los|las|les)\s+(cesó|cesaron|cesará|han cesado|ha cesado)\b'
+    - patron: '\badolec\w*\s+de\s+(falta|ausencia|recursos|medios)\b'
+    - patron: '\blapso\s+de\s+tiempo\b'
+
+- id: variacion-de-la-lengua
+  rama: lengua
+  nombre: Variedades del español
+  regla: >-
+    El español tiene variedades geográficas igual de correctas. Un texto escrito desde una
+    variedad (voseo, «ustedes» por «vosotros», «carro», «computadora», «ahorita») no se
+    corrige hacia el español peninsular; solo se cuida que sea coherente de principio a
+    fin.
+  aplica: >-
+    Textos con rasgos americanos, canarios o regionales.
+  no_aplica: >-
+    Si el autor declara que el texto es para un público peninsular y quiere adaptarlo.
+  ejemplos:
+    - mal: "Corregir «ustedes saben» por «vosotros sabéis» en un texto escrito en Buenos Aires."
+      bien: "Mantener «ustedes saben» y revisar que no aparezca «vosotros» más adelante."
+      porque: "La variedad no es un error; la mezcla sí lo es."
+  fuente:
+    obra: "Nueva gramática de la lengua española (RAE y ASALE, 2009)"
+    localizador: "introducción, unidad y variedad del español"
+  senales:
+    - patron: '\b(vos|ustedes|ahorita|carro|computadora|celular|platicar|manejar|enojad[oa]|lindo|linda|recién llegó|chévere|pararse)\b'
+      tipo: vigilancia
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: registro-coherente
+      criterio: "Coherencia dentro de la variedad del autor, no hacia otra variedad."

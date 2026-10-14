@@ -1,0 +1,370 @@
+# Rama 1 · La lengua como material: puntuación y ortotipografía.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+- id: signos-de-apertura
+  rama: lengua
+  nombre: "Signos de apertura ¿ y ¡"
+  regla: >-
+    En español las preguntas y exclamaciones llevan signo de apertura y de cierre. El de
+    apertura va donde empieza la pregunta o la exclamación, aunque no sea al principio de
+    la oración.
+  aplica: >-
+    Cualquier pregunta o exclamación sin «¿» o «¡».
+  no_aplica: >-
+    Textos en otra lengua citados tal cual.
+  ejemplos:
+    - mal: "Vienes mañana? Qué alegría!"
+      bien: "¿Vienes mañana? ¡Qué alegría!"
+      porque: "Faltan los signos de apertura."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, signos de interrogación y exclamación"
+  senales:
+    - patron: '(^|[.!?…»]\s+|\n)[A-ZÁÉÍÓÚÑ][^.?!¿¡\n]{0,120}\?'
+      sensible_mayusculas: true
+    - patron: '(^|[.!?…»]\s+|\n)[A-ZÁÉÍÓÚÑ][^.?!¿¡\n]{0,120}!'
+      sensible_mayusculas: true
+  base:
+    acciones: [correction]
+
+- id: tilde-interrogativos
+  rama: lengua
+  nombre: Tilde en qué, cómo, cuándo, dónde, quién, cuál, cuánto
+  regla: >-
+    Los interrogativos y exclamativos llevan tilde, en preguntas directas e indirectas:
+    «¿Qué quieres?», «No sé qué quieres», «¡Cómo llueve!».
+  aplica: >-
+    Tras «¿» o «¡» y en preguntas indirectas (no sé…, pregunta…, explica…).
+  no_aplica: >-
+    Relativos y conjunciones no llevan tilde: «Dijo que vendría», «Lo hago como me
+    enseñaron», «Voy donde tú vas».
+  ejemplos:
+    - mal: "¿Que hora es? No sé donde lo dejé."
+      bien: "¿Qué hora es? No sé dónde lo dejé."
+      porque: "Pregunta directa e indirecta: llevan tilde."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. II, tilde diacrítica en interrogativos y exclamativos"
+  senales:
+    - patron: '[¿¡]\s*(que|como|cuando|donde|quien|quienes|cual|cuales|cuanto|cuanta|cuantos|cuantas)\b'
+      tambien_sin_tildes: false
+    - patron: '\b(no sé|no sabe|no saben|no sabía|pregunta|preguntó|me pregunto|explica|explicó|averiguar|decide|decidir)\s+(como|cuando|donde|quien|quienes|cual|cuales|cuanto|cuanta|cuantos|cuantas)\b'
+      tambien_sin_tildes: false
+  relaciones:
+    - tipo: requiere
+      ficha: porque-por-que
+
+- id: tilde-monosilabos
+  rama: lengua
+  nombre: Monosílabos sin tilde
+  regla: >-
+    Los monosílabos no llevan tilde salvo la diacrítica (él, tú, mí, sí, té, dé, sé, más).
+    No la llevan «fue», «fui», «dio», «vio», «di», «pie», ni tampoco «guion», «truhan»,
+    «rio», «crie», «fie», «hui», «lie», que en la ortografía de 2010 se consideran
+    monosílabos.
+  aplica: >-
+    Formas como «fué», «dió», «vió», «guión», «rió», «huí».
+  no_aplica: >-
+    La tilde diacrítica (tú/tu, él/el, más/mas, sé/se) sí se mantiene.
+  ejemplos:
+    - mal: "Se rió tanto que le dió hipo y fué al médico."
+      bien: "Se rio tanto que le dio hipo y fue al médico."
+      porque: "Monosílabos: sin tilde."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. II, acentuación de monosílabos"
+  senales:
+    - patron: '\b(fué|fuí|dió|vió|dí|guión|guiones|truhán|rió|lió|crié|fié|huí|pié)\b'
+      tambien_sin_tildes: false
+  relaciones:
+    - tipo: requiere
+      ficha: tilde-solo-demostrativos
+
+- id: coma-vocativo
+  rama: lengua
+  nombre: Coma del vocativo
+  regla: >-
+    El nombre o apelativo con que nos dirigimos a alguien se separa con coma del resto de
+    la oración: «Hola, María», «Gracias, Luis», «Mira, Ana, ya está».
+  aplica: >-
+    Saludos, agradecimientos y cualquier llamada directa a alguien.
+  no_aplica: >-
+    En el encabezamiento de una carta el saludo con «Querido» o «Estimada» no separa el
+    nombre: «Querido Juan:».
+  ejemplos:
+    - mal: "Hola María, gracias Luis por venir."
+      bien: "Hola, María; gracias, Luis, por venir."
+      porque: "Vocativos sin coma."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, la coma, vocativos"
+  senales:
+    - patron: '\b(Hola|Gracias|Adiós|Buenos días|Buenas tardes|Buenas noches|Perdona|Oye|Mira)\s+[A-ZÁÉÍÓÚÑ][a-záéíóúñ]+'
+      sensible_mayusculas: true
+
+- id: coma-conectores
+  rama: lengua
+  nombre: Coma tras conectores
+  regla: >-
+    Los conectores al principio de oración («Sin embargo», «Por tanto», «Es decir», «En
+    cambio», «Por último», «En primer lugar») van seguidos de coma.
+  aplica: >-
+    Conectores que abren una oración o un miembro tras punto o punto y coma.
+  no_aplica: >-
+    Cuando el conector forma parte de la oración sin función de enlace («Por último llegó
+    Ana», con «por último» como complemento de orden, admite ir sin coma).
+  ejemplos:
+    - mal: "Sin embargo la propuesta salió adelante."
+      bien: "Sin embargo, la propuesta salió adelante."
+      porque: "El conector inicial se separa con coma."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, la coma, conectores"
+  senales:
+    - patron: '(^|[.;:]\s+|\n)(Sin embargo|No obstante|Por (lo )?tanto|Es decir|Por consiguiente|En cambio|En primer lugar|En segundo lugar|En conclusión|O sea|Por otra parte|Por otro lado)\s+[a-záéíóúñ]'
+      sensible_mayusculas: true
+  relaciones:
+    - tipo: requiere
+      ficha: conectores-logicos
+
+- id: punto-y-coma
+  rama: lengua
+  nombre: Punto y coma
+  regla: >-
+    Entre dos oraciones completas unidas por un conector adversativo o consecutivo («sin
+    embargo», «no obstante», «por tanto») se escribe punto y coma o punto, no coma. También
+    separa los elementos de una enumeración que ya llevan comas dentro.
+  aplica: >-
+    Oraciones yuxtapuestas con conector: «Llovía; sin embargo, salimos».
+  no_aplica: >-
+    Si el conector va como inciso dentro de una sola oración («No resolvió, sin embargo,
+    el problema»), las dos comas son correctas.
+  ejemplos:
+    - mal: "Llovía mucho, sin embargo, salimos a caminar."
+      bien: "Llovía mucho; sin embargo, salimos a caminar."
+      porque: "Son dos oraciones completas unidas por un conector."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, el punto y coma"
+  senales:
+    - patron: '\w, (sin embargo|no obstante|por tanto|por lo tanto|por consiguiente|en cambio),'
+      tipo: vigilancia
+  relaciones:
+    - tipo: requiere
+      ficha: coma-conectores
+
+- id: dos-puntos
+  rama: lengua
+  nombre: Dos puntos
+  regla: >-
+    Los dos puntos anuncian lo que sigue (enumeración, explicación, cita, consecuencia). No
+    se ponen entre un verbo o una preposición y su complemento. Tras ellos se sigue en
+    minúscula salvo en citas, en el saludo de una carta o en enumeraciones en párrafos
+    separados.
+  aplica: >-
+    «Los colores son: rojo y azul» pasa a «Los colores son rojo y azul» o «Hay dos colores:
+    rojo y azul».
+  no_aplica: >-
+    Enumeraciones anunciadas por un elemento que las resume («Tres colores: rojo, azul y
+    verde») y citas en estilo directo.
+  ejemplos:
+    - mal: "Los ingredientes son: harina, agua y sal."
+      bien: "Lleva tres ingredientes: harina, agua y sal."
+      porque: "No hay dos puntos entre el verbo y su atributo."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, los dos puntos"
+  senales:
+    - patron: '\b(son|es|eran|era|fueron|fue|incluye|incluyen|como|de|en|por|para|con|entre)\s*:\s'
+
+- id: puntos-suspensivos
+  rama: lengua
+  nombre: Puntos suspensivos y etcétera
+  regla: >-
+    Los puntos suspensivos son exactamente tres. Detrás de «etc.» no se ponen puntos
+    suspensivos (dicen lo mismo), y «etc.» va precedido de coma en una enumeración.
+  aplica: >-
+    Secuencias de dos o de cuatro o más puntos; «etc...»; «etc.» sin coma delante.
+  no_aplica: >-
+    Los corchetes con tres puntos [...] para indicar un corte en una cita son correctos.
+  ejemplos:
+    - mal: "Compró pan, leche etc... y se fue...."
+      bien: "Compró pan, leche, etc., y se fue…"
+      porque: "Coma antes de «etc.», sin puntos suspensivos detrás, y solo tres puntos."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, los puntos suspensivos"
+  senales:
+    - patron: '\.{4,}|(?<![.\[])\.\.(?![.\]])'
+    - patron: '\betc\s*\.{2,}|[^,\s]\s+etc\.'
+  base:
+    miradas: [limpieza]
+
+- id: incisos
+  rama: lengua
+  nombre: Incisos entre comas, rayas o paréntesis
+  regla: >-
+    Un inciso se abre y se cierra: si empieza con coma, termina con coma. Las rayas
+    encierran incisos más marcados y los paréntesis, los más desligados. No se mezclan
+    signos para abrir y cerrar el mismo inciso.
+  aplica: >-
+    Explicaciones intercaladas, aposiciones, oraciones de relativo explicativas.
+  no_aplica: >-
+    Si el inciso llega al final de la oración, la coma de cierre la sustituye el punto.
+  ejemplos:
+    - mal: "Mi hermana, que vive en Oviedo vendrá el sábado."
+      bien: "Mi hermana, que vive en Oviedo, vendrá el sábado."
+      porque: "El inciso se abre con coma y no se cierra."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, la coma, incisos"
+  senales:
+    - patron: ', (que|quien|quienes|el cual|la cual|donde|cuyo|cuya) [^,.;:()—]{3,60} (vendrá|vino|viene|es|era|fue|será|tiene|tenía|llegó|llega|dijo|dice|está|estaba)\b'
+  base:
+    miradas: [limpieza]
+  relaciones:
+    - tipo: requiere
+      ficha: coma-sujeto-verbo
+
+- id: mayuscula-tras-dos-puntos
+  rama: lengua
+  nombre: Minúscula después de dos puntos
+  regla: >-
+    Después de dos puntos se escribe minúscula, salvo en el saludo de una carta, al
+    introducir una cita textual o cuando lo que sigue es un nombre propio.
+  aplica: >-
+    Explicaciones y enumeraciones en la misma línea.
+  no_aplica: >-
+    «Querida Ana: Te escribo…», citas («Dijo: “Ya voy”»), nombres propios.
+  ejemplos:
+    - mal: "Tenía un objetivo: Terminar antes del verano."
+      bien: "Tenía un objetivo: terminar antes del verano."
+      porque: "Sigue la misma oración: minúscula."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. IV, mayúscula tras dos puntos"
+  senales:
+    - patron: '[a-záéíóúñ]{3,}: (Terminar|Hacer|Ser|Tener|Mejorar|Reducir|Conseguir|Evitar|Aumentar|La|El|Los|Las|Un|Una|Que|Porque|Hay|No) [a-záéíóúñ]'
+      sensible_mayusculas: true
+      tipo: vigilancia
+
+- id: comillas-y-puntuacion
+  rama: lengua
+  nombre: Punto y comillas
+  regla: >-
+    El punto, la coma y el punto y coma van siempre después de las comillas, paréntesis o
+    rayas de cierre: «Dijo “ya voy”.»
+  aplica: >-
+    Citas que terminan la oración.
+  no_aplica: >-
+    Los signos de interrogación y exclamación que pertenecen a la cita van dentro: «Gritó
+    “¡fuego!” y salió».
+  ejemplos:
+    - mal: "Lo llamó «el fin de una época.»"
+      bien: "Lo llamó «el fin de una época»."
+      porque: "El punto va fuera de las comillas."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, el punto"
+  senales:
+    - patron: '[a-záéíóúñ][.,;][»”"]'
+  relaciones:
+    - tipo: requiere
+      ficha: comillas
+
+- id: espacios-y-porcentajes
+  rama: lengua
+  nombre: Espacio ante el símbolo de porcentaje
+  regla: >-
+    El símbolo de porcentaje se separa de la cifra con un espacio (fino si es posible):
+    «25 %». Lo mismo con las unidades de medida: «12 km».
+  aplica: >-
+    Cifras pegadas a %, km, kg, cm, etc.
+  no_aplica: >-
+    Los grados de ángulo (45°) y los símbolos de minutos y segundos de arco van pegados.
+  ejemplos:
+    - mal: "Subió un 25% en 3km."
+      bien: "Subió un 25 % en 3 km."
+      porque: "Los símbolos se separan de la cifra."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. VIII, expresión de los números; cap. VI, símbolos"
+  senales:
+    - patron: '\d(%|km\b|kg\b|cm\b|mm\b|ml\b|m²|€)'
+  base:
+    miradas: [limpieza]
+
+- id: abreviaturas-y-siglas
+  rama: lengua
+  nombre: Abreviaturas y siglas
+  regla: >-
+    Las abreviaturas llevan punto (Sr., Dra., pág., etc.). Las siglas no llevan punto ni
+    forman plural con -s: «las ONG», «los DVD»; el plural lo marca el artículo.
+  aplica: >-
+    «Sr García», «ONGs», «CDs», «DNIs».
+  no_aplica: >-
+    Los símbolos (km, kg, h) no llevan punto. Las siglas que se han hecho palabra común
+    (ovni, láser, sida) se escriben en minúscula y sí hacen plural (ovnis).
+  ejemplos:
+    - mal: "El Sr Pérez trabaja en dos ONGs."
+      bien: "El Sr. Pérez trabaja en dos ONG."
+      porque: "Abreviatura con punto; sigla sin plural en -s."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. VI, abreviaciones gráficas: abreviaturas y siglas"
+  senales:
+    - patron: '\b(Sr|Sra|Srta|Dr|Dra|Avda|Pza|pág|Ud|Uds)\b(?!\.)'
+      sensible_mayusculas: true
+    - patron: '\b[A-ZÁÉÍÓÚ]{2,}s\b'
+      sensible_mayusculas: true
+
+- id: numeros-en-texto
+  rama: lengua
+  nombre: Números con letra o con cifra
+  regla: >-
+    En un texto no técnico se escriben con letra los números que se pueden expresar en
+    una o dos palabras (del cero al treinta, las decenas, cien, mil) y con cifra los demás.
+    En un mismo texto se mantiene el criterio.
+  aplica: >-
+    Narrativa, ensayo, cartas y textos de prosa general.
+  no_aplica: >-
+    Textos técnicos, científicos, económicos o estadísticos, fechas, horas, porcentajes,
+    precios y medidas, que van con cifra.
+  ejemplos:
+    - mal: "Tenía 3 hermanos y 2 perros."
+      bien: "Tenía tres hermanos y dos perros."
+      porque: "Prosa general: números breves con letra."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. VIII, uso de cifras y palabras"
+  senales:
+    - patron: '\b(tenía|tiene|tengo|había|hay|con|sus|mis|los|las|unos|unas)\s+[2-9]\s+[a-záéíóúñ]{3,}'
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento, ensayo, opinión, opinion, artículo, articulo, columna, carta, infantil]
+
+- id: extranjerismos
+  rama: lengua
+  nombre: Extranjerismos
+  regla: >-
+    Si hay una palabra española equivalente y natural, se usa. Si el extranjerismo es
+    necesario y no está adaptado, se escribe en cursiva (o entre comillas si no hay
+    cursiva).
+  aplica: >-
+    «feedback» (comentarios, valoración), «deadline» (plazo), «online» (en línea),
+    «meeting» (reunión), «target» (público), «timing» (momento, ritmo).
+  no_aplica: >-
+    Extranjerismos ya adaptados (fútbol, escáner, chárter) y términos sin equivalente en
+    un registro técnico concreto. En diálogos pueden caracterizar al personaje.
+  ejemplos:
+    - mal: "Envíame tu feedback antes del deadline del meeting."
+      bien: "Envíame tus comentarios antes del plazo de la reunión."
+      porque: "Hay equivalentes españoles naturales."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. VII, extranjerismos crudos y adaptados"
+  senales:
+    - patron: '\b(feedback|deadline|meeting|online|target|timing|briefing|coaching|freelance|startup|influencer|performance|stakeholders?|insights?|engagement|partner|workshop|planning|hobby|parking|ranking|e-mail)\b'
+  relaciones:
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "En diálogos y voces de personaje, el extranjerismo puede ser caracterización."

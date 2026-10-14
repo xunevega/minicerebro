@@ -9,7 +9,7 @@ import yaml
 from pydantic import BaseModel, Field, field_validator, model_validator
 
 FICHAS_DIR = Path(__file__).parent / "fichas"
-RAMAS = ("lengua", "recursos", "composicion", "voz", "generos", "criterio")
+RAMAS = ("lengua", "recursos", "composicion", "voz", "generos", "tradicion", "criterio")
 ACCIONES = ("correction", "rewrite", "sendable", "continue", "variants", "review", "read")
 MIRADAS = ("comprension", "estructura", "tono", "limpieza")
 METRICAS = (
@@ -19,6 +19,14 @@ METRICAS = (
     "deriva_estilo",
     "parrafo_largo",
     "bloque_unico",
+    "ques_encadenados",
+    "des_encadenados",
+    "mente_encadenados",
+    "eco_sufijos",
+    "intensificadores",
+    "frases_cortas",
+    "trato_mixto",
+    "incisos",
 )
 
 
@@ -35,6 +43,9 @@ class Fuente(BaseModel):
 
 class Senal(BaseModel):
     patron: str
+    # «error»: delata un fallo probable. «vigilancia»: marca un sitio que hay que
+    # mirar o proteger (no es un error por sí mismo) y pesa menos al elegir.
+    tipo: Literal["error", "vigilancia"] = "error"
     sensible_mayusculas: bool = False
     # Buscar también en el texto sin tildes. Se desactiva cuando la tilde es lo que se busca.
     tambien_sin_tildes: bool = True
@@ -75,6 +86,9 @@ class Ficha(BaseModel):
     base: Base = Field(default_factory=Base)
     generos: list[str] = Field(default_factory=list)
     relaciones: list[Relacion] = Field(default_factory=list)
+    # Ficha que protege el sentido al editar (matices, citas, analogías…): sus pasajes que
+    # vigilar pesan como un fallo cuando la acción reescribe el texto.
+    protege: bool = False
 
     @model_validator(mode="after")
     def _relacion_consigo_misma(self) -> "Ficha":

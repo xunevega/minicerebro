@@ -3,6 +3,7 @@
 
 - id: matices-protegidos
   rama: composicion
+  protege: true
   nombre: Matices protegidos
   regla: >-
     Simplificar no es quitar matices. Modalizadores y cuantificadores (necesariamente,
@@ -61,6 +62,7 @@
 
 - id: analogias-y-comparaciones
   rama: composicion
+  protege: true
   nombre: Analogías y comparaciones
   regla: >-
     Una analogía («del mismo modo que», «al igual que») relaciona dos ideas. Al editarla
@@ -80,12 +82,14 @@
     localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos»"
   senales:
     - patron: '\b(del mismo modo que|de la misma manera que|de igual modo que|al igual que|así como)\b'
+      tipo: vigilancia
   relaciones:
     - tipo: requiere
       ficha: matices-protegidos
 
 - id: enumeraciones-argumentales
   rama: composicion
+  protege: true
   nombre: Enumeraciones con valor argumental
   regla: >-
     En una enumeración cada miembro puede llevar una parte de la tesis. No se reduce a uno
@@ -104,12 +108,14 @@
     localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos»"
   senales:
     - patron: '\b\w+, \w+,? (y|o|ni|e|u) \w+\b'
+      tipo: vigilancia
   relaciones:
     - tipo: requiere
       ficha: matices-protegidos
 
 - id: conectores-logicos
   rama: composicion
+  protege: true
   nombre: Conectores lógicos
   regla: >-
     Los conectores (sin embargo, por tanto, en realidad, precisamente, de hecho, incluso)
@@ -129,6 +135,7 @@
     localizador: "capítulo de los marcadores textuales"
   senales:
     - patron: '\b(sin embargo|no obstante|por tanto|por lo tanto|en realidad|de hecho|precisamente|en cambio|por consiguiente)\b'
+      tipo: vigilancia
   base:
     miradas: [comprension, estructura]
   relaciones:
@@ -155,7 +162,7 @@
   fuente:
     obra: "La cocina de la escritura (Daniel Cassany, 1993)"
     localizador: "capítulo de las frases"
-  metricas: [frase_larga]
+  metricas: [frase_larga, incisos]
   base:
     miradas: [comprension]
   relaciones:
@@ -226,6 +233,9 @@
   fuente:
     obra: "Criterio de Editados"
     localizador: "docs/CRITERIO_EDITORIAL.md, «Editar», intensidad alta"
+  senales:
+    - patron: '^\s*(En este (texto|artículo|ensayo|documento|escrito) (vamos a|voy a|se va a|pretendo|quiero)|El presente (texto|trabajo|escrito) (pretende|tiene como objetivo)|A continuación (vamos|voy) a)'
+      sensible_mayusculas: true
   base:
     miradas: [estructura]
 
@@ -307,6 +317,7 @@
 
 - id: repeticion-enfatica
   rama: recursos
+  protege: true
   nombre: Anáfora, paralelismo y repetición enfática
   regla: >-
     La repetición buscada (misma palabra al inicio de frases, estructuras paralelas) da
@@ -375,6 +386,7 @@
 
 - id: adjetivo-delimitador
   rama: voz
+  protege: true
   nombre: Adjetivo delimitador y adjetivo de adorno
   regla: >-
     El adjetivo que acota el sentido (injusticias «históricas», mayoría «silenciosa») es

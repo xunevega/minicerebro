@@ -1183,6 +1183,7 @@ def _oficio_notes(
         intention=payload.revision_intention,
         genre=payload.genre,
         preferences=preferences,
+        instruction=payload.user_instruction,
     )
     if repository is not None:
         # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.

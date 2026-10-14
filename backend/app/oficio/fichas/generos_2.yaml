@@ -1,0 +1,544 @@
+# Rama 5 · Géneros y sus técnicas (ampliación).
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+# --- Narrativa ---
+
+- id: arranque-narrativo
+  rama: generos
+  nombre: Arranque narrativo
+  regla: >-
+    Un relato empieza mejor dentro de la acción o con una tensión ya planteada que con
+    presentaciones, el tiempo que hace o el despertar del protagonista. Los antecedentes
+    se dosifican después.
+  aplica: >-
+    Primeros párrafos de cuentos, capítulos y novelas.
+  no_aplica: >-
+    Arranques lentos deliberados que crean atmósfera y anuncian algo.
+  ejemplos:
+    - mal: "Era una mañana soleada. Marta se despertó, desayunó y salió de casa como todos los días."
+      bien: "Marta encontró la puerta abierta y supo que alguien había entrado."
+      porque: "El segundo arranca con una tensión; el primero, con rutina."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (trama)"
+  senales:
+    - patron: '^\s*(Era una (mañana|tarde|noche)|Sonó el despertador|Se despertó|Había una vez)\b'
+      sensible_mayusculas: true
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento, capítulo, capitulo]
+  relaciones:
+    - tipo: requiere
+      ficha: arranque-y-cierre
+
+- id: exposicion-en-dialogo
+  rama: generos
+  nombre: Información disfrazada de diálogo
+  regla: >-
+    Los personajes no se cuentan lo que ya saben para informar al lector («Como sabes,
+    nuestro padre murió hace diez años»). La información se reparte en la acción, en el
+    conflicto o en el narrador.
+  aplica: >-
+    Diálogos que explican antecedentes.
+  no_aplica: >-
+    Cuando uno de los personajes realmente no lo sabe y la conversación tiene conflicto.
+  ejemplos:
+    - mal: "—Como sabes, Luis, somos hermanos y heredamos la casa hace diez años."
+      bien: "—Diez años y todavía no has pisado esta casa, Luis."
+      porque: "La información llega dentro de un reproche, no como recordatorio."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (diálogo)"
+  senales:
+    - patron: '\b(como (ya )?(sabes|sabéis|sabe usted|bien sabes)|ya sabes que|recordarás que)\b'
+  generos: [narrativa, novela, relato, cuento, teatro, guion, guión]
+  relaciones:
+    - tipo: requiere
+      ficha: acotaciones-de-dialogo
+
+- id: dialogo-verosimil
+  rama: generos
+  nombre: Diálogo verosímil
+  regla: >-
+    En el diálogo la gente se interrumpe, no termina frases, responde de lado y no dice
+    todo. Un diálogo con frases completas, correctas y explicativas suena a escrito. La
+    oralidad se sugiere sin transcribir muletillas sin fin.
+  aplica: >-
+    Escenas con diálogo directo.
+  no_aplica: >-
+    Personajes cuya forma de hablar es deliberadamente formal o redicha.
+  ejemplos:
+    - mal: "—Estoy muy enfadada contigo porque llegaste tarde y no me avisaste de que te retrasarías."
+      bien: "—Las nueve y media. —Se me fue el autobús. —Ya."
+      porque: "Lo que no se dice transmite el enfado."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (diálogo)"
+  senales:
+    - patron: '(?m)^—[^—\n]{140,}'
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento, teatro, guion, guión]
+  relaciones:
+    - tipo: requiere
+      ficha: raya-en-dialogo
+
+- id: saltos-temporales
+  rama: generos
+  nombre: Saltos atrás y adelante en el tiempo
+  regla: >-
+    Un recuerdo o una anticipación necesitan una marca clara de entrada y de salida: un
+    cambio de tiempo verbal (pluscuamperfecto), una indicación temporal o un blanco
+    tipográfico. Sin marca, el lector no sabe cuándo está.
+  aplica: >-
+    Relatos con analepsis o prolepsis.
+  no_aplica: >-
+    Estructuras deliberadamente fragmentadas en las que la confusión es parte del efecto.
+  ejemplos:
+    - mal: "Ana abre la carta. Su padre le enseñaba a nadar en el río. Ana llora."
+      bien: "Ana abre la carta. Años atrás, su padre le había enseñado a nadar en el río. Ahora, Ana llora."
+      porque: "Las marcas de tiempo sitúan el recuerdo."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (tiempo)"
+  senales:
+    - patron: '\b(recordó|recordaba|años atrás|años antes|de niño|de niña|aquel verano|aquella vez|entonces)\b'
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento]
+  relaciones:
+    - tipo: requiere
+      ficha: tiempo-narrativo
+
+- id: descripcion-en-movimiento
+  rama: generos
+  nombre: Descripción en movimiento
+  regla: >-
+    Las descripciones largas y estáticas detienen la historia. Se integran en la acción: el
+    personaje ve, toca o usa lo que se describe mientras pasa algo.
+  aplica: >-
+    Párrafos descriptivos largos en narrativa.
+  no_aplica: >-
+    Pausas descriptivas deliberadas que preparan un giro o crean atmósfera.
+  ejemplos:
+    - mal: "La habitación era grande, con dos ventanas, un armario de roble y una cama antigua."
+      bien: "Abrió el armario de roble; olía a naftalina y a la ropa de su abuela."
+      porque: "El detalle llega a través de una acción."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (escena)"
+  metricas: [parrafo_largo]
+  generos: [narrativa, novela, relato, cuento]
+  relaciones:
+    - tipo: requiere
+      ficha: imagen-sensorial
+
+- id: final-del-relato
+  rama: generos
+  nombre: Final del relato
+  regla: >-
+    El final de un cuento resuelve o transforma la tensión planteada, aunque no lo explique
+    todo. No añade una moraleja ni explica lo que la escena ya ha mostrado.
+  aplica: >-
+    Últimos párrafos de cuentos y relatos.
+  no_aplica: >-
+    Fábulas y cuentos infantiles que buscan expresamente una enseñanza.
+  ejemplos:
+    - mal: "Y así Marta aprendió que nunca hay que fiarse de las apariencias."
+      bien: "Marta cerró la puerta con dos vueltas de llave, aunque ya no quedaba nada que robar."
+      porque: "El gesto final muestra el cambio; la moraleja lo explica."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, formas breves (cuento)"
+  senales:
+    - patron: '\b(y así (aprendió|aprendieron|comprendió|entendió)|la moraleja|aprendió (la lección|que))\b'
+  generos: [narrativa, relato, cuento, microrrelato]
+  relaciones:
+    - tipo: requiere
+      ficha: cierre-sin-resumen
+
+- id: microrrelato
+  rama: generos
+  nombre: Microrrelato
+  regla: >-
+    En el microrrelato cada palabra trabaja: título que suma información, un solo
+    conflicto, personajes sin presentación y un final que gira o resignifica lo leído.
+  aplica: >-
+    Textos narrativos muy breves.
+  no_aplica: >-
+    Fragmentos de textos más largos.
+  ejemplos:
+    - mal: "Juan era un hombre solitario que vivía en un pueblo. Un día conoció a una mujer y se enamoró."
+      bien: "Cada noche ponía dos platos. Aquella noche, por fin, sobró comida."
+      porque: "Sin presentaciones; el giro final cuenta la historia."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, formas breves"
+  generos: [microrrelato, micro, minificción, minificcion]
+  relaciones:
+    - tipo: requiere
+      ficha: elipsis
+
+- id: monologo-interior
+  rama: tradicion
+  nombre: Monólogo interior
+  regla: >-
+    El monólogo interior reproduce el pensamiento del personaje tal como fluye: saltos,
+    asociaciones, frases sin terminar, puntuación libre. Funciona si el lector siente que
+    está dentro de la cabeza; pierde fuerza si el narrador lo ordena y explica.
+  aplica: >-
+    Pasajes de pensamiento en narrativa.
+  no_aplica: >-
+    Narradores en tercera persona que resumen lo que piensa el personaje.
+  ejemplos:
+    - mal: "Pensó que llegaba tarde y que su jefe se enfadaría, lo cual le preocupaba."
+      bien: "Tarde otra vez el jefe con esa cara y el autobús que no viene, tarde."
+      porque: "El pensamiento llega sin la mediación del narrador."
+  fuente:
+    obra: "Tiempo de silencio (Luis Martín-Santos, 1962)"
+    localizador: "procedimiento general: monólogo interior del protagonista"
+  generos: [narrativa, novela, relato, monólogo, monologo, monólogo interior]
+
+# --- Poesía ---
+
+- id: metrica-computo
+  rama: generos
+  nombre: Cómputo silábico
+  regla: >-
+    El verso se mide en sílabas métricas: se unen vocales entre palabras (sinalefa), y se
+    suma una sílaba si la última palabra es aguda o se resta si es esdrújula. Un poema en
+    metro regular mantiene la medida en todos los versos.
+  aplica: >-
+    Sonetos, romances, décimas y cualquier poema con metro declarado.
+  no_aplica: >-
+    Verso libre, que se mide por el ritmo y no por las sílabas.
+  ejemplos:
+    - mal: "Un soneto con un verso de diez sílabas entre endecasílabos."
+      bien: "Contar cada verso con sinalefas y ley del acento final hasta igualar las once."
+      porque: "El metro regular se rompe con un solo verso cojo."
+  fuente:
+    obra: "Métrica española (Antonio Quilis)"
+    localizador: "capítulos del cómputo silábico y de la ley del acento final"
+  generos: [poesía, poesia, poema, soneto, romance, décima, decima, verso, versos]
+  relaciones:
+    - tipo: requiere
+      ficha: rima
+
+- id: rima
+  rama: generos
+  nombre: Rima
+  regla: >-
+    Rima consonante: coinciden vocales y consonantes desde la última vocal tónica (camino /
+    destino). Asonante: solo las vocales (camino / hilo). Se evitan las rimas fáciles de
+    terminaciones verbales o sufijos (-aba / -aba, -ción / -ción) que empobrecen el poema.
+  aplica: >-
+    Poemas rimados.
+  no_aplica: >-
+    Verso libre y poemas en prosa.
+  ejemplos:
+    - mal: "Rimar «cantaba / bailaba / soñaba» en tres versos seguidos."
+      bien: "Rimar «cantaba / alba / palabra» en asonante."
+      porque: "La rima de terminación verbal es la más pobre."
+  fuente:
+    obra: "Métrica española (Antonio Quilis)"
+    localizador: "capítulo de la rima"
+  generos: [poesía, poesia, poema, soneto, romance, décima, decima, verso, versos, canción, cancion]
+  relaciones:
+    - tipo: requiere
+      ficha: eco-y-cacofonia
+
+- id: encabalgamiento
+  rama: generos
+  nombre: Encabalgamiento y pausa versal
+  regla: >-
+    El final de verso es una pausa. Si la frase sigue en el verso siguiente
+    (encabalgamiento), se crea tensión o se destaca la palabra que queda al final o al
+    principio. Usado sin intención, rompe grupos que deberían ir unidos (artículo y
+    sustantivo).
+  aplica: >-
+    Poesía en verso, regular o libre.
+  no_aplica: >-
+    Prosa poética.
+  ejemplos:
+    - mal: "Y entonces vi la / casa vacía."
+      bien: "Y entonces vi la casa / vacía."
+      porque: "La pausa cae donde destaca algo, no entre artículo y nombre."
+  fuente:
+    obra: "Métrica española (Antonio Quilis)"
+    localizador: "capítulo de las pausas y el encabalgamiento"
+  senales:
+    - patron: '(?m)\b(el|la|los|las|un|una|de|en|y|que)\s*$'
+      tipo: vigilancia
+  generos: [poesía, poesia, poema, soneto, verso, versos, verso libre]
+
+- id: verso-libre
+  rama: generos
+  nombre: Verso libre
+  regla: >-
+    El verso libre no tiene medida fija, pero sí ritmo: la longitud del verso, las
+    repeticiones y los cortes sostienen la lectura. Un párrafo de prosa cortado en líneas
+    no es un poema.
+  aplica: >-
+    Poemas sin metro regular.
+  no_aplica: >-
+    Poesía métrica.
+  ejemplos:
+    - mal: "Hoy fui al mercado / y compré manzanas / y luego volví a casa."
+      bien: "Volví del mercado / con manzanas / y nadie a quien dárselas."
+      porque: "El corte y la última línea crean sentido; en el primero solo hay prosa partida."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, poesía"
+  generos: [verso libre, poesía, poesia, poema]
+  relaciones:
+    - tipo: requiere
+      ficha: encabalgamiento
+
+# --- Teatro ---
+
+- id: acotacion-teatral
+  rama: generos
+  nombre: Acotación teatral
+  regla: >-
+    La acotación indica lo que se ve y se oye en escena, en presente y con brevedad: entradas,
+    gestos, espacio. No explica lo que el personaje siente si el actor puede mostrarlo.
+  aplica: >-
+    Textos teatrales y guiones.
+  no_aplica: >-
+    Autores que hacen de la acotación un espacio literario propio, como estilo declarado.
+  ejemplos:
+    - mal: "(Juan entró en la habitación sintiéndose profundamente traicionado por su hermana.)"
+      bien: "(Entra JUAN. Se detiene al ver a su hermana. No se quita el abrigo.)"
+      porque: "Presente, visible y breve: el actor interpreta la traición."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, teatro"
+  senales:
+    - patron: '\((\w+\s+){0,3}(entró|salió|dijo|miró|sintió|sentía|pensaba)\b'
+  generos: [teatro, obra de teatro, guion, guión, escena, dramático, dramatico]
+  relaciones:
+    - tipo: requiere
+      ficha: dialogo-dramatico
+
+- id: dialogo-dramatico
+  rama: generos
+  nombre: Diálogo dramático
+  regla: >-
+    En teatro el diálogo es acción: cada réplica cambia algo entre los personajes. Lo
+    importante suele ir por debajo de lo que se dice (subtexto). Una réplica que solo
+    informa al público sobra.
+  aplica: >-
+    Textos teatrales y guiones.
+  no_aplica: >-
+    Monólogos y apartes, que tienen sus propias convenciones.
+  ejemplos:
+    - mal: "ANA. — Estoy enfadada porque vendiste la casa de nuestros padres sin consultarme."
+      bien: "ANA. — Bonitas cortinas. ¿También son nuevas las llaves?"
+      porque: "El reproche va por debajo y obliga al otro a reaccionar."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, teatro"
+  generos: [teatro, obra de teatro, guion, guión, escena, dramático, dramatico]
+  relaciones:
+    - tipo: requiere
+      ficha: dialogo-verosimil
+
+# --- Ensayo, periodismo y no ficción ---
+
+- id: afirmaciones-sin-prueba
+  rama: generos
+  nombre: Afirmaciones sin prueba
+  regla: >-
+    «Todo el mundo sabe», «es evidente que», «nadie puede negar», «siempre ha sido así»
+    sustituyen el argumento por una presión. En un texto que quiere convencer, cada
+    afirmación importante se apoya en un dato, un ejemplo o un razonamiento.
+  aplica: >-
+    Ensayo, opinión, informes, textos argumentativos.
+  no_aplica: >-
+    Hechos efectivamente indiscutidos y de conocimiento general («el agua hierve a cien
+    grados a nivel del mar»).
+  ejemplos:
+    - mal: "Es evidente que la lectura está en crisis; todo el mundo lo sabe."
+      bien: "La lectura está en crisis: en diez años se han cerrado un tercio de las librerías de la provincia."
+      porque: "El dato sustituye a la presión retórica."
+  fuente:
+    obra: "Retórica (Aristóteles)"
+    localizador: "libro I, las pruebas"
+  senales:
+    - patron: '\b(todo el mundo sabe|es evidente que|es obvio que|nadie puede negar|nadie duda|siempre ha sido así|como todos sabemos|está demostrado que|es de sobra conocido)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: argumentacion
+
+- id: datos-y-fuentes
+  rama: generos
+  nombre: Datos con fuente
+  regla: >-
+    Una cifra, un porcentaje o un estudio necesitan su fuente y su fecha. Un dato sin
+    origen no se puede comprobar y resta credibilidad al resto del texto.
+  aplica: >-
+    Ensayo, artículo, informe, divulgación.
+  no_aplica: >-
+    Cifras que el propio texto ya ha documentado antes, y datos de conocimiento común.
+  ejemplos:
+    - mal: "El 70 % de los españoles no lee nunca."
+      bien: "El 70 % de los encuestados dijo no leer nunca, según el barómetro de hábitos de lectura de 2024 que cita la nota."
+      porque: "Origen y fecha permiten comprobarlo."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, ensayo y no ficción"
+  senales:
+    - patron: '\b\d+([.,]\d+)?\s?%|\b\d+ de cada \d+\b|\bestudios (demuestran|dicen|indican)\b|\bsegún un estudio\b'
+      tipo: vigilancia
+  generos: [ensayo, opinión, opinion, artículo, articulo, informe, divulgación, divulgacion, reportaje, columna, noticia]
+  relaciones:
+    - tipo: requiere
+      ficha: afirmaciones-sin-prueba
+
+- id: piramide-invertida
+  rama: generos
+  nombre: Pirámide invertida
+  regla: >-
+    En una noticia, el primer párrafo responde a lo esencial (qué, quién, cuándo, dónde) y
+    el resto ordena la información de más a menos importante, de modo que se pueda cortar
+    por el final sin perder lo principal.
+  aplica: >-
+    Noticias, notas de prensa, comunicados.
+  no_aplica: >-
+    Crónicas, reportajes y columnas, que tienen estructura libre.
+  ejemplos:
+    - mal: "El pasado martes, en un acto al que asistieron numerosas autoridades, y tras varios discursos, se anunció la apertura de la biblioteca."
+      bien: "La ciudad abrirá una nueva biblioteca en marzo, anunció el martes el Ayuntamiento."
+      porque: "Lo esencial va primero."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, formas breves (artículo)"
+  generos: [noticia, nota de prensa, comunicado, periodístico, periodistico]
+  relaciones:
+    - tipo: requiere
+      ficha: verbos-de-atribucion
+
+- id: verbos-de-atribucion
+  rama: generos
+  nombre: Verbos de atribución
+  regla: >-
+    En periodismo, «dijo» o «afirmó» atribuyen sin juzgar. «Reconoció», «admitió»,
+    «confesó», «aseguró» o «sentenció» añaden una valoración (que había algo que ocultar,
+    que hay que creerle). Se usan solo si esa valoración está justificada.
+  aplica: >-
+    Noticias, crónicas y textos que citan declaraciones.
+  no_aplica: >-
+    Narrativa de ficción, donde el verbo puede caracterizar.
+  ejemplos:
+    - mal: "La alcaldesa confesó que el proyecto se retrasará."
+      bien: "La alcaldesa dijo que el proyecto se retrasará."
+      porque: "«Confesó» sugiere culpa que el hecho no justifica."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, ensayo y no ficción"
+  senales:
+    - patron: '\b(confesó|admitió|reconoció|sentenció|aseguró|reveló|zanjó|espetó)\s+que\b'
+      tipo: vigilancia
+  generos: [noticia, crónica, cronica, reportaje, artículo, articulo, periodístico, periodistico, nota de prensa]
+
+- id: ensayo-voz-propia
+  rama: generos
+  nombre: Voz en el ensayo
+  regla: >-
+    El ensayo admite la primera persona y la duda, pero cada «creo» o «me parece» debe
+    sostener una posición, no rebajarla por miedo. Un ensayo que matiza cada frase no
+    afirma nada; uno que no matiza nada, no piensa.
+  aplica: >-
+    Ensayo y columna de opinión.
+  no_aplica: >-
+    Textos académicos que exigen otro registro.
+  ejemplos:
+    - mal: "Creo que, quizá, en cierto modo, podría decirse que la mayoría a veces se equivoca."
+      bien: "Creo que la mayoría puede equivocarse, y que eso no la deslegitima."
+      porque: "Cuatro atenuantes vacían la frase; uno sostiene la posición."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, ensayo"
+  senales:
+    - patron: '\b(creo que|me parece que|quizá|quizás|tal vez|en cierto modo|podría decirse)\b[^.]{0,40}\b(quizá|quizás|tal vez|en cierto modo|podría decirse|a veces)\b'
+  generos: [ensayo, opinión, opinion, columna, artículo, articulo]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: matices-protegidos
+      criterio: "Un matiz que sostiene el sentido se conserva; la acumulación de atenuantes vacíos sobra."
+
+# --- Textos profesionales y orales ---
+
+- id: saludo-y-despedida
+  rama: lengua
+  nombre: Saludo y despedida en correos y cartas
+  regla: >-
+    El saludo de una carta o un correo va seguido de dos puntos, no de coma: «Estimada
+    Lucía:». La despedida es breve («Un saludo,» seguido del nombre) y no se encadena con
+    fórmulas («Sin otro particular, aprovecho la ocasión para…»).
+  aplica: >-
+    Correos y cartas.
+  no_aplica: >-
+    Mensajes informales de chat, donde el saludo puede ir con coma o sin signo.
+  ejemplos:
+    - mal: "Estimada Lucía,"
+      bien: "Estimada Lucía:"
+      porque: "En español, el saludo va con dos puntos."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, los dos puntos en cartas y documentos"
+  senales:
+    - patron: '(?m)^\s*(Estimad[oa]s?|Querid[oa]s?|Apreciad[oa]s?|Hola)\b[^\n:]{0,60},\s*$'
+    - patron: '\b(sin otro particular|aprovecho la ocasión para saludarle|quedando a su entera disposición)\b'
+  generos: [correo, email, carta, aviso, nota]
+  relaciones:
+    - tipo: requiere
+      ficha: texto-profesional
+
+- id: informe
+  rama: generos
+  nombre: Informe
+  regla: >-
+    Un informe empieza por la conclusión o la recomendación, en pocas líneas; después
+    expone los datos que la sostienen y los detalles. Quien lo lee con prisa debe saber qué
+    se propone sin pasar del primer párrafo.
+  aplica: >-
+    Informes, memorias, notas técnicas, propuestas.
+  no_aplica: >-
+    Informes académicos con estructura fijada (introducción, método, resultados).
+  ejemplos:
+    - mal: "En este informe se analizarán diversos aspectos relativos al funcionamiento del servicio."
+      bien: "Recomendamos ampliar el horario de atención: las quejas se concentran entre las 15 y las 17 h."
+      porque: "La recomendación va primero, con su dato."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "contrato de «Hacer enviable»"
+  senales:
+    - patron: '^\s*(En este informe|El presente (informe|documento)|A continuación se)'
+      sensible_mayusculas: true
+  generos: [informe, memoria, propuesta, nota técnica, nota tecnica]
+  relaciones:
+    - tipo: requiere
+      ficha: texto-profesional
+
+- id: texto-para-oir
+  rama: generos
+  nombre: Texto para ser dicho
+  regla: >-
+    Un discurso o una presentación se escuchan una vez: frases más cortas, ideas repetidas
+    en puntos clave, enumeraciones anunciadas («tres cosas») y nada de paréntesis ni de
+    cifras amontonadas.
+  aplica: >-
+    Discursos, charlas, presentaciones, guiones de vídeo o pódcast.
+  no_aplica: >-
+    Textos para leer en silencio.
+  ejemplos:
+    - mal: "Los resultados (véase la tabla 3) muestran un aumento del 12,4 % respecto al ejercicio anterior, que fue del 9,8 %."
+      bien: "Este año hemos crecido más que el anterior. Casi tres puntos más."
+      porque: "El oyente retiene una idea y una cifra redonda."
+  fuente:
+    obra: "Retórica (Aristóteles)"
+    localizador: "libro III, la elocución oral"
+  senales:
+    - patron: '\((véase|ver|cf\.)[^)]*\)'
+  generos: [discurso, charla, presentación, presentacion, conferencia, guion de vídeo, pódcast, podcast, oral]
+  relaciones:
+    - tipo: requiere
+      ficha: ritmo-de-frase

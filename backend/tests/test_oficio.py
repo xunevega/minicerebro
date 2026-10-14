@@ -103,3 +103,45 @@ def test_prompt_receives_oficio_block(monkeypatch):
 def test_policy_document_exists():
     policy = Path(__file__).resolve().parents[2] / "docs" / "POLITICA_CONOCIMIENTO.md"
     assert "La ficha de oficio es el formato válido" in policy.read_text(encoding="utf-8")
+
+
+def test_error_signals_fire_on_bad_example_and_not_on_good_one():
+    """Cada ficha con señales de error tiene que delatar su ejemplo malo y no el bueno."""
+    from app.oficio.selection import METRIC_FUNCTIONS, _signal_hits
+
+    # Métricas que se pueden comprobar sobre una frase de ejemplo (las de párrafo o de
+    # texto completo necesitan textos largos y se prueban aparte).
+    sentence_metrics = {
+        "ques_encadenados", "des_encadenados", "mente_encadenados", "eco_sufijos",
+        "intensificadores", "frases_cortas", "trato_mixto", "incisos",
+    }
+    problems = []
+    for ficha in load_fichas().values():
+        has_error_signals = any(senal.tipo == "error" for senal in ficha.senales)
+        metrics = [metric for metric in ficha.metricas if metric in sentence_metrics]
+        if not has_error_signals and not metrics:
+            continue
+        ejemplo = ficha.ejemplos[0]
+
+        def fires(text: str, ficha=ficha, metrics=metrics) -> bool:
+            hits = _signal_hits(ficha, text, "error")
+            for metric in metrics:
+                hits += METRIC_FUNCTIONS[metric](text)
+            return bool(hits)
+
+        if not fires(ejemplo.mal):
+            problems.append(f"{ficha.id}: no salta en su ejemplo malo")
+        if has_error_signals and _signal_hits(ficha, ejemplo.bien, "error"):
+            problems.append(f"{ficha.id}: salta en su ejemplo bueno")
+    assert not problems, "\n".join(problems)
+
+
+def test_new_branches_are_covered():
+    ramas = {ficha.rama for ficha in load_fichas().values()}
+    assert ramas == {"lengua", "recursos", "composicion", "voz", "generos", "tradicion", "criterio"}
+    assert len(load_fichas()) >= 120
+
+
+def test_instruction_activates_tradition_fichas():
+    selected = [item.ficha.id for item in select_fichas("El concejal entró.", "rewrite", instruction="hazlo más esperpéntico")]
+    assert "esperpento" in selected

@@ -1,0 +1,234 @@
+# Rama 1 · La lengua como material (ampliación) y algún género suelto.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+- id: tildes-frecuentes
+  rama: lengua
+  nombre: Tildes que se olvidan a menudo
+  regla: >-
+    Llevan tilde las agudas acabadas en vocal, -n o -s (también, después, además), las
+    llanas acabadas en consonante que no sea -n ni -s (fácil, difícil, árbol, lápiz) y todas
+    las esdrújulas (último, rápido, único, página, teléfono, jóvenes, exámenes).
+  aplica: >-
+    Palabras frecuentes escritas sin tilde.
+  no_aplica: >-
+    Formas verbales que se escriben igual sin tilde con otro sentido (público/publico,
+    número/numero, último/ultimo): se comprueba el sentido antes de corregir.
+  ejemplos:
+    - mal: "Tambien llegaron despues los jovenes del ultimo curso."
+      bien: "También llegaron después los jóvenes del último curso."
+      porque: "Agudas en vocal y -s, y esdrújulas: con tilde."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. II, reglas generales de acentuación"
+  senales:
+    - patron: '\b(tambien|despues|ademas|ultimos?|ultimas?|rapid[oa]s?|facil|faciles|dificil|dificiles|arbol|arboles|lapiz|jovenes|examenes|unic[oa]s?|musica|pagina|paginas|telefono|tecnic[oa]s?|politic[oa]s?|historic[oa]s?|economic[oa]s?|publicamente|rapidamente|facilmente|dificilmente|aqui|alli|asi|mas tarde)\b'
+      tambien_sin_tildes: false
+  base:
+    acciones: [correction]
+
+- id: mayuscula-tras-punto
+  rama: lengua
+  nombre: Mayúscula después de punto
+  regla: >-
+    Después de punto, signo de cierre de interrogación o exclamación que termina oración, o
+    puntos suspensivos que cierran el enunciado, se empieza con mayúscula.
+  aplica: >-
+    Oraciones que empiezan en minúscula tras un punto.
+  no_aplica: >-
+    Después del punto de una abreviatura dentro de la oración («pág. 3», «etc. y otros»).
+  ejemplos:
+    - mal: "Llegó tarde. después se marchó sin cenar."
+      bien: "Llegó tarde. Después se marchó sin cenar."
+      porque: "Tras el punto empieza una oración nueva."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. IV, mayúscula después de punto"
+  senales:
+    - patron: '\b(?!etc\b|pág\b|aprox\b|núm\b|vol\b|cap\b|art\b|ej\b|vid\b)[a-záéíóúñ]{2,}[.!?]\s+[a-záéíóúñ]{2,}'
+      sensible_mayusculas: true
+  base:
+    miradas: [limpieza]
+
+- id: a-personal
+  rama: lengua
+  nombre: «A» ante complemento directo de persona
+  regla: >-
+    El complemento directo de persona concreta lleva la preposición «a»: «Vi a tu hermano»,
+    «Llamé a mi madre». Las cosas no la llevan: «Vi tu coche».
+  aplica: >-
+    Verbos de percepción, trato o búsqueda con un complemento de persona determinada.
+  no_aplica: >-
+    Personas indeterminadas («Busco camarero») y el verbo «tener» («Tengo dos hermanos»).
+  ejemplos:
+    - mal: "Ayer vi tu hermano y saludé tu madre."
+      bien: "Ayer vi a tu hermano y saludé a tu madre."
+      porque: "Personas concretas como complemento directo: con «a»."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «a», complemento directo de persona"
+  senales:
+    - patron: '\b(vi|conocí|llamé|saludé|ayudé|esperé|visité|busqué|encontré|abracé|besé|escuché|invité)\s+(mi|tu|su|nuestro|nuestra|vuestro|vuestra)\s+(hermano|hermana|madre|padre|amigo|amiga|jefe|jefa|vecino|vecina|hijo|hija|abuelo|abuela|primo|prima|pareja|novio|novia|profesor|profesora)\b'
+
+- id: le-por-les
+  rama: lengua
+  nombre: «Les» con plural
+  regla: >-
+    El complemento indirecto concuerda en número con la persona a la que se refiere: «les
+    dije a mis padres», no «le dije a mis padres».
+  aplica: >-
+    «Le» que anticipa un complemento indirecto plural.
+  no_aplica: >-
+    Está muy extendido en la lengua oral; en diálogos puede respetarse como rasgo del
+    personaje.
+  ejemplos:
+    - mal: "Le conté a mis padres lo ocurrido."
+      bien: "Les conté a mis padres lo ocurrido."
+      porque: "«A mis padres» es plural."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «le», uso de «le» por «les»"
+  senales:
+    - patron: '\ble\s+\w+\s+a\s+(mis|tus|sus|los|las|nuestros|nuestras|vuestros|vuestras|unos|unas|todos|todas)\s+\w+'
+  relaciones:
+    - tipo: requiere
+      ficha: leismo
+
+- id: se-lo-se-los
+  rama: lengua
+  nombre: «Se lo dije», no «se los dije»
+  regla: >-
+    En «se lo dije» el «lo» es lo dicho y «se» la persona. Si la persona es plural, el
+    plural no se pasa al «lo»: «Se lo dije a ellos», no «se los dije» (salvo que lo dicho
+    sea plural).
+  aplica: >-
+    «Se los» cuando «los» no sustituye a un plural de cosas.
+  no_aplica: >-
+    Si «los» sustituye a algo plural («Los libros, se los di»), es correcto.
+  ejemplos:
+    - mal: "Se los expliqué a mis alumnos con calma."
+      bien: "Se lo expliqué a mis alumnos con calma."
+      porque: "Lo explicado es singular; el plural es de los alumnos."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «se», apartado «se los» por «se lo»"
+  senales:
+    - patron: '\bse\s+los\s+(dije|dijo|dijimos|expliqué|explicó|expliqué|conté|contó|advertí|advirtió|aclaré|aclaró)\s+a\s+(mis|tus|sus|los|las|nuestros|todos)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: le-por-les
+
+- id: quesuismo
+  rama: lengua
+  nombre: «Cuyo», no «que su»
+  regla: >-
+    Para expresar posesión en una oración de relativo se usa «cuyo, cuya, cuyos, cuyas»:
+    «el chico cuyo padre es médico», no «el chico que su padre es médico».
+  aplica: >-
+    Relativas con «que su».
+  no_aplica: >-
+    «Que su» como conjunción más posesivo es correcto: «Me alegra que su padre esté bien».
+  ejemplos:
+    - mal: "Es el vecino que su perro ladra toda la noche."
+      bien: "Es el vecino cuyo perro ladra toda la noche."
+      porque: "Relativo posesivo: «cuyo»."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «cuyo»"
+  senales:
+    - patron: '\b(el|la|los|las|un|una|ese|esa|este|esta)\s+\w+\s+que\s+su(s)?\s+\w+\s+(es|era|está|estaba|tiene|tenía|vive|vivía|trabaja|trabajaba|ladra|ladraba|son|eran)\b'
+
+- id: plurales-dudosos
+  rama: lengua
+  nombre: Plurales dudosos
+  regla: >-
+    Los latinismos y extranjerismos adaptados hacen el plural en español: «currículos» (o
+    «currículums» solo como forma no adaptada en cursiva), «memorandos», «déficits»,
+    «superávits», «clubes» o «clubs», «menús», «champús».
+  aplica: >-
+    Plurales de palabras de origen latino o extranjero.
+  no_aplica: >-
+    Palabras invariables por norma: «los análisis», «las crisis», «los lunes».
+  ejemplos:
+    - mal: "Recibimos muchos currículums y varios memorándums con los déficit del año."
+      bien: "Recibimos muchos currículos y varios memorandos con los déficits del año."
+      porque: "Plurales adaptados al español."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «currículo», «memorando», «déficit» y «plural»"
+  senales:
+    - patron: '\b(currículums|curriculums|memorándums|memorandums)\b'
+    - patron: '\b(los|varios|muchos|sus|unos)\s+(déficit|superávit)\b'
+
+- id: palabras-de-moda
+  rama: voz
+  nombre: Palabras de moda
+  regla: >-
+    Las palabras que se ponen de moda en un sector («empoderar», «resiliencia»,
+    «sinergia», «disruptivo», «holístico», «proactivo», «implementar») se gastan pronto y
+    suenan a jerga. Se prefiere la palabra concreta que dice lo que pasa.
+  aplica: >-
+    Ensayo, artículos, correos y textos que quieren sonar propios.
+  no_aplica: >-
+    Textos técnicos donde el término tiene un significado preciso (resiliencia en
+    ingeniería o psicología, implementar en informática).
+  ejemplos:
+    - mal: "Buscamos sinergias para empoderar a los equipos con un enfoque disruptivo."
+      bien: "Queremos que los equipos trabajen juntos y decidan más por su cuenta."
+      porque: "Tres palabras de moda ocultan qué se propone."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», voz y estilo (enemigos)"
+  senales:
+    - patron: '\b(empoder\w+|resilien\w+|sinergias?|disruptiv[oa]s?|holístic[oa]s?|proactiv[oa]s?|implementa\w+|apalanca\w+|escalabilidad|ecosistema de)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: topicos-y-frases-hechas
+
+- id: resena
+  rama: generos
+  nombre: Reseña
+  regla: >-
+    Una reseña informa de qué es la obra en pocas líneas y dedica el resto a valorarla con
+    razones verificables: qué intenta, si lo consigue y por qué. Ni resumen completo del
+    argumento ni adjetivos sin argumento («magistral», «imprescindible»).
+  aplica: >-
+    Reseñas de libros, películas, discos, exposiciones o restaurantes.
+  no_aplica: >-
+    Sinopsis comerciales, que no valoran.
+  ejemplos:
+    - mal: "Una novela magistral e imprescindible que nadie debería perderse."
+      bien: "La novela sostiene durante trescientas páginas una sola voz narradora sin que decaiga el interés."
+      porque: "La valoración llega con una razón comprobable."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, formas breves"
+  senales:
+    - patron: '\b(magistral|imprescindible|obra maestra|absolutamente recomendable|de lectura obligada)\b'
+  generos: [reseña, resena, crítica, critica]
+  relaciones:
+    - tipo: requiere
+      ficha: afirmaciones-sin-prueba
+
+- id: titulos-de-obras
+  rama: lengua
+  nombre: Títulos de obras en cursiva
+  regla: >-
+    Los títulos de libros, películas, discos, revistas y obras de arte se escriben en
+    cursiva (o subrayados a mano). Los títulos de partes de una obra (capítulos, poemas de
+    un libro, canciones, artículos) van entre comillas.
+  aplica: >-
+    Menciones a obras en cualquier texto.
+  no_aplica: >-
+    Donde no hay cursiva (mensajes de texto plano), se admiten las comillas para el título.
+  ejemplos:
+    - mal: "Leí la novela \"Tiempo de silencio\" y el capítulo Hacia el final."
+      bien: "Leí la novela Tiempo de silencio (en cursiva) y el capítulo «Hacia el final»."
+      porque: "Obra completa en cursiva; parte de la obra entre comillas."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, las comillas; uso de la cursiva en títulos"
+  senales:
+    - patron: '\b(libro|novela|película|disco|álbum|poemario|ensayo|revista|periódico|serie)\s+"[^"\n]+"'
+  relaciones:
+    - tipo: requiere
+      ficha: comillas

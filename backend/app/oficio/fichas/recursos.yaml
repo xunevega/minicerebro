@@ -1,0 +1,253 @@
+# Rama 2 · Recursos expresivos.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+# Muchas señales son de «vigilancia»: marcan dónde hay un recurso que cuidar, no un error.
+
+- id: metafora-gastada
+  rama: recursos
+  nombre: Metáfora gastada
+  regla: >-
+    Una metáfora que todo el mundo ha leído mil veces («luz al final del túnel», «caldo de
+    cultivo», «punto de inflexión») ya no produce imagen: es una frase hecha. Se cambia por
+    una imagen propia y concreta o por la idea dicha sin adorno.
+  aplica: >-
+    Metáforas lexicalizadas en prosa que quiere tener voz.
+  no_aplica: >-
+    Textos técnicos o periodísticos donde la expresión fijada se usa como término, y el uso
+    irónico.
+  ejemplos:
+    - mal: "La crisis fue el caldo de cultivo y ahora se ve la luz al final del túnel."
+      bien: "La crisis lo preparó todo; ahora, por primera vez en años, las cuentas cuadran."
+      porque: "Dos imágenes gastadas por un hecho concreto."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, tropos"
+  senales:
+    - patron: '\b(luz al final del túnel|caldo de cultivo|punto de inflexión|piedra angular|pistoletazo de salida|ojo del huracán|talón de Aquiles|cajón de sastre|la gota que colma el vaso|la punta del iceberg|espada de Damocles|mar de dudas|un antes y un después|a la vuelta de la esquina|en el punto de mira|hoja de ruta|línea roja|tocar fondo)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: topicos-y-frases-hechas
+
+- id: imagen-sensorial
+  rama: recursos
+  nombre: Imagen sensorial y detalle significativo
+  regla: >-
+    Un detalle que se ve, se oye o se toca vale más que un adjetivo de juicio. «Una casa
+    triste» informa; «una casa con las persianas bajadas a mediodía» hace sentir. El
+    detalle elegido debe decir algo del personaje o de la situación, no decorar.
+  aplica: >-
+    Narrativa, crónica, poesía y descripciones.
+  no_aplica: >-
+    Textos expositivos o profesionales, donde el juicio directo es más eficaz.
+  ejemplos:
+    - mal: "La cocina estaba muy sucia y se notaba que nadie la cuidaba."
+      bien: "En la cocina, tres tazas con el café seco esperaban junto al grifo."
+      porque: "El detalle muestra el abandono sin nombrarlo."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, imagen y descripción"
+  senales:
+    - patron: '\b(muy|bastante|tan)\s+(triste|bonit[oa]|feo|fea|sucio|sucia|horrible|precios[oa]|agradable|desagradable|extrañ[oa])\b'
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento, crónica, cronica, poesía, poesia, poema, infantil]
+
+- id: simil
+  rama: recursos
+  nombre: Comparación o símil
+  regla: >-
+    El símil («como…», «como si…») acerca lo que se cuenta a algo conocido. Funciona cuando
+    el término de comparación es exacto y sorprende; falla cuando es previsible («blanco
+    como la nieve») o cuando hay varios seguidos que se estorban.
+  aplica: >-
+    Narrativa, poesía, crónica y prosa con voz.
+  no_aplica: >-
+    Comparaciones explicativas en textos técnicos («funciona como un filtro»), que solo
+    deben ser claras.
+  ejemplos:
+    - mal: "Era blanco como la nieve y frío como el hielo."
+      bien: "Tenía el blanco de las sábanas recién tendidas."
+      porque: "Dos comparaciones previsibles por una exacta."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, tropos"
+  senales:
+    - patron: '\b(blanc[oa] como la nieve|negr[oa] como el carbón|frí[oa] como el hielo|dur[oa] como una piedra|rápid[oa] como un rayo|fuerte como un toro|lent[oa] como una tortuga|claro como el agua|más viejo que Matusalén)\b'
+    - patron: '\bcomo si\b'
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento, crónica, cronica, poesía, poesia, poema, infantil, columna]
+  relaciones:
+    - tipo: requiere
+      ficha: metafora-gastada
+
+- id: ironia
+  rama: recursos
+  nombre: Ironía
+  regla: >-
+    La ironía dice lo contrario o algo distinto de lo que quiere dar a entender, y confía en
+    que el lector lo capte. Funciona con un contexto claro y un tono contenido; explicada o
+    subrayada, se pierde. Al editar, no se convierte en afirmación literal.
+  aplica: >-
+    Columnas, sátira, humor, narradores con distancia.
+  no_aplica: >-
+    Textos donde un malentendido sería grave (instrucciones, avisos, correos delicados).
+  ejemplos:
+    - mal: "Qué gran idea poner la reunión a las ocho de la tarde del viernes (es una ironía, claro)."
+      bien: "Qué gran idea poner la reunión a las ocho de la tarde del viernes."
+      porque: "La aclaración mata la ironía."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, ironía y humor"
+  senales:
+    - patron: '\((es una )?ironía[^)]*\)|\bes broma\b|\bnótese la ironía\b'
+  generos: [columna, opinión, opinion, humor, sátira, satira, crónica, cronica, narrativa, relato, cuento]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: claridad-y-orden
+      criterio: "Una ironía bien construida no se aclara."
+
+- id: hiperbole
+  rama: recursos
+  nombre: Hipérbole
+  regla: >-
+    La exageración funciona cuando es evidente y tiene intención (humor, énfasis). En un
+    texto que debe ser creído, la exageración resta credibilidad: «miles de veces», «el
+    peor de la historia».
+  aplica: >-
+    Columnas, humor y narrativa (como recurso); ensayo e informe (como riesgo).
+  no_aplica: >-
+    La hipérbole lexicalizada de la conversación en diálogos.
+  ejemplos:
+    - mal: "Es el peor informe de la historia y lo he leído mil veces."
+      bien: "Es el informe más flojo que he leído este año, y lo he revisado tres veces."
+      porque: "En un texto argumentativo, la exageración resta crédito."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, deformación"
+  senales:
+    - patron: '\b(mil veces|un millón de veces|millones de veces|el peor .{1,30} de la historia|el mejor .{1,30} de la historia|nunca jamás|en la vida he)\b'
+      tipo: vigilancia
+  relaciones:
+    - tipo: requiere
+      ficha: afirmaciones-sin-prueba
+
+- id: personificacion
+  rama: recursos
+  nombre: Personificación
+  regla: >-
+    Atribuir acciones o sentimientos humanos a cosas o animales da vida a una descripción,
+    sobre todo en poesía y en literatura infantil. Debe mantenerse coherente: si la casa
+    «suspira», no puede a la vez ser un simple decorado.
+  aplica: >-
+    Poesía, cuento infantil, prosa poética.
+  no_aplica: >-
+    Textos expositivos, donde puede confundir («el mercado decidió»).
+  ejemplos:
+    - mal: "El mercado decidió castigar a la empresa por sus decisiones."
+      bien: "Los inversores vendieron las acciones de la empresa tras el anuncio."
+      porque: "En un texto económico, la personificación oculta quién actúa."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, tropos"
+  senales:
+    - patron: '\b(el mercado|los mercados|la economía|la sociedad|el sistema)\s+(decidió|castigó|premió|quiso|pidió|exige|exigió|reclama|reaccionó)\b'
+      tipo: vigilancia
+  generos: [poesía, poesia, poema, infantil, cuento, relato, narrativa, informe, ensayo, artículo, articulo]
+
+- id: gradacion
+  rama: recursos
+  nombre: Gradación
+  regla: >-
+    En una serie que sube o baja de intensidad, el orden importa: se coloca al final el
+    término más fuerte. Si el más fuerte va primero, la serie se desinfla.
+  aplica: >-
+    Enumeraciones de tres o más miembros con distinta fuerza.
+  no_aplica: >-
+    Series neutras sin diferencia de intensidad (listas de datos).
+  ejemplos:
+    - mal: "Fue un desastre, un error y un pequeño tropiezo."
+      bien: "Fue un pequeño tropiezo, un error, un desastre."
+      porque: "De menos a más: el final golpea."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», recursos expresivos, figuras de construcción"
+  senales:
+    - patron: '\b(un desastre|una catástrofe|una tragedia),\s+[^,.]{2,30}?,?\s+(y|o)\s+(un|una)\s+(pequeñ[oa]|leve|liger[oa]|simple)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: enumeraciones-argumentales
+
+- id: pregunta-retorica
+  rama: recursos
+  nombre: Pregunta retórica
+  regla: >-
+    La pregunta que no espera respuesta implica al lector y señala lo que importa. Una sola
+    en el sitio justo es eficaz; varias seguidas suenan a sermón y sustituyen el argumento.
+  aplica: >-
+    Ensayo, columna, discurso.
+  no_aplica: >-
+    Textos informativos o profesionales, donde se responde directamente.
+  ejemplos:
+    - mal: "¿Qué es la democracia? ¿Quién decide? ¿Acaso no somos todos responsables? ¿No es evidente?"
+      bien: "Si todos deciden y nadie se siente autor, ¿quién responde de lo decidido?"
+      porque: "Una pregunta que concentra el argumento en lugar de cuatro que lo sustituyen."
+  fuente:
+    obra: "Retórica (Aristóteles)"
+    localizador: "libro III, elocución y disposición"
+  senales:
+    - patron: '\?[^?]{0,140}\?[^?]{0,140}\?'
+      tipo: vigilancia
+  generos: [ensayo, opinión, opinion, columna, discurso, artículo, articulo]
+  relaciones:
+    - tipo: requiere
+      ficha: argumentacion
+
+- id: antitesis
+  rama: recursos
+  protege: true
+  nombre: Antítesis y quiasmo
+  regla: >-
+    Contraponer dos ideas en estructuras paralelas («no es lo que dice, sino lo que calla»)
+    fija el pensamiento. El quiasmo cruza el orden de los términos («comer para vivir, no
+    vivir para comer»). Al editar, el paralelismo de la estructura se conserva.
+  aplica: >-
+    Ensayo, aforismo, discurso, cierres de párrafo.
+  no_aplica: >-
+    Si la contraposición es falsa o fuerza la realidad, sobra el recurso.
+  ejemplos:
+    - mal: "La mayoría gobierna con votos y además también por lo que no cuestiona."
+      bien: "La mayoría no gobierna solo con sus votos; también gobierna con lo que decide no cuestionar."
+      porque: "La estructura paralela hace visible la oposición."
+  fuente:
+    obra: "Retórica (Aristóteles)"
+    localizador: "libro III, estilo antitético"
+  senales:
+    - patron: '\bno (es|son|está|gobierna|consiste|depende)\b[^.;]{3,60}\bsino\b'
+      tipo: vigilancia
+  relaciones:
+    - tipo: requiere
+      ficha: repeticion-enfatica
+
+- id: elipsis
+  rama: recursos
+  nombre: Elipsis y sugerencia
+  regla: >-
+    Lo que no se dice puede pesar más que lo dicho: un salto de tiempo sin explicar, una
+    frase que se corta, un final que no cierra todo. La elipsis funciona si el lector tiene
+    los datos para completarla.
+  aplica: >-
+    Cuento, microrrelato, poesía, escenas de tensión.
+  no_aplica: >-
+    Textos informativos e instrucciones, donde lo omitido es un fallo.
+  ejemplos:
+    - mal: "Recibió la carta, la leyó, se puso muy triste porque su hermano había muerto y lloró."
+      bien: "Recibió la carta. Esa noche no encendió la luz."
+      porque: "El lector entiende sin que se lo expliquen."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», sintaxis expresiva, elipsis"
+  senales:
+    - patron: '\bse (puso|sintió|quedó) (muy )?(triste|content[oa]|nervios[oa]|preocupad[oa]|enfadad[oa]) porque\b'
+      tipo: vigilancia
+  generos: [narrativa, novela, relato, cuento, microrrelato, poesía, poesia, poema]
+  relaciones:
+    - tipo: requiere
+      ficha: escena-y-resumen
