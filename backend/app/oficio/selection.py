@@ -326,6 +326,45 @@ def _allowed(ficha: Ficha, action: str) -> bool:
     return True
 
 
+SENTENCE_METRICS = {
+    "ques_encadenados", "des_encadenados", "mente_encadenados", "eco_sufijos",
+    "intensificadores", "frases_cortas", "trato_mixto", "incisos",
+}
+
+
+def check_ficha_signals(ficha: Ficha, others: list[Ficha] | None = None) -> list[str]:
+    """Problemas de calidad de las señales de una ficha (los mismos que exigen los tests).
+
+    Cada señal de error tiene que saltar en el ejemplo malo y no en el bueno; si se
+    pasan otras fichas, tampoco puede saltar en los ejemplos buenos de ninguna.
+    """
+    problems: list[str] = []
+    error_signals = [senal for senal in ficha.senales if senal.tipo == "error"]
+    metrics = [metric for metric in ficha.metricas if metric in SENTENCE_METRICS]
+    if not error_signals and not metrics:
+        return problems
+    for index, ejemplo in enumerate(ficha.ejemplos, start=1):
+        hits = _signal_hits(ficha, ejemplo.mal, "error")
+        for metric in metrics:
+            hits += METRIC_FUNCTIONS[metric](ejemplo.mal)
+        if index == 1 and not hits:
+            problems.append("Ninguna señal de error salta en el primer ejemplo malo.")
+        if error_signals and _signal_hits(ficha, ejemplo.bien, "error"):
+            problems.append(f"Una señal de error salta en el ejemplo bueno {index}.")
+    if error_signals:
+        for other in others or []:
+            if other.id == ficha.id:
+                continue
+            for ejemplo in other.ejemplos:
+                if _signal_hits(ficha, ejemplo.bien, "error"):
+                    problems.append(
+                        f"Una señal de error salta en el ejemplo bueno de «{other.nombre}»: "
+                        f"«{ejemplo.bien[:80]}»."
+                    )
+                    break
+    return problems
+
+
 def select_fichas(
     text: str,
     action: str,
@@ -334,10 +373,11 @@ def select_fichas(
     limit: int = MAX_FICHAS,
     preferences: dict[str, str] | None = None,
     instruction: str = "",
+    fichas: dict[str, Ficha] | None = None,
 ) -> list[SelectedFicha]:
     action = ACCION_EQUIVALENTE.get(action, action)
     intention = MIRADA_EQUIVALENTE.get(intention, intention)
-    fichas = load_fichas()
+    fichas = fichas if fichas is not None else load_fichas()
     chosen: dict[str, SelectedFicha] = {}
 
     def add(ficha: Ficha, motivo: str, peso: float, fragmentos: list[str] | None = None) -> None:
@@ -394,7 +434,9 @@ def select_fichas(
     required_by: dict[str, int] = {}
     for item in list(chosen.values()):
         for relacion in item.ficha.relaciones:
-            target = fichas[relacion.ficha]
+            target = fichas.get(relacion.ficha)
+            if target is None:
+                continue
             if relacion.tipo == "requiere" and _allowed(target, action):
                 required_by[target.id] = required_by.get(target.id, 0) + 1
     for target_id, count in required_by.items():

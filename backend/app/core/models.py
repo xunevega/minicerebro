@@ -915,6 +915,7 @@ class GenerationResult(BaseModel):
     learning_applied: bool = False
     provider: str = "deterministic"
     used_fichas: list[str] = Field(default_factory=list)
+    used_ficha_ids: list[str] = Field(default_factory=list)
 
 
 class BlockReviewInput(BaseModel):

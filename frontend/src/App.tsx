@@ -77,6 +77,7 @@ import {
   reviewBlocks,
   reviewText,
   saveReviewChoices,
+  recordGenerationOutcome,
   saveRevisionFeedback,
   saveProfileKnowledgeCard,
   simulateLab,
@@ -1687,6 +1688,13 @@ function AppShell({
     clearEditorOutcomeNotice("Terminos protegidos actualizados. Crea una nueva propuesta.");
   }
 
+  function reportGenerationOutcome(decision: "accepted" | "discarded") {
+    const fichas = generation?.used_ficha_ids ?? [];
+    if (!fichas.length) return;
+    // Alimenta las propuestas de mejora de fichas; no bloquea ni avisa si falla.
+    recordGenerationOutcome(decision, fichas, selectedEditorAction.value).catch(() => undefined);
+  }
+
   function handleUseGeneratedText() {
     if (!generation) return;
     const hasChanges =
@@ -1701,6 +1709,7 @@ function AppShell({
       setEditorOutcomeNotice("Sin cambios que aplicar. Puedes pedir lectura con fichas o probar otra revisión.");
       return;
     }
+    reportGenerationOutcome("accepted");
     setEditorText(generation.output);
     setEditorOriginalBeforeGeneration("");
     setGeneration(null);
@@ -1718,6 +1727,7 @@ function AppShell({
     const notice = generationHasNoChanges
       ? "Resultado cerrado. Cambia opciones o pide lectura con fichas."
       : "Propuesta descartada. El borrador no ha cambiado.";
+    if (!generationHasNoChanges) reportGenerationOutcome("discarded");
     setGeneration(null);
     setGenerationCopyStatus("");
     setComparison(null);
@@ -2055,6 +2065,7 @@ function AppShell({
               setProfileKnowledgeCards(await getProfileKnowledgeCards());
               setEditorialProfileCard(await getEditorialProfileCard(activeContext));
             }}
+            canEdit={canManageKnowledge}
             profileCards={profileKnowledgeCards}
           />
         )}

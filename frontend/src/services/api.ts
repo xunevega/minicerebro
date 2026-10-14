@@ -78,6 +78,9 @@ import type {
   TechnicalRoadmapPhase,
   TextRevisionResult,
   OficioFicha,
+  OficioFichaData,
+  OficioFichaVersion,
+  OficioPropuesta,
   V1Screen,
 } from "../types/api";
 
@@ -145,6 +148,12 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       const parsed = JSON.parse(body) as { detail?: unknown };
       if (typeof parsed.detail === "string" && parsed.detail.trim()) {
         message = parsed.detail;
+      } else if (
+        parsed.detail &&
+        typeof parsed.detail === "object" &&
+        Array.isArray((parsed.detail as { problemas?: unknown }).problemas)
+      ) {
+        message = ((parsed.detail as { problemas: string[] }).problemas).join("\n");
       }
     } catch {
       // El cuerpo no es JSON: se conserva el mensaje original.
@@ -784,6 +793,74 @@ export function reviewText(
 
 export function getOficioFichas() {
   return request<OficioFicha[]>("/oficio/fichas");
+}
+
+export function getOficioVersions(fichaId: string) {
+  return request<OficioFichaVersion[]>(`/oficio/fichas/${fichaId}/versiones`);
+}
+
+export function validateOficioFicha(ficha: OficioFichaData, nueva: boolean) {
+  return request<{ valida: boolean; problemas: string[] }>("/oficio/fichas/validar", {
+    method: "POST",
+    body: JSON.stringify({ ficha, nueva }),
+  });
+}
+
+export function createOficioFicha(ficha: OficioFichaData, motivo: string) {
+  return request<OficioFichaData>("/oficio/fichas", {
+    method: "POST",
+    body: JSON.stringify({ ficha, motivo }),
+  });
+}
+
+export function updateOficioFicha(ficha: OficioFichaData, motivo: string) {
+  return request<OficioFichaData>(`/oficio/fichas/${ficha.id}`, {
+    method: "PUT",
+    body: JSON.stringify({ ficha, motivo }),
+  });
+}
+
+export function setOficioFichaActive(fichaId: string, activa: boolean, motivo: string) {
+  return request<{ id: string; activa: boolean }>(`/oficio/fichas/${fichaId}/activa`, {
+    method: "POST",
+    body: JSON.stringify({ activa, motivo }),
+  });
+}
+
+export function restoreOficioFicha(fichaId: string, version: number) {
+  return request<OficioFichaData>(`/oficio/fichas/${fichaId}/restaurar`, {
+    method: "POST",
+    body: JSON.stringify({ version }),
+  });
+}
+
+export function getOficioProposals(estado = "pendiente") {
+  return request<OficioPropuesta[]>(`/oficio/propuestas?estado=${encodeURIComponent(estado)}`);
+}
+
+export function generateOficioProposals() {
+  return request<{ candidatas: number; creadas: number; omitidas: Array<{ ficha_id: string; razon: string }> }>(
+    "/oficio/propuestas/generar",
+    { method: "POST" },
+  );
+}
+
+export function acceptOficioProposal(proposalId: string, ficha?: OficioFichaData) {
+  return request<OficioPropuesta>(`/oficio/propuestas/${proposalId}/aceptar`, {
+    method: "POST",
+    body: JSON.stringify(ficha ? { ficha } : {}),
+  });
+}
+
+export function rejectOficioProposal(proposalId: string) {
+  return request<OficioPropuesta>(`/oficio/propuestas/${proposalId}/rechazar`, { method: "POST" });
+}
+
+export function recordGenerationOutcome(decision: "accepted" | "discarded", fichas: string[], action: string) {
+  return request<{ recorded: boolean }>("/generation/outcome", {
+    method: "POST",
+    body: JSON.stringify({ decision, fichas, action }),
+  });
 }
 
 export function saveRevisionFeedback(cardId: string, payload: RevisionFeedbackInput) {

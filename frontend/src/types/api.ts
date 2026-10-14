@@ -871,6 +871,7 @@ export type GenerationResult = {
   learning_applied: boolean;
   provider: string;
   used_fichas?: string[];
+  used_ficha_ids?: string[];
 };
 
 export type LabOverride = {
@@ -1048,7 +1049,14 @@ export type ReviewChoice = {
   kept_after_reveal: boolean;
 };
 
-export type OficioFicha = {
+export type OficioSenal = {
+  patron: string;
+  tipo?: "error" | "vigilancia";
+  sensible_mayusculas?: boolean;
+  tambien_sin_tildes?: boolean;
+};
+
+export type OficioFichaData = {
   id: string;
   rama: "lengua" | "recursos" | "composicion" | "voz" | "generos" | "tradicion" | "criterio";
   nombre: string;
@@ -1057,10 +1065,39 @@ export type OficioFicha = {
   no_aplica: string;
   ejemplos: Array<{ mal: string; bien: string; porque: string }>;
   fuente: { obra: string; localizador: string };
-  senales: Array<{ patron: string; tipo?: "error" | "vigilancia" }>;
+  senales: OficioSenal[];
   metricas: string[];
   base: { acciones: string[]; miradas: string[] };
   generos: string[];
   relaciones: Array<{ tipo: "prioridad_sobre" | "conflicto_con" | "requiere"; ficha: string; criterio: string }>;
   protege?: boolean;
+};
+
+export type OficioFicha = OficioFichaData & {
+  version?: number;
+  origen?: "semilla" | "editada" | "nueva";
+  activa?: boolean;
+  updated_at?: string | null;
+};
+
+export type OficioFichaVersion = {
+  version: number;
+  data: OficioFichaData;
+  activa: boolean;
+  motivo: string;
+  autor: string;
+  created_at: string;
+};
+
+export type OficioPropuesta = {
+  id: string;
+  ficha_id: string;
+  tipo: string;
+  motivo: string;
+  evidencia: Record<string, unknown> & { nota_editor?: string };
+  estado: "pendiente" | "aceptada" | "rechazada";
+  propuesta: OficioFichaData;
+  actual: OficioFichaData | null;
+  created_at: string;
+  decided_at: string | null;
 };

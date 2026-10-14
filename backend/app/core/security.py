@@ -31,6 +31,8 @@ KNOWLEDGE_WRITE_PREFIXES = (
     "/knowledge/segments",
     "/knowledge/extractions",
     "/knowledge/proposals",
+    "/oficio/fichas",
+    "/oficio/propuestas",
 )
 GENERATION_PATHS = {
     "/generation",
