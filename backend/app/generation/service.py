@@ -311,6 +311,24 @@ Criterio comun a cualquier intensidad:
 - Parrafos: conserva los saltos de parrafo y las frases aisladas en su propio
   parrafo, salvo que la intensidad alta justifique reorganizarlos.
 - Conserva hechos, tesis, nombres, citas y grado de certeza.
+- Simplificar no es quitar matices. Estos elementos se conservan en cualquier
+  intensidad (puedes cambiarlos por un equivalente exacto, nunca suprimirlos):
+  - Modalizadores y cuantificadores: "necesariamente", "siempre", "casi",
+    "a menudo", "completamente", "por completo", "generalmente", "solo",
+    "especialmente", "razonablemente", "quiza", "puede", "suele". "No cambian
+    necesariamente de opinion" no pasa a "no cambian de opinion"; "una mayoria
+    completamente convencida" no pasa a "una mayoria convencida".
+  - Cronologia: "despues", "antes", "todavia", "mas tarde".
+  - Conectores logicos: "sin embargo", "en realidad", "precisamente", "por
+    tanto", "incluso", "no solo... sino". Sin ellos se pierde el razonamiento.
+  - Analogias: "del mismo modo que", "al igual que". No conviertas una
+    comparacion en una segunda afirmacion ("tampoco...").
+  - Enumeraciones con valor argumental: "excluye, consiente o permite" no se
+    reduce a "excluye"; "su moral y sus preferencias" no se reduce a "su moral".
+  - Adjetivos y verbos que delimitan el sentido: "injusticias historicas",
+    "el dirigente que pretende situarse".
+  Si dudas entre recortar y conservar, conserva. Si no hay redundancia real
+  que quitar, simplifica la sintaxis en lugar de vaciar el contenido.
 - Devuelve solo el texto editado.
 """.strip()
 

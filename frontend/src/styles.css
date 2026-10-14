@@ -874,6 +874,63 @@ textarea + .primaryButton {
   margin: 0;
 }
 
+.lostNuances {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--accent);
+  margin: 12px 0;
+  padding: 14px;
+}
+
+.lostNuances summary {
+  color: var(--ink);
+  cursor: pointer;
+  font-weight: 700;
+}
+
+.lostNuances .note {
+  margin: 8px 0 4px;
+}
+
+.lostNuanceGroup {
+  margin-top: 12px;
+}
+
+.lostNuanceGroup strong {
+  color: var(--muted);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.lostNuanceGroup ul {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  margin: 6px 0 0;
+  padding: 0;
+}
+
+.lostNuanceGroup li {
+  display: grid;
+  font-size: 16px;
+  gap: 2px;
+}
+
+.lostNuanceGroup mark {
+  background: var(--accent-soft);
+  color: var(--accent);
+  font-weight: 700;
+  justify-self: start;
+  padding: 0 4px;
+  text-decoration: line-through;
+}
+
+.lostNuanceGroup span {
+  color: var(--muted);
+  font-family: "Source Serif 4", Georgia, serif;
+}
+
 .visualDiff {
   background: #f7f7f7;
   border: 1px solid var(--line);

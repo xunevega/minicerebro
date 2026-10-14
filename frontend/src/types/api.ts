@@ -821,6 +821,13 @@ export type ComparisonResult = {
   summary: string;
   dimensions: Record<string, number>;
   changes: Array<{ type: string; original: string; revised: string }>;
+  lost_nuances?: LostNuance[];
+};
+
+export type LostNuance = {
+  category: string;
+  marker: string;
+  context: string;
 };
 
 export type FeedbackStatus = "proposed" | "applied" | "rejected";

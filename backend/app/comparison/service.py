@@ -1,5 +1,6 @@
 from difflib import SequenceMatcher
 
+from app.comparison.nuances import lost_nuances
 from app.core.models import ComparisonInput, ComparisonResult
 from app.core.text import canonical_text, words
 
@@ -51,13 +52,13 @@ def compare_texts(payload: ComparisonInput) -> ComparisonResult:
     adequacy = round((stability + (1000 - modification // 2)) / 2)
 
     if modification <= 20:
-        summary = "Intervencion minima: solo hay ajustes puntuales y la voz queda intacta."
+        summary = "Intervención mínima: solo hay ajustes puntuales y la voz queda intacta."
     elif modification < 250:
-        summary = "Cambios leves: conserva gran parte de la formulacion original."
+        summary = "Cambios leves: conserva gran parte de la formulación original."
     elif modification < 650:
         summary = "Cambios medios: reescritura visible con continuidad reconocible."
     else:
-        summary = "Cambios altos: conviene revisar si respeta la intencion inicial."
+        summary = "Cambios altos: conviene revisar si respeta la intención inicial."
 
     lexical_dimension = min(1000, round((changed / max(1, len(original_words))) * 1000))
     length_change = min(1000, round((length_delta / max(1, len(original_words))) * 1000))
@@ -91,4 +92,5 @@ def compare_texts(payload: ComparisonInput) -> ComparisonResult:
             "tono": tone_change,
         },
         changes=changes[:12],
+        lost_nuances=lost_nuances(payload.original, payload.revised),
     )

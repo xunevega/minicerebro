@@ -1066,3 +1066,13 @@ def test_edit_contract_changes_objective_by_intensity():
     assert "aclarar y simplificar (intensidad media)" in service._edit_contract(500)
     assert "reescritura con impacto (intensidad alta)" in service._edit_contract(800)
     assert "Si el texto ya esta bien, cambia muy poco" in service._edit_contract(0)
+
+
+def test_edit_contract_protects_nuances_at_every_intensity():
+    for intensity in (0, 500, 900):
+        contract = service._edit_contract(intensity)
+        assert "Simplificar no es quitar matices" in contract
+        assert "Modalizadores y cuantificadores" in contract
+        assert "Analogias" in contract
+        assert "Enumeraciones con valor argumental" in contract
+        assert "Si dudas entre recortar y conservar, conserva" in contract
