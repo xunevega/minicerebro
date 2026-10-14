@@ -1,0 +1,269 @@
+# Rama 6 · Tradición: más autores como caja de herramientas.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+# Cada ficha describe un procedimiento que se asocia a un autor; no reproduce sus textos.
+# Se activan por el tipo de texto o por la dirección del autor («a lo Chéjov»).
+
+- id: narrador-que-duda-de-su-fuente
+  rama: tradicion
+  nombre: El narrador que duda de su fuente
+  regla: >-
+    El narrador no cuenta desde la verdad absoluta: dice de dónde saca la historia,
+    señala lo que no sabe, contrasta versiones o sospecha de su informante. La duda
+    produce ironía y complicidad con el lector, y hace verosímil lo extraordinario.
+  aplica: >-
+    Narrativa con humor o con un narrador presente; crónicas que reconstruyen hechos
+    dudosos; relatos de tradición oral.
+  no_aplica: >-
+    Narraciones que necesitan inmersión sin interrupciones o informes donde la duda
+    debe expresarse con datos, no con juego narrativo.
+  ejemplos:
+    - mal: "El molinero se enfrentó solo a cuarenta bandidos y los venció a todos."
+      bien: "Según su sobrino, que no estaba delante, el molinero se enfrentó a cuarenta bandidos; en la taberna, con los años, llegaron a ser ochenta."
+      porque: "La fuente dudosa convierte la hazaña en historia contada y le da ironía."
+  fuente:
+    obra: "Don Quijote de la Mancha (Miguel de Cervantes, 1605)"
+    localizador: "primera parte, cap. IX: el manuscrito de Cide Hamete Benengeli"
+  generos: [cervantes, cervantino, quijote, narrador irónico, crónica, relato oral]
+  relaciones:
+    - tipo: requiere
+      ficha: punto-de-vista
+    - tipo: requiere
+      ficha: ironia
+
+- id: escribo-como-hablo
+  rama: tradicion
+  nombre: Escribir como se habla
+  regla: >-
+    Naturalidad sin afectación: la palabra más llana que diga exactamente lo que se
+    quiere, la sintaxis que se entendería en voz alta, ningún adorno puesto para
+    parecer culto. No es escribir coloquial: es no fingir otra voz.
+  aplica: >-
+    Cartas, ensayo, divulgación, columna y cualquier texto cuyo valor esté en la claridad
+    y en la voz.
+  no_aplica: >-
+    Textos que imitan a propósito un registro elevado o arcaico (parodia, pastiche,
+    poesía de tradición culta).
+  ejemplos:
+    - mal: "Procedo a dar traslado de mi más sincera gratitud por la deferencia mostrada."
+      bien: "Gracias por acordarte de mí."
+      porque: "Dice lo mismo sin fingir un tono que no es el del autor."
+  fuente:
+    obra: "Diálogo de la lengua (Juan de Valdés, h. 1535)"
+    localizador: "pasaje sobre el estilo: «escribo como hablo»"
+  generos: [valdés, valdes, naturalidad, carta, correo, divulgación, divulgacion, llano]
+  relaciones:
+    - tipo: requiere
+      ficha: voz-del-autor
+    - tipo: conflicto_con
+      ficha: coloquialismos
+      criterio: "Naturalidad no es coloquialismo: el registro sigue siendo el que pide el texto."
+
+- id: concision-sentenciosa
+  rama: tradicion
+  nombre: Concisión sentenciosa
+  regla: >-
+    Condensar una idea en la menor cantidad de palabras, con paralelismos, antítesis y
+    elipsis, hasta que la frase se pueda recordar. Cada palabra carga peso; lo que se
+    puede sobrentender se calla.
+  aplica: >-
+    Aforismos, máximas, títulos, cierres de columna o de ensayo, citas destacadas.
+  no_aplica: >-
+    Explicaciones técnicas o instrucciones, donde la elipsis oscurece; textos para
+    lectores que necesitan el razonamiento completo.
+  ejemplos:
+    - mal: "Es preferible que un texto sea breve, porque si además es bueno, la brevedad hace que lo sea todavía más."
+      bien: "Breve y bueno: dos veces bueno."
+      porque: "La elipsis y el paralelismo convierten la explicación en sentencia."
+  fuente:
+    obra: "Oráculo manual y arte de prudencia (Baltasar Gracián, 1647)"
+    localizador: "aforismo 105, «No cansar»"
+  generos: [gracián, gracian, aforismo, aforismos, máxima, sentencia, barroco]
+  relaciones:
+    - tipo: requiere
+      ficha: elipsis
+    - tipo: requiere
+      ficha: antitesis
+
+- id: articulo-de-costumbres
+  rama: tradicion
+  nombre: Artículo satírico de costumbres
+  regla: >-
+    Una escena cotidiana y reconocible, contada con un narrador que la padece, sirve para
+    criticar un vicio colectivo. La crítica sale de la acumulación de detalles y de la
+    ironía, no del sermón; al final la anécdota se eleva a diagnóstico.
+  aplica: >-
+    Columnas satíricas, crónicas de costumbres, artículos de humor con crítica social.
+  no_aplica: >-
+    Textos informativos o análisis que necesitan datos y matices en lugar de caricatura.
+  ejemplos:
+    - mal: "La administración es muy lenta y eso perjudica a los ciudadanos."
+      bien: "Fui a recoger un certificado el lunes. «Vuelva el jueves», me dijeron. El jueves faltaba una firma; el martes siguiente, la persona que firmaba. Hoy tengo el certificado y ya no recuerdo para qué lo quería."
+      porque: "La escena repetida muestra la lentitud y la crítica llega sola."
+  fuente:
+    obra: "«Vuelva usted mañana» (Mariano José de Larra, 1833)"
+    localizador: "artículo completo: estructura de escena repetida y diagnóstico final"
+  generos: [larra, costumbrismo, costumbres, columna satírica, columna satirica]
+  relaciones:
+    - tipo: requiere
+      ficha: ironia
+    - tipo: requiere
+      ficha: columna
+
+- id: pensar-contra-si-mismo
+  rama: tradicion
+  nombre: Pensar contra sí mismo
+  regla: >-
+    El ensayo no expone conclusiones cerradas: muestra al autor pensando, con sus dudas y
+    contradicciones, y se discute a sí mismo. La tensión entre lo que se cree y lo que se
+    teme es el motor del texto.
+  aplica: >-
+    Ensayo personal, columna reflexiva, textos filosóficos o de memoria.
+  no_aplica: >-
+    Textos argumentativos que deben convencer de una tesis clara (informes, propuestas,
+    alegatos).
+  ejemplos:
+    - mal: "Está claro que la tecnología nos hace más libres."
+      bien: "Quiero creer que la tecnología nos hace más libres. Pero escribo esto con el móvil vibrando cada cinco minutos, y no estoy seguro de quién manda."
+      porque: "El autor se contradice a la vista y el lector piensa con él."
+  fuente:
+    obra: "Del sentimiento trágico de la vida (Miguel de Unamuno, 1912)"
+    localizador: "cap. I, «El hombre de carne y hueso»"
+  generos: [unamuno, ensayo, ensayo personal, reflexión, reflexion, agónico, agonico]
+  relaciones:
+    - tipo: requiere
+      ficha: ensayo-voz-propia
+    - tipo: conflicto_con
+      ficha: argumentacion
+      criterio: "Si el texto debe convencer, manda la argumentación; si debe pensar, la duda."
+
+- id: ensayo-como-tanteo
+  rama: tradicion
+  nombre: El ensayo como tanteo
+  regla: >-
+    Ensayar es probar: el autor toma un asunto cualquiera y lo rodea desde su experiencia,
+    con digresiones, citas y anécdotas propias, sin pretender agotarlo. El yo es la medida
+    del texto, pero lo que interesa es lo que descubre al mirarse.
+  aplica: >-
+    Ensayo personal y literario, artículos de reflexión, prosa de memoria.
+  no_aplica: >-
+    Ensayo académico, divulgación con estructura cerrada o cualquier texto que deba ir al
+    grano.
+  ejemplos:
+    - mal: "La amistad tiene tres características principales que analizaremos a continuación."
+      bien: "No sé bien qué es la amistad. Sé que hay un amigo al que no veo desde hace diez años y que, si me llamara esta noche, saldría a buscarle sin preguntar."
+      porque: "Parte de la experiencia propia y deja el asunto abierto en lugar de clasificarlo."
+  fuente:
+    obra: "Ensayos (Michel de Montaigne, 1580)"
+    localizador: "«Al lector», prólogo: el autor como materia del libro"
+  generos: [montaigne, ensayo, ensayo personal, digresión, digresion, memoria]
+  relaciones:
+    - tipo: requiere
+      ficha: ensayo-voz-propia
+    - tipo: requiere
+      ficha: ejemplo-concreto
+
+- id: todo-lo-que-aparece-sirve
+  rama: tradicion
+  nombre: Todo lo que aparece debe servir
+  regla: >-
+    Si un objeto, un detalle o un personaje se presenta con relieve, tiene que tener
+    consecuencia más adelante; si no la tiene, sobra. Al revés, lo que será decisivo debe
+    aparecer antes, aunque sea de pasada.
+  aplica: >-
+    Cuento, novela, teatro y guion: revisión de lo que se plantea y lo que se resuelve.
+  no_aplica: >-
+    Descripción ambiental que crea atmósfera sin prometer nada; textos no narrativos.
+  ejemplos:
+    - mal: "En el cajón de la mesilla había un revólver cargado. Esa noche Elena durmió bien y por la mañana se fue a trabajar."
+      bien: "En el cajón de la mesilla había un revólver cargado. Elena no lo tocó en tres años; la noche que lo hizo, ya no quedaban balas."
+      porque: "El detalle que se subraya tiene consecuencia; si no, crea una promesa incumplida."
+  fuente:
+    obra: "Carta a A. S. Lázarev-Gruzinski (Antón Chéjov, 1 de noviembre de 1889)"
+    localizador: "principio del fusil: lo que no se va a usar no se pone en escena"
+  generos: [chéjov, chejov, cuento, relato, teatro, guion, novela]
+  relaciones:
+    - tipo: requiere
+      ficha: final-del-relato
+    - tipo: requiere
+      ficha: escena-y-resumen
+
+- id: iceberg
+  rama: tradicion
+  nombre: El iceberg
+  regla: >-
+    Contar menos de lo que se sabe: el autor conoce lo que omite, y la omisión se nota
+    como peso bajo la superficie. Diálogos que no dicen lo importante, acciones concretas
+    en lugar de explicaciones de sentimientos, finales sin moraleja.
+  aplica: >-
+    Cuento, microrrelato y narrativa realista que busca tensión contenida.
+  no_aplica: >-
+    Textos para lectores que necesitan toda la información (infantiles, divulgación,
+    instrucciones) o géneros que exigen explicitud.
+  ejemplos:
+    - mal: "Llevaban meses sin hablarse de verdad y los dos sabían que el matrimonio se había acabado, aunque ninguno se atrevía a decirlo."
+      bien: "—¿Te pongo café? —Ya me he tomado uno. Él dejó la cafetera en el fuego de todos modos."
+      porque: "La ruptura no se nombra; se nota en lo que no se dicen."
+  fuente:
+    obra: "Muerte en la tarde (Ernest Hemingway, 1932)"
+    localizador: "cap. 16: la teoría del iceberg"
+  generos: [hemingway, carver, iceberg, cuento, relato, microrrelato, minimalismo, realismo sucio]
+  relaciones:
+    - tipo: requiere
+      ficha: elipsis
+    - tipo: requiere
+      ficha: dialogo-verosimil
+    - tipo: conflicto_con
+      ficha: cuento-infantil
+      criterio: "En textos infantiles prevalece la claridad sobre la omisión."
+
+- id: voces-y-fragmentos
+  rama: tradicion
+  nombre: Voces y fragmentos
+  regla: >-
+    La historia se arma con fragmentos breves y voces que se alternan sin presentación:
+    vivos y muertos, recuerdos y presente. El lector reconstruye el orden. Funciona si
+    cada voz es inconfundible y cada fragmento aporta una pieza.
+  aplica: >-
+    Novela coral, relato experimental, textos sobre la memoria o la culpa colectiva.
+  no_aplica: >-
+    Textos que necesitan una línea temporal clara; narradores únicos; lectores no
+    advertidos de un juego formal.
+  ejemplos:
+    - mal: "Primero habló la madre, que recordaba la sequía. Después habló el hijo, que contó lo que pasó en la feria."
+      bien: "No llovió aquel año, ni el siguiente. / Yo estaba en la feria cuando llegó el telegrama. / Las dos cosas pasaron el mismo día, aunque nadie lo diga."
+      porque: "Las voces entran sin presentador y el lector une las piezas."
+  fuente:
+    obra: "Pedro Páramo (Juan Rulfo, 1955)"
+    localizador: "procedimiento general: estructura en fragmentos y voces"
+  generos: [rulfo, novela coral, fragmentos, polifonía, polifonia, voces, experimental]
+  relaciones:
+    - tipo: requiere
+      ficha: saltos-temporales
+    - tipo: requiere
+      ficha: punto-de-vista
+
+- id: palabra-exacta-del-oficio
+  rama: tradicion
+  nombre: La palabra exacta del oficio
+  regla: >-
+    Nombrar las cosas con la palabra que usa quien las conoce de verdad: el labrador, el
+    pescador, el carpintero. El léxico preciso del campo o del oficio da verdad y paisaje;
+    el genérico lo borra.
+  aplica: >-
+    Narrativa rural o de oficios, descripción, crónica de lugares y de trabajos.
+  no_aplica: >-
+    Textos para un lector que no puede deducir la palabra por el contexto y no tiene
+    glosario; textos técnicos con su propia terminología normalizada.
+  ejemplos:
+    - mal: "Había muchos pájaros en el campo y algunos árboles al fondo."
+      bien: "Las avefrías levantaron del barbecho; al fondo, la línea de chopos marcaba el río."
+      porque: "Las palabras exactas crean el paisaje que la genérica solo enuncia."
+  fuente:
+    obra: "El sentido del progreso desde mi obra (Miguel Delibes, discurso de ingreso en la RAE, 1975)"
+    localizador: "pasajes sobre el habla rural y la naturaleza"
+  generos: [delibes, rural, campo, oficios, descripción, descripcion, naturaleza]
+  relaciones:
+    - tipo: requiere
+      ficha: impropiedades-lexicas
+    - tipo: requiere
+      ficha: imagen-sensorial

@@ -473,3 +473,44 @@
     - tipo: prioridad_sobre
       ficha: registro-coherente
       criterio: "Coherencia dentro de la variedad del autor, no hacia otra variedad."
+
+- id: regimen-preposicional
+  rama: lengua
+  nombre: Régimen preposicional
+  regla: >-
+    Muchos verbos, adjetivos y sustantivos piden una preposición fija para su complemento,
+    y cambiarla es un error o cambia el sentido: «confiar en», «consistir en», «insistir
+    en», «responsabilizar de», «compatible con», «sinónimo de», «consecuente con»,
+    «convencer de», «darse cuenta de», «acordarse de». Ante la duda, se consulta el
+    diccionario, no el oído.
+  aplica: >-
+    Toda corrección. Errores típicos: calcos del inglés («consistir de», por «consist
+    of»), cruces entre construcciones parecidas («compatible a», por cruce con «paralelo
+    a») y preposiciones que se pierden o se añaden («de que» y «que»).
+  no_aplica: >-
+    Cuando la norma admite varias preposiciones («insistir en» o «sobre», «preocuparse de»
+    o «por», «distinto de» o «a»): la que eligió el autor se respeta. Tampoco cuando la
+    preposición distinta cambia a propósito el sentido («hablar de» y «hablar con»).
+  ejemplos:
+    - mal: "El plan consiste de tres fases y es compatible a cualquier presupuesto."
+      bien: "El plan consiste en tres fases y es compatible con cualquier presupuesto."
+      porque: "«Consistir» pide «en» y «compatible» pide «con»; «consistir de» es un calco del inglés."
+    - mal: "Para él, éxito es sinónimo a dinero."
+      bien: "Para él, éxito es sinónimo de dinero."
+      porque: "«Sinónimo» se construye con «de»."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «consistir», «compatible», «responsabilizar», «insistir»"
+  senales:
+    - patron: '\bconsist(e|en|ir|ía|ían|ió|ieron|irá|irán|iría|a|an)\s+de\b'
+    - patron: '\bcompatibles?\s+a\b'
+    - patron: '\bsinónimos?\s+a\b'
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: locuciones-desaconsejadas
+      criterio: "Las locuciones fijas tienen su ficha; esta cubre el régimen de cada palabra."
+    - tipo: conflicto_con
+      ficha: formas-admitidas
+      criterio: "Si la norma admite las dos preposiciones, prevalece la del autor."
+    - tipo: requiere
+      ficha: dequeismo
