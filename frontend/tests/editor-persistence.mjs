@@ -8,14 +8,11 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  if ((await page.getByLabel("Navegacion principal").getByRole("button", { name: "Sistema" }).count()) !== 0) {
+  if ((await page.getByLabel("Navegación principal").getByRole("link", { name: "Sistema" }).count()) !== 0) {
     throw new Error("La navegacion normal muestra la seccion tecnica Sistema.");
   }
   await page
-    .getByRole("button", {
-      name: "Escribir",
-      description: "Redacta, corrige y compara sin perder tu criterio.",
-    })
+    .getByRole("link", { name: "Escribir" })
     .click();
 
   const editorPanel = page.locator(".panel", { hasText: "Borrador" });
@@ -40,7 +37,7 @@ try {
   await resultPanel.getByText("Diagnóstico automático de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByLabel("Resumen de cambios").waitFor();
-  await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Hay una versión nueva sin aplicar.").waitFor();
   await editorPanel.locator("textarea").first().fill(`${inputText} Cambio manual.`);
   await resultPanel.getByText("Borrador actualizado. Crea una nueva propuesta").waitFor();
   if ((await resultPanel.getByRole("button", { name: "Aceptar propuesta" }).count()) !== 0) {
@@ -72,16 +69,15 @@ try {
   await page.getByRole("button", { name: "Leer con fichas" }).click();
   await revisionResponse;
   await resultPanel.getByText("Lectura con fichas").waitFor();
-  await resultPanel.getByText("Diagnostico de reescritura").waitFor();
-  await resultPanel.getByText("Por que aplica").first().waitFor();
-  await resultPanel.getByText("Que haria").first().waitFor();
-  await resultPanel.getByText("Como probarlo").first().waitFor();
-  await resultPanel.getByText("Senales miradas").first().waitFor();
+  await resultPanel.getByText("Qué ve en tu texto").first().waitFor();
+  await resultPanel.getByText("Regla", { exact: true }).first().waitFor();
+  await resultPanel.getByText("Ejemplo", { exact: true }).first().waitFor();
+  await resultPanel.getByText("Cuándo no aplica").first().waitFor();
   await resultPanel.getByText("Ficha 1 de").waitFor();
   if ((await resultPanel.locator(".revisionStepCard").count()) !== 1) {
     throw new Error("La lectura debe mostrar una sola ficha pendiente cada vez.");
   }
-  await resultPanel.getByRole("button", { name: "No va por ahi" }).first().waitFor();
+  await resultPanel.getByRole("button", { name: "No va por ahí" }).first().waitFor();
   const feedbackResponse = page.waitForResponse(
     (response) => {
       const url = new URL(response.url());
@@ -128,10 +124,10 @@ try {
   );
   await page.getByRole("button", { name: "Crear propuesta" }).click();
   await noChangeGenerationResponse;
-  await resultPanel.getByText("Sin version nueva").waitFor();
+  await resultPanel.getByText("Sin versión nueva").waitFor();
   await resultPanel.getByText("Sin cambios detectados").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("No hay cambio seguro.").waitFor();
-  await page.getByLabel("Recorrido de escritura").getByText("Sin version que aceptar.").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Sin versión que aceptar.").waitFor();
   if ((await page.getByLabel("Recorrido de escritura").getByText("Acepta, copia o descarta.").count()) !== 0) {
     throw new Error("Una generacion sin cambios no debe activar el paso de decision.");
   }
@@ -148,7 +144,7 @@ try {
   await resultPanel.getByRole("button", { name: "Leer con fichas" }).click();
   await noChangeRevisionResponse;
   await resultPanel.getByRole("heading", { name: "Lectura con fichas" }).waitFor();
-  if ((await resultPanel.getByText("Sin version nueva").count()) !== 0) {
+  if ((await resultPanel.getByText("Sin versión nueva").count()) !== 0) {
     throw new Error("La lectura con fichas no debe quedar mezclada con el bloque sin cambios.");
   }
   if ((await resultPanel.getByText("Sin salida todavía").count()) !== 0) {
@@ -205,7 +201,7 @@ try {
   );
   await page.getByRole("button", { name: "Crear propuesta" }).click();
   await exactSameGenerationResponse;
-  await resultPanel.getByText("Sin version nueva").waitFor();
+  await resultPanel.getByText("Sin versión nueva").waitFor();
   await resultPanel.getByText("Cambios: 0").waitFor();
   await resultPanel.getByText("Fidelidad: 1000").waitFor();
   await resultPanel.getByText("No mide calidad literaria").waitFor();
@@ -261,10 +257,10 @@ try {
     throw new Error("La generacion no quedo persistida en /texts.");
   }
 
-  await page.getByLabel("Navegacion principal").getByRole("button", { name: "Historial" }).click();
+  await page.getByLabel("Navegación principal").getByRole("link", { name: "Historial" }).click();
   await page.getByRole("heading", { name: "Actividad reciente" }).waitFor();
-  await page.getByText("Se trabajo un texto").first().waitFor();
-  await page.getByText("Se reviso un borrador").first().waitFor();
+  await page.getByText("Se trabajó un texto").first().waitFor();
+  await page.getByText("Se revisó un borrador").first().waitFor();
 } finally {
   await browser.close();
 }

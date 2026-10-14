@@ -8,10 +8,7 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page
-    .getByRole("button", {
-      name: "Escribir",
-      description: "Redacta, corrige y compara sin perder tu criterio.",
-    })
+    .getByRole("link", { name: "Escribir" })
     .click();
   await page.getByLabel("Vista").selectOption("compare");
 
@@ -30,7 +27,7 @@ try {
   await compareEditor.getByRole("button", { name: "Comparar" }).click();
   await compareResponse;
 
-  const comparePanel = page.locator(".panel", { hasText: "Comparacion" });
+  const comparePanel = page.locator(".panel", { hasText: "Comparación" });
   await comparePanel.locator(".metric", { hasText: "Cambios detectados" }).waitFor();
   await comparePanel.locator(".metric", { hasText: "Fidelidad al borrador" }).waitFor();
   await comparePanel.getByText("Ver cambios en color").waitFor();

@@ -806,6 +806,7 @@ class TextRevisionInput(BaseModel):
     context: str = "general"
     version: str = "latest"
     intention: str = "claridad"
+    genre: str = Field(default="", max_length=300)
 
 
 class TextRevisionStep(BaseModel):
@@ -817,6 +818,9 @@ class TextRevisionStep(BaseModel):
     signals: list[str]
     risks: list[str]
     confidence: float = Field(ge=0, le=1)
+    example: dict[str, str] | None = None
+    source: str = ""
+    rama: str = ""
 
 
 class TextRevisionResult(BaseModel):
@@ -833,7 +837,7 @@ class TextRevisionResult(BaseModel):
     steps: list[TextRevisionStep]
     stable_knowledge_mutated: bool = False
     profile_mutated: bool = False
-    query_result: KnowledgeQueryResult
+    query_result: KnowledgeQueryResult | None = None
 
 
 class RevisionFeedbackInput(BaseModel):

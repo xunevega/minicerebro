@@ -667,6 +667,9 @@ export type TextRevisionStep = {
   signals: string[];
   risks: string[];
   confidence: number;
+  example?: { mal: string; bien: string; porque: string } | null;
+  source?: string;
+  rama?: string;
 };
 
 export type TextRevisionResult = {
@@ -683,7 +686,7 @@ export type TextRevisionResult = {
   steps: TextRevisionStep[];
   stable_knowledge_mutated: boolean;
   profile_mutated: boolean;
-  query_result: KnowledgeQueryResult;
+  query_result: KnowledgeQueryResult | null;
 };
 
 export type RevisionFeedbackStance =
@@ -1043,4 +1046,20 @@ export type ReviewChoice = {
   probe: boolean;
   probe_kind: string;
   kept_after_reveal: boolean;
+};
+
+export type OficioFicha = {
+  id: string;
+  rama: "lengua" | "recursos" | "composicion" | "voz" | "generos" | "criterio";
+  nombre: string;
+  regla: string;
+  aplica: string;
+  no_aplica: string;
+  ejemplos: Array<{ mal: string; bien: string; porque: string }>;
+  fuente: { obra: string; localizador: string };
+  senales: Array<{ patron: string }>;
+  metricas: string[];
+  base: { acciones: string[]; miradas: string[] };
+  generos: string[];
+  relaciones: Array<{ tipo: "prioridad_sobre" | "conflicto_con" | "requiere"; ficha: string; criterio: string }>;
 };

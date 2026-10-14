@@ -25,6 +25,10 @@ ACCIONES_SIN_NORMA = {"review"}
 # Corregir solo atiende norma.
 ACCIONES_SOLO_NORMA = {"correction"}
 ACCION_EQUIVALENTE = {"continue": "rewrite", "variants": "rewrite"}
+# Nombres antiguos de las miradas que aún llegan desde algunas pantallas.
+MIRADA_EQUIVALENTE = {"claridad": "comprension", "comprensión": "comprension"}
+# Postura del usuario ante una ficha (criterio personal): sube o baja su peso.
+PESO_POR_POSTURA = {"liked": 1.5, "kept": 1.5, "changed": -1.0, "dismissed": -3.0}
 
 PRIORIDAD_GENERAL = (
     "Orden general si dos fichas chocan y no hay relación más concreta: norma > sentido "
@@ -144,7 +148,50 @@ def _anaphoras(text: str) -> list[str]:
     return found
 
 
+def _paragraphs(text: str) -> list[str]:
+    return [paragraph.strip() for paragraph in text.splitlines() if paragraph.strip()]
+
+
+def _style_drift(text: str) -> list[str]:
+    """Longitud media de frase muy distinta entre el primer y el último tercio."""
+    lengths = [len(WORD_RE.findall(sentence)) for sentence in _sentences(text)]
+    if len(lengths) < 8:
+        return []
+    third = max(1, len(lengths) // 3)
+    start = sum(lengths[:third]) / third
+    end = sum(lengths[-third:]) / third
+    if abs(start - end) < 8:
+        return []
+    message = (
+        f"El primer tramo va con frases de unas {round(start)} palabras y el último con unas "
+        f"{round(end)}: el ritmo y la distancia cambian entre el principio y el final."
+    )
+    return [message]
+
+
+def _long_paragraphs(text: str) -> list[str]:
+    found = []
+    for paragraph in _paragraphs(text):
+        words = WORD_RE.findall(paragraph)
+        if len(words) > 90:
+            found.append(" ".join(words[:12]) + f"… ({len(words)} palabras en un párrafo)")
+            if len(found) >= MAX_FRAGMENTOS:
+                break
+    return found
+
+
+def _single_block(text: str) -> list[str]:
+    paragraphs = _paragraphs(text)
+    words = WORD_RE.findall(text)
+    if len(paragraphs) == 1 and len(words) > 80:
+        return [f"Todo el texto va en un solo bloque de {len(words)} palabras."]
+    return []
+
+
 METRIC_FUNCTIONS = {
+    "deriva_estilo": _style_drift,
+    "parrafo_largo": _long_paragraphs,
+    "bloque_unico": _single_block,
     "frase_larga": _long_sentences,
     "repeticion_cercana": _close_repetitions,
     "anafora": _anaphoras,
@@ -170,8 +217,10 @@ def select_fichas(
     intention: str = "comprension",
     genre: str = "",
     limit: int = MAX_FICHAS,
+    preferences: dict[str, str] | None = None,
 ) -> list[SelectedFicha]:
     action = ACCION_EQUIVALENTE.get(action, action)
+    intention = MIRADA_EQUIVALENTE.get(intention, intention)
     fichas = load_fichas()
     chosen: dict[str, SelectedFicha] = {}
 
@@ -215,6 +264,18 @@ def select_fichas(
     for target_id, count in required_by.items():
         motivo = "la requiere otra ficha" if count == 1 else f"la requieren {count} fichas"
         add(fichas[target_id], motivo, 1.0 * count)
+
+    # Criterio personal: lo que el usuario descartó baja; lo que le sirvió sube.
+    # Una ficha descartada solo se queda si el texto la pide con una señal.
+    for ficha_id, stance in (preferences or {}).items():
+        item = chosen.get(ficha_id)
+        if item is None:
+            continue
+        item.peso += PESO_POR_POSTURA.get(stance, 0.0)
+        if stance == "dismissed" and not item.fragmentos:
+            del chosen[ficha_id]
+        elif stance in {"liked", "kept"}:
+            item.motivos.append("te sirvió antes")
 
     ranked = sorted(chosen.values(), key=lambda item: (-item.peso, item.ficha.id))
     return ranked[:limit]

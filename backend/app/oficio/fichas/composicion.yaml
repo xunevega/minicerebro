@@ -203,6 +203,7 @@
   fuente:
     obra: "La cocina de la escritura (Daniel Cassany, 1993)"
     localizador: "capítulo de los párrafos"
+  metricas: [parrafo_largo, bloque_unico]
   base:
     miradas: [estructura]
     acciones: [review]
@@ -413,6 +414,7 @@
   fuente:
     obra: "La cocina de la escritura (Daniel Cassany, 1993)"
     localizador: "capítulo de la adecuación y el registro"
+  metricas: [deriva_estilo]
   base:
     miradas: [tono]
     acciones: [sendable]

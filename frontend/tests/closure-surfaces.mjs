@@ -8,7 +8,7 @@ const page = await browser.newPage();
 try {
   await page.goto(`${frontendUrl}?internal=1`, { waitUntil: "domcontentloaded" });
 
-  await page.getByLabel("Navegacion principal").getByRole("button", { name: "Sistema" }).click();
+  await page.getByLabel("Navegación principal").getByRole("link", { name: "Sistema" }).click();
   await page.getByLabel("Vista").selectOption("persistence");
   const persistencePanel = page.locator(".panel", { hasText: "Datos guardados" });
   await persistencePanel.getByRole("heading", { name: "Textos" }).waitFor();

@@ -28,10 +28,10 @@ try {
   });
 
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Mi criterio" }).click();
+  await page.getByRole("link", { name: "Mi criterio" }).click();
   await page.getByLabel("Vista").selectOption("profile");
 
-  await page.getByRole("heading", { name: "Lo que Editados sabe de mi" }).waitFor();
+  await page.getByRole("heading", { name: "Lo que Editados sabe de mí" }).waitFor();
   await page.getByText("Gustos, decisiones y ajustes personales.", { exact: true }).waitFor();
   await page.getByRole("heading", { name: "No insistir en esto" }).waitFor();
   await page.getByText("Recortar incisos sin revisar intencion.").waitFor();

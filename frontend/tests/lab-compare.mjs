@@ -8,14 +8,11 @@ const page = await browser.newPage();
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
   await page
-    .getByRole("button", {
-      name: "Escribir",
-      description: "Redacta, corrige y compara sin perder tu criterio.",
-    })
+    .getByRole("link", { name: "Escribir" })
     .click();
   await page.getByLabel("Vista").selectOption("lab");
 
-  const labPanel = page.locator(".panel", { hasText: "Simulacion" });
+  const labPanel = page.locator(".panel", { hasText: "Simulación" });
   await labPanel.locator("textarea").first().fill("Texto base para comparar.");
   await page
     .getByLabel("Texto revisado de laboratorio")
@@ -31,7 +28,7 @@ try {
   await page.getByRole("button", { name: "Comparar sin guardar" }).click();
   await labCompareResponse;
 
-  await page.getByRole("heading", { name: "Comparacion temporal" }).waitFor();
+  await page.getByRole("heading", { name: "Comparación temporal" }).waitFor();
   await page.locator(".metric", { hasText: "Modificacion temporal" }).waitFor();
   await page.locator(".metric", { hasText: "Fidelidad temporal" }).waitFor();
   await page.getByText("Cambios temporales").waitFor();
