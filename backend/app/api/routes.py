@@ -106,8 +106,10 @@ from app.core.security import (
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import GenerationUnavailable, rewrite_with_profile
-from app.oficio import oficio_block, select_fichas
+from app.oficio import load_fichas, oficio_block
 from app.oficio import store as oficio_store
+from app.oficio.comprobacion import check_application
+from app.oficio.diagnostico import select_with_diagnosis
 from app.oficio.mejoras import run_improvements, run_in_background
 from app.review.service import ReviewTooLong, review_blocks
 from app.observability.service import observability_metrics
@@ -1180,17 +1182,19 @@ def generated_texts_list(
 
 def _oficio_notes(
     payload: GenerationInput, repository=None, profile_id: str | None = None
-) -> tuple[str, list[str]]:
+) -> tuple[str, list, dict]:
     """Fichas de oficio elegidas por diagnóstico (docs/POLITICA_CONOCIMIENTO.md)."""
     preferences = repository.oficio_stances(profile_id) if repository is not None and profile_id else None
-    selected = select_fichas(
+    fichas = oficio_store.active_fichas(repository.session) if repository is not None else load_fichas()
+    selected, diagnosis = select_with_diagnosis(
+        repository.session if repository is not None else None,
         payload.text,
         payload.action,
         intention=payload.revision_intention,
         genre=payload.genre,
         preferences=preferences,
         instruction=payload.user_instruction,
-        fichas=oficio_store.active_fichas(repository.session) if repository is not None else None,
+        fichas=fichas,
     )
     if repository is not None:
         # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.
@@ -1205,10 +1209,35 @@ def _oficio_notes(
                 "fichas": [
                     {"id": item.ficha.id, "motivos": item.motivos} for item in selected
                 ],
+                "diagnostico": {
+                    "estado": diagnosis["estado"],
+                    "descartadas": [item["id"] for item in diagnosis["descartadas"]],
+                    "anadidas": [item["id"] for item in diagnosis["anadidas"]],
+                },
             },
         )
         repository.session.commit()
-    return oficio_block(selected), [(item.ficha.id, item.ficha.nombre) for item in selected]
+    return oficio_block(selected), selected, diagnosis
+
+
+def _attach_fichas(generation, selected, diagnosis, original: str, repository=None, action: str = "") -> None:
+    generation.used_fichas = [item.ficha.nombre for item in selected]
+    generation.used_ficha_ids = [item.ficha.id for item in selected]
+    generation.diagnosis = diagnosis
+    generation.ficha_checks = check_application(selected, original, generation.output)
+    if repository is not None and generation.ficha_checks["comprobadas"]:
+        repository.add_audit_event(
+            "oficio.fichas.checked",
+            "generation",
+            action,
+            {
+                "action": action,
+                "fichas": [
+                    {"id": item["id"], "estado": item["estado"]} for item in generation.ficha_checks["comprobadas"]
+                ],
+            },
+        )
+        repository.session.commit()
 
 
 def _autor(actor) -> str:
@@ -1405,11 +1434,10 @@ def generation_create(
     action = route_actions.get(request.url.path, payload.action)
     generation_input = payload.model_copy(update={"action": action})
     variables = repository.get_context_variables(actor.profile_id, generation_input.context)
-    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository, actor.profile_id)
+    knowledge_notes, selected, diagnosis = _oficio_notes(generation_input, repository, actor.profile_id)
     started_at = perf_counter()
     generation = _generate_or_503(generation_input, variables, knowledge_notes)
-    generation.used_fichas = [nombre for _id, nombre in used_fichas]
-    generation.used_ficha_ids = [ficha_id for ficha_id, _nombre in used_fichas]
+    _attach_fichas(generation, selected, diagnosis, generation_input.text, repository, generation_input.action)
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
@@ -1449,10 +1477,9 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
         intensity=payload.intensity,
         protected_terms=payload.protected_terms,
     )
-    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository, actor.profile_id)
+    knowledge_notes, selected, diagnosis = _oficio_notes(generation_input, repository, actor.profile_id)
     generation = _generate_or_503(generation_input, simulated_variables, knowledge_notes)
-    generation.used_fichas = [nombre for _id, nombre in used_fichas]
-    generation.used_ficha_ids = [ficha_id for ficha_id, _nombre in used_fichas]
+    _attach_fichas(generation, selected, diagnosis, generation_input.text)
     comparison = compare_texts(
         ComparisonInput(
             original=payload.text,
@@ -1476,7 +1503,7 @@ def lab_compare(payload: ComparisonInput) -> ComparisonResult:
 @router.post("/review")
 def block_review(payload: BlockReviewInput, repository: RepositoryDep, actor: ActorDep) -> BlockReviewResult:
     """Revisar: diagnostico de editor por bloques con alternativas y loco Ivan."""
-    notes, _used_fichas = _oficio_notes(
+    notes, _selected, _diagnosis = _oficio_notes(
         GenerationInput(
             text=payload.text,
             action="review",
