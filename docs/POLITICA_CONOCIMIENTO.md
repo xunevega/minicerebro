@@ -147,4 +147,26 @@ la versión vigente de cada ficha.
 - **Qué se registra:** aceptar o descartar una propuesta de Escribir guarda qué
   fichas intervinieron y la decisión, nunca el texto.
 
+## 7. Lo que Editados aprende de cada autor (capa 3)
+
+El aprendizaje es personal y no cambia las fichas. Sale de dos fuentes, siempre
+del propio perfil:
+
+- **Propuestas de Escribir aceptadas o descartadas**, con las fichas que las
+  produjeron. Una ficha que la comprobación vio sin aplicar apenas cuenta, porque
+  no explica la decisión. Con al menos 3 decisiones, la ficha sube o baja de peso
+  al elegir fichas para ese autor.
+- **Elecciones de «Revisar por bloques»:** qué tipo de versión elige (más breve,
+  reordenada, con un ejemplo concreto…), cuándo mantiene su texto según el
+  diagnóstico, qué replanteamientos del loco Iván acepta y en qué trampas cae
+  (norma, sentido, orden, tópico). Con al menos 5 elecciones se convierte en su
+  línea editorial. Lo reciente se compara con lo anterior para ver si cambia de
+  gusto.
+
+La línea editorial se usa de tres formas: pesos al elegir fichas (y puede traer
+una ficha que trabaja lo que el autor prefiere o lo que no ve), una guía en
+palabras para el modelo, y la proporción de replanteamientos en Revisar. Las
+trampas no cambian con la línea, porque son lo que mide. Todo se ve en «Mi
+criterio», en «Tu línea editorial».
+
 Decidido el 14 de octubre de 2026.

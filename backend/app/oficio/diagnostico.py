@@ -236,6 +236,7 @@ def select_with_diagnosis(
     fichas: dict[str, Ficha],
     limit: int | None = None,
     call_model=None,
+    learned: dict[str, tuple[float, str]] | None = None,
 ) -> tuple[list[SelectedFicha], dict]:
     diagnosis, summary = diagnose(
         session, text, action, intention=intention, genre=genre, instruction=instruction,
@@ -244,6 +245,6 @@ def select_with_diagnosis(
     kwargs = {"limit": limit} if limit is not None else {}
     selected = select_fichas(
         text, action, intention=intention, genre=genre, preferences=preferences,
-        instruction=instruction, fichas=fichas, diagnosis=diagnosis, **kwargs,
+        instruction=instruction, fichas=fichas, diagnosis=diagnosis, learned=learned, **kwargs,
     )
     return selected, summary

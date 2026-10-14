@@ -38,21 +38,30 @@ DIAGNOSIS_KINDS = (
     "otro",
 )
 
-TRAP_MOVES = (
-    "introducir un error de norma verosimil (dequeismo, concordancia, regimen o puntuacion)",
-    "cambiar sutilmente el sentido de una afirmacion del autor",
-    "empeorar el orden logico de las ideas aunque suene bien",
-    "anadir un tópico o frase hecha que suene profunda y no diga nada",
-)
+# Cada sonda lleva una clave: así se sabe en qué tipo de trampa cae el autor o qué
+# replanteamientos acepta (línea editorial, app/oficio/aprendizaje.py).
+TRAP_MOVE_KEYS = {
+    "introducir un error de norma verosimil (dequeismo, concordancia, regimen o puntuacion)": "norma",
+    "cambiar sutilmente el sentido de una afirmacion del autor": "sentido",
+    "empeorar el orden logico de las ideas aunque suene bien": "orden",
+    "anadir un tópico o frase hecha que suene profunda y no diga nada": "topico",
+}
+TRAP_MOVES = tuple(TRAP_MOVE_KEYS)
 
-PROBE_MOVES = (
-    "invertir el orden: empezar por la conclusion o por el final",
-    "convertir la explicacion en una escena, un caso o un ejemplo concreto",
-    "partir el bloque en dos con funciones distintas",
-    "reducir el bloque a una sola frase rotunda",
-    "plantear la idea como pregunta o como contraste",
-    "cambiar el punto de vista o la voz desde la que se cuenta",
-)
+PROBE_MOVE_KEYS = {
+    "invertir el orden: empezar por la conclusion o por el final": "invertir",
+    "convertir la explicacion en una escena, un caso o un ejemplo concreto": "concretar",
+    "partir el bloque en dos con funciones distintas": "partir",
+    "reducir el bloque a una sola frase rotunda": "reducir",
+    "plantear la idea como pregunta o como contraste": "contraste",
+    "cambiar el punto de vista o la voz desde la que se cuenta": "voz",
+}
+PROBE_MOVES = tuple(PROBE_MOVE_KEYS)
+
+
+def move_key(kind: str, move: str) -> str:
+    keys = TRAP_MOVE_KEYS if kind == "trampa" else PROBE_MOVE_KEYS
+    return keys.get(move, "")
 
 
 class ReviewTooLong(ValueError):
@@ -63,19 +72,27 @@ def split_blocks(text: str) -> list[str]:
     return [block.strip() for block in PARAGRAPH_SPLIT_RE.split(text.strip()) if block.strip()]
 
 
-def choose_probes(block_count: int, rng: random.Random) -> dict[int, tuple[str, str]]:
+def choose_probes(
+    block_count: int, rng: random.Random, apertura: float | None = None
+) -> dict[int, tuple[str, str]]:
     """Bloques cuya alternativa C sera un loco Ivan: (tipo, movimiento).
 
     Tipo "replanteamiento": alternativa valida pero distinta. Tipo "trampa":
     alternativa incorrecta a proposito, que siempre se revela despues.
+    Con la línea editorial, los replanteamientos salen más a quien los acepta y
+    menos a quien los rechaza; las trampas no cambian, porque miden.
     """
+    factor = 1.0 if apertura is None else 0.5 + max(0.0, min(1.0, apertura))
+    replan_share = (1 - TRAP_SHARE) * factor
+    probability = PROBE_PROBABILITY * (TRAP_SHARE + replan_share)
+    trap_share = TRAP_SHARE / (TRAP_SHARE + replan_share)
 
     def pick() -> tuple[str, str]:
-        if rng.random() < TRAP_SHARE:
+        if rng.random() < trap_share:
             return ("trampa", rng.choice(TRAP_MOVES))
         return ("replanteamiento", rng.choice(PROBE_MOVES))
 
-    probes = {index: pick() for index in range(block_count) if rng.random() < PROBE_PROBABILITY}
+    probes = {index: pick() for index in range(block_count) if rng.random() < probability}
     if not probes and block_count >= 3:
         probes[rng.randrange(block_count)] = pick()
     return probes
@@ -217,6 +234,7 @@ def review_blocks(
     payload: BlockReviewInput,
     knowledge_notes: str | list[tuple[str, str]] | None = None,
     rng: random.Random | None = None,
+    apertura: float | None = None,
 ) -> BlockReviewResult:
     blocks = split_blocks(payload.text)
     word_count = len(payload.text.split())
@@ -230,7 +248,7 @@ def review_blocks(
             "Revisar necesita el modelo de escritura y no hay clave configurada."
         )
 
-    probes = choose_probes(len(blocks), rng or random.Random())
+    probes = choose_probes(len(blocks), rng or random.Random(), apertura=apertura)
     model = getenv("OPENAI_MODEL", "gpt-5-mini")
     effort = generation._reasoning_effort()
     max_tokens = min(32000, round(word_count * 6) + 1500) + generation.REASONING_TOKEN_BUDGET[effort]
@@ -279,6 +297,7 @@ def review_blocks(
                 text=alt["text"].strip(),
                 probe=alt["label"] == "C" and index in probes,
                 probe_kind=probes[index][0] if alt["label"] == "C" and index in probes else "",
+                probe_move=move_key(*probes[index]) if alt["label"] == "C" and index in probes else "",
                 probe_reveal=(
                     alt.get("probe_reveal", "").strip()
                     if alt["label"] == "C" and index in probes

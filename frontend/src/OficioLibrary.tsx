@@ -17,6 +17,7 @@ import {
 import {
   acceptOficioProposal,
   generateOficioProposals,
+  getEditorialLine,
   getOficioFichas,
   getOficioProposals,
   getOficioVersions,
@@ -26,6 +27,7 @@ import {
   setOficioFichaActive,
 } from "./services/api";
 import type {
+  EditorialLine,
   OficioFicha,
   OficioFichaData,
   OficioFichaVersion,
@@ -94,6 +96,7 @@ export function OficioLibrary({ context, profileCards, onProfileChanged, canEdit
   const [notice, setNotice] = useState<string | null>(null);
   const [mode, setMode] = useState<Mode>({ kind: "view" });
   const [proposals, setProposals] = useState<OficioPropuesta[]>([]);
+  const [learned, setLearned] = useState<Map<string, EditorialLine["fichas"][number]>>(new Map());
 
   const loadFichas = useCallback(async () => {
     const items = await getOficioFichas();
@@ -111,6 +114,9 @@ export function OficioLibrary({ context, profileCards, onProfileChanged, canEdit
   useEffect(() => {
     loadFichas().catch((nextError: unknown) => setError((nextError as Error).message));
     loadProposals().catch(() => undefined);
+    getEditorialLine()
+      .then((line) => setLearned(new Map(line.fichas.map((item) => [item.id, item]))))
+      .catch(() => undefined);
   }, [loadFichas, loadProposals]);
 
   const stanceById = useMemo(() => {
@@ -315,6 +321,15 @@ export function OficioLibrary({ context, profileCards, onProfileChanged, canEdit
           </button>
           {stanceLabel(current.id) ? <span className="statusPill">{stanceLabel(current.id)}</span> : null}
         </div>
+        {learned.get(current.id) ? (
+          <p className="note">
+            Contigo: {learned.get(current.id)?.motivo}
+            {learned.get(current.id)?.aceptadas || learned.get(current.id)?.descartadas
+              ? ` (propuestas aceptadas: ${learned.get(current.id)?.aceptadas}; descartadas: ${learned.get(current.id)?.descartadas})`
+              : ""}
+            .
+          </p>
+        ) : null}
         <p className="note">
           Tu postura cambia cuánto pesa la ficha al elegir las de tus textos. Si la descartas, Editados además
           preparará una propuesta para corregirla, que verás en «Propuestas».

@@ -81,6 +81,7 @@ import type {
   OficioFichaData,
   OficioFichaVersion,
   OficioPropuesta,
+  EditorialLine,
   V1Screen,
 } from "../types/api";
 
@@ -856,11 +857,20 @@ export function rejectOficioProposal(proposalId: string) {
   return request<OficioPropuesta>(`/oficio/propuestas/${proposalId}/rechazar`, { method: "POST" });
 }
 
-export function recordGenerationOutcome(decision: "accepted" | "discarded", fichas: string[], action: string) {
+export function recordGenerationOutcome(
+  decision: "accepted" | "discarded",
+  fichas: string[],
+  action: string,
+  noAplicadas: string[] = [],
+) {
   return request<{ recorded: boolean }>("/generation/outcome", {
     method: "POST",
-    body: JSON.stringify({ decision, fichas, action }),
+    body: JSON.stringify({ decision, fichas, action, no_aplicadas: noAplicadas }),
   });
+}
+
+export function getEditorialLine() {
+  return request<EditorialLine>("/profile/linea-editorial");
 }
 
 export function saveRevisionFeedback(cardId: string, payload: RevisionFeedbackInput) {

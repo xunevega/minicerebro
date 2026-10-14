@@ -944,6 +944,7 @@ class ReviewAlternative(BaseModel):
     # Loco Ivan: se revela al autor despues de elegir, nunca antes.
     probe: bool = False
     probe_kind: str = ""
+    probe_move: str = ""
     probe_reveal: str = ""
 
 
@@ -972,6 +973,7 @@ class ReviewChoice(BaseModel):
     approach: str = ""
     probe: bool = False
     probe_kind: str = ""
+    probe_move: str = ""
     kept_after_reveal: bool = True
 
 

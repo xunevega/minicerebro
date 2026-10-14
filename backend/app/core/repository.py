@@ -108,6 +108,7 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
+from app.oficio.aprendizaje import build_line
 from app.oficio.diagnostico import select_with_diagnosis
 from app.oficio.store import active_fichas
 from app.knowledge.service import (
@@ -2524,6 +2525,7 @@ class Repository:
             preferences=self.oficio_stances(profile_id),
             limit=7,
             fichas=active_fichas(self.session),
+            learned=build_line(self.session, profile_id).pesos(),
         )
         steps = [revision_step_from_ficha(item) for item in selected]
         # Primero lo que el texto muestra; después las comprobaciones de base.
