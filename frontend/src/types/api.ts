@@ -1050,16 +1050,17 @@ export type ReviewChoice = {
 
 export type OficioFicha = {
   id: string;
-  rama: "lengua" | "recursos" | "composicion" | "voz" | "generos" | "criterio";
+  rama: "lengua" | "recursos" | "composicion" | "voz" | "generos" | "tradicion" | "criterio";
   nombre: string;
   regla: string;
   aplica: string;
   no_aplica: string;
   ejemplos: Array<{ mal: string; bien: string; porque: string }>;
   fuente: { obra: string; localizador: string };
-  senales: Array<{ patron: string }>;
+  senales: Array<{ patron: string; tipo?: "error" | "vigilancia" }>;
   metricas: string[];
   base: { acciones: string[]; miradas: string[] };
   generos: string[];
   relaciones: Array<{ tipo: "prioridad_sobre" | "conflicto_con" | "requiere"; ficha: string; criterio: string }>;
+  protege?: boolean;
 };

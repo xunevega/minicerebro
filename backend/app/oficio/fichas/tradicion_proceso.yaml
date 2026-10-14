@@ -1,0 +1,308 @@
+# Rama 6 · Tradición como caja de herramientas; rama 7 · proceso y criterio.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+# Las fichas de tradición describen procedimientos, no reproducen las obras. Se activan
+# por el tipo de texto o por la dirección del autor («más esperpéntico», «a lo Azorín»).
+
+- id: estilo-indirecto-libre
+  rama: tradicion
+  nombre: Estilo indirecto libre
+  regla: >-
+    El narrador en tercera persona adopta por momentos la voz y el punto de vista del
+    personaje, sin verbos de pensamiento ni comillas: «Marta miró el reloj. Otra vez
+    tarde. ¿Y ahora qué excusa?». Permite estar dentro y fuera a la vez.
+  aplica: >-
+    Narrativa en tercera persona que quiere acercarse al personaje.
+  no_aplica: >-
+    Narradores omniscientes distanciados o textos en primera persona.
+  ejemplos:
+    - mal: "Marta pensó que otra vez llegaba tarde y se preguntó qué excusa iba a dar."
+      bien: "Marta miró el reloj. Otra vez tarde. ¿Y ahora qué excusa?"
+      porque: "Desaparece la mediación «pensó que» y suena la voz de Marta."
+  fuente:
+    obra: "La Regenta (Leopoldo Alas, «Clarín», 1884-1885)"
+    localizador: "procedimiento general: estilo indirecto libre en la narración"
+  generos: [narrativa, novela, relato, cuento, indirecto libre, tercera persona]
+  relaciones:
+    - tipo: requiere
+      ficha: punto-de-vista
+
+- id: esperpento
+  rama: tradicion
+  nombre: Esperpento
+  regla: >-
+    Deformar sistemáticamente la realidad para revelarla: personajes vistos como muñecos o
+    animales, lenguaje que mezcla lo culto y lo arrabalero, situaciones trágicas contadas
+    con burla. La deformación es coherente, no un adorno suelto.
+  aplica: >-
+    Sátira, teatro y narrativa que buscan una mirada grotesca.
+  no_aplica: >-
+    Textos que necesitan un tono neutro o compasivo.
+  ejemplos:
+    - mal: "El concejal era un hombre bastante ridículo y vanidoso."
+      bien: "El concejal entró sacando pecho como un gallo de feria, con la banda municipal colgada al cuello igual que una servilleta."
+      porque: "La deformación muestra la vanidad en lugar de nombrarla."
+  fuente:
+    obra: "Luces de bohemia (Ramón del Valle-Inclán, 1924)"
+    localizador: "escena XII, teoría del esperpento"
+  generos: [esperpento, esperpéntico, esperpentico, grotesco, sátira, satira, valle-inclán, valle-inclan]
+  relaciones:
+    - tipo: requiere
+      ficha: hiperbole
+
+- id: gregueria
+  rama: tradicion
+  nombre: Greguería
+  regla: >-
+    Frase breve que une una metáfora sorprendente y humor: una mirada nueva sobre algo
+    cotidiano. Debe ser exacta y caber en una línea.
+  aplica: >-
+    Aforismos, columnas ligeras, títulos, juegos de estilo.
+  no_aplica: >-
+    Textos que exigen explicación o rigor literal.
+  ejemplos:
+    - mal: "Los paraguas son útiles cuando llueve porque nos protegen del agua."
+      bien: "El paraguas abierto es el único techo que llevamos de paseo."
+      porque: "Imagen nueva y breve en lugar de una obviedad."
+  fuente:
+    obra: "Greguerías (Ramón Gómez de la Serna)"
+    localizador: "definición del autor: humorismo más metáfora"
+  generos: [greguería, greguerias, greguerías, aforismo, aforismos, ramón, gomez de la serna]
+  relaciones:
+    - tipo: requiere
+      ficha: metafora-gastada
+
+- id: conceptismo
+  rama: tradicion
+  nombre: Agudeza conceptista
+  regla: >-
+    Concentrar mucho sentido en pocas palabras mediante juegos de ingenio: dobles sentidos,
+    antítesis, paradojas, juegos con el significado. Pide precisión absoluta: un juego de
+    palabras flojo hunde la frase.
+  aplica: >-
+    Sátira, aforismo, columna, poesía de ingenio.
+  no_aplica: >-
+    Textos informativos, donde el doble sentido estorba.
+  ejemplos:
+    - mal: "Los políticos dicen muchas cosas y hacen pocas."
+      bien: "Prometen tanto que ya solo les queda cumplir."
+      porque: "La paradoja dice lo mismo con más filo."
+  fuente:
+    obra: "Los sueños (Francisco de Quevedo)"
+    localizador: "procedimiento general: agudeza y concepto"
+  generos: [conceptismo, conceptista, quevedo, sátira, satira, aforismo, ingenio]
+  relaciones:
+    - tipo: requiere
+      ficha: antitesis
+
+- id: frase-breve-azorin
+  rama: tradicion
+  nombre: Frase breve y detalle mínimo
+  regla: >-
+    Frases cortas, sintaxis sencilla y atención a los objetos pequeños y al paso del
+    tiempo. La emoción nace de la acumulación de detalles precisos, no de los adjetivos.
+  aplica: >-
+    Prosa descriptiva, evocación, artículo literario.
+  no_aplica: >-
+    Pasajes de acción o argumentación compleja que necesitan períodos largos.
+  ejemplos:
+    - mal: "Era un pueblo melancólico y profundamente triste en el que el tiempo parecía no pasar nunca."
+      bien: "La plaza está vacía. Un reloj da las tres. En el balcón, una maceta sin flores."
+      porque: "Detalles mínimos en frases breves crean la melancolía sin nombrarla."
+  fuente:
+    obra: "Castilla (Azorín, 1912)"
+    localizador: "procedimiento general: frase breve y detalle"
+  generos: [azorín, azorin, evocación, evocacion, prosa poética, prosa poetica, artículo literario]
+  relaciones:
+    - tipo: requiere
+      ficha: imagen-sensorial
+
+- id: realismo-magico
+  rama: tradicion
+  nombre: Lo insólito contado con naturalidad
+  regla: >-
+    El hecho extraordinario se narra con el mismo tono, la misma precisión y la misma falta
+    de asombro que lo cotidiano. Si el narrador se asombra o lo explica, el efecto se pierde.
+  aplica: >-
+    Narrativa fantástica o que mezcla lo maravilloso con lo real.
+  no_aplica: >-
+    Fantasía épica o ciencia ficción con reglas explicadas.
+  ejemplos:
+    - mal: "Increíblemente, y aunque parezca imposible, la abuela empezó a flotar sobre la mesa."
+      bien: "Después del café, la abuela se elevó un palmo sobre la silla y siguió pelando guisantes."
+      porque: "Sin asombro del narrador, lo insólito se vuelve creíble."
+  fuente:
+    obra: "Cien años de soledad (Gabriel García Márquez, 1967)"
+    localizador: "procedimiento general: lo maravilloso narrado como cotidiano"
+  generos: [realismo mágico, realismo magico, fantástico, fantastico, maravilloso, garcía márquez, garcia marquez]
+  relaciones:
+    - tipo: requiere
+      ficha: hiperbole
+
+- id: enumeracion-caotica
+  rama: tradicion
+  nombre: Enumeración caótica
+  regla: >-
+    Una lista de elementos heterogéneos, de escalas y naturalezas distintas, sugiere una
+    totalidad que no cabe en una descripción ordenada. Funciona si cada elemento es preciso
+    y la mezcla es deliberada.
+  aplica: >-
+    Poesía, prosa poética, momentos de revelación.
+  no_aplica: >-
+    Enumeraciones informativas, que deben ser homogéneas (ver «Enumeraciones con la misma
+    forma»).
+  ejemplos:
+    - mal: "Vio muchas cosas diferentes de todo tipo."
+      bien: "Vio una moneda de Sevilla, la letra de su madre, el mar de una tarde de 1930 y un tigre de papel."
+      porque: "La mezcla precisa sugiere el todo."
+  fuente:
+    obra: "El Aleph (Jorge Luis Borges, 1949)"
+    localizador: "relato «El Aleph», la enumeración de lo que se ve en el Aleph"
+  generos: [poesía, poesia, poema, prosa poética, prosa poetica, borges, enumeración caótica]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: paralelismo-gramatical
+      criterio: "En la enumeración caótica la heterogeneidad es el recurso."
+
+- id: narrador-confesional
+  rama: tradicion
+  nombre: Narrador confesional
+  regla: >-
+    Un narrador en primera persona que cuenta su propia vida a alguien (un juez, un lector,
+    una carta) se justifica y se delata a la vez. Su voz debe ser coherente con su origen y
+    su intención; lo que calla importa tanto como lo que dice.
+  aplica: >-
+    Novelas en primera persona, memorias ficticias, relatos epistolares.
+  no_aplica: >-
+    Narradores en tercera persona.
+  ejemplos:
+    - mal: "Yo soy una persona muy honrada, aunque reconozco que a veces he hecho cosas malas."
+      bien: "No digo que fuera un santo; digo que nadie me enseñó otra cosa."
+      porque: "La justificación revela al personaje sin que lo diga."
+  fuente:
+    obra: "La familia de Pascual Duarte (Camilo José Cela, 1942)"
+    localizador: "procedimiento general: confesión en primera persona"
+  generos: [primera persona, confesión, confesion, memorias, epistolar, carta ficticia]
+  relaciones:
+    - tipo: requiere
+      ficha: voz-del-autor
+
+- id: narrador-omnisciente
+  rama: tradicion
+  nombre: Narrador omnisciente
+  regla: >-
+    El narrador que lo sabe todo puede entrar en varias conciencias, adelantar el futuro y
+    juzgar, pero debe hacerlo con un tono propio y constante. Sin ese tono, el salto entre
+    personajes parece un descuido.
+  aplica: >-
+    Novelas corales, relato realista.
+  no_aplica: >-
+    Narraciones focalizadas en un solo personaje.
+  ejemplos:
+    - mal: "Ana pensaba en irse. Luis pensaba en quedarse. El perro pensaba en comer."
+      bien: "Ninguno de los tres pensaba en lo mismo, y solo el perro lo sabía."
+      porque: "La voz del narrador ordena los saltos entre conciencias."
+  fuente:
+    obra: "Fortunata y Jacinta (Benito Pérez Galdós, 1887)"
+    localizador: "procedimiento general: narrador omnisciente con voz propia"
+  generos: [omnisciente, novela coral, realismo, realista, galdós, galdos]
+  relaciones:
+    - tipo: conflicto_con
+      ficha: punto-de-vista
+      criterio: "Con narrador omnisciente declarado, el cambio de conciencia es legítimo."
+
+# --- Proceso y criterio ---
+
+- id: revisar-por-capas
+  rama: criterio
+  nombre: Revisar por capas
+  regla: >-
+    Se revisa de lo grande a lo pequeño: primero la idea y la estructura, después los
+    párrafos, luego las frases y al final la ortografía. Pulir frases de un párrafo que
+    después se va a quitar es trabajo perdido.
+  aplica: >-
+    Revisión de borradores completos.
+  no_aplica: >-
+    Correcciones puntuales de un texto ya cerrado.
+  ejemplos:
+    - mal: "Corregir las comas del segundo párrafo antes de decidir si el texto empieza ahí."
+      bien: "Decidir primero el orden de los párrafos; después, las frases; al final, las comas."
+      porque: "Cada capa depende de la anterior."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de la revisión"
+  base:
+    acciones: [review]
+  relaciones:
+    - tipo: requiere
+      ficha: parrafo-y-progresion
+
+- id: leer-en-voz-alta
+  rama: criterio
+  nombre: Leer en voz alta
+  regla: >-
+    Leer el texto en voz alta descubre lo que la vista pasa por alto: frases sin aire,
+    repeticiones, ecos, puntuación que no respira. Donde uno se atasca al leer, el lector
+    se atasca al entender.
+  aplica: >-
+    Repaso final de cualquier texto; imprescindible en discursos y textos infantiles.
+  no_aplica: >-
+    Textos de consulta (tablas, listas técnicas).
+  ejemplos:
+    - mal: "Dar por bueno un párrafo porque «se entiende» sin haberlo oído."
+      bien: "Leerlo en voz alta y partir la frase donde faltó el aire."
+      porque: "El oído detecta el ritmo roto."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», proceso y criterio"
+  generos: [discurso, infantil, cuento infantil, poesía, poesia, poema]
+  relaciones:
+    - tipo: requiere
+      ficha: ritmo-de-frase
+
+- id: cortar-el-principio
+  rama: criterio
+  nombre: Cortar el principio
+  regla: >-
+    En muchos borradores el primer párrafo es calentamiento: el texto empieza de verdad en
+    el segundo. Se prueba a quitarlo y se comprueba si se pierde algo.
+  aplica: >-
+    Borradores de artículos, cuentos y cartas.
+  no_aplica: >-
+    Textos cuyo primer párrafo plantea la tesis o la tensión.
+  ejemplos:
+    - mal: "Mucho se ha escrito sobre la democracia y sus problemas a lo largo de la historia."
+      bien: "La democracia resolvió un problema antiguo y dejó otro sin resolver."
+      porque: "El primero calienta motores; el segundo ya empieza."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», proceso y criterio"
+  senales:
+    - patron: '^\s*(Mucho se ha (escrito|dicho|hablado)|Desde (siempre|tiempos inmemoriales|el principio de los tiempos)|A lo largo de la historia|Hoy en día vivimos|En el mundo actual)\b'
+      sensible_mayusculas: true
+  relaciones:
+    - tipo: requiere
+      ficha: arranque-y-cierre
+
+- id: lector-y-proposito
+  rama: criterio
+  nombre: Lector y propósito
+  regla: >-
+    Antes de corregir hay que saber para quién es el texto y qué debe conseguir: informar,
+    convencer, emocionar, pedir algo. Una frase está bien o mal según ese lector y ese
+    propósito, no en abstracto.
+  aplica: >-
+    Toda revisión; sobre todo cuando el autor no ha declarado el tipo de texto.
+  no_aplica: >-
+    Correcciones de norma, que no dependen del lector.
+  ejemplos:
+    - mal: "Simplificar el vocabulario de un ensayo dirigido a especialistas."
+      bien: "Mantener los términos técnicos y aclarar solo los que el especialista no compartiría."
+      porque: "Lo que es claro depende de quién lee."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de la adecuación (situación, lector y propósito)"
+  base:
+    acciones: [sendable, review]
+  relaciones:
+    - tipo: requiere
+      ficha: registro-coherente

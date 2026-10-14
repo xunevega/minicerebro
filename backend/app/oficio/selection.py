@@ -14,7 +14,7 @@ from itertools import pairwise
 
 from app.oficio.catalog import Ficha, load_fichas
 
-MAX_FICHAS = 10
+MAX_FICHAS = 12
 MAX_FRAGMENTOS = 2
 LONG_SENTENCE_WORDS = 45
 REPETITION_WINDOW = 12
@@ -25,6 +25,7 @@ ACCIONES_SIN_NORMA = {"review"}
 # Corregir solo atiende norma.
 ACCIONES_SOLO_NORMA = {"correction"}
 ACCION_EQUIVALENTE = {"continue": "rewrite", "variants": "rewrite"}
+ACCIONES_QUE_REESCRIBEN = {"rewrite", "sendable", "review"}
 # Nombres antiguos de las miradas que aún llegan desde algunas pantallas.
 MIRADA_EQUIVALENTE = {"claridad": "comprension", "comprensión": "comprension"}
 # Postura del usuario ante una ficha (criterio personal): sube o baja su peso.
@@ -79,12 +80,17 @@ def _strip_accents(value: str) -> str:
     return "".join(out)
 
 
-def _signal_hits(ficha: Ficha, text: str) -> list[str]:
-    """Busca cada señal en el texto tal cual y sin tildes (borradores escritos deprisa)."""
+def _signal_hits(ficha: Ficha, text: str, tipo: str | None = None) -> list[str]:
+    """Busca cada señal en el texto tal cual y sin tildes (borradores escritos deprisa).
+
+    Con «tipo», solo las señales de ese tipo («error» o «vigilancia»).
+    """
     hits: list[str] = []
     seen: set[int] = set()
     plain_text = _strip_accents(text)
     for senal in ficha.senales:
+        if tipo is not None and senal.tipo != tipo:
+            continue
         pattern = senal.regex()
         passes = [(pattern, text)]
         if senal.tambien_sin_tildes:
@@ -188,7 +194,116 @@ def _single_block(text: str) -> list[str]:
     return []
 
 
+def _sentence_fragment(sentence: str, words: int = 12) -> str:
+    tokens = WORD_RE.findall(sentence)
+    return " ".join(tokens[:words]) + ("…" if len(tokens) > words else "")
+
+
+def _count_per_sentence(text: str, pattern: re.Pattern[str], minimum: int, label: str) -> list[str]:
+    found = []
+    for sentence in _sentences(text):
+        count = len(pattern.findall(sentence))
+        if count >= minimum:
+            found.append(f"{_sentence_fragment(sentence)} ({count} {label} en una frase)")
+            if len(found) >= MAX_FRAGMENTOS:
+                break
+    return found
+
+
+QUE_RE = re.compile(r"\bque\b", re.IGNORECASE)
+DE_CHAIN_RE = re.compile(r"\bde\b(?:\s+\S+){1,3}?\s+de\b(?:\s+\S+){1,3}?\s+de\b(?:\s+\S+){1,3}?\s+de\b", re.IGNORECASE)
+MENTE_RE = re.compile(r"\b\w{4,}mente\b", re.IGNORECASE)
+SUFIJO_RE = re.compile(r"\b\w+(ción|ciones|miento|mientos|mente|idad|idades)\b", re.IGNORECASE)
+INTENSIFICADOR_RE = re.compile(
+    r"\b(muy|realmente|absolutamente|totalmente|completamente|increíblemente|"
+    r"tremendamente|enormemente|sumamente|súper|super|verdaderamente|extremadamente)\b",
+    re.IGNORECASE,
+)
+USTED_RE = re.compile(r"\busted(es)?\b", re.IGNORECASE)
+TU_RE = re.compile(r"\b(tú|vosotros|vosotras|contigo|os)\b|\b(tienes|puedes|quieres|sabes|debes|eres|estás|vas)\b", re.IGNORECASE)
+
+
+def _que_chains(text: str) -> list[str]:
+    return _count_per_sentence(text, QUE_RE, 4, "«que»")
+
+
+def _de_chains(text: str) -> list[str]:
+    found = []
+    for sentence in _sentences(text):
+        match = DE_CHAIN_RE.search(sentence)
+        if match:
+            found.append("…" + " ".join(match.group(0).split()) + "…")
+            if len(found) >= MAX_FRAGMENTOS:
+                break
+    return found
+
+
+def _mente_chains(text: str) -> list[str]:
+    return _count_per_sentence(text, MENTE_RE, 2, "adverbios en -mente")
+
+
+def _suffix_echo(text: str) -> list[str]:
+    found = []
+    for sentence in _sentences(text):
+        endings = [match.group(1).lower() for match in SUFIJO_RE.finditer(sentence)]
+        for ending in set(endings):
+            if endings.count(ending) >= 3:
+                found.append(f"{_sentence_fragment(sentence)} ({endings.count(ending)} palabras en -{ending})")
+                break
+        if len(found) >= MAX_FRAGMENTOS:
+            break
+    return found
+
+
+def _intensifiers(text: str) -> list[str]:
+    words = WORD_RE.findall(text)
+    hits = INTENSIFICADOR_RE.findall(text)
+    if len(hits) >= 3 and len(hits) * 100 / max(1, len(words)) >= 1.5:
+        return [f"{len(hits)} intensificadores en {len(words)} palabras («{hits[0]}», «{hits[1]}», «{hits[2]}»…)"]
+    return []
+
+
+def _short_sentence_runs(text: str) -> list[str]:
+    run: list[str] = []
+    for sentence in _sentences(text):
+        if len(WORD_RE.findall(sentence)) < 8:
+            run.append(sentence)
+            if len(run) >= 6:
+                return [f"{len(run)} frases muy cortas seguidas: «{run[0]}» … «{run[-1]}»"]
+        else:
+            run = []
+    return []
+
+
+def _mixed_address(text: str) -> list[str]:
+    usted = USTED_RE.search(text)
+    tu = TU_RE.search(text)
+    if usted and tu:
+        return [f"Trato de usted («{usted.group(0)}») y de tú («{tu.group(0)}») en el mismo texto."]
+    return []
+
+
+def _chained_insertions(text: str) -> list[str]:
+    """Frases con muchos incisos: cuatro o más comas en poco espacio."""
+    found = []
+    for sentence in _sentences(text):
+        words = WORD_RE.findall(sentence)
+        if sentence.count(",") >= 4 and 18 <= len(words) <= 60:
+            found.append(f"{_sentence_fragment(sentence)} ({sentence.count(',')} comas en una frase)")
+            if len(found) >= MAX_FRAGMENTOS:
+                break
+    return found
+
+
 METRIC_FUNCTIONS = {
+    "incisos": _chained_insertions,
+    "ques_encadenados": _que_chains,
+    "des_encadenados": _de_chains,
+    "mente_encadenados": _mente_chains,
+    "eco_sufijos": _suffix_echo,
+    "intensificadores": _intensifiers,
+    "frases_cortas": _short_sentence_runs,
+    "trato_mixto": _mixed_address,
     "deriva_estilo": _style_drift,
     "parrafo_largo": _long_paragraphs,
     "bloque_unico": _single_block,
@@ -218,6 +333,7 @@ def select_fichas(
     genre: str = "",
     limit: int = MAX_FICHAS,
     preferences: dict[str, str] | None = None,
+    instruction: str = "",
 ) -> list[SelectedFicha]:
     action = ACCION_EQUIVALENTE.get(action, action)
     intention = MIRADA_EQUIVALENTE.get(intention, intention)
@@ -238,21 +354,41 @@ def select_fichas(
             continue
         genre_specific = bool(ficha.generos)
         genre_ok = bool(genre.strip()) and _genre_matches(ficha, genre)
-        if genre_specific and genre.strip() and not genre_ok:
+        # La dirección del autor («más esperpéntico», «como un soneto») también activa fichas.
+        instruction_ok = bool(instruction.strip()) and _genre_matches(ficha, instruction)
+        if genre_specific and genre.strip() and not (genre_ok or instruction_ok):
             continue
 
-        hits = _signal_hits(ficha, text)
+        error_hits = _signal_hits(ficha, text, "error")
+        signal_errors = bool(error_hits)
         for metric in ficha.metricas:
-            hits.extend(METRIC_FUNCTIONS[metric](text))
-        if hits:
-            add(ficha, "señal en el texto", 3.0 + min(len(hits), 3), hits)
+            error_hits.extend(METRIC_FUNCTIONS[metric](text))
+        watch_hits = _signal_hits(ficha, text, "vigilancia")
+        if genre_specific and not (genre_ok or instruction_ok):
+            # Sin el género declarado, una ficha de género solo entra si su señal de error
+            # aparece en el texto; las métricas y los pasajes que vigilar no bastan.
+            if not signal_errors:
+                continue
+            watch_hits = []
+        hits = error_hits + watch_hits
+        if error_hits:
+            add(ficha, "señal en el texto", 3.0 + min(len(error_hits), 3), error_hits)
+        if watch_hits:
+            # Un sitio que vigilar pesa menos que un fallo probable, salvo que la ficha
+            # proteja el sentido y la acción vaya a reescribir el texto.
+            if ficha.protege and action in ACCIONES_QUE_REESCRIBEN:
+                add(ficha, "pasaje que proteger al reescribir", 3.0 + min(len(watch_hits), 3), watch_hits)
+            else:
+                add(ficha, "pasaje que vigilar", 1.5 + 0.5 * min(len(watch_hits), 2), watch_hits)
+        if instruction_ok:
+            add(ficha, "pedido en tu dirección", 5.0)
         if action in ficha.base.acciones:
             add(ficha, "base de la acción", 4.0)
         if intention in ficha.base.miradas and action != "review":
             add(ficha, f"mirada «{intention}»", 2.5)
         # Las fichas con señales necesitan verlas en el texto; el género solo filtra.
         if genre_ok and (not ficha.senales or hits):
-            add(ficha, "tipo de texto declarado", 4.5)
+            add(ficha, "tipo de texto declarado", 3.5)
 
     # Relaciones «requiere»: entra la ficha requerida, con menos peso que quien la pide.
     required_by: dict[str, int] = {}

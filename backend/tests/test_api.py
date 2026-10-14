@@ -770,11 +770,12 @@ def test_text_revision_reads_with_oficio_fichas_without_mutating_profile_or_know
     assert payload["stable_knowledge_mutated"] is False
     assert payload["profile_mutated"] is False
     # La lectura sale del diagnóstico del texto, no de una ruta fija.
-    assert payload["route"][0] == "limpieza-final"
-    first = payload["steps"][0]
-    assert first["status"] == "review"
-    assert "tambien tambien" in first["finding"]
-    assert first["example"]["mal"] and first["source"]
+    # Lo que el texto muestra va primero: tildes olvidadas y la palabra duplicada.
+    assert {"limpieza-final", "tildes-frecuentes"} <= set(payload["route"][:3])
+    cleanup = next(step for step in payload["steps"] if step["card_id"] == "limpieza-final")
+    assert cleanup["status"] == "review"
+    assert "tambien tambien" in cleanup["finding"]
+    assert cleanup["example"]["mal"] and cleanup["source"]
     assert payload["query_result"] is None
 
     with SessionLocal() as session:

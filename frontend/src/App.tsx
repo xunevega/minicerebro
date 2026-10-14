@@ -3634,7 +3634,8 @@ const oficioRamaLabels: Record<string, string> = {
   composicion: "Composición",
   voz: "Voz y estilo",
   generos: "Géneros y sus técnicas",
-  criterio: "Criterio",
+  tradicion: "Tradición",
+  criterio: "Proceso y criterio",
 };
 
 function oficioRamaLabel(rama: string) {

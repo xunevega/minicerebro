@@ -10,7 +10,8 @@ const ramas: Array<{ id: OficioFicha["rama"] | "todas"; label: string }> = [
   { id: "composicion", label: "Composición" },
   { id: "voz", label: "Voz y estilo" },
   { id: "generos", label: "Géneros" },
-  { id: "criterio", label: "Criterio" },
+  { id: "tradicion", label: "Tradición" },
+  { id: "criterio", label: "Proceso y criterio" },
 ];
 
 const accionLabels: Record<string, string> = {
@@ -37,6 +38,14 @@ const metricaLabels: Record<string, string> = {
   deriva_estilo: "cambio de ritmo entre el principio y el final",
   parrafo_largo: "párrafos muy largos",
   bloque_unico: "todo el texto en un solo bloque",
+  ques_encadenados: "muchos «que» en una frase",
+  des_encadenados: "cadenas de «de»",
+  mente_encadenados: "varios adverbios en -mente",
+  eco_sufijos: "terminaciones repetidas (-ción, -mente…)",
+  intensificadores: "muchos intensificadores",
+  frases_cortas: "muchas frases muy cortas seguidas",
+  trato_mixto: "trato de tú y de usted mezclado",
+  incisos: "frases con muchos incisos",
 };
 
 const relacionLabels: Record<string, string> = {
@@ -124,7 +133,12 @@ export function OficioLibrary({ context, profileCards, onProfileChanged }: Props
 
   function triggers(ficha: OficioFicha) {
     const lines: string[] = [];
-    if (ficha.senales.length) lines.push("Cuando su señal aparece en tu texto.");
+    if (ficha.senales.some((senal) => senal.tipo !== "vigilancia")) {
+      lines.push("Cuando aparece en tu texto lo que delata el problema.");
+    }
+    if (ficha.senales.some((senal) => senal.tipo === "vigilancia")) {
+      lines.push("Cuando hay en tu texto un pasaje que conviene vigilar o proteger.");
+    }
     if (ficha.metricas.length) {
       lines.push(`Cuando el texto tiene ${ficha.metricas.map((item) => metricaLabels[item] ?? item).join(" o ")}.`);
     }

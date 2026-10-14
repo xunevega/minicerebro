@@ -26,7 +26,7 @@ Cada ficha tiene:
 | No aplica | Excepciones y falsos positivos: cuándo tocar sería un error. |
 | Ejemplos | Pares propios «mal → bien» con el porqué. Nunca frases de las obras. |
 | Fuente | Obra y localizador («DPD, s. v. *deber*»), o «criterio de Editados» si la regla es propia. |
-| Señales | Patrones que delatan el problema en un texto (para el diagnóstico). |
+| Señales | Patrones que delatan el problema en un texto (tipo «error») o marcan un pasaje que vigilar o proteger (tipo «vigilancia»). Cada señal de error tiene que saltar en el ejemplo malo de su ficha y no en el bueno: lo comprueban los tests. |
 | Relaciones | Con qué otras fichas se prioriza, choca o se combina. |
 
 Una ficha sin regla comprobable, sin «no aplica» o sin ejemplo no se publica.
@@ -77,10 +77,15 @@ Las fichas no se eligen buscando palabras del texto (así llegaba «Haber
 impersonal» a un ensayo porque decía «Haber sido elegido»). Se eligen así:
 
 1. **Señales en el texto:** cada ficha con señales que aparecen en el borrador
-   entra, con el fragmento donde aparece.
+   entra, con el fragmento donde aparece. Un fallo probable pesa más que un pasaje
+   que vigilar, salvo en las fichas que protegen el sentido (matices, citas,
+   analogías…) cuando la acción reescribe el texto.
 2. **Acción y mirada:** cada acción (Corregir, Editar, Revisar…) y cada mirada
    (comprensión, estructura, tono, limpieza) tiene sus fichas de base.
-3. **Tipo de texto:** el que declara el autor activa las fichas de su género.
+3. **Tipo de texto y dirección:** el tipo que declara el autor activa las fichas
+   de su género, y la dirección («más esperpéntico», «como un soneto») activa las
+   fichas de tradición o de género que nombra. Sin género declarado, una ficha de
+   género solo entra si su señal de error aparece en el texto.
 4. **Relaciones:** las fichas requeridas por las elegidas entran también, y las
    prioridades entre las elegidas se envían al modelo.
 

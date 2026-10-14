@@ -1,0 +1,335 @@
+# Ramas 3 y 4 · Composición; voz y estilo (ampliación).
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+
+- id: subordinadas-encadenadas
+  rama: composicion
+  nombre: Subordinadas encadenadas
+  regla: >-
+    Cuando una frase encadena varios «que» (dijo que creía que el plan que…), el lector
+    pierde de vista cuál es la oración principal. Se reparte en dos frases o se sustituye
+    alguna subordinada por un sustantivo o un adjetivo.
+  aplica: >-
+    Frases con cuatro o más «que».
+  no_aplica: >-
+    Una cadena breve y clara, o un efecto buscado de acumulación en prosa literaria.
+  ejemplos:
+    - mal: "Dijo que creía que el plan que presentaron era el que mejor encajaba con lo que pedían."
+      bien: "Dijo que el plan presentado le parecía el que mejor encajaba con la petición."
+      porque: "De cinco «que» a uno; la oración principal queda visible."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las frases"
+  metricas: [ques_encadenados]
+  relaciones:
+    - tipo: requiere
+      ficha: claridad-y-orden
+
+- id: cadenas-de-de
+  rama: composicion
+  nombre: Cadenas de «de»
+  regla: >-
+    Varios complementos con «de» seguidos («el plan de mejora de la calidad de los servicios
+    de atención») forman una cadena de sustantivos difícil de leer. Se rompe con un verbo,
+    un adjetivo o reordenando.
+  aplica: >-
+    Cuatro o más «de» en pocos palabras.
+  no_aplica: >-
+    Denominaciones oficiales que deben citarse tal cual («Ministerio de Derechos Sociales…»).
+  ejemplos:
+    - mal: "El plan de mejora de la calidad de los servicios de atención al cliente."
+      bien: "El plan para mejorar la atención al cliente."
+      porque: "Un verbo deshace la cadena de sustantivos."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (nominalización)"
+  metricas: [des_encadenados]
+  relaciones:
+    - tipo: requiere
+      ficha: nominalizacion-y-verbos-comodin
+
+- id: paralelismo-gramatical
+  rama: composicion
+  nombre: Enumeraciones con la misma forma
+  regla: >-
+    Los miembros de una enumeración tienen la misma forma gramatical: todos infinitivos,
+    todos sustantivos o todos oraciones. Mezclarlos rompe la lectura.
+  aplica: >-
+    Listas de objetivos, tareas, ventajas o requisitos.
+  no_aplica: >-
+    Enumeraciones caóticas buscadas como recurso literario.
+  ejemplos:
+    - mal: "Objetivos: mejorar la calidad, la reducción de costes y que el personal se forme."
+      bien: "Objetivos: mejorar la calidad, reducir costes y formar al personal."
+      porque: "Tres infinitivos en lugar de tres formas distintas."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las frases (paralelismo)"
+  senales:
+    - patron: '\b\w+(ar|er|ir)\s+[^,.;]{2,40},\s+(la|el|los|las)\s+\w+(ción|miento|cia|dad)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: enumeraciones-argumentales
+
+- id: citas-y-atribucion
+  rama: composicion
+  protege: true
+  nombre: Citas exactas y atribuidas
+  regla: >-
+    Una cita textual va entre comillas, se reproduce exacta y dice de quién es. Si se
+    resume lo que alguien dijo, no lleva comillas y no se le atribuyen palabras que no dijo.
+  aplica: >-
+    Fragmentos entre comillas y referencias a lo que dijo o escribió otra persona.
+  no_aplica: >-
+    Palabras entrecomilladas por ironía o por uso especial, que no son citas.
+  ejemplos:
+    - mal: "Como dijo alguien, «la mayoría nunca se equivoca»."
+      bien: "La portavoz dijo en el pleno del martes que la mayoría nunca se equivoca."
+      porque: "Una cita sin autor no se puede comprobar; si se resume, va sin comillas."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Contenido»: citas y atribuciones se conservan"
+  senales:
+    - patron: '«[^»]{12,}»|"[^"\n]{12,}"|“[^”]{12,}”'
+      tipo: vigilancia
+    - patron: '\b(como dijo alguien|como alguien dijo|alguien dijo una vez|según dicen)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: tiempo-ideas-atribuidas
+
+- id: cierre-sin-resumen
+  rama: composicion
+  nombre: Cierre sin resumen
+  regla: >-
+    El último párrafo no repite lo ya dicho con «en resumen» o «en conclusión»: remata con
+    una consecuencia, una imagen o una pregunta que deje pensando.
+  aplica: >-
+    Ensayos, artículos, cartas y relatos que terminan resumiendo.
+  no_aplica: >-
+    Informes y documentos técnicos largos, donde un resumen final es útil para el lector.
+  ejemplos:
+    - mal: "En conclusión, como hemos visto, la mayoría puede equivocarse."
+      bien: "Cuando eso ocurre, la mayoría no gobierna solo con sus votos, sino con lo que decide no cuestionar."
+      porque: "El segundo remata; el primero repite."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», composición, comienzo y final"
+  senales:
+    - patron: '(^|\n|[.!?]\s+)(En resumen|En conclusión|En definitiva|Para concluir|Como hemos visto|En síntesis|Para terminar|Resumiendo)\b'
+      sensible_mayusculas: true
+  relaciones:
+    - tipo: requiere
+      ficha: arranque-y-cierre
+
+- id: trato-coherente
+  rama: voz
+  nombre: Trato coherente
+  regla: >-
+    Un texto se dirige al lector siempre de la misma manera: de tú, de usted o de vosotros.
+    Cambiar de trato a mitad desconcierta.
+  aplica: >-
+    Correos, cartas, guías, instrucciones y textos dirigidos al lector.
+  no_aplica: >-
+    Diálogos entre personajes con relaciones distintas.
+  ejemplos:
+    - mal: "Si usted quiere la factura, puedes pedirla en recepción."
+      bien: "Si usted quiere la factura, puede pedirla en recepción."
+      porque: "Se empieza de usted y se pasa a tú."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de la adecuación y el registro"
+  metricas: [trato_mixto]
+  relaciones:
+    - tipo: requiere
+      ficha: registro-coherente
+
+- id: lenguaje-administrativo
+  rama: voz
+  nombre: Lenguaje administrativo
+  regla: >-
+    Las fórmulas burocráticas («procederemos a», «en el marco de», «a tal efecto», «en aras
+    de», «dar traslado», «el mismo» como pronombre) alargan sin decir más. Se sustituyen
+    por verbos directos y palabras comunes.
+  aplica: >-
+    Correos, informes, avisos y cualquier texto que quiera ser claro.
+  no_aplica: >-
+    Textos jurídicos que necesitan una fórmula fijada, y la parodia o voz de personaje.
+  ejemplos:
+    - mal: "Procederemos a dar traslado de la documentación a tal efecto en el marco del expediente."
+      bien: "Enviaremos la documentación para el expediente."
+      porque: "Cuatro fórmulas vacías; el mensaje cabe en una frase corta."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (lenguaje administrativo)"
+  senales:
+    - patron: '\b(procederemos a|procedemos a|se procederá a|en el marco de|a tal efecto|a los efectos de|en aras de|dar traslado|dar cumplimiento|hacer efectivo|con carácter de|en lo que respecta a|en lo relativo a|en el día de la fecha)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: nominalizacion-y-verbos-comodin
+
+- id: coloquialismos
+  rama: voz
+  nombre: Coloquialismos en texto formal
+  regla: >-
+    En un texto formal, las expresiones coloquiales («un montón de», «en plan», «o sea»,
+    «currar», «guay», «mogollón») rompen el registro. Se cambian por su equivalente
+    neutro.
+  aplica: >-
+    Correos profesionales, informes, ensayo y artículos.
+  no_aplica: >-
+    Diálogos, narradores coloquiales y textos que buscan ese tono a propósito.
+  ejemplos:
+    - mal: "Hay un montón de quejas y, o sea, el servicio está fatal."
+      bien: "Hay muchas quejas y el servicio funciona mal."
+      porque: "Registro coloquial en un texto que no lo pide."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de la adecuación y el registro"
+  senales:
+    - patron: '\b(un montón de|en plan|o sea|currar|curro|guay|mogollón|flipar|flipante|movida|tío|tía|chungo|chunga|fatal)\b'
+  relaciones:
+    - tipo: requiere
+      ficha: registro-coherente
+    - tipo: conflicto_con
+      ficha: voz-del-autor
+      criterio: "En diálogos y narradores coloquiales es la voz; en textos formales, un fallo de registro."
+
+- id: adverbios-en-mente
+  rama: voz
+  nombre: Adverbios en -mente
+  regla: >-
+    Varios adverbios en -mente en la misma frase suenan pesados y repetitivos. Si van
+    coordinados, solo el último lleva -mente («lenta y cuidadosamente»); a menudo basta un
+    verbo más preciso.
+  aplica: >-
+    Frases con dos o más adverbios en -mente.
+  no_aplica: >-
+    Repetición buscada por ritmo en prosa literaria.
+  ejemplos:
+    - mal: "Habló lentamente y cuidadosamente, aparentemente nervioso."
+      bien: "Habló lenta y cuidadosamente, con aire nervioso."
+      porque: "Tres -mente seguidos; se coordinan y se cambia uno."
+  fuente:
+    obra: "Diccionario panhispánico de dudas (RAE y ASALE, 2005)"
+    localizador: "s. v. «-mente»"
+  metricas: [mente_encadenados]
+  relaciones:
+    - tipo: requiere
+      ficha: eco-y-cacofonia
+
+- id: eco-y-cacofonia
+  rama: voz
+  nombre: Eco y cacofonía
+  regla: >-
+    Varias palabras con la misma terminación cerca (organización, exposición, atención)
+    producen un eco que distrae. Se cambia alguna por un verbo o un sinónimo.
+  aplica: >-
+    Tres o más palabras en -ción, -miento, -mente o -dad en una frase.
+  no_aplica: >-
+    Rima interna buscada en poesía, publicidad o humor.
+  ejemplos:
+    - mal: "La organización de la exposición exige atención y precisión."
+      bien: "Organizar la exposición exige atención y precisión."
+      porque: "Un verbo rompe la serie de -ción."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las palabras (cacofonías)"
+  metricas: [eco_sufijos]
+  base:
+    miradas: [limpieza]
+
+- id: intensificadores
+  rama: voz
+  nombre: Intensificadores vacíos
+  regla: >-
+    «Muy», «realmente», «totalmente», «absolutamente», «increíblemente» usados a menudo
+    gastan su fuerza. Se quitan o se cambia el adjetivo por uno más exacto («muy grande»
+    → «enorme»).
+  aplica: >-
+    Textos con varios intensificadores en poco espacio.
+  no_aplica: >-
+    Un intensificador puntual con función; la oralidad de un personaje.
+  ejemplos:
+    - mal: "Fue una reunión muy importante, realmente útil y totalmente necesaria."
+      bien: "Fue una reunión decisiva."
+      porque: "Tres intensificadores dicen menos que un adjetivo exacto."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "docs/CRITERIO_EDITORIAL.md, «Matices protegidos» (intensificadores de relleno)"
+  metricas: [intensificadores]
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos
+
+- id: ritmo-de-frase
+  rama: voz
+  nombre: Ritmo y variación de la frase
+  regla: >-
+    La prosa respira cuando alterna frases largas y cortas. Muchas frases cortas seguidas
+    suenan entrecortadas; muchas largas, monótonas. La variación se decide escuchando el
+    texto en voz alta.
+  aplica: >-
+    Pasajes con seis o más frases muy cortas seguidas, o frases largas encadenadas.
+  no_aplica: >-
+    El staccato buscado en una escena de tensión o en un cierre.
+  ejemplos:
+    - mal: "Llegó tarde. Abrió la puerta. Entró. Miró. No había nadie. Se sentó."
+      bien: "Llegó tarde y abrió la puerta. No había nadie. Se sentó."
+      porque: "Se unen las acciones menores y se deja corta la importante."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de las frases (longitud y ritmo)"
+  metricas: [frases_cortas]
+  relaciones:
+    - tipo: requiere
+      ficha: leer-en-voz-alta
+    - tipo: conflicto_con
+      ficha: claridad-y-orden
+      criterio: "En narrativa, el ritmo buscado prevalece; en textos expositivos, la claridad."
+
+- id: deixis-temporal
+  rama: composicion
+  nombre: «Hoy», «este año», «actualmente»
+  regla: >-
+    Las referencias al momento de escribir («hoy», «este año», «recientemente»,
+    «actualmente») envejecen en cuanto se lee el texto más tarde. En textos que perduran
+    se sustituyen por fechas o se justifican.
+  aplica: >-
+    Ensayos, informes, artículos de fondo y documentos que se archivan.
+  no_aplica: >-
+    Correos, noticias del día y textos fechados.
+  ejemplos:
+    - mal: "Actualmente, el 40 % de los jóvenes no lee."
+      bien: "En 2025, según la encuesta que se cita al pie, el 40 % de los jóvenes no leía."
+      porque: "Con fecha y fuente, el dato se puede comprobar y no caduca."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», composición, situación"
+  senales:
+    - patron: '\b(actualmente|hoy en día|en la actualidad|este año|el año pasado|recientemente|últimamente|en estos momentos)\b'
+      tipo: vigilancia
+  generos: [ensayo, opinión, opinion, artículo, articulo, informe, columna, reportaje]
+  relaciones:
+    - tipo: requiere
+      ficha: datos-y-fuentes
+
+- id: ejemplo-concreto
+  rama: composicion
+  nombre: Ejemplo concreto
+  regla: >-
+    Una idea abstracta se entiende y se recuerda cuando va seguida de un caso concreto. Un
+    párrafo que encadena abstracciones sin un solo ejemplo pide uno.
+  aplica: >-
+    Ensayo, divulgación, informes y textos argumentativos.
+  no_aplica: >-
+    Textos breves de tesis o aforismos, donde la concisión manda.
+  ejemplos:
+    - mal: "La normalización avanza por pasos que, aislados, parecen inocuos."
+      bien: "La normalización avanza por pasos: primero una excepción limitada, después una medida urgente, más tarde una costumbre."
+      porque: "Los tres pasos concretos hacen visible la idea."
+  fuente:
+    obra: "La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "capítulo de la estructura (ejemplificación)"
+  generos: [ensayo, opinión, opinion, artículo, articulo, informe, divulgación, divulgacion, columna]
+  relaciones:
+    - tipo: requiere
+      ficha: argumentacion
