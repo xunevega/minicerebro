@@ -23,7 +23,7 @@ try {
   await editorPanel.locator("textarea").first().fill(inputText);
   await editorPanel.getByLabel("Objetivo").selectOption("correction");
   await page.getByLabel("Recorrido de escritura").getByText("Borrador").waitFor();
-  await page.getByLabel("Recorrido de escritura").getByText("Accion").waitFor();
+  await page.getByLabel("Recorrido de escritura").getByText("Acción").waitFor();
 
   const generationResponse = page.waitForResponse(
     (response) => {
@@ -37,7 +37,7 @@ try {
 
   const resultPanel = page.locator(".inspector", { hasText: "Salida" });
   await resultPanel.getByText("Propuesta de correccion").waitFor();
-  await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
+  await resultPanel.getByText("Diagnóstico automático de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByLabel("Resumen de cambios").waitFor();
   await page.getByLabel("Recorrido de escritura").getByText("Hay una version nueva sin aplicar.").waitFor();
@@ -58,7 +58,7 @@ try {
   await page.getByRole("button", { name: "Crear propuesta" }).click();
   await regeneratedResponse;
   await resultPanel.getByText("Propuesta de correccion").waitFor();
-  await resultPanel.getByText("Diagnostico automatico de cambios").waitFor();
+  await resultPanel.getByText("Diagnóstico automático de cambios").waitFor();
   await resultPanel.getByText("Ver cambios en el texto").waitFor();
   await resultPanel.getByLabel("Resumen de cambios").waitFor();
 
@@ -151,7 +151,7 @@ try {
   if ((await resultPanel.getByText("Sin version nueva").count()) !== 0) {
     throw new Error("La lectura con fichas no debe quedar mezclada con el bloque sin cambios.");
   }
-  if ((await resultPanel.getByText("Sin salida todavia").count()) !== 0) {
+  if ((await resultPanel.getByText("Sin salida todavía").count()) !== 0) {
     throw new Error("La lectura con fichas no debe mostrar el estado vacio de salida.");
   }
 

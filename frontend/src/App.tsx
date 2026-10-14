@@ -120,6 +120,7 @@ import type {
   KnowledgeSource,
   KnowledgeSourceIngestionStatus,
   KnowledgeVersion,
+  LostNuance,
   LabSimulationResult,
   ObservabilityMetric,
   Preference,
@@ -588,11 +589,11 @@ function AppShell({
       status: editorHasDraft ? "done" : "active",
     },
     {
-      label: "Accion",
+      label: "Acción",
       description: editorGenerating
         ? "Preparando propuesta."
         : generationHasChanges
-        ? "Hay una version nueva sin aplicar."
+        ? "Hay una versión nueva sin aplicar."
         : generationHasNoChanges
           ? "No hay cambio seguro."
           : textRevision
@@ -610,19 +611,19 @@ function AppShell({
       description: editorGenerating
         ? "Esperando respuesta."
         : generationHasChanges
-        ? "Version lista para decidir."
+        ? "Versión lista para decidir."
         : generationHasNoChanges
-          ? "Sin version que aceptar."
+          ? "Sin versión que aceptar."
         : textRevision
           ? "Ficha pendiente de valorar."
-          : "Aqui veras el resultado.",
+          : "Aquí verás el resultado.",
       status:
         generationHasChanges || generationHasNoChanges || textRevision || editorGenerating
           ? "active"
           : "pending",
     },
     {
-      label: "Decision",
+      label: "Decisión",
       description:
         editorFeedbackCount > 0
           ? `${editorFeedbackCount} criterio${editorFeedbackCount === 1 ? "" : "s"} guardado${editorFeedbackCount === 1 ? "" : "s"}.`
@@ -630,7 +631,7 @@ function AppShell({
             ? "Acepta, copia o descarta."
             : generationHasNoChanges
               ? "Prueba fichas o cambia opciones."
-            : "Tu decides que se queda.",
+            : "Tú decides qué se queda.",
       status: editorFeedbackCount > 0 || generationHasChanges ? "done" : "pending",
     },
   ];
@@ -3275,7 +3276,7 @@ function AppShell({
               <span className="fieldRole">Aqui escribes</span>
               <h2>Borrador</h2>
               <p className="note">
-                Pega tu texto. Editados puede leerlo con fichas o crear una version alternativa.
+                Pega tu texto. Editados puede leerlo con fichas o crear una versión alternativa.
               </p>
               <div className="editorFlow" aria-label="Recorrido de escritura">
                 {editorFlowSteps.map((step, index) => (
@@ -3479,7 +3480,7 @@ function AppShell({
                           <strong>Sin cambios detectados</strong>
                           <span>Cambios: {generationModificationScore}</span>
                           <span>Fidelidad: {generationAdequacyScore}</span>
-                          <p>No mide calidad literaria; mide cuanto conserva la propuesta del borrador.</p>
+                          <p>No mide calidad literaria; mide cuánto conserva la propuesta del borrador.</p>
                         </div>
                       ) : null}
                     </div>
@@ -3514,7 +3515,7 @@ function AppShell({
                     <p className="note">
                       Objetivo: {selectedEditorAction.label.toLowerCase()}. Mirada:{" "}
                       {selectedRevisionIntention.label.toLowerCase()}.
-                      {userInstruction.trim() ? ` Direccion: ${userInstruction.trim()}.` : ""}
+                      {userInstruction.trim() ? ` Dirección: ${userInstruction.trim()}.` : ""}{" "}
                       No sustituye tu borrador hasta que pulses "Aceptar propuesta".
                     </p>
                     <textarea readOnly value={generation.output} />
@@ -3534,12 +3535,15 @@ function AppShell({
                     </div>
                     {comparison ? (
                       <div className="comparisonSummary">
-                        <strong>Diagnostico automatico de cambios</strong>
+                        <strong>Diagnóstico automático de cambios</strong>
                         <span>Cambios: {comparison.modification_score}</span>
                         <span>Fidelidad al borrador: {comparison.adequacy_score}</span>
                         <p>{comparison.summary}</p>
-                        <p>No mide calidad literaria; mide cuanto conserva la propuesta del borrador.</p>
+                        <p>No mide calidad literaria; mide cuánto conserva la propuesta del borrador.</p>
                       </div>
+                    ) : null}
+                    {comparison?.lost_nuances?.length ? (
+                      <LostNuancesPanel nuances={comparison.lost_nuances} />
                     ) : null}
                     {generationDiffTokens.length ? (
                       <details className="visualDiff" open>
@@ -3576,10 +3580,10 @@ function AppShell({
                 )
               ) : textRevision ? null : (
                 <div className="emptyOutput">
-                  <strong>{editorOutcomeNotice ? "Decision aplicada" : "Sin salida todavia"}</strong>
+                  <strong>{editorOutcomeNotice ? "Decisión aplicada" : "Sin salida todavía"}</strong>
                   <p>
                     {editorOutcomeNotice ||
-                      "Primero escribe o pega un texto. Luego lee con fichas o crea una version."}
+                      "Primero escribe o pega un texto. Luego lee con fichas o crea una versión."}
                   </p>
                 </div>
               )}
@@ -5038,7 +5042,7 @@ function summarizeDiffTokens(tokens: DiffToken[]): DiffSummary {
     chips.push({ label: `${changedPairs} sustituciones`, kind: "changed" });
   }
   if (netAddedWords > 0) {
-    chips.push({ label: `${netAddedWords} palabras anadidas`, kind: "added" });
+    chips.push({ label: `${netAddedWords} palabras añadidas`, kind: "added" });
   }
   if (netRemovedWords > 0) {
     chips.push({ label: `${netRemovedWords} palabras retiradas`, kind: "removed" });
@@ -5053,7 +5057,7 @@ function summarizeDiffTokens(tokens: DiffToken[]): DiffSummary {
   }
   if (changedPairs >= netAddedWords + netRemovedWords) {
     return {
-      headline: "Sustituciones de formulacion",
+      headline: "Sustituciones de formulación",
       description: "La propuesta cambia palabras, giros o bloques del borrador.",
       chips,
     };
@@ -5061,20 +5065,20 @@ function summarizeDiffTokens(tokens: DiffToken[]): DiffSummary {
   if (netRemovedWords > netAddedWords) {
     return {
       headline: "Recorte visible",
-      description: "La propuesta elimina material y busca una version mas limpia o compacta.",
+      description: "La propuesta elimina material y busca una versión más limpia o compacta.",
       chips,
     };
   }
   if (netAddedWords > netRemovedWords) {
     return {
-      headline: "Ampliacion visible",
-      description: "La propuesta anade material y desarrolla mas el borrador.",
+      headline: "Ampliación visible",
+      description: "La propuesta añade material y desarrolla más el borrador.",
       chips,
     };
   }
   return {
     headline: "Reescritura visible",
-    description: "La propuesta conserva la idea general, pero cambia una parte apreciable de la formulacion.",
+    description: "La propuesta conserva la idea general, pero cambia una parte apreciable de la formulación.",
     chips,
   };
 }
@@ -5083,6 +5087,38 @@ function countChangedWords(tokens: DiffToken[], kind: "added" | "removed") {
   return tokens
     .filter((token) => token.kind === kind)
     .reduce((total, token) => total + (token.text.match(/\S+/g)?.length ?? 0), 0);
+}
+
+function LostNuancesPanel({ nuances }: { nuances: LostNuance[] }) {
+  const groups = nuances.reduce<Record<string, LostNuance[]>>((acc, nuance) => {
+    (acc[nuance.category] ??= []).push(nuance);
+    return acc;
+  }, {});
+  const count = nuances.length;
+  return (
+    <details className="lostNuances" open>
+      <summary>
+        {count === 1 ? "1 matiz desaparece" : `${count} matices desaparecen`}
+      </summary>
+      <p className="note">
+        Estaban en tu borrador y no están en la propuesta. Si eran relleno, no pasa nada; si no,
+        la propuesta cambia lo que dices.
+      </p>
+      {Object.entries(groups).map(([category, items]) => (
+        <div className="lostNuanceGroup" key={category}>
+          <strong>{category}</strong>
+          <ul>
+            {items.map((item, index) => (
+              <li key={`${category}-${index}`}>
+                <mark>{item.marker}</mark>
+                <span>{item.context}</span>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+    </details>
+  );
 }
 
 function DiffText({ tokens, side }: { tokens: DiffToken[]; side: "original" | "revised" }) {

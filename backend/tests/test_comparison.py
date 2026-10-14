@@ -47,4 +47,4 @@ def test_compare_texts_names_minimal_intervention():
     )
 
     assert result.modification_score <= 20
-    assert "Intervencion minima" in result.summary
+    assert "Intervención mínima" in result.summary
