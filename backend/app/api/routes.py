@@ -106,6 +106,7 @@ from app.core.security import (
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import GenerationUnavailable, rewrite_with_profile
+from app.oficio import load_fichas, oficio_block, select_fichas
 from app.review.service import ReviewTooLong, review_blocks
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
@@ -1171,28 +1172,37 @@ def generated_texts_list(
     return repository.list_generated_texts(actor.profile_id, bounded_limit, context)
 
 
-def _published_knowledge_notes(
-    repository,
-    payload: GenerationInput,
-    profile_id: str,
-) -> list[tuple[str, str]]:
-    parts = [
-        payload.revision_intention,
+def _oficio_notes(payload: GenerationInput, repository=None) -> tuple[str, list[str]]:
+    """Fichas de oficio elegidas por diagnóstico (docs/POLITICA_CONOCIMIENTO.md)."""
+    selected = select_fichas(
+        payload.text,
         payload.action,
-        payload.user_instruction,
-        payload.text[:280],
-    ]
-    query = " ".join(part.strip() for part in parts if part and part.strip())
-    if not query:
-        return []
-    try:
-        result = repository.query_knowledge(
-            KnowledgeQueryInput(query=query[:500], version="latest", limit=5),
-            profile_id=profile_id,
+        intention=payload.revision_intention,
+        genre=payload.genre,
+    )
+    if repository is not None:
+        # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.
+        repository.add_audit_event(
+            "oficio.fichas.selected",
+            "generation",
+            payload.action,
+            {
+                "action": payload.action,
+                "intention": payload.revision_intention,
+                "genre": payload.genre.strip()[:80],
+                "fichas": [
+                    {"id": item.ficha.id, "motivos": item.motivos} for item in selected
+                ],
+            },
         )
-    except KeyError:
-        return []
-    return [(card.name, card.definition) for card in result.cards]
+        repository.session.commit()
+    return oficio_block(selected), [item.ficha.nombre for item in selected]
+
+
+@router.get("/oficio/fichas")
+def oficio_fichas() -> list[dict]:
+    """Fichas de oficio publicadas: lo que Editados sabe y envía al modelo."""
+    return [ficha.model_dump() for ficha in load_fichas().values()]
 
 
 def _generate_or_503(generation_input, variables, knowledge_notes):
@@ -1224,9 +1234,10 @@ def generation_create(
     action = route_actions.get(request.url.path, payload.action)
     generation_input = payload.model_copy(update={"action": action})
     variables = repository.get_context_variables(actor.profile_id, generation_input.context)
-    knowledge_notes = _published_knowledge_notes(repository, generation_input, actor.profile_id)
+    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository)
     started_at = perf_counter()
     generation = _generate_or_503(generation_input, variables, knowledge_notes)
+    generation.used_fichas = used_fichas
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
@@ -1266,8 +1277,9 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
         intensity=payload.intensity,
         protected_terms=payload.protected_terms,
     )
-    knowledge_notes = _published_knowledge_notes(repository, generation_input, actor.profile_id)
+    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository)
     generation = _generate_or_503(generation_input, simulated_variables, knowledge_notes)
+    generation.used_fichas = used_fichas
     comparison = compare_texts(
         ComparisonInput(
             original=payload.text,
@@ -1291,8 +1303,7 @@ def lab_compare(payload: ComparisonInput) -> ComparisonResult:
 @router.post("/review")
 def block_review(payload: BlockReviewInput, repository: RepositoryDep, actor: ActorDep) -> BlockReviewResult:
     """Revisar: diagnostico de editor por bloques con alternativas y loco Ivan."""
-    notes = _published_knowledge_notes(
-        repository,
+    notes, _used_fichas = _oficio_notes(
         GenerationInput(
             text=payload.text,
             action="review",
@@ -1300,8 +1311,9 @@ def block_review(payload: BlockReviewInput, repository: RepositoryDep, actor: Ac
             intensity=payload.intensity,
             revision_intention="estructura",
             user_instruction=payload.user_instruction,
+            genre=payload.genre,
         ),
-        actor.profile_id,
+        repository,
     )
     started_at = perf_counter()
     try:

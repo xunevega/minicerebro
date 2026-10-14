@@ -712,6 +712,7 @@ export function generateText(
   revisionIntention: string,
   userInstruction: string,
   protectedTerms: string[],
+  genre = "",
 ) {
   return request<GenerationResult>("/generation", {
     method: "POST",
@@ -723,6 +724,7 @@ export function generateText(
       revision_intention: revisionIntention,
       user_instruction: userInstruction,
       protected_terms: protectedTerms,
+      genre,
     }),
   });
 }

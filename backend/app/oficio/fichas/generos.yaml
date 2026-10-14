@@ -1,0 +1,215 @@
+# Ramas 5 y 7 · Géneros y sus técnicas; criterio.
+# Formato y reglas: docs/POLITICA_CONOCIMIENTO.md. Ejemplos propios, nunca de las obras.
+# «generos» lista las palabras del tipo de texto declarado que activan la ficha.
+
+- id: raya-en-dialogo
+  rama: lengua
+  nombre: Raya en el diálogo
+  regla: >-
+    Las intervenciones de los personajes empiezan con raya (—), no con guion (-). El inciso
+    del narrador va entre rayas; la de cierre se omite si el inciso termina el párrafo. El
+    punto va después de la raya de cierre.
+  aplica: >-
+    Narrativa con diálogo directo.
+  no_aplica: >-
+    Diálogos con comillas en textos que usan ese sistema de forma coherente (es menos
+    habitual en español, pero no es un error).
+  ejemplos:
+    - mal: "- Ya voy - dijo Ana -. Espera."
+      bien: "—Ya voy —dijo Ana—. Espera."
+      porque: "Raya, no guion; raya de cierre antes del punto."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, la raya"
+  senales:
+    - patron: '(?m)^\s*[-–]\s*\S'
+  generos: [narrativa, novela, relato, cuento, diálogo, dialogo]
+
+- id: acotaciones-de-dialogo
+  rama: generos
+  nombre: Verbos de habla en las acotaciones
+  regla: >-
+    En las acotaciones, «dijo» y «preguntó» pasan desapercibidos y dejan el peso al diálogo.
+    Los verbos de habla rebuscados («espetó», «inquirió», «masculló» en cada línea) y los
+    adverbios que explican el tono distraen.
+  aplica: >-
+    Diálogos con muchas acotaciones.
+  no_aplica: >-
+    Un verbo expresivo puntual, cuando el tono no se deduce de lo que se dice.
+  ejemplos:
+    - mal: "—No pienso ir —espetó furiosamente."
+      bien: "—No pienso ir."
+      porque: "La frase ya dice el enfado; la acotación lo repite."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (diálogo)"
+  senales:
+    - patron: '\b(espetó|inquirió|masculló|bramó|vociferó|musitó|replicó \w+mente|dijo \w+mente)\b'
+  generos: [narrativa, novela, relato, cuento]
+  relaciones:
+    - tipo: requiere
+      ficha: raya-en-dialogo
+
+- id: escena-y-resumen
+  rama: generos
+  nombre: Escena y resumen
+  regla: >-
+    La escena muestra un momento con detalle y tiempo real; el resumen cuenta deprisa lo que
+    no merece escena. Los momentos decisivos van en escena; los traslados y las esperas, en
+    resumen.
+  aplica: >-
+    Narrativa que se arrastra (todo en escena) o que pasa por encima de lo importante (todo
+    en resumen).
+  no_aplica: >-
+    Formas breves (microrrelato, cuento infantil muy corto) donde el resumen es el modo
+    natural.
+  ejemplos:
+    - mal: "Se levantó, se duchó, desayunó, cogió el autobús y llegó a la oficina, donde su jefe le dijo que estaba despedida."
+      bien: "A las nueve ya estaba en la oficina. El jefe no la dejó ni quitarse el abrigo."
+      porque: "La rutina se resume; el despido merece escena."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (escena)"
+  generos: [narrativa, novela, relato, cuento]
+  base:
+    acciones: [review]
+
+- id: punto-de-vista
+  rama: generos
+  nombre: Punto de vista
+  regla: >-
+    Dentro de una escena, el narrador mantiene la misma focalización: si cuenta desde lo que
+    sabe y siente un personaje, no salta a lo que piensa otro sin una marca clara.
+  aplica: >-
+    Narrativa en tercera persona focalizada y en primera persona.
+  no_aplica: >-
+    Narrador omnisciente declarado, que puede entrar en varias conciencias.
+  ejemplos:
+    - mal: "Marta no se fiaba del vendedor. Él pensaba que ella no tenía dinero."
+      bien: "Marta no se fiaba del vendedor, que la miraba como si no tuviera dinero."
+      porque: "La escena estaba en Marta; el narrador salta a la cabeza de él."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (narrador)"
+  generos: [narrativa, novela, relato, cuento]
+
+- id: tiempo-narrativo
+  rama: generos
+  nombre: Tiempo verbal de la narración
+  regla: >-
+    La narración mantiene el tiempo base (pretérito o presente). Los cambios de tiempo deben
+    responder a un cambio de plano (recuerdo, anticipación), no a un descuido.
+  aplica: >-
+    Relatos y escenas narrativas.
+  no_aplica: >-
+    Presente histórico usado de forma sostenida y deliberada.
+  ejemplos:
+    - mal: "Abrió la puerta y ve que no hay nadie."
+      bien: "Abrió la puerta y vio que no había nadie."
+      porque: "Salto de pretérito a presente sin motivo."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, narrativa (tiempo)"
+  generos: [narrativa, novela, relato, cuento]
+
+- id: argumentacion
+  rama: generos
+  nombre: Tesis, argumento y objeción
+  regla: >-
+    En un ensayo la tesis debe poder enunciarse en una frase; cada párrafo la sostiene,
+    la matiza o responde a una objeción. La objeción más fuerte se trata, no se esquiva.
+  aplica: >-
+    Ensayo, artículo de opinión, columna.
+  no_aplica: >-
+    Textos expositivos sin tesis (informes, divulgación neutra).
+  ejemplos:
+    - mal: "Un ensayo que afirma que la mayoría se equivoca sin considerar que la minoría también puede hacerlo."
+      bien: "Reconocer que el disenso no garantiza tener razón y explicar por qué sigue siendo necesario."
+      porque: "Atender la objeción refuerza la tesis."
+  fuente:
+    obra: "Retórica (Aristóteles); La cocina de la escritura (Daniel Cassany, 1993)"
+    localizador: "Retórica, libros I y III (prueba y disposición); Cassany, capítulo de la estructura"
+  generos: [ensayo, opinión, opinion, artículo, articulo, columna, editorial]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: voz-del-autor
+      criterio: "En ensayo, si la voz oscurece el argumento, gana el argumento."
+
+- id: texto-profesional
+  rama: generos
+  nombre: Texto profesional enviable
+  regla: >-
+    Un correo o informe dice al principio qué se pide o qué se informa, después los datos y
+    al final qué se espera del lector. Las dudas se formulan como dudas y los pendientes
+    como peticiones.
+  aplica: >-
+    Correos, avisos, informes y notas de trabajo.
+  no_aplica: >-
+    Comunicaciones personales donde el autor quiere un tono propio.
+  ejemplos:
+    - mal: "Hola, te escribo porque estuve viendo lo del presupuesto y bueno, no sé, a lo mejor habría que revisarlo."
+      bien: "Hola: creo que conviene revisar el presupuesto antes del viernes. Te explico por qué."
+      porque: "La petición va al principio y la duda queda como duda."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "contrato de «Hacer enviable»"
+  generos: [correo, email, informe, aviso, carta, nota]
+  base:
+    acciones: [sendable]
+  relaciones:
+    - tipo: requiere
+      ficha: matices-protegidos
+
+- id: cuento-infantil
+  rama: generos
+  nombre: Cuento infantil
+  regla: >-
+    Frases claras y de una idea, ritmo que se pueda leer en voz alta y vocabulario rico pero
+    comprensible por el contexto. La repetición de estribillos y estructuras es un recurso
+    central del género.
+  aplica: >-
+    Cuentos y álbumes para lectores infantiles o para leer en voz alta.
+  no_aplica: >-
+    No se rebaja el vocabulario por sistema: una palabra nueva bien arropada por el contexto
+    es parte del valor del cuento.
+  ejemplos:
+    - mal: "Eliminar la segunda y tercera vez que el lobo dice «soplaré y soplaré»."
+      bien: "Conservar el estribillo en cada casa."
+      porque: "En el cuento infantil la repetición es estructura, no descuido."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», géneros, formas breves"
+  generos: [infantil, niños, ninos, álbum, album, cuento infantil]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: repeticion-torpe
+      criterio: "En el cuento infantil la repetición es recurso."
+    - tipo: prioridad_sobre
+      ficha: redundancia-real
+      criterio: "El estribillo no es redundancia."
+
+- id: romper-la-regla
+  rama: criterio
+  nombre: Criterio para romper la regla
+  regla: >-
+    Una norma de estilo (no de corrección) puede romperse a sabiendas: una frase larga, una
+    repetición o una pasiva pueden funcionar mejor que la alternativa «correcta». Antes de
+    cambiarla, hay que poder decir qué gana el texto.
+  aplica: >-
+    Edición y revisión de textos con voz marcada o literarios.
+  no_aplica: >-
+    Las normas de corrección (ortografía, concordancia, régimen) no se rompen sin una
+    intención evidente y declarada.
+  ejemplos:
+    - mal: "Partir en tres una frase larga de Benet porque «las frases largas cansan»."
+      bien: "Dejarla y revisar solo si se pierde el referente."
+      porque: "Su longitud es la voz, no un defecto."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "árbol «oficio de escritor», rama criterio"
+  base:
+    acciones: [rewrite, review]
+  relaciones:
+    - tipo: prioridad_sobre
+      ficha: claridad-y-orden
+      criterio: "Solo en narrativa y textos literarios, y si se puede decir qué gana el texto."

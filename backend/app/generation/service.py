@@ -512,9 +512,12 @@ def _profile_prompt(variables: list[ScoreVariable]) -> str:
     return "\n".join(lines)
 
 
-def _knowledge_notes_contract(notes: list[tuple[str, str]]) -> str:
+def _knowledge_notes_contract(notes: str | list[tuple[str, str]]) -> str:
     if not notes:
         return ""
+    if isinstance(notes, str):
+        # Bloque de fichas de oficio (app/oficio), ya con reglas, ejemplos y prioridades.
+        return notes
     lines = [
         "Fichas publicadas de la base (solo lectura; no aprendas ni busques fuera):",
         *[f"- {name}: {definition}" for name, definition in notes],
@@ -525,7 +528,7 @@ def _knowledge_notes_contract(notes: list[tuple[str, str]]) -> str:
 def rewrite_with_profile(
     payload: GenerationInput,
     variables: list[ScoreVariable],
-    knowledge_notes: list[tuple[str, str]] | None = None,
+    knowledge_notes: str | list[tuple[str, str]] | None = None,
 ) -> GenerationResult:
     notes = knowledge_notes or []
     if not getenv("OPENAI_API_KEY"):
@@ -616,7 +619,7 @@ def rewrite_deterministic(payload: GenerationInput, variables: list[ScoreVariabl
 def rewrite_with_openai(
     payload: GenerationInput,
     variables: list[ScoreVariable],
-    knowledge_notes: list[tuple[str, str]] | None = None,
+    knowledge_notes: str | list[tuple[str, str]] | None = None,
 ) -> GenerationResult:
     active = sorted(variables, key=lambda item: item.effective_value, reverse=True)[:5]
     model = getenv("OPENAI_MODEL", "gpt-5-mini")
@@ -625,6 +628,7 @@ def rewrite_with_openai(
 Eres Minicerebro V1, una app especializada en escritura en lengua espanola.
 Accion: {payload.action}
 Contexto: {payload.context}
+Tipo de texto declarado por el autor: {payload.genre.strip() or "no declarado"}
 Intensidad: {payload.intensity}/1000
 {_generation_contract(payload)}
 {_revision_intention_contract(payload.revision_intention)}
@@ -639,7 +643,7 @@ Reglas:
 - No aprendas nada.
 - No afirmes que has actualizado el perfil.
 - Respeta los terminos protegidos literalmente.
-- Usa las fichas publicadas solo como criterio de oficio; no las cites como autoridad externa ni copies articulos.
+- Aplica las fichas de oficio como criterio de editor, respetando sus prioridades; no las menciones ni las cites en la salida.
 - Devuelve solo el texto resultante, sin explicaciones externas.
 
 Texto:

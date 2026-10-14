@@ -5,9 +5,9 @@ cronología, conectores y miembros de enumeraciones que estaban en el original y
 No bloquea nada: marca, y el escritor decide si era relleno o sentido.
 """
 
-from difflib import SequenceMatcher
 import re
 import unicodedata
+from difflib import SequenceMatcher
 
 TOKEN_RE = re.compile(r"[\wáéíóúüñÁÉÍÓÚÜÑ]+", re.UNICODE)
 
@@ -111,7 +111,9 @@ def lost_nuances(original: str, revised: str) -> list[dict[str, str]]:
     for category, group in PROTECTED_GROUPS:
         members = sorted((tuple(item.split()) for item in group), key=len, reverse=True)
 
-        def occurrences(seq: list[str], skip: set[int]) -> list[tuple[int, int]]:
+        def occurrences(
+            seq: list[str], skip: set[int], members: list[tuple[str, ...]] = members
+        ) -> list[tuple[int, int]]:
             found: list[tuple[int, int]] = []
             taken: set[int] = set(skip)
             for member in members:

@@ -651,6 +651,7 @@ function AppShell({
   const generationDetailsNote =
     "Propuesta creada para este borrador. Usa tu criterio y el contexto activo solo para esta salida; no guarda aprendizaje automaticamente.";
   const generationUsedAspects = generation?.used_profile_variables.map(scoreLabelByKey) ?? [];
+  const generationUsedFichas = generation?.used_fichas ?? [];
   const scoreDeltaDescription = (delta: number) => {
     const direction = delta > 0 ? "Sube" : delta < 0 ? "Baja" : "Mantiene";
     const amount = Math.abs(delta);
@@ -1634,6 +1635,7 @@ function AppShell({
           .split(",")
           .map((term) => term.trim())
           .filter(Boolean),
+        textGenre.trim(),
       );
       const outputMatchesDraft =
         normalizeComparableText(draftBeforeGeneration) === normalizeComparableText(result.output);
@@ -3507,6 +3509,9 @@ function AppShell({
                       <summary>Ver detalles</summary>
                       <p className="note">{generationDetailsNote}</p>
                       <List title="Aspectos tenidos en cuenta" items={generationUsedAspects} />
+                      {generationUsedFichas.length ? (
+                        <List title="Fichas de oficio aplicadas" items={generationUsedFichas} />
+                      ) : null}
                     </details>
                   </>
                 ) : (
@@ -3575,6 +3580,9 @@ function AppShell({
                       <summary>Ver detalles</summary>
                       <p className="note">{generationDetailsNote}</p>
                       <List title="Aspectos tenidos en cuenta" items={generationUsedAspects} />
+                      {generationUsedFichas.length ? (
+                        <List title="Fichas de oficio aplicadas" items={generationUsedFichas} />
+                      ) : null}
                     </details>
                   </>
                 )

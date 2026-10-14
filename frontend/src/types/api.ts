@@ -867,6 +867,7 @@ export type GenerationResult = {
   used_profile_variables: string[];
   learning_applied: boolean;
   provider: string;
+  used_fichas?: string[];
 };
 
 export type LabOverride = {
