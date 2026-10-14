@@ -37,6 +37,7 @@ function buildChoice(block: ReviewBlock, chosen: Choice, keptAfterReveal = true)
     approach: alternative?.approach ?? "",
     probe: Boolean(alternative?.probe),
     probe_kind: alternative?.probe ? alternative.probe_kind : probe ? `ofrecida:${probe.probe_kind}` : "",
+    probe_move: alternative?.probe ? (alternative.probe_move ?? "") : (probe?.probe_move ?? ""),
     kept_after_reveal: keptAfterReveal,
   };
 }

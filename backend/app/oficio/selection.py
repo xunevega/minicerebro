@@ -390,6 +390,7 @@ def select_fichas(
     instruction: str = "",
     fichas: dict[str, Ficha] | None = None,
     diagnosis: Diagnosis | None = None,
+    learned: dict[str, tuple[float, str]] | None = None,
 ) -> list[SelectedFicha]:
     action = ACCION_EQUIVALENTE.get(action, action)
     intention = MIRADA_EQUIVALENTE.get(intention, intention)
@@ -478,6 +479,25 @@ def select_fichas(
             del chosen[ficha_id]
         elif stance in {"liked", "kept"}:
             item.motivos.append("te sirvió antes")
+
+    # Capa 3: lo aprendido de tus decisiones (app/oficio/aprendizaje.py). Sube o baja
+    # el peso de las elegidas y puede traer una ficha de tu línea editorial.
+    for ficha_id, (peso, motivo) in (learned or {}).items():
+        item = chosen.get(ficha_id)
+        if item is not None:
+            item.peso += peso
+            if motivo not in item.motivos:
+                item.motivos.append(motivo)
+            continue
+        ficha = fichas.get(ficha_id)
+        if ficha is None or peso < 1.0 or not _allowed(ficha, action):
+            continue
+        if ficha.generos and not (
+            (genre.strip() and _genre_matches(ficha, genre))
+            or (instruction.strip() and _genre_matches(ficha, instruction))
+        ):
+            continue
+        add(ficha, motivo, peso)
 
     ranked = sorted(chosen.values(), key=lambda item: (-item.peso, item.ficha.id))
     selected = ranked[:limit]

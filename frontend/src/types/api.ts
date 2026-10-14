@@ -1021,6 +1021,7 @@ export type ReviewAlternative = {
   text: string;
   probe: boolean;
   probe_kind: string;
+  probe_move?: string;
   probe_reveal: string;
 };
 
@@ -1049,6 +1050,7 @@ export type ReviewChoice = {
   approach: string;
   probe: boolean;
   probe_kind: string;
+  probe_move?: string;
   kept_after_reveal: boolean;
 };
 
@@ -1121,3 +1123,12 @@ export type OficioFichaCheck = {
 };
 
 export type OficioFichaChecks = { comprobadas: OficioFichaCheck[]; sin_comprobacion: number };
+
+export type EditorialLine = {
+  elecciones: number;
+  propuestas: { aceptadas: number; descartadas: number };
+  tendencias: Array<{ clave: string; texto: string; evidencia: number }>;
+  cambios: string[];
+  fichas: Array<{ id: string; nombre: string; peso: number; motivo: string; aceptadas: number; descartadas: number }>;
+  apertura_replanteamiento: number | null;
+};

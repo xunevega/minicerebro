@@ -156,6 +156,7 @@ import {
 } from "./library";
 import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
 import { DiagnosisNote, FichasDetalle } from "./FichasDetalle";
+import { LineaEditorial } from "./LineaEditorial";
 import { OficioLibrary } from "./OficioLibrary";
 
 const tabs = [
@@ -1692,8 +1693,12 @@ function AppShell({
   function reportGenerationOutcome(decision: "accepted" | "discarded") {
     const fichas = generation?.used_ficha_ids ?? [];
     if (!fichas.length) return;
-    // Alimenta las propuestas de mejora de fichas; no bloquea ni avisa si falla.
-    recordGenerationOutcome(decision, fichas, selectedEditorAction.value).catch(() => undefined);
+    // Alimenta tu línea editorial y las propuestas de mejora; no bloquea ni avisa si falla.
+    // Las fichas que la comprobación vio sin aplicar no explican la decisión: pesan poco.
+    const noAplicadas = (generation?.ficha_checks?.comprobadas ?? [])
+      .filter((item) => item.estado === "sigue")
+      .map((item) => item.id);
+    recordGenerationOutcome(decision, fichas, selectedEditorAction.value, noAplicadas).catch(() => undefined);
   }
 
   function handleUseGeneratedText() {
@@ -2070,6 +2075,8 @@ function AppShell({
             profileCards={profileKnowledgeCards}
           />
         )}
+
+        {active === "preferences" && <LineaEditorial />}
 
         {active === "preferences" && (
           <section className="panel editorGrid">

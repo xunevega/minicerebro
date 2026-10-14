@@ -109,6 +109,7 @@ from app.generation.service import GenerationUnavailable, rewrite_with_profile
 from app.oficio import load_fichas, oficio_block
 from app.oficio import store as oficio_store
 from app.oficio.comprobacion import check_application
+from app.oficio.aprendizaje import build_line, line_prompt
 from app.oficio.diagnostico import select_with_diagnosis
 from app.oficio.mejoras import run_improvements, run_in_background
 from app.review.service import ReviewTooLong, review_blocks
@@ -1186,6 +1187,7 @@ def _oficio_notes(
     """Fichas de oficio elegidas por diagnóstico (docs/POLITICA_CONOCIMIENTO.md)."""
     preferences = repository.oficio_stances(profile_id) if repository is not None and profile_id else None
     fichas = oficio_store.active_fichas(repository.session) if repository is not None else load_fichas()
+    linea = build_line(repository.session, profile_id) if repository is not None else None
     selected, diagnosis = select_with_diagnosis(
         repository.session if repository is not None else None,
         payload.text,
@@ -1195,6 +1197,7 @@ def _oficio_notes(
         preferences=preferences,
         instruction=payload.user_instruction,
         fichas=fichas,
+        learned=linea.pesos() if linea is not None else None,
     )
     if repository is not None:
         # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.
@@ -1217,7 +1220,11 @@ def _oficio_notes(
             },
         )
         repository.session.commit()
-    return oficio_block(selected), selected, diagnosis
+    block = oficio_block(selected)
+    line_text = line_prompt(linea) if linea is not None else ""
+    if line_text:
+        block = f"{block}\n\n{line_text}" if block else line_text
+    return block, selected, diagnosis
 
 
 def _attach_fichas(generation, selected, diagnosis, original: str, repository=None, action: str = "") -> None:
@@ -1385,6 +1392,17 @@ def oficio_propuesta_rechazar(proposal_id: str, repository: RepositoryDep, actor
     return result
 
 
+@router.get("/profile/linea-editorial")
+def profile_editorial_line(repository: RepositoryDep, actor: ActorDep) -> dict:
+    """Lo que Editados ha aprendido de tus decisiones: línea editorial y peso de cada ficha."""
+    linea = build_line(repository.session, actor.profile_id)
+    data = linea.as_dict()
+    fichas = oficio_store.active_fichas(repository.session)
+    for item in data["fichas"]:
+        item["nombre"] = fichas[item["id"]].nombre if item["id"] in fichas else item["id"]
+    return data
+
+
 @router.post("/generation/outcome")
 def generation_outcome(
     background: BackgroundTasks, repository: RepositoryDep, actor: ActorDep, payload: JsonBody
@@ -1394,12 +1412,11 @@ def generation_outcome(
     if decision not in {"accepted", "discarded"}:
         raise HTTPException(status_code=422, detail="decision debe ser accepted o discarded")
     fichas = [str(item) for item in payload.get("fichas", []) if isinstance(item, str)][:20]
-    repository.add_audit_event(
-        "generation.outcome",
-        "profile",
-        actor.profile_id,
-        {"decision": decision, "fichas": fichas, "action": str(payload.get("action", ""))[:40]},
-    )
+    record = {"decision": decision, "fichas": fichas, "action": str(payload.get("action", ""))[:40]}
+    if isinstance(payload.get("no_aplicadas"), list):
+        # Las fichas que la comprobación vio sin aplicar no explican la decisión.
+        record["no_aplicadas"] = [str(item) for item in payload["no_aplicadas"] if isinstance(item, str)][:20]
+    repository.add_audit_event("generation.outcome", "profile", actor.profile_id, record)
     repository.session.commit()
     background.add_task(run_in_background)
     return {"recorded": True}
@@ -1517,8 +1534,9 @@ def block_review(payload: BlockReviewInput, repository: RepositoryDep, actor: Ac
         actor.profile_id,
     )
     started_at = perf_counter()
+    apertura = build_line(repository.session, actor.profile_id).apertura
     try:
-        result = review_blocks(payload, knowledge_notes=notes)
+        result = review_blocks(payload, knowledge_notes=notes, apertura=apertura)
     except ReviewTooLong as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
     except GenerationUnavailable as exc:
@@ -1557,4 +1575,4 @@ def record_review_choices(payload: ReviewChoicesInput, repository: RepositoryDep
         },
     )
     repository.session.commit()
-    return {"recorded": len(payload.choices), "learning_applied": False}
+    return {"recorded": len(payload.choices), "learning_applied": True}

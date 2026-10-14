@@ -91,7 +91,7 @@ def test_long_texts_get_a_probe():
 def test_review_maps_blocks_and_reveals_only_real_probes(monkeypatch):
     captured: dict = {}
     _stub_openai(monkeypatch, _model_output(), captured)
-    monkeypatch.setattr(review, "choose_probes", lambda count, rng: {1: ("trampa", "dequeismo")})
+    monkeypatch.setattr(review, "choose_probes", lambda count, rng, apertura=None: {1: ("trampa", "dequeismo")})
 
     result = review.review_blocks(BlockReviewInput(text=TEXT, intensity=500))
 
