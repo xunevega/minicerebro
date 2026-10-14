@@ -687,6 +687,7 @@ export type TextRevisionResult = {
   stable_knowledge_mutated: boolean;
   profile_mutated: boolean;
   query_result: KnowledgeQueryResult | null;
+  diagnosis?: OficioDiagnosis | null;
 };
 
 export type RevisionFeedbackStance =
@@ -872,6 +873,8 @@ export type GenerationResult = {
   provider: string;
   used_fichas?: string[];
   used_ficha_ids?: string[];
+  diagnosis?: OficioDiagnosis | null;
+  ficha_checks?: OficioFichaChecks | null;
 };
 
 export type LabOverride = {
@@ -1101,3 +1104,20 @@ export type OficioPropuesta = {
   created_at: string;
   decided_at: string | null;
 };
+
+export type OficioDiagnosisItem = { id: string; nombre: string; fragmento: string };
+
+export type OficioDiagnosis = {
+  estado: "hecho" | "cache" | "no_disponible";
+  descartadas: OficioDiagnosisItem[];
+  anadidas: OficioDiagnosisItem[];
+};
+
+export type OficioFichaCheck = {
+  id: string;
+  nombre: string;
+  estado: "aplicada" | "en_parte" | "sigue";
+  detalle: string;
+};
+
+export type OficioFichaChecks = { comprobadas: OficioFichaCheck[]; sin_comprobacion: number };

@@ -838,6 +838,7 @@ class TextRevisionResult(BaseModel):
     stable_knowledge_mutated: bool = False
     profile_mutated: bool = False
     query_result: KnowledgeQueryResult | None = None
+    diagnosis: dict | None = None
 
 
 class RevisionFeedbackInput(BaseModel):
@@ -916,6 +917,10 @@ class GenerationResult(BaseModel):
     provider: str = "deterministic"
     used_fichas: list[str] = Field(default_factory=list)
     used_ficha_ids: list[str] = Field(default_factory=list)
+    # Diagnóstico previo (señales descartadas, problemas sin patrón) y comprobación
+    # de si la propuesta aplicó las fichas que detectaron un problema.
+    diagnosis: dict | None = None
+    ficha_checks: dict | None = None
 
 
 class BlockReviewInput(BaseModel):

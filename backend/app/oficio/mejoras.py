@@ -8,7 +8,8 @@ Indicios que se miran:
 - la ficha se ha descartado o marcado «con reparos» desde «Leer» o la Biblioteca;
 - las propuestas de Escribir en las que intervino se descartan mucho más que se aceptan;
 - su señal salta en la mayoría de los textos (demasiado amplia);
-- nunca entra en ningún texto y no tiene señal ni métrica (no se activa).
+- nunca entra en ningún texto y no tiene señal ni métrica (no se activa);
+- el modelo la recibe pero el problema sigue en la propuesta (no se entiende o no se aplica).
 """
 
 from __future__ import annotations
@@ -36,6 +37,8 @@ UMBRAL_DESCARTE = 0.6
 MIN_SELECCIONES = 40
 UMBRAL_DEMASIADO_AMPLIA = 0.6
 MIN_SELECCIONES_SIN_USO = 60
+MIN_COMPROBACIONES = 5
+UMBRAL_NO_APLICADA = 0.6
 INTERVALO_SEGUNDO_PLANO = 600
 
 _last_background_run = 0.0
@@ -62,7 +65,9 @@ def gather_evidence(session: Session) -> dict[str, dict]:
     epoch = datetime.min.replace(tzinfo=UTC)
     events = session.scalars(
         select(AuditEventRecord)
-        .where(AuditEventRecord.event_type.in_(["oficio.fichas.selected", "generation.outcome"]))
+        .where(
+            AuditEventRecord.event_type.in_(["oficio.fichas.selected", "generation.outcome", "oficio.fichas.checked"])
+        )
         .order_by(AuditEventRecord.id.desc())
         .limit(EVENTOS_RECIENTES)
     ).all()
@@ -70,6 +75,7 @@ def gather_evidence(session: Session) -> dict[str, dict]:
     selected = Counter()
     by_signal = Counter()
     outcomes: dict[str, Counter] = defaultdict(Counter)
+    applied: dict[str, Counter] = defaultdict(Counter)
     for event in events:
         payload = event.payload or {}
         if event.event_type == "oficio.fichas.selected":
@@ -78,6 +84,11 @@ def gather_evidence(session: Session) -> dict[str, dict]:
                 selected[item.get("id")] += 1
                 if "señal en el texto" in item.get("motivos", []):
                     by_signal[item.get("id")] += 1
+        elif event.event_type == "oficio.fichas.checked":
+            for item in payload.get("fichas", []):
+                ficha_id = item.get("id")
+                if _aware(event.created_at) > last.get(ficha_id, epoch):
+                    applied[ficha_id][item.get("estado")] += 1
         else:
             decision = payload.get("decision")
             for ficha_id in payload.get("fichas", []):
@@ -94,6 +105,7 @@ def gather_evidence(session: Session) -> dict[str, dict]:
         "seleccionada": dict(selected),
         "por_senal": dict(by_signal),
         "resultados": {key: dict(value) for key, value in outcomes.items()},
+        "aplicacion": {key: dict(value) for key, value in applied.items()},
         "posturas": dict(stances),
     }
 
@@ -137,6 +149,22 @@ def find_candidates(session: Session, evidence: dict | None = None) -> list[dict
                     "tipo": "revisar",
                     "motivo": f"Las propuestas en las que intervino se descartaron {counts.get('discarded', 0)} de {total} veces.",
                     "evidencia": {"resultados": counts},
+                })
+
+    for ficha_id, counts in evidence.get("aplicacion", {}).items():
+        total_checks = sum(counts.values())
+        if ficha_id in fichas and ficha_id not in blocked and total_checks >= MIN_COMPROBACIONES:
+            still = counts.get("sigue", 0)
+            if still / total_checks >= UMBRAL_NO_APLICADA:
+                candidates.append({
+                    "ficha_id": ficha_id,
+                    "tipo": "revisar",
+                    "motivo": (
+                        f"El modelo la recibió pero el problema siguió en la propuesta {still} de "
+                        f"{total_checks} veces: la regla o el ejemplo quizá no son claros, o la señal "
+                        "salta en casos que no son errores."
+                    ),
+                    "evidencia": {"aplicacion": counts},
                 })
 
     total = evidence["selecciones"]

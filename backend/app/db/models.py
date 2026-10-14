@@ -246,6 +246,16 @@ class OficioPropuestaRecord(Base):
     decided_by: Mapped[str] = mapped_column(String(200), nullable=False, default="")
 
 
+class OficioDiagnosticoRecord(Base):
+    """Caché del diagnóstico previo: el mismo texto con las mismas opciones da lo mismo."""
+
+    __tablename__ = "oficio_diagnosticos"
+
+    clave: Mapped[str] = mapped_column(String(64), primary_key=True)
+    resultado: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class KnowledgeVersionRecord(Base):
     __tablename__ = "knowledge_versions"
 

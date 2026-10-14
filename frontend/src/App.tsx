@@ -155,6 +155,7 @@ import {
   type LibraryAreaId,
 } from "./library";
 import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
+import { DiagnosisNote, FichasDetalle } from "./FichasDetalle";
 import { OficioLibrary } from "./OficioLibrary";
 
 const tabs = [
@@ -2469,9 +2470,11 @@ function AppShell({
                       <summary>Ver detalles</summary>
                       <p className="note">{generationDetailsNote}</p>
                       <List title="Aspectos tenidos en cuenta" items={generationUsedAspects} />
-                      {generationUsedFichas.length ? (
-                        <List title="Fichas de oficio aplicadas" items={generationUsedFichas} />
-                      ) : null}
+                      <FichasDetalle
+                        checks={generation.ficha_checks}
+                        diagnosis={generation.diagnosis}
+                        usedFichas={generationUsedFichas}
+                      />
                     </details>
                   </>
                 ) : (
@@ -2540,9 +2543,11 @@ function AppShell({
                       <summary>Ver detalles</summary>
                       <p className="note">{generationDetailsNote}</p>
                       <List title="Aspectos tenidos en cuenta" items={generationUsedAspects} />
-                      {generationUsedFichas.length ? (
-                        <List title="Fichas de oficio aplicadas" items={generationUsedFichas} />
-                      ) : null}
+                      <FichasDetalle
+                        checks={generation.ficha_checks}
+                        diagnosis={generation.diagnosis}
+                        usedFichas={generationUsedFichas}
+                      />
                     </details>
                   </>
                 )
@@ -2562,6 +2567,7 @@ function AppShell({
                     Fichas de oficio elegidas por lo que aparece en tu texto. Decide en cada una: lo que
                     marques se guarda en tu criterio y cambia qué fichas te propone Editados.
                   </p>
+                  <DiagnosisNote diagnosis={textRevision.diagnosis} />
                   <div className="metricGrid">
                     <Metric label="Fichas" value={textRevision.steps.length} />
                     <Metric

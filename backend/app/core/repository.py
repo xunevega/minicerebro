@@ -108,7 +108,7 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
-from app.oficio import select_fichas
+from app.oficio.diagnostico import select_with_diagnosis
 from app.oficio.store import active_fichas
 from app.knowledge.service import (
     evaluate_ingestion_readiness,
@@ -2515,7 +2515,8 @@ class Repository:
         if self.session.get(ProfileRecord, profile_id) is None:
             raise KeyError(profile_id)
         text_profile = self._text_profile(payload.text)
-        selected = select_fichas(
+        selected, diagnosis = select_with_diagnosis(
+            self.session,
             payload.text,
             "read",
             intention=payload.intention,
@@ -2542,6 +2543,7 @@ class Repository:
             stable_knowledge_mutated=False,
             profile_mutated=False,
             query_result=None,
+            diagnosis=diagnosis,
         )
         self.add_audit_event(
             "text.revision.executed",

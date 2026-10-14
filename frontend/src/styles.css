@@ -2490,3 +2490,23 @@ textarea + .primaryButton {
   font-weight: 700;
   padding: 0 6px;
 }
+
+.fichasDetalle,
+.fichasDiagnosis {
+  display: grid;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.fichasDetalle ul,
+.fichasDiagnosis ul {
+  display: grid;
+  gap: 4px;
+  margin: 0;
+  padding-left: 18px;
+}
+
+.fichaChecks {
+  list-style: none;
+  padding-left: 0 !important;
+}

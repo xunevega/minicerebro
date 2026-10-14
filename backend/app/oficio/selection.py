@@ -15,6 +15,9 @@ from itertools import pairwise
 from app.oficio.catalog import Ficha, load_fichas
 
 MAX_FICHAS = 12
+# Los problemas confirmados en el texto no se quedan fuera por el tope: se añaden
+# detrás de las elegidas, como mucho estos más.
+MAX_PROBLEMAS_EXTRA = 6
 MAX_FRAGMENTOS = 2
 LONG_SENTENCE_WORDS = 45
 REPETITION_WINDOW = 12
@@ -54,6 +57,18 @@ class SelectedFicha:
     motivos: list[str] = field(default_factory=list)
     fragmentos: list[str] = field(default_factory=list)
     peso: float = 0.0
+    # Hay un fallo concreto en el texto: señal de error (no descartada) o diagnóstico.
+    problema: bool = False
+    # Límites de fichas no elegidas que prevalecen sobre esta o chocan con ella.
+    limites: list[str] = field(default_factory=list)
+
+
+@dataclass
+class Diagnosis:
+    """Resultado del diagnóstico previo: señales falsas y problemas sin patrón."""
+
+    descartadas: set[str] = field(default_factory=set)
+    anadidas: dict[str, str] = field(default_factory=dict)
 
 
 def _canon(value: str) -> str:
@@ -374,6 +389,7 @@ def select_fichas(
     preferences: dict[str, str] | None = None,
     instruction: str = "",
     fichas: dict[str, Ficha] | None = None,
+    diagnosis: Diagnosis | None = None,
 ) -> list[SelectedFicha]:
     action = ACCION_EQUIVALENTE.get(action, action)
     intention = MIRADA_EQUIVALENTE.get(intention, intention)
@@ -399,11 +415,18 @@ def select_fichas(
         if genre_specific and genre.strip() and not (genre_ok or instruction_ok):
             continue
 
-        error_hits = _signal_hits(ficha, text, "error")
+        discarded = diagnosis is not None and ficha.id in diagnosis.descartadas
+        error_hits = [] if discarded else _signal_hits(ficha, text, "error")
         signal_errors = bool(error_hits)
-        for metric in ficha.metricas:
-            error_hits.extend(METRIC_FUNCTIONS[metric](text))
-        watch_hits = _signal_hits(ficha, text, "vigilancia")
+        if not discarded:
+            for metric in ficha.metricas:
+                error_hits.extend(METRIC_FUNCTIONS[metric](text))
+        watch_hits = [] if discarded else _signal_hits(ficha, text, "vigilancia")
+        diagnosed = diagnosis.anadidas.get(ficha.id) if diagnosis is not None else None
+        if diagnosed is not None:
+            add(ficha, "diagnóstico del texto", 4.0, [diagnosed] if diagnosed else [])
+            chosen[ficha.id].problema = True
+            signal_errors = True
         if genre_specific and not (genre_ok or instruction_ok):
             # Sin el género declarado, una ficha de género solo entra si su señal de error
             # aparece en el texto; las métricas y los pasajes que vigilar no bastan.
@@ -413,6 +436,7 @@ def select_fichas(
         hits = error_hits + watch_hits
         if error_hits:
             add(ficha, "señal en el texto", 3.0 + min(len(error_hits), 3), error_hits)
+            chosen[ficha.id].problema = True
         if watch_hits:
             # Un sitio que vigilar pesa menos que un fallo probable, salvo que la ficha
             # proteja el sentido y la acción vaya a reescribir el texto.
@@ -456,7 +480,37 @@ def select_fichas(
             item.motivos.append("te sirvió antes")
 
     ranked = sorted(chosen.values(), key=lambda item: (-item.peso, item.ficha.id))
-    return ranked[:limit]
+    selected = ranked[:limit]
+    left_out = [item for item in ranked[limit:] if item.problema]
+    selected.extend(left_out[:MAX_PROBLEMAS_EXTRA])
+    _attach_limits(selected, fichas, action)
+    return selected
+
+
+def _attach_limits(selected: list[SelectedFicha], fichas: dict[str, Ficha], action: str) -> None:
+    """Las prioridades cuentan aunque la otra ficha no se haya elegido.
+
+    Si una ficha ausente prevalece sobre una elegida, o choca con ella, su regla viaja
+    como límite de la elegida, sin ocupar plaza.
+    """
+    ids = {item.ficha.id for item in selected}
+    for item in selected:
+        item.limites = []
+        for other in fichas.values():
+            if other.id in ids or not _allowed(other, action):
+                continue
+            for relacion in other.relaciones:
+                if relacion.ficha != item.ficha.id or relacion.tipo == "requiere":
+                    continue
+                verbo = "prevalece sobre esta" if relacion.tipo == "prioridad_sobre" else "choca con esta"
+                criterio = f" Criterio: {relacion.criterio}" if relacion.criterio else ""
+                item.limites.append(f"«{other.nombre}» {verbo}: {other.regla}{criterio}")
+        for relacion in item.ficha.relaciones:
+            other = fichas.get(relacion.ficha)
+            if relacion.tipo != "conflicto_con" or other is None or other.id in ids:
+                continue
+            criterio = f" Criterio: {relacion.criterio}" if relacion.criterio else ""
+            item.limites.append(f"Choca con «{other.nombre}»: {other.regla}{criterio}")
 
 
 def _priorities(selected: list[SelectedFicha]) -> list[str]:
@@ -499,6 +553,8 @@ def oficio_block(selected: list[SelectedFicha]) -> str:
         ]
         if item.fragmentos:
             lines.append("En este texto: " + " | ".join(f"«{fragment}»" for fragment in item.fragmentos))
+        for limite in item.limites:
+            lines.append(f"Límite: {limite}")
         parts.append("\n".join(lines))
     priorities = _priorities(selected)
     parts.append(

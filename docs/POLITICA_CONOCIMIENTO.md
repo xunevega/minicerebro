@@ -87,13 +87,33 @@ impersonal» a un ensayo porque decía «Haber sido elegido»). Se eligen así:
    fichas de tradición o de género que nombra. Sin género declarado, una ficha de
    género solo entra si su señal de error aparece en el texto.
 4. **Relaciones:** las fichas requeridas por las elegidas entran también, y las
-   prioridades entre las elegidas se envían al modelo.
+   prioridades entre las elegidas se envían al modelo. Si una ficha que no se ha
+   elegido prevalece sobre una elegida o choca con ella, su regla viaja como
+   límite de la elegida, sin ocupar plaza: una prioridad nunca se pierde porque
+   la otra ficha no haya entrado.
+5. **Diagnóstico con el modelo:** los patrones solo proponen candidatas. Antes de
+   editar o leer, el modelo lee el texto entero y decide qué candidatas son de
+   verdad un caso de su ficha (las demás se descartan) y qué problemas hay que
+   ningún patrón detecta, con el fragmento literal. Solo se acepta lo
+   comprobable: fichas que existen y fragmentos que están en el texto. El
+   resultado se guarda en caché, así que el mismo texto con las mismas opciones
+   da siempre las mismas fichas. Si el modelo no está disponible, se elige solo
+   por patrones y se dice.
+6. **Tope:** entran como mucho 12 fichas (7 en «Leer»), pero un problema
+   confirmado en el texto nunca se queda fuera por el tope: se añade detrás.
 
 ## 5. Qué recibe el modelo
 
-De cada ficha elegida: regla, cuándo aplica, cuándo no, un ejemplo y, si la
-seleccionó una señal, el fragmento del texto. Además, las prioridades entre las
-fichas elegidas. Nunca solo el nombre y una definición.
+De cada ficha elegida: regla, cuándo aplica, cuándo no, un ejemplo, el
+fragmento del texto si lo hay y los límites de otras fichas. Además, las
+prioridades entre las fichas elegidas. Nunca solo el nombre y una definición.
+
+Después de generar se comprueba si la propuesta aplicó las fichas que detectaron
+un problema: se vuelven a pasar sus señales y métricas sobre la propuesta, o se
+mira si el fragmento señalado sigue igual. El resultado (aplicada, en parte, sin
+aplicar) se ve en «Ver detalles». Las fichas que son criterios generales no se
+pueden medir así y se cuentan aparte, sin darlas por aplicadas. Si una ficha
+sigue sin aplicarse en la mayoría de los textos, Editados propone revisarla.
 
 ## 6. Las fichas se editan y se mejoran
 
@@ -115,7 +135,9 @@ la versión vigente de cada ficha.
     60 % de los casos, con un mínimo de 4;
   - su señal salta en al menos el 60 % de los textos, con un mínimo de 40;
   - no ha entrado en ninguno de los últimos 60 textos y no tiene ni señal ni
-    métrica.
+    métrica;
+  - el modelo la recibe, pero el problema sigue en la propuesta en al menos el
+    60 % de los casos, con un mínimo de 5.
 
   Para cada una redacta una versión revisada, la valida igual que una edición
   manual y la deja pendiente. **Nada cambia sin aprobación**: el autor la acepta,
