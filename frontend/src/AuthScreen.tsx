@@ -46,7 +46,7 @@ export function AuthScreen({ onReady }: AuthScreenProps) {
         Saltar al formulario
       </a>
       <section className="authCard" id="auth-form">
-        <p className="brandWord">Editados</p>
+        <img className="authLogo" src="/editados-logo-web.png" alt="Editados" width="960" height="299" />
         <h1>{mode === "login" ? "Entra a tu cuenta" : "Crea tu cuenta"}</h1>
         <p>
           Cada persona tiene su criterio, su historial y sus textos. Nadie más

@@ -124,9 +124,8 @@ textarea::placeholder {
 
 .brandLogo {
   display: block;
-  height: 124px;
-  object-fit: contain;
-  object-position: left center;
+  height: auto;
+  max-width: 100%;
   width: 360px;
 }
 
@@ -191,6 +190,14 @@ a.tab {
 .authCard {
   margin: 0 auto;
   max-width: 28rem;
+}
+
+.authLogo {
+  display: block;
+  height: auto;
+  margin: 0 0 20px;
+  max-width: 100%;
+  width: 260px;
 }
 
 .brandWord {
@@ -1911,7 +1918,6 @@ textarea + .primaryButton {
   }
 
   .brandLogo {
-    height: 74px;
     width: 214px;
   }
 

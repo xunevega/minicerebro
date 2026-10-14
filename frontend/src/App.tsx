@@ -1958,7 +1958,7 @@ function AppShell({
             window.history.pushState({}, "", "/escribir" + window.location.search);
             setActive("editor");
           }}>
-            <img className="brandLogo" src="/editados-logo.svg" alt="Editados" />
+            <img className="brandLogo" src="/editados-logo-web.png" alt="Editados" width="960" height="299" />
           </a>
         </div>
         <nav>
