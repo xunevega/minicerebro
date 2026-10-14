@@ -169,4 +169,25 @@ palabras para el modelo, y la proporción de replanteamientos en Revisar. Las
 trampas no cambian con la línea, porque son lo que mide. Todo se ve en «Mi
 criterio», en «Tu línea editorial».
 
+## 8. La ficha del autor
+
+Cada cuenta (correo y contraseña) tiene su perfil, y cada perfil tiene una ficha
+del autor guardada en la base de datos con historial de versiones. Reúne:
+
+- lo que el autor escribe de sí mismo: cómo escribe, qué le gusta, qué evita y
+  notas;
+- sus gustos de «Mi criterio» con sus propias palabras, los confirmados y las
+  interpretaciones rechazadas;
+- sus posturas sobre fichas de oficio;
+- su línea editorial aprendida;
+- sus rasgos de estilo en palabras, solo los que salen de él y no los valores de
+  partida.
+
+La ficha compilada se envía al modelo en Escribir, Revisar y el diagnóstico.
+Manda sobre las preferencias generales, nunca sobre la norma ni sobre los
+matices protegidos. Un gusto sin palabra clave reconocible ya no se fuerza a un
+rasgo: llega al modelo tal cual. Ninguna cuenta ve la ficha de otra. Las fichas
+de oficio son comunes a todas las cuentas; lo personal está en la ficha del
+autor.
+
 Decidido el 14 de octubre de 2026.

@@ -505,11 +505,15 @@ def _local_rewrite_if_safer_than_noop(
 
 
 def _profile_prompt(variables: list[ScoreVariable]) -> str:
+    """Rasgos de estilo en palabras: el modelo no sabe qué significa «640»."""
+    from app.autor.ficha import RASGOS, _nivel
+
     lines = [
-        f"- {item.key}: efectivo={item.effective_value}, confianza={item.confidence:.2f}, contexto={item.context}"
+        f"- {RASGOS.get(item.key, item.label)}: {_nivel(item.effective_value)}"
+        f" (seguridad {round(item.confidence * 100)} %)"
         for item in sorted(variables, key=lambda variable: variable.effective_value, reverse=True)
     ]
-    return "\n".join(lines)
+    return "\n".join(lines) or "- Sin rasgos todavía."
 
 
 def _knowledge_notes_contract(notes: str | list[tuple[str, str]]) -> str:
@@ -625,7 +629,7 @@ def rewrite_with_openai(
     model = getenv("OPENAI_MODEL", "gpt-5-mini")
     notes_block = _knowledge_notes_contract(knowledge_notes or [])
     prompt = f"""
-Eres Minicerebro V1, una app especializada en escritura en lengua espanola.
+Eres el editor de Editados, un asistente de escritura en español.
 Accion: {payload.action}
 Contexto: {payload.context}
 Tipo de texto declarado por el autor: {payload.genre.strip() or "no declarado"}
@@ -635,13 +639,13 @@ Intensidad: {payload.intensity}/1000
 {_user_instruction_contract(payload)}
 Terminos protegidos: {", ".join(payload.protected_terms) or "ninguno"}
 
-Perfil efectivo:
+Rasgos de estilo del autor:
 {_profile_prompt(active)}
 {notes_block}
 
 Reglas:
-- No aprendas nada.
-- No afirmes que has actualizado el perfil.
+- No digas que has aprendido algo ni que has actualizado el perfil.
+- Sigue la ficha del autor si la hay: manda sobre las preferencias generales, nunca sobre la norma ni sobre los matices.
 - Respeta los terminos protegidos literalmente.
 - Aplica las fichas de oficio como criterio de editor, respetando sus prioridades; no las menciones ni las cites en la salida.
 - Devuelve solo el texto resultante, sin explicaciones externas.

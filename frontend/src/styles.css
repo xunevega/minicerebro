@@ -2523,3 +2523,18 @@ textarea + .primaryButton {
   margin: 0;
   padding-left: 18px;
 }
+
+.fichaAutor {
+  display: grid;
+  gap: 12px;
+  margin-bottom: 24px;
+}
+
+.fichaAutorPrompt {
+  background: var(--soft);
+  font-family: inherit;
+  font-size: 15px;
+  padding: 12px 14px;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
