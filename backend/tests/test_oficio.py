@@ -145,3 +145,13 @@ def test_new_branches_are_covered():
 def test_instruction_activates_tradition_fichas():
     selected = [item.ficha.id for item in select_fichas("El concejal entró.", "rewrite", instruction="hazlo más esperpéntico")]
     assert "esperpento" in selected
+
+
+def test_regimen_columna_y_autores_se_activan():
+    ids = lambda items: [item.ficha.id for item in items]
+    assert "regimen-preposicional" in ids(select_fichas("El método consiste de tres pasos.", "correction"))
+    assert "regimen-preposicional" not in ids(select_fichas("El método consiste en tres pasos.", "correction"))
+    assert "columna" in ids(select_fichas("El autobús no llega.", "rewrite", genre="columna"))
+    assert "columna" not in ids(select_fichas("El autobús no llega.", "rewrite", genre="cuento"))
+    assert "iceberg" in ids(select_fichas("Un relato.", "rewrite", instruction="más a lo Hemingway"))
+    assert "todo-lo-que-aparece-sirve" in ids(select_fichas("Un relato.", "rewrite", instruction="a lo Chéjov"))

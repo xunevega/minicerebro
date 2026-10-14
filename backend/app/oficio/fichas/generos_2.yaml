@@ -542,3 +542,34 @@
   relaciones:
     - tipo: requiere
       ficha: ritmo-de-frase
+
+- id: columna
+  rama: generos
+  nombre: Columna de opinión
+  regla: >-
+    Una columna defiende una sola idea en poco espacio (entre 400 y 800 palabras) con voz
+    propia y firmada. Arranca con un hecho, una escena o una frase que engancha; dice
+    pronto qué piensa el autor; la sostiene con un ejemplo o un dato concreto, no con una
+    lista de razones; y cierra con una vuelta de tuerca o una imagen, no con un resumen.
+  aplica: >-
+    Columnas, artículos de opinión y tribunas en prensa, blogs o boletines.
+  no_aplica: >-
+    Editoriales (sin firma ni primera persona), ensayos largos que desarrollan varias
+    ideas y reportajes informativos.
+  ejemplos:
+    - mal: "En este artículo voy a hablar de varios problemas del transporte público, como los horarios, los precios y la limpieza, y al final daré mi opinión."
+      bien: "El autobús de las 7.40 pasó ayer a las 8.05. Nadie en la parada se sorprendió, y eso es lo grave: hemos dejado de esperar que el servicio funcione."
+      porque: "Empieza en una escena, dice la idea en la segunda frase y elige un solo problema."
+  fuente:
+    obra: "Criterio de Editados"
+    localizador: "géneros periodísticos: columna"
+  generos: [columna, opinión, opinion, artículo, articulo, tribuna, artículo de opinión]
+  relaciones:
+    - tipo: requiere
+      ficha: argumentacion
+    - tipo: requiere
+      ficha: ejemplo-concreto
+    - tipo: requiere
+      ficha: cierre-sin-resumen
+    - tipo: requiere
+      ficha: cortar-el-principio
