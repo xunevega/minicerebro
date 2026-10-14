@@ -95,4 +95,34 @@ De cada ficha elegida: regla, cuándo aplica, cuándo no, un ejemplo y, si la
 seleccionó una señal, el fragmento del texto. Además, las prioridades entre las
 fichas elegidas. Nunca solo el nombre y una definición.
 
+## 6. Las fichas se editan y se mejoran
+
+Los archivos YAML del repositorio son la versión original. Las ediciones se
+guardan en la base de datos y prevalecen sobre el original. Editados usa siempre
+la versión vigente de cada ficha.
+
+- **Edición:** desde la Biblioteca, quien administra el conocimiento puede editar
+  una ficha, crear una nueva y desactivarla o reactivarla. Cada cambio exige un
+  motivo y queda en el historial con fecha y autor. Cualquier versión anterior se
+  puede restaurar.
+- **Validación al guardar:** una ficha solo se guarda si cumple el formato, sus
+  relaciones apuntan a fichas activas y cada señal de error salta en su primer
+  ejemplo malo y en ningún ejemplo bueno, ni suyo ni de otra ficha. No se puede
+  desactivar una ficha de la que dependen otras.
+- **Propuestas de mejora:** Editados busca fichas con indicios de fallar:
+  - el autor la ha descartado o marcado con reparos;
+  - las propuestas de Escribir en las que intervino se descartan en al menos el
+    60 % de los casos, con un mínimo de 4;
+  - su señal salta en al menos el 60 % de los textos, con un mínimo de 40;
+  - no ha entrado en ninguno de los últimos 60 textos y no tiene ni señal ni
+    métrica.
+
+  Para cada una redacta una versión revisada, la valida igual que una edición
+  manual y la deja pendiente. **Nada cambia sin aprobación**: el autor la acepta,
+  la edita antes de aceptarla o la rechaza. Una ficha rechazada no vuelve a
+  proponerse durante 14 días, y el uso anterior a una decisión no cuenta para la
+  siguiente.
+- **Qué se registra:** aceptar o descartar una propuesta de Escribir guarda qué
+  fichas intervinieron y la decisión, nunca el texto.
+
 Decidido el 14 de octubre de 2026.

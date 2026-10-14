@@ -201,6 +201,51 @@ class ProfileOficioFichaRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class OficioFichaRecord(Base):
+    """Versión vigente de una ficha de oficio editada o creada desde la app.
+
+    Las fichas del repositorio (YAML) son la semilla; lo que hay aquí las sustituye.
+    """
+
+    __tablename__ = "oficio_fichas"
+
+    id: Mapped[str] = mapped_column(String(80), primary_key=True)
+    data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    origen: Mapped[str] = mapped_column(String(20), nullable=False)  # editada | nueva
+    activa: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    updated_by: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class OficioFichaVersionRecord(Base):
+    __tablename__ = "oficio_ficha_versiones"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    ficha_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    activa: Mapped[bool] = mapped_column(Boolean, nullable=False, default=True)
+    motivo: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    autor: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class OficioPropuestaRecord(Base):
+    __tablename__ = "oficio_propuestas"
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    ficha_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    tipo: Mapped[str] = mapped_column(String(40), nullable=False)
+    data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    motivo: Mapped[str] = mapped_column(Text, nullable=False)
+    evidencia: Mapped[dict] = mapped_column(JSON, nullable=False, default=dict)
+    estado: Mapped[str] = mapped_column(String(20), nullable=False, index=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    decided_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    decided_by: Mapped[str] = mapped_column(String(200), nullable=False, default="")
+
+
 class KnowledgeVersionRecord(Base):
     __tablename__ = "knowledge_versions"
 

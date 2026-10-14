@@ -108,7 +108,8 @@ from app.db.models import (
     ProfileRecord,
     ScoreVariableRecord,
 )
-from app.oficio import load_fichas, select_fichas
+from app.oficio import select_fichas
+from app.oficio.store import active_fichas
 from app.knowledge.service import (
     evaluate_ingestion_readiness,
     evaluate_publication_readiness,
@@ -2521,6 +2522,7 @@ class Repository:
             genre=payload.genre,
             preferences=self.oficio_stances(profile_id),
             limit=7,
+            fichas=active_fichas(self.session),
         )
         steps = [revision_step_from_ficha(item) for item in selected]
         # Primero lo que el texto muestra; después las comprobaciones de base.
@@ -2965,7 +2967,7 @@ class Repository:
         if profile is None:
             raise KeyError(profile_id)
         if payload.knowledge_version == OFICIO_VERSION:
-            if card_id not in load_fichas():
+            if card_id not in active_fichas(self.session):
                 raise KeyError(card_id)
         else:
             if self.session.get(KnowledgeVersionRecord, payload.knowledge_version) is None:

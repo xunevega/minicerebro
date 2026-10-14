@@ -4,7 +4,7 @@ from time import perf_counter
 from typing import Annotated
 from uuid import UUID
 
-from fastapi import APIRouter, Depends, HTTPException, Request
+from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Request
 
 from app.acceptance.service import v1_acceptance_criteria
 from app.api.deps import get_actor, get_repository, resolve_profile_id
@@ -106,7 +106,9 @@ from app.core.security import (
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import GenerationUnavailable, rewrite_with_profile
-from app.oficio import load_fichas, oficio_block, select_fichas
+from app.oficio import oficio_block, select_fichas
+from app.oficio import store as oficio_store
+from app.oficio.mejoras import run_improvements, run_in_background
 from app.review.service import ReviewTooLong, review_blocks
 from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
@@ -964,9 +966,13 @@ def revision_feedback_default_profile(
     payload: RevisionFeedbackInput,
     repository: RepositoryDep,
     actor: ActorDep,
+    background: BackgroundTasks,
 ) -> RevisionFeedbackResult:
     try:
-        return repository.record_revision_feedback(actor.profile_id, card_id, payload)
+        result = repository.record_revision_feedback(actor.profile_id, card_id, payload)
+        if payload.knowledge_version == "oficio":
+            background.add_task(run_in_background)
+        return result
     except KeyError as exc:
         raise HTTPException(status_code=404, detail="Profile, knowledge card or version not found") from exc
 
@@ -1184,6 +1190,7 @@ def _oficio_notes(
         genre=payload.genre,
         preferences=preferences,
         instruction=payload.user_instruction,
+        fichas=oficio_store.active_fichas(repository.session) if repository is not None else None,
     )
     if repository is not None:
         # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.
@@ -1201,13 +1208,172 @@ def _oficio_notes(
             },
         )
         repository.session.commit()
-    return oficio_block(selected), [item.ficha.nombre for item in selected]
+    return oficio_block(selected), [(item.ficha.id, item.ficha.nombre) for item in selected]
+
+
+def _autor(actor) -> str:
+    return getattr(actor, "email", None) or "local"
+
+
+def _invalid(exc: oficio_store.FichaInvalida) -> HTTPException:
+    return HTTPException(status_code=422, detail={"problemas": exc.problems})
 
 
 @router.get("/oficio/fichas")
-def oficio_fichas() -> list[dict]:
-    """Fichas de oficio publicadas: lo que Editados sabe y envía al modelo."""
-    return [ficha.model_dump() for ficha in load_fichas().values()]
+def oficio_fichas(repository: RepositoryDep) -> list[dict]:
+    """Fichas de oficio: semilla del repositorio más lo editado en la app (también las desactivadas)."""
+    session = repository.session
+    meta = oficio_store.ficha_metadata(session)
+    return [
+        {**ficha.model_dump(), **meta.get(ficha.id, {"version": 0, "origen": "semilla", "activa": True})}
+        for ficha in oficio_store.all_fichas_for_editing(session).values()
+    ]
+
+
+@router.get("/oficio/fichas/{ficha_id}/versiones")
+def oficio_ficha_versiones(ficha_id: str, repository: RepositoryDep) -> list[dict]:
+    return oficio_store.versions(repository.session, ficha_id)
+
+
+JsonBody = Annotated[dict, Body(...)]
+OptionalJsonBody = Annotated[dict | None, Body()]
+
+
+@router.post("/oficio/fichas/validar")
+def oficio_ficha_validar(repository: RepositoryDep, payload: JsonBody) -> dict:
+    """Comprueba una ficha sin guardarla: formato, relaciones y calidad de las señales."""
+    ficha = payload.get("ficha") or {}
+    existing = None if payload.get("nueva") else ficha.get("id")
+    _, problems = oficio_store.validate_ficha(repository.session, ficha, existing)
+    return {"valida": not problems, "problemas": problems}
+
+
+@router.post("/oficio/fichas")
+def oficio_ficha_crear(repository: RepositoryDep, actor: ActorDep, payload: JsonBody) -> dict:
+    try:
+        ficha = oficio_store.save_ficha(
+            repository.session,
+            payload.get("ficha") or {},
+            motivo=str(payload.get("motivo", "")),
+            autor=_autor(actor),
+            nueva=True,
+        )
+    except oficio_store.FichaInvalida as exc:
+        repository.session.rollback()
+        raise _invalid(exc) from exc
+    repository.add_audit_event("oficio.ficha.created", "oficio_ficha", ficha.id, {"motivo": payload.get("motivo", "")})
+    repository.session.commit()
+    return ficha.model_dump()
+
+
+@router.put("/oficio/fichas/{ficha_id}")
+def oficio_ficha_editar(ficha_id: str, repository: RepositoryDep, actor: ActorDep, payload: JsonBody) -> dict:
+    try:
+        ficha = oficio_store.save_ficha(
+            repository.session,
+            {**(payload.get("ficha") or {}), "id": ficha_id},
+            motivo=str(payload.get("motivo", "")),
+            autor=_autor(actor),
+            nueva=False,
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Ficha no encontrada") from exc
+    except oficio_store.FichaInvalida as exc:
+        repository.session.rollback()
+        raise _invalid(exc) from exc
+    repository.add_audit_event("oficio.ficha.updated", "oficio_ficha", ficha.id, {"motivo": payload.get("motivo", "")})
+    repository.session.commit()
+    return ficha.model_dump()
+
+
+@router.post("/oficio/fichas/{ficha_id}/activa")
+def oficio_ficha_activa(ficha_id: str, repository: RepositoryDep, actor: ActorDep, payload: JsonBody) -> dict:
+    activa = bool(payload.get("activa", True))
+    try:
+        oficio_store.set_active(
+            repository.session, ficha_id, activa, motivo=str(payload.get("motivo", "")), autor=_autor(actor)
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Ficha no encontrada") from exc
+    except oficio_store.FichaInvalida as exc:
+        repository.session.rollback()
+        raise _invalid(exc) from exc
+    repository.add_audit_event("oficio.ficha.activation", "oficio_ficha", ficha_id, {"activa": activa})
+    repository.session.commit()
+    return {"id": ficha_id, "activa": activa}
+
+
+@router.post("/oficio/fichas/{ficha_id}/restaurar")
+def oficio_ficha_restaurar(ficha_id: str, repository: RepositoryDep, actor: ActorDep, payload: JsonBody) -> dict:
+    try:
+        ficha = oficio_store.restore_version(
+            repository.session, ficha_id, int(payload.get("version", -1)), autor=_autor(actor)
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Versión no encontrada") from exc
+    except oficio_store.FichaInvalida as exc:
+        repository.session.rollback()
+        raise _invalid(exc) from exc
+    repository.session.commit()
+    return ficha.model_dump()
+
+
+@router.get("/oficio/propuestas")
+def oficio_propuestas(repository: RepositoryDep, estado: str | None = "pendiente") -> list[dict]:
+    return oficio_store.list_proposals(repository.session, estado or None)
+
+
+@router.post("/oficio/propuestas/generar")
+def oficio_propuestas_generar(repository: RepositoryDep) -> dict:
+    """Busca ahora fichas con indicios de fallar y redacta propuestas (no aplica nada)."""
+    return run_improvements(repository.session)
+
+
+@router.post("/oficio/propuestas/{proposal_id}/aceptar")
+def oficio_propuesta_aceptar(proposal_id: str, repository: RepositoryDep, actor: ActorDep, payload: OptionalJsonBody = None) -> dict:
+    try:
+        result = oficio_store.decide_proposal(
+            repository.session, proposal_id, True, autor=_autor(actor), data=(payload or {}).get("ficha")
+        )
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Propuesta no encontrada") from exc
+    except oficio_store.FichaInvalida as exc:
+        repository.session.rollback()
+        raise _invalid(exc) from exc
+    repository.session.commit()
+    return result
+
+
+@router.post("/oficio/propuestas/{proposal_id}/rechazar")
+def oficio_propuesta_rechazar(proposal_id: str, repository: RepositoryDep, actor: ActorDep) -> dict:
+    try:
+        result = oficio_store.decide_proposal(repository.session, proposal_id, False, autor=_autor(actor))
+    except KeyError as exc:
+        raise HTTPException(status_code=404, detail="Propuesta no encontrada") from exc
+    except oficio_store.FichaInvalida as exc:
+        raise _invalid(exc) from exc
+    repository.session.commit()
+    return result
+
+
+@router.post("/generation/outcome")
+def generation_outcome(
+    background: BackgroundTasks, repository: RepositoryDep, actor: ActorDep, payload: JsonBody
+) -> dict:
+    """Propuesta aceptada o descartada en Escribir, con las fichas que la produjeron."""
+    decision = payload.get("decision")
+    if decision not in {"accepted", "discarded"}:
+        raise HTTPException(status_code=422, detail="decision debe ser accepted o discarded")
+    fichas = [str(item) for item in payload.get("fichas", []) if isinstance(item, str)][:20]
+    repository.add_audit_event(
+        "generation.outcome",
+        "profile",
+        actor.profile_id,
+        {"decision": decision, "fichas": fichas, "action": str(payload.get("action", ""))[:40]},
+    )
+    repository.session.commit()
+    background.add_task(run_in_background)
+    return {"recorded": True}
 
 
 def _generate_or_503(generation_input, variables, knowledge_notes):
@@ -1242,7 +1408,8 @@ def generation_create(
     knowledge_notes, used_fichas = _oficio_notes(generation_input, repository, actor.profile_id)
     started_at = perf_counter()
     generation = _generate_or_503(generation_input, variables, knowledge_notes)
-    generation.used_fichas = used_fichas
+    generation.used_fichas = [nombre for _id, nombre in used_fichas]
+    generation.used_ficha_ids = [ficha_id for ficha_id, _nombre in used_fichas]
     duration_ms = max(0, round((perf_counter() - started_at) * 1000))
     repository.add_generated_text(
         GeneratedText(
@@ -1284,7 +1451,8 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
     )
     knowledge_notes, used_fichas = _oficio_notes(generation_input, repository, actor.profile_id)
     generation = _generate_or_503(generation_input, simulated_variables, knowledge_notes)
-    generation.used_fichas = used_fichas
+    generation.used_fichas = [nombre for _id, nombre in used_fichas]
+    generation.used_ficha_ids = [ficha_id for ficha_id, _nombre in used_fichas]
     comparison = compare_texts(
         ComparisonInput(
             original=payload.text,
