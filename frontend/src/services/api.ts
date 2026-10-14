@@ -77,6 +77,7 @@ import type {
   TechnicalClosureCriterion,
   TechnicalRoadmapPhase,
   TextRevisionResult,
+  OficioFicha,
   V1Screen,
 } from "../types/api";
 
@@ -762,7 +763,13 @@ export function saveReviewChoices(
   });
 }
 
-export function reviewText(text: string, context: string, version = "latest", intention = "claridad") {
+export function reviewText(
+  text: string,
+  context: string,
+  version = "latest",
+  intention = "claridad",
+  genre = "",
+) {
   return request<TextRevisionResult>("/revision", {
     method: "POST",
     body: JSON.stringify({
@@ -770,8 +777,13 @@ export function reviewText(text: string, context: string, version = "latest", in
       context,
       version,
       intention,
+      genre,
     }),
   });
+}
+
+export function getOficioFichas() {
+  return request<OficioFicha[]>("/oficio/fichas");
 }
 
 export function saveRevisionFeedback(cardId: string, payload: RevisionFeedbackInput) {

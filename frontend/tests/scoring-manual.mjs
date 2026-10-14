@@ -7,7 +7,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Mi criterio" }).click();
+  await page.getByRole("link", { name: "Mi criterio" }).click();
   await page.getByLabel("Vista").selectOption("scoring");
 
   await page.getByRole("heading", { name: "Ajustes personales" }).waitFor();

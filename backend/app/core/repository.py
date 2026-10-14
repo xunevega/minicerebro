@@ -104,9 +104,11 @@ from app.db.models import (
     KnowledgeVersionSnapshotRecord,
     PreferenceRecord,
     ProfileKnowledgeCardRecord,
+    ProfileOficioFichaRecord,
     ProfileRecord,
     ScoreVariableRecord,
 )
+from app.oficio import load_fichas, select_fichas
 from app.knowledge.service import (
     evaluate_ingestion_readiness,
     evaluate_publication_readiness,
@@ -202,7 +204,42 @@ def profile_from_record(record: ProfileRecord) -> Profile:
     )
 
 
-def profile_knowledge_card_from_record(record: ProfileKnowledgeCardRecord) -> ProfileKnowledgeCard:
+OFICIO_VERSION = "oficio"
+
+
+def revision_step_from_ficha(item) -> TextRevisionStep:
+    """Paso de lectura a partir de una ficha de oficio seleccionada."""
+    ficha = item.ficha
+    ejemplo = ficha.ejemplos[0]
+    if item.fragmentos:
+        status = "review"
+        finding = "Aparece en tu texto: " + " | ".join(f"«{fragment}»" for fragment in item.fragmentos)
+    else:
+        status = "check"
+        finding = f"Comprobación de base para esta lectura. Aplica a: {ficha.aplica}"
+    return TextRevisionStep(
+        card_id=ficha.id,
+        label=ficha.nombre,
+        status=status,
+        finding=finding,
+        action=ficha.regla,
+        signals=list(item.fragmentos),
+        risks=[ficha.no_aplica],
+        confidence=0.8 if item.fragmentos else 0.5,
+        example={"mal": ejemplo.mal, "bien": ejemplo.bien, "porque": ejemplo.porque},
+        source=f"{ficha.fuente.obra} · {ficha.fuente.localizador}",
+        rama=ficha.rama,
+    )
+
+
+def _profile_card_cls(knowledge_version: str):
+    """Las posturas ante fichas de oficio van en su propia tabla (sin la base antigua)."""
+    return ProfileOficioFichaRecord if knowledge_version == OFICIO_VERSION else ProfileKnowledgeCardRecord
+
+
+def profile_knowledge_card_from_record(
+    record: ProfileKnowledgeCardRecord | ProfileOficioFichaRecord,
+) -> ProfileKnowledgeCard:
     return ProfileKnowledgeCard(
         id=UUID(record.id),
         profile_id=record.profile_id,
@@ -2386,6 +2423,8 @@ class Repository:
         return query_contract()
 
     def _resolve_knowledge_version(self, version: str) -> str:
+        if version == OFICIO_VERSION:
+            return version
         if version != "latest":
             return version
         record = self.session.scalars(
@@ -2471,30 +2510,28 @@ class Repository:
         return result
 
     def review_text(self, profile_id: str, payload: TextRevisionInput) -> TextRevisionResult:
+        """Lectura con fichas de oficio elegidas por diagnóstico del propio texto."""
         if self.session.get(ProfileRecord, profile_id) is None:
             raise KeyError(profile_id)
         text_profile = self._text_profile(payload.text)
-        query_result = self.query_knowledge(
-            KnowledgeQueryInput(
-                query=(
-                    "que le pasa a este texto revisar estructura coherencia "
-                    "parrafo frase tono limpieza final"
-                ),
-                version=payload.version,
-                limit=7,
-            )
+        selected = select_fichas(
+            payload.text,
+            "read",
+            intention=payload.intention,
+            genre=payload.genre,
+            preferences=self.oficio_stances(profile_id),
+            limit=7,
         )
-        steps = [
-            self._revision_step_from_card(card, text_profile)
-            for card in query_result.cards
-        ]
+        steps = [revision_step_from_ficha(item) for item in selected]
+        # Primero lo que el texto muestra; después las comprobaciones de base.
+        steps.sort(key=lambda step: 0 if step.status == "review" else 1)
         result = TextRevisionResult(
             profile_id=profile_id,
             context=payload.context,
             intention=payload.intention,
-            version=query_result.resolved_version,
+            version=OFICIO_VERSION,
             requested_version=payload.version,
-            status=query_result.status,
+            status="published",
             word_count=text_profile["word_count"],
             paragraph_count=text_profile["paragraph_count"],
             sentence_count=text_profile["sentence_count"],
@@ -2502,7 +2539,7 @@ class Repository:
             steps=steps,
             stable_knowledge_mutated=False,
             profile_mutated=False,
-            query_result=query_result,
+            query_result=None,
         )
         self.add_audit_event(
             "text.revision.executed",
@@ -2890,12 +2927,23 @@ class Repository:
     def list_profile_knowledge_cards(self, profile_id: str) -> list[ProfileKnowledgeCard]:
         if self.session.get(ProfileRecord, profile_id) is None:
             raise KeyError(profile_id)
-        records = self.session.scalars(
-            select(ProfileKnowledgeCardRecord)
-            .where(ProfileKnowledgeCardRecord.profile_id == profile_id)
-            .order_by(ProfileKnowledgeCardRecord.updated_at.desc())
-        ).all()
+        records = [
+            *self.session.scalars(
+                select(ProfileOficioFichaRecord).where(ProfileOficioFichaRecord.profile_id == profile_id)
+            ).all(),
+            *self.session.scalars(
+                select(ProfileKnowledgeCardRecord).where(ProfileKnowledgeCardRecord.profile_id == profile_id)
+            ).all(),
+        ]
+        records.sort(key=lambda record: record.updated_at, reverse=True)
         return [profile_knowledge_card_from_record(record) for record in records]
+
+    def oficio_stances(self, profile_id: str) -> dict[str, str]:
+        """Postura del usuario ante cada ficha de oficio que ha valorado."""
+        records = self.session.scalars(
+            select(ProfileOficioFichaRecord).where(ProfileOficioFichaRecord.profile_id == profile_id)
+        ).all()
+        return {record.card_id: record.stance for record in records}
 
     def get_profile_knowledge_card(
         self,
@@ -2916,22 +2964,26 @@ class Repository:
         profile = self.session.get(ProfileRecord, profile_id)
         if profile is None:
             raise KeyError(profile_id)
-        if self.session.get(KnowledgeVersionRecord, payload.knowledge_version) is None:
-            raise KeyError(payload.knowledge_version)
-        card = self.session.get(KnowledgeCardRecord, card_id)
-        if card is None:
-            raise KeyError(card_id)
+        if payload.knowledge_version == OFICIO_VERSION:
+            if card_id not in load_fichas():
+                raise KeyError(card_id)
+        else:
+            if self.session.get(KnowledgeVersionRecord, payload.knowledge_version) is None:
+                raise KeyError(payload.knowledge_version)
+            if self.session.get(KnowledgeCardRecord, card_id) is None:
+                raise KeyError(card_id)
+        record_cls = _profile_card_cls(payload.knowledge_version)
         record = self.session.scalar(
-            select(ProfileKnowledgeCardRecord).where(
-                ProfileKnowledgeCardRecord.profile_id == profile_id,
-                ProfileKnowledgeCardRecord.card_id == card_id,
-                ProfileKnowledgeCardRecord.knowledge_version == payload.knowledge_version,
+            select(record_cls).where(
+                record_cls.profile_id == profile_id,
+                record_cls.card_id == card_id,
+                record_cls.knowledge_version == payload.knowledge_version,
             )
         )
         now = datetime.now(UTC)
         event_type = "profile.knowledge_card.registered"
         if record is None:
-            record = ProfileKnowledgeCardRecord(
+            record = record_cls(
                 id=str(uuid4()),
                 profile_id=profile_id,
                 card_id=card_id,
@@ -3065,11 +3117,12 @@ class Repository:
         card_id: str,
         knowledge_version: str,
     ) -> ProfileKnowledgeCardRecord:
+        record_cls = _profile_card_cls(knowledge_version)
         record = self.session.scalar(
-            select(ProfileKnowledgeCardRecord).where(
-                ProfileKnowledgeCardRecord.profile_id == profile_id,
-                ProfileKnowledgeCardRecord.card_id == card_id,
-                ProfileKnowledgeCardRecord.knowledge_version == knowledge_version,
+            select(record_cls).where(
+                record_cls.profile_id == profile_id,
+                record_cls.card_id == card_id,
+                record_cls.knowledge_version == knowledge_version,
             )
         )
         if record is None:

@@ -26,6 +26,7 @@ from app.db.models import (
     KnowledgeVersionSnapshotRecord,
     PreferenceRecord,
     ProfileKnowledgeCardRecord,
+    ProfileOficioFichaRecord,
     ScoreVariableRecord,
 )
 from app.db.bootstrap import ensure_knowledge_seed_data, ensure_seed_data
@@ -747,8 +748,7 @@ def test_generation_rewrite_reads_published_cards_without_mutating_knowledge():
     assert any(event["event_type"] == "oficio.fichas.selected" for event in correction_events)
 
 
-def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledge():
-    assert client.get("/knowledge/status").status_code == 200
+def test_text_revision_reads_with_oficio_fichas_without_mutating_profile_or_knowledge():
     text = (
         "Este texto quiere explicar una idea, pero lo hace todo en un unico bloque con "
         "muchas vueltas y muchas frases largas que tardan en llegar al punto central y "
@@ -765,22 +765,17 @@ def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledg
 
     assert response.status_code == 200
     payload = response.json()
-    assert payload["version"] == "knowledge-v52"
+    assert payload["version"] == "oficio"
     assert payload["requested_version"] == "latest"
-    assert payload["intention"] == "claridad"
     assert payload["stable_knowledge_mutated"] is False
     assert payload["profile_mutated"] is False
-    assert payload["route"] == [
-        "card-diagnostico-de-reescritura",
-        "card-revision-estructural",
-        "card-diagnostico-de-coherencia",
-        "card-revision-de-parrafo",
-        "card-revision-de-frase",
-        "card-revision-de-tono",
-        "card-limpieza-final",
-    ]
-    assert [step["status"] for step in payload["steps"]].count("review") >= 2
-    assert payload["query_result"]["context"]["editorial_route"] == payload["route"]
+    # La lectura sale del diagnóstico del texto, no de una ruta fija.
+    assert payload["route"][0] == "limpieza-final"
+    first = payload["steps"][0]
+    assert first["status"] == "review"
+    assert "tambien tambien" in first["finding"]
+    assert first["example"]["mal"] and first["source"]
+    assert payload["query_result"] is None
 
     with SessionLocal() as session:
         assert len(session.scalars(select(KnowledgeCardRecord)).all()) == card_count
@@ -795,27 +790,21 @@ def test_text_revision_uses_editorial_route_without_mutating_profile_or_knowledg
         assert text not in str(event.payload)
 
 
-def test_text_revision_flags_long_text_coherence_control():
-    long_paragraphs = [
-        (
-            "El texto abre una idea sobre la responsabilidad del lector y despues la desplaza "
-            "hacia otro punto sin cerrar del todo la relacion entre causa, consecuencia y ejemplo."
-        )
-        for _ in range(16)
-    ]
+def test_text_revision_flags_long_paragraphs():
+    long_paragraph = " ".join(
+        "El texto abre una idea sobre la responsabilidad del lector y despues la desplaza "
+        "hacia otro punto sin cerrar del todo la relacion entre causa, consecuencia y ejemplo."
+        for _ in range(5)
+    )
     response = client.post(
         "/revision",
-        json={"text": "\n\n".join(long_paragraphs), "context": "general", "version": "latest"},
+        json={"text": long_paragraph + "\n\nCierre.", "context": "general", "intention": "estructura"},
     )
 
     assert response.status_code == 200
-    payload = response.json()
-    coherence_step = next(
-        step for step in payload["steps"] if step["card_id"] == "card-diagnostico-de-coherencia"
-    )
-    assert coherence_step["status"] == "review"
-    assert "unidad" in coherence_step["finding"]
-    assert "idea rectora" in coherence_step["action"]
+    step = next(item for item in response.json()["steps"] if item["card_id"] == "parrafo-y-progresion")
+    assert step["status"] == "review"
+    assert "palabras en un párrafo" in step["finding"]
 
 
 def test_text_revision_flags_style_drift_between_start_and_end():
@@ -835,15 +824,41 @@ def test_text_revision_flags_style_drift_between_start_and_end():
     )
 
     assert response.status_code == 200
-    payload = response.json()
-    tone_step = next(step for step in payload["steps"] if step["card_id"] == "card-revision-de-tono")
-    coherence_step = next(
-        step for step in payload["steps"] if step["card_id"] == "card-diagnostico-de-coherencia"
+    step = next(item for item in response.json()["steps"] if item["card_id"] == "registro-coherente")
+    assert step["status"] == "review"
+    assert "primer tramo" in step["finding"]
+
+
+def test_oficio_feedback_is_saved_and_shapes_later_selection():
+    with SessionLocal() as session:
+        session.execute(
+            ProfileOficioFichaRecord.__table__.delete().where(
+                ProfileOficioFichaRecord.profile_id == "default"
+            )
+        )
+        session.commit()
+    text = "Llegó tarde y también también cansado. El tema de la reunión es una cosa rara."
+    before = client.post("/revision", json={"text": text, "context": "general"}).json()["route"]
+    assert "referencia-ambigua" in before
+
+    saved = client.post(
+        "/revision/feedback/referencia-ambigua",
+        json={"knowledge_version": "oficio", "context": "general", "stance": "no_me_sirve"},
     )
-    assert tone_step["status"] == "review"
-    assert "deriva de estilo" in tone_step["finding"]
-    assert "primer tramo" in tone_step["action"]
-    assert "continuidad de estilo" in coherence_step["finding"]
+    assert saved.status_code == 200
+    assert saved.json()["profile_card"]["knowledge_version"] == "oficio"
+    cards = client.get("/profiles/default/knowledge-cards").json()
+    assert any(card["card_id"] == "referencia-ambigua" and card["stance"] == "dismissed" for card in cards)
+
+    after = client.post("/revision", json={"text": text, "context": "general"}).json()["route"]
+    # Descartada sin señal en el texto: deja de aparecer.
+    assert "referencia-ambigua" not in after
+
+    unknown = client.post(
+        "/revision/feedback/no-existe",
+        json={"knowledge_version": "oficio", "context": "general", "stance": "me_sirve"},
+    )
+    assert unknown.status_code == 404
 
 
 def test_revision_feedback_updates_profile_card_and_score_proposal_without_knowledge_mutation():

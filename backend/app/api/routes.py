@@ -1172,13 +1172,17 @@ def generated_texts_list(
     return repository.list_generated_texts(actor.profile_id, bounded_limit, context)
 
 
-def _oficio_notes(payload: GenerationInput, repository=None) -> tuple[str, list[str]]:
+def _oficio_notes(
+    payload: GenerationInput, repository=None, profile_id: str | None = None
+) -> tuple[str, list[str]]:
     """Fichas de oficio elegidas por diagnóstico (docs/POLITICA_CONOCIMIENTO.md)."""
+    preferences = repository.oficio_stances(profile_id) if repository is not None and profile_id else None
     selected = select_fichas(
         payload.text,
         payload.action,
         intention=payload.revision_intention,
         genre=payload.genre,
+        preferences=preferences,
     )
     if repository is not None:
         # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.
@@ -1234,7 +1238,7 @@ def generation_create(
     action = route_actions.get(request.url.path, payload.action)
     generation_input = payload.model_copy(update={"action": action})
     variables = repository.get_context_variables(actor.profile_id, generation_input.context)
-    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository)
+    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository, actor.profile_id)
     started_at = perf_counter()
     generation = _generate_or_503(generation_input, variables, knowledge_notes)
     generation.used_fichas = used_fichas
@@ -1277,7 +1281,7 @@ def lab_simulate(payload: LabSimulationInput, repository: RepositoryDep, actor: 
         intensity=payload.intensity,
         protected_terms=payload.protected_terms,
     )
-    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository)
+    knowledge_notes, used_fichas = _oficio_notes(generation_input, repository, actor.profile_id)
     generation = _generate_or_503(generation_input, simulated_variables, knowledge_notes)
     generation.used_fichas = used_fichas
     comparison = compare_texts(
@@ -1314,6 +1318,7 @@ def block_review(payload: BlockReviewInput, repository: RepositoryDep, actor: Ac
             genre=payload.genre,
         ),
         repository,
+        actor.profile_id,
     )
     started_at = perf_counter()
     try:

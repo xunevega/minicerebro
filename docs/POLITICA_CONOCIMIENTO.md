@@ -34,9 +34,23 @@ Una ficha sin regla comprobable, sin «no aplica» o sin ejemplo no se publica.
 ## 2. Ingesta de obras
 
 Solo para textos libres de derechos o con permiso expreso, y solo para sacar
-ejemplos o modelos de estilo. No es requisito para crear fichas. El circuito de
-ingesta anterior queda como estaba para la Biblioteca, pero ya no alimenta las
-propuestas.
+ejemplos o modelos de estilo. No es requisito para crear fichas.
+
+La base anterior (294 fichas y su circuito de ingesta) queda retirada del
+producto: no alimenta propuestas, lecturas ni la Biblioteca. Sus tablas siguen
+en la base de datos solo para conservar el historial antiguo.
+
+### Dónde se usan las fichas de oficio
+
+- Corregir, Editar, Hacer enviable, Continuar y Variantes: el modelo recibe las
+  fichas elegidas con sus prioridades.
+- Revisar por bloques: fichas de composición, voz, géneros y criterio.
+- Leer con fichas: cada paso es una ficha, con lo que ve en el texto, la regla,
+  un ejemplo, cuándo no aplica y la fuente.
+- Biblioteca: todas las fichas, por rama, con sus relaciones.
+- Mi criterio: «Me sirve» o «No va conmigo» en una ficha cambia su peso al
+  elegir fichas para tus textos. Una ficha descartada solo vuelve si el texto la
+  pide con una señal.
 
 ## 3. Las fichas se consultan entre ellas
 

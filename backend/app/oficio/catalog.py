@@ -10,9 +10,16 @@ from pydantic import BaseModel, Field, field_validator, model_validator
 
 FICHAS_DIR = Path(__file__).parent / "fichas"
 RAMAS = ("lengua", "recursos", "composicion", "voz", "generos", "criterio")
-ACCIONES = ("correction", "rewrite", "sendable", "continue", "variants", "review")
+ACCIONES = ("correction", "rewrite", "sendable", "continue", "variants", "review", "read")
 MIRADAS = ("comprension", "estructura", "tono", "limpieza")
-METRICAS = ("frase_larga", "repeticion_cercana", "anafora")
+METRICAS = (
+    "frase_larga",
+    "repeticion_cercana",
+    "anafora",
+    "deriva_estilo",
+    "parrafo_largo",
+    "bloque_unico",
+)
 
 
 class Ejemplo(BaseModel):

@@ -154,6 +154,7 @@ import {
   type LibraryAreaId,
 } from "./library";
 import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
+import { OficioLibrary } from "./OficioLibrary";
 
 const tabs = [
   { id: "knowledge", label: "Biblioteca", icon: BookOpen },
@@ -291,7 +292,7 @@ const mainSections: Array<{
   {
     id: "knowledge",
     label: "Biblioteca",
-    description: "Fuentes publicadas y consulta de la base.",
+    description: "Las fichas de oficio que usa Editados.",
     icon: BookOpen,
     defaultTab: "knowledge",
     tabs: ["knowledge"],
@@ -379,7 +380,7 @@ function AppShell({
   const [candidateBaseVersion, setCandidateBaseVersion] = useState("knowledge-v4");
   const [candidateAuthor, setCandidateAuthor] = useState("minicerebro-ui");
   const [candidateReason, setCandidateReason] = useState(
-    "Candidato creado desde la interfaz para revision de publicacion.",
+    "Candidato creado desde la interfaz para revisión de publicación.",
   );
   const [publicationReadiness, setPublicationReadiness] =
     useState<KnowledgePublicationReadiness | null>(null);
@@ -707,20 +708,8 @@ function AppShell({
   }, [activeContext]);
 
   useEffect(() => {
-    if (activeSection.id !== "knowledge") return;
-    getKnowledgeVersions()
-      .then(setKnowledgeVersions)
-      .catch((nextError: Error) => setError(nextError.message));
-    getKnowledgeSources()
-      .then(setAllKnowledgeSources)
-      .catch((nextError: Error) => setError(nextError.message));
-    getKnowledgeSourceIngestionStatuses()
-      .then(setKnowledgeSourceIngestionStatuses)
-      .catch((nextError: Error) => setError(nextError.message));
-  }, [activeSection.id]);
-
-  useEffect(() => {
-    if (!knowledge || !(activeSection.id === "knowledge" || active === "audit")) return;
+    // La base antigua solo se carga para etiquetar eventos antiguos del Historial.
+    if (!knowledge || active !== "audit") return;
     setError(null);
     getKnowledgeGym(effectiveKnowledgeVersion)
       .then(setKnowledgeGym)
@@ -881,7 +870,7 @@ function AppShell({
   const pendingKnowledgeValidationCount = useMemo(
     () =>
       [...knowledgeCards, ...knowledgeClaims, ...knowledgeEvidence].filter(
-        (item) => validationLabel(item.confidence) === "Validacion pendiente",
+        (item) => validationLabel(item.confidence) === "Validación pendiente",
       ).length,
     [knowledgeCards, knowledgeClaims, knowledgeEvidence],
   );
@@ -1134,7 +1123,7 @@ function AppShell({
       const edition = await registerKnowledgeSourceEdition(sourceId, {
         id: editionId,
         source_id: sourceId,
-        title: `${sourceName} - edicion manual UI`,
+        title: `${sourceName} - edición manual UI`,
         edition_label: "registro manual UI",
         publication_year: "2026",
         publisher: "pendiente",
@@ -1202,7 +1191,7 @@ function AppShell({
             aliases: [],
             version: manualProposalTargetVersion,
           },
-          rationale: "Propuesta registrada para probar revision sin publicar conocimiento.",
+          rationale: "Propuesta registrada para probar revisión sin publicar conocimiento.",
           confidence: 0.5,
           source_locator: "ui:1",
         },
@@ -1257,7 +1246,7 @@ function AppShell({
             id: claimId,
             evidence_id: evidenceId,
             card_id: cardId,
-            statement: "La ingestion manual crea conocimiento solo tras revision explicita.",
+            statement: "La ingestion manual crea conocimiento solo tras revisión explicita.",
             claim_type: "process",
             node_id: nodeId,
             related_node_ids: [],
@@ -1285,7 +1274,7 @@ function AppShell({
             context: "manual_ui_ingestion",
             version: manualProposalTargetVersion,
           },
-          rationale: "Relacion propuesta para conservar trazabilidad del claim.",
+          rationale: "Relación propuesta para conservar trazabilidad del claim.",
           confidence: 0.5,
           source_locator: "ui:1",
         },
@@ -1389,7 +1378,7 @@ function AppShell({
           : await getKnowledgePublicationReadiness(publicationTargetVersion);
       setPublicationReadiness(readiness);
       if (!readiness.publishable) {
-        setError(`La version no es publicable: ${readiness.blockers.join(", ")}`);
+        setError(`La versión no es publicable: ${readiness.blockers.join(", ")}`);
         return;
       }
       const published = await publishKnowledgeVersion({
@@ -1690,7 +1679,7 @@ function AppShell({
 
   function handleRevisionIntentionChange(nextIntention: string) {
     setRevisionIntention(nextIntention);
-    clearEditorOutcomeNotice("Revision cambiada. Pide una nueva lectura con fichas.");
+    clearEditorOutcomeNotice("Revisión cambiada. Pide una nueva lectura con fichas.");
   }
 
   function handleProtectedTermsChange(nextTerms: string) {
@@ -1709,7 +1698,7 @@ function AppShell({
       setGeneration(null);
       setGenerationCopyStatus("");
       setComparison(null);
-      setEditorOutcomeNotice("Sin cambios que aplicar. Puedes pedir lectura con fichas o probar otra revision.");
+      setEditorOutcomeNotice("Sin cambios que aplicar. Puedes pedir lectura con fichas o probar otra revisión.");
       return;
     }
     setEditorText(generation.output);
@@ -1811,8 +1800,9 @@ function AppShell({
       const result = await reviewText(
         editorText,
         activeContext,
-        selectedKnowledgeVersion,
+        "latest",
         revisionIntention,
+        textGenre.trim(),
       );
       if (generationHasNoChanges) {
         setGeneration(null);
@@ -1873,7 +1863,7 @@ function AppShell({
           cardId,
           result.knowledge_version,
           activeContext,
-          "Aplicar scoring desde ficha aceptada en revision.",
+          "Aplicar scoring desde ficha aceptada en revisión.",
         );
         setScores((current) =>
           current.map(
@@ -2059,1061 +2049,20 @@ function AppShell({
         {error ? <div className="error">{error}</div> : null}
 
         {active === "knowledge" && (
-          <section className="panel">
-            <div className="versionHeader">
-              <div>
-                <h2>Fichas de escritura</h2>
-                <p className="note">
-                  Ideas publicadas para consultar mientras escribes. Tus gustos se guardan aparte.
-                </p>
-              </div>
-              <span className="statusPill">{classifiedKnowledgeCards.length} fichas</span>
-            </div>
-            <details className="quietDetails libraryStatusDetails">
-              <summary>Estado de la base</summary>
-              <div className="versionToolbar">
-                <label htmlFor="knowledgeVersionSelect">Vista</label>
-                <select
-                  id="knowledgeVersionSelect"
-                  onChange={(event) => setSelectedKnowledgeVersion(event.target.value)}
-                  value={selectedKnowledgeVersion}
-                >
-                  <option value="latest">Base publicada actual</option>
-                  {knowledgeVersions.map((version) => (
-                    <option key={version.id} value={version.id}>
-                      {knowledgeVersionPublicLabel(version.id, latestPublishedKnowledgeVersion)}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="compactMetricGrid">
-                <Metric label="Base" value={loadedKnowledgeVersionLabel} />
-                <Metric
-                  label="Estado"
-                  value={
-                    knowledgeStatePublicLabel(
-                      knowledgeVersions.find((version) => version.id === loadedKnowledgeVersion)
-                        ?.status ?? knowledge?.state,
-                    )
-                  }
-                />
-                <Metric
-                  label="Por revisar"
-                  value={
-                    pendingKnowledgeValidationCount
-                      ? `${pendingKnowledgeValidationCount} pendientes`
-                      : "Todo revisado"
-                  }
-                />
-                <Metric
-                  label="Fuentes pendientes"
-                  value={registeredOnlySourceCount ? registeredOnlySourceCount : "Ninguna"}
-                />
-              </div>
-              <p className="note">{knowledge?.sources_policy}</p>
-            </details>
-            <div className="proposalBox compactLibraryBox">
-              <div className="libraryFilterBar" aria-label="Filtro de fichas">
-                {libraryAreas.map((area) => (
-                  <button
-                    className={
-                      selectedLibraryArea === area.id ? "phaseBadge active" : "phaseBadge"
-                    }
-                    key={area.id}
-                    onClick={() => setSelectedLibraryArea(area.id)}
-                    type="button"
-                  >
-                    {area.label} · {libraryAreaCounts.get(area.id) ?? 0}
-                  </button>
-                ))}
-              </div>
-              <div className="libraryCardList">
-                {selectedLibraryCards.slice(0, 24).map(({ card, classification }) => (
-                  <article className="libraryCard" key={card.id}>
-                    <div>
-                      <strong>{card.name}</strong>
-                      <span>{card.definition}</span>
-                    </div>
-                    <div className="phaseSummary">
-                      <span className="phaseBadge">
-                        {libraryAreaLabel(classification.area)}
-                      </span>
-                      <span className="phaseBadge">uso: {classification.use}</span>
-                      <span className="phaseBadge">nivel: {classification.level}</span>
-                    </div>
-                    <button
-                      className="ghostButton"
-                      onClick={() => setSelectedKnowledgeCardId(card.id)}
-                      type="button"
-                    >
-                      Ver ficha
-                    </button>
-                  </article>
-                ))}
-              </div>
-              {selectedLibraryCards.length > 24 ? (
-                <p className="note">
-                  Mostrando 24 de {selectedLibraryCards.length}. Usa la consulta para ir a una
-                  ficha concreta.
-                </p>
-              ) : selectedLibraryCards.length === 0 ? (
-                <p className="note">
-                  No hay fichas en esta estanteria. Prueba otra materia o vuelve a Todo.
-                </p>
-              ) : null}
-            </div>
-            {selectedKnowledgeCard ? (
-              <div className="proposalBox">
-                <div className="versionHeader">
-                  <div>
-                    <h3>Ficha editorial</h3>
-                    <p className="note">
-                      Una ficha es una ayuda de escritura: resume una idea útil y conserva sus
-                      apoyos sin mezclarla con tus gustos personales.
-                    </p>
-                  </div>
-                  <button
-                    className="ghostButton"
-                    onClick={() => setSelectedKnowledgeCardId(null)}
-                    type="button"
-                  >
-                    Cerrar ficha
-                  </button>
-                </div>
-                <article className="knowledgeItem">
-                  <strong>{selectedKnowledgeCard.name}</strong>
-                  <span>{selectedKnowledgeCard.definition}</span>
-                  <div className="metricGrid">
-                    <Metric
-                      label="Uso"
-                      value={classifyKnowledgeCard(selectedKnowledgeCard).use}
-                    />
-                    <Metric
-                      label="Materia"
-                      value={libraryAreaLabel(classifyKnowledgeCard(selectedKnowledgeCard).area)}
-                    />
-                    <Metric
-                      label="Nivel"
-                      value={classifyKnowledgeCard(selectedKnowledgeCard).level}
-                    />
-                    <Metric
-                      label="Revisión"
-                      value={validationLabel(selectedKnowledgeCard.confidence)}
-                    />
-                  </div>
-                  <List title="Cuando usarla" items={payloadList(selectedKnowledgeCard.payload.contexts)} />
-                  <List title="Señales para detectarla" items={payloadList(selectedKnowledgeCard.payload.signals)} />
-                  <List title="Cuidado con" items={payloadList(selectedKnowledgeCard.payload.risks)} />
-                  <List
-                    title="Fuentes"
-                    items={
-                      selectedKnowledgeCardSources.length
-                        ? [...new Set(selectedKnowledgeCardSources.map((source) => source.name))]
-                        : ["Fuente pendiente de cargar en esta vista."]
-                    }
-                  />
-                  <details className="queryTraceBox">
-                    <summary>Ver trazabilidad técnica</summary>
-                    <div className="metricGrid">
-                      <Metric label="ID" value={selectedKnowledgeCard.id} />
-                      <Metric label="Tipo" value={selectedKnowledgeCard.card_type} />
-                      <Metric label="Versión" value={selectedKnowledgeCard.version} />
-                      <Metric label="Ideas" value={selectedKnowledgeCardClaims.length} />
-                    </div>
-                    <List
-                      title="Ideas trazadas"
-                      items={selectedKnowledgeCardClaims.map(
-                        (claim) => `${claim.statement} · ${validationLabel(claim.confidence)}`,
-                      )}
-                    />
-                    <List
-                      title="Apoyos trazados"
-                      items={selectedKnowledgeCardEvidence.map(
-                        (item) =>
-                          `${item.reference}: ${item.excerpt} · ${validationLabel(
-                            item.confidence,
-                          )}`,
-                      )}
-                    />
-                  </details>
-                </article>
-                <div className="userCardPanel">
-                  <h3>Tu criterio sobre esta ficha</h3>
-                  <p className="note">
-                    Esto solo ajusta tu perfil. No cambia la base publicada ni sus fuentes.
-                  </p>
-                  <div className="metricGrid">
-                    <Metric
-                      label="Decision"
-                      value={
-                        profileKnowledgeCardSaved
-                          ? profileKnowledgeCardStanceLabel(profileKnowledgeCardSaved.stance)
-                          : "Sin guardar"
-                      }
-                    />
-                    <Metric label="Te sirve" value={profileKnowledgeCardScore} />
-                    <Metric label="Contexto" value={activeContext} />
-                  </div>
-                  <div className="buttonRow" role="group" aria-label="Estado de tu ficha">
-                    {userKnowledgeCardStances.map((stance) => (
-                      <button
-                        className={
-                          profileKnowledgeCardStance === stance.value
-                            ? "ghostButton activeGhostButton"
-                            : "ghostButton"
-                        }
-                        key={stance.value}
-                        onClick={() => setProfileKnowledgeCardStance(stance.value)}
-                        type="button"
-                      >
-                        {stance.label}
-                      </button>
-                    ))}
-                  </div>
-                  <label className="fieldLabel" htmlFor="profileKnowledgeCardScore">
-                    Cuánto te sirve
-                  </label>
-                  <input
-                    aria-label="Cuánto te sirve esta ficha"
-                    id="profileKnowledgeCardScore"
-                    max="1000"
-                    min="0"
-                    onChange={(event) => setProfileKnowledgeCardScore(Number(event.target.value))}
-                    type="range"
-                    value={profileKnowledgeCardScore}
-                  />
-                  <label className="fieldLabel" htmlFor="profileKnowledgeCardFeedback">
-                    Nota para ti
-                  </label>
-                  <textarea
-                    id="profileKnowledgeCardFeedback"
-                    onChange={(event) => setProfileKnowledgeCardFeedback(event.target.value)}
-                    value={profileKnowledgeCardFeedback}
-                  />
-                  <label className="fieldLabel" htmlFor="profileKnowledgeCardMaintained">
-                    Que quieres mantener
-                  </label>
-                  <input
-                    className="textInput"
-                    id="profileKnowledgeCardMaintained"
-                    onChange={(event) => setProfileKnowledgeCardMaintained(event.target.value)}
-                    value={profileKnowledgeCardMaintained}
-                  />
-                  <label className="fieldLabel" htmlFor="profileKnowledgeCardChanges">
-                    Que quieres cambiar
-                  </label>
-                  <input
-                    className="textInput"
-                    id="profileKnowledgeCardChanges"
-                    onChange={(event) => setProfileKnowledgeCardChanges(event.target.value)}
-                    value={profileKnowledgeCardChanges}
-                  />
-                  <label className="fieldLabel" htmlFor="profileKnowledgeCardNotes">
-                    Comentario libre
-                  </label>
-                  <textarea
-                    id="profileKnowledgeCardNotes"
-                    onChange={(event) => setProfileKnowledgeCardNotes(event.target.value)}
-                    value={profileKnowledgeCardNotes}
-                  />
-                  <div className="rowActions">
-                    <button
-                      className="primaryButton"
-                      onClick={handleSaveProfileKnowledgeCard}
-                      type="button"
-                    >
-                      Guardar mi decision
-                    </button>
-                    <button
-                      className="ghostButton"
-                      onClick={handleProfileKnowledgeCardScoreProposal}
-                      type="button"
-                    >
-                      Ver como ajustaria mi criterio
-                    </button>
-                  </div>
-                  {profileKnowledgeCardProposal ? (
-                    <div className="proposalBox">
-                      <h3>Como quedaria tu criterio</h3>
-                      <div className="metricGrid">
-                        <Metric label="Resultado" value={scoreProposalStatusLabel(profileKnowledgeCardProposal.status)} />
-                        <Metric label="Cambios" value={profileKnowledgeCardProposal.items.length} />
-                      </div>
-                      <div className="auditList">
-                        {profileKnowledgeCardProposal.items.map((item) => (
-                          <article
-                            className="auditItem"
-                            key={`${item.variable_key}-${item.context}`}
-                          >
-                            <div>
-                              <strong>{scoreLabelByKey(item.variable_key)}</strong>
-                              <span>{item.reason}</span>
-                            </div>
-                            <span>{scoreDeltaDescription(item.delta)}</span>
-                          </article>
-                        ))}
-                      </div>
-                      <button
-                        className="primaryButton editorButton"
-                        disabled={profileKnowledgeCardProposal.items.length === 0}
-                        onClick={handleApplyProfileKnowledgeCardScoreProposal}
-                        title={
-                          profileKnowledgeCardProposal.items.length === 0
-                            ? "No hay ajustes aplicables para esta ficha."
-                            : undefined
-                        }
-                        type="button"
-                      >
-                        Guardar este criterio
-                      </button>
-                    </div>
-                  ) : null}
-                </div>
-              </div>
-            ) : null}
-            <div className="proposalBox knowledgeGymPanel">
-              <div className="versionHeader">
-                <div>
-                  <h3>Estado de la biblioteca</h3>
-                  <p className="note">
-                    Chequeo de la base publicada. No cambia tus preferencias ni genera contenido.
-                  </p>
-                </div>
-                {knowledgeGym ? (
-                  <span className={gymStatusClass(knowledgeGym.status)}>
-                    {gymStatusLabel(knowledgeGym.status)}
-                  </span>
-                ) : null}
-              </div>
-              {knowledgeGym ? (
-                <>
-                  <div className="metricGrid">
-                    <Metric
-                      label="Base"
-                      value={knowledgeVersionPublicLabel(
-                        knowledgeGym.version,
-                        latestPublishedKnowledgeVersion,
-                      )}
-                    />
-                    <Metric label="Salud" value={`${Math.round(knowledgeGym.score * 100)}%`} />
-                    <Metric label="Fichas" value={knowledgeGym.checked_card_count} />
-                    <Metric label="Ideas" value={knowledgeGym.checked_claim_count} />
-                    <Metric label="Apoyos" value={knowledgeGym.checked_evidence_count} />
-                  </div>
-                  <div className="gymCheckGrid">
-                    {knowledgeGym.checks.map((check) => (
-                      <article className="gymCheck" key={check.id}>
-                        <div className="ingestionHeader">
-                          <div>
-                            <strong>{gymCheckLabel(check.id)}</strong>
-                            <span>{check.summary}</span>
-                          </div>
-                          <span className={gymStatusClass(check.status)}>
-                            {gymStatusLabel(check.status)}
-                          </span>
-                        </div>
-                        <div className="phaseSummary">
-                          <span className="phaseBadge">score {Math.round(check.score * 100)}%</span>
-                          <span className="phaseBadge">{check.id}</span>
-                        </div>
-                      </article>
-                    ))}
-                  </div>
-                </>
-              ) : (
-                <p className="note">Cargando revisión de la base.</p>
-              )}
-            </div>
-            <div className="buttonRow">
-              <button
-                className="ghostButton"
-                onClick={() => setShowKnowledgeTechnical((current) => !current)}
-                type="button"
-              >
-                {showKnowledgeTechnical ? "Ocultar modo técnico" : "Ver modo técnico"}
-              </button>
-            </div>
-            {showKnowledgeTechnical ? (
-              <>
-            <div className="proposalBox">
-              <h3>Versiones de la base</h3>
-              <p className="note">
-                Detalle técnico de versiones: se muestra aquí para trazabilidad y recuperación
-                histórica, no como recorrido normal de lectura.
-              </p>
-              <div className="versionList">
-                {orderedKnowledgeVersions.map((version, index) => {
-                  const previousVersion = orderedKnowledgeVersions[index - 1] ?? null;
-                  const isLoaded = version.id === loadedKnowledgeVersion;
-                  return (
-                    <article className={isLoaded ? "versionItem active" : "versionItem"} key={version.id}>
-                      <div className="versionHeader">
-                        <div>
-                          <strong>{version.id}</strong>
-                          <span>
-                            {version.status} · {version.published_at}
-                          </span>
-                        </div>
-                        <button
-                          className="ghostButton"
-                          onClick={() => handleExploreKnowledgeVersion(version.id)}
-                          type="button"
-                        >
-                          Explorar
-                        </button>
-                      </div>
-                      <div className="versionCounts">
-                        <Metric label="Fuentes" value={version.source_count} />
-                        <Metric label="Nodos" value={version.node_count} />
-                        <Metric label="Evid." value={version.evidence_count} />
-                        <Metric label="Claims" value={version.claim_count} />
-                        <Metric label="Fichas" value={version.card_count} />
-                      </div>
-                      <div className="phaseSummary">
-                        {versionChangeBadges(version, previousVersion).map((badge) => (
-                          <span className="phaseBadge" key={badge}>
-                            {badge}
-                          </span>
-                        ))}
-                      </div>
-                    </article>
-                  );
-                })}
-              </div>
-            </div>
-            <div className="proposalBox">
-              <h3>Fuentes</h3>
-              <div className="sourceExplorer">
-                {sourceExplorerGroups.map((group) => (
-                  <section className="sourceGroup" key={group.id}>
-                    <h3>
-                      {group.title} · {group.items.length}
-                    </h3>
-                    <div className="sourceGroupList">
-                      {group.items.length ? (
-                        group.items.map((status) => {
-                          const source = sourceCatalogById.get(status.source_id);
-                          return (
-                            <article className="sourceMiniCard" key={status.source_id}>
-                              <strong>{status.source_name}</strong>
-                              <span>{source?.source_type ?? status.source_id}</span>
-                              <span>
-                                {source?.acquisition_status ?? "sin catalogo"} ·{" "}
-                                {ingestionPhaseLabel(status.current_phase)}
-                              </span>
-                            </article>
-                          );
-                        })
-                      ) : (
-                        <p className="note">Sin fuentes en este grupo.</p>
-                      )}
-                    </div>
-                  </section>
-                ))}
-              </div>
-            </div>
-            <div className="proposalBox">
-              <h3>Recorrido de fuentes</h3>
-              <div className="pipelineExplorer">
-                {orderedIngestionStatuses.map((status) => (
-                  <article className="pipelineCard" key={status.source_id}>
-                    <div className="ingestionHeader">
-                      <div>
-                        <strong>{status.source_name}</strong>
-                        <span>{status.source_id}</span>
-                      </div>
-                      <span className={status.is_published ? "statusPill done" : "statusPill"}>
-                        {ingestionPhaseLabel(status.current_phase)}
-                      </span>
-                    </div>
-                    <div className="pipelineTrace" aria-label={`Recorrido ${status.source_name}`}>
-                      {pipelineSteps(status).map((step) => (
-                        <span className={step.done ? "pipelineStep done" : "pipelineStep"} key={step.label}>
-                          {step.label}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="ingestionMetrics">
-                      <Metric label="Ed." value={status.counts.editions ?? 0} />
-                      <Metric label="Idx." value={status.counts.index_entries ?? 0} />
-                      <Metric label="Seg." value={status.counts.segments ?? 0} />
-                      <Metric label="Ext." value={status.counts.completed_extractions ?? 0} />
-                      <Metric label="Propuestas" value={status.counts.proposals ?? 0} />
-                      <Metric
-                        label="Obj."
-                        value={
-                          (status.counts.nodes ?? 0) +
-                          (status.counts.evidence ?? 0) +
-                          (status.counts.claims ?? 0) +
-                          (status.counts.cards ?? 0)
-                        }
-                      />
-                    </div>
-                  </article>
-                ))}
-              </div>
-            </div>
-            <div className="proposalBox">
-              <h3>Estado de fuentes</h3>
-              <div className="metricGrid">
-                <Metric label="Publicadas" value={publishedSourceCount} />
-                <Metric label="Ingeridas" value={ingestedSourceCount} />
-                <Metric label="Pendientes" value={registeredOnlySourceCount} />
-              </div>
-              <div className="phaseSummary">
-                {ingestionPhaseCounts.map((item) => (
-                  <span className="phaseBadge" key={item.phase}>
-                    {item.label}: {item.count}
-                  </span>
-                ))}
-              </div>
-              <div className="ingestionList">
-                {orderedIngestionStatuses.map((status) => (
-                  <article className="ingestionItem" key={status.source_id}>
-                    <div className="ingestionHeader">
-                      <div>
-                        <strong>{status.source_name}</strong>
-                        <span>{status.source_id}</span>
-                      </div>
-                      <span className={status.is_published ? "statusPill done" : "statusPill"}>
-                        {ingestionPhaseLabel(status.current_phase)}
-                      </span>
-                    </div>
-                    <div className="pipelineTrace" aria-label={`Pipeline ${status.source_name}`}>
-                      {pipelineSteps(status).map((step) => (
-                        <span className={step.done ? "pipelineStep done" : "pipelineStep"} key={step.label}>
-                          {step.label}
-                        </span>
-                      ))}
-                    </div>
-                    <div className="ingestionMetrics">
-                      <Metric label="Ed." value={status.counts.editions ?? 0} />
-                      <Metric label="Idx." value={status.counts.index_entries ?? 0} />
-                      <Metric label="Seg." value={status.counts.segments ?? 0} />
-                      <Metric label="Ext." value={status.counts.completed_extractions ?? 0} />
-                      <Metric label="Propuestas" value={status.counts.proposals ?? 0} />
-                      <Metric
-                        label="Obj."
-                        value={
-                          (status.counts.nodes ?? 0) +
-                          (status.counts.evidence ?? 0) +
-                          (status.counts.claims ?? 0) +
-                          (status.counts.cards ?? 0)
-                        }
-                      />
-                    </div>
-                    <span className="blockerLine">
-                      {status.blockers.length
-                        ? status.blockers.slice(0, 3).map(ingestionBlockerLabel).join(" · ")
-                        : "sin bloqueos"}
-                    </span>
-                  </article>
-                ))}
-              </div>
-            </div>
-            {canManageKnowledge ? (
-            <>
-            <div className="proposalBox">
-              <h3>Ritmo de publicación</h3>
-              <p className="note">
-                1) elige fuente, 2) crea lote, 3) congela candidato, 4) publica solo si pasa los
-                controles.
-              </p>
-              <div className="pipelineTrace" aria-label="Ritmo de publicación">
-                <span className="pipelineStep">1. Fuente</span>
-                <span className="pipelineStep">2. Lote</span>
-                <span className="pipelineStep">3. Candidato</span>
-                <span className="pipelineStep">4. Publicar</span>
-              </div>
-            </div>
-            <div className="proposalBox">
-              <h3>Crear lote de ingestión</h3>
-              <p className="note">
-                Crea el recorrido interno fuente-edición-índice-segmento-extracción-propuestas.
-                Solo un candidato real permite aprobar propuestas; publicar sigue separado.
-              </p>
-              <div className="rowActions">
-                <select
-                  aria-label="Fuente para ingestión manual"
-                  onChange={(event) => setManualIngestionSourceId(event.target.value)}
-                  value={manualIngestionSourceId || manualIngestionSourceIdValue}
-                >
-                  {knowledgeSourceIngestionStatuses.map((status) => (
-                    <option key={status.source_id} value={status.source_id}>
-                      {status.source_name} · {status.current_phase}
-                    </option>
-                  ))}
-                </select>
-                <select
-                  aria-label="Candidato destino para propuestas"
-                  onChange={(event) => setPublicationTargetVersion(event.target.value)}
-                  value={publicationTargetVersion}
-                >
-                  <option value="">Sin candidato aprobable</option>
-                  {candidateVersions.map((version) => (
-                    <option key={version.id} value={version.id}>
-                      {version.id} · {version.status}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  className="primaryButton"
-                  disabled={!manualIngestionSourceIdValue || manualIngestionBusy}
-                  onClick={handleCreateManualIngestionFlow}
-                  title={
-                    !manualIngestionSourceIdValue
-                      ? "No hay una fuente disponible para crear un lote."
-                      : undefined
-                  }
-                  type="button"
-                >
-                  {manualIngestionBusy ? "Creando..." : "Crear lote manual"}
-                </button>
-                <button
-                  className="ghostButton"
-                  disabled={!manualIngestionExtraction}
-                  onClick={handleLoadManualProposals}
-                  title={
-                    !manualIngestionExtraction
-                      ? "Primero crea un lote manual."
-                      : undefined
-                  }
-                  type="button"
-                >
-                  Recargar propuestas
-                </button>
-              </div>
-              <div className="pipelineTrace">
-                <span className={manualIngestionEdition ? "pipelineStep done" : "pipelineStep"}>
-                  Edición
-                </span>
-                <span className={manualIngestionIndexEntry ? "pipelineStep done" : "pipelineStep"}>
-                  Índice
-                </span>
-                <span className={manualIngestionSegment ? "pipelineStep done" : "pipelineStep"}>
-                  Segmento
-                </span>
-                <span className={manualIngestionExtraction ? "pipelineStep done" : "pipelineStep"}>
-                  Extracción
-                </span>
-                <span className={manualIngestionProposals.length ? "pipelineStep done" : "pipelineStep"}>
-                  Propuestas
-                </span>
-              </div>
-              {manualIngestionExtraction ? (
-                <div className="metricGrid">
-                  <Metric label="Edición" value={manualIngestionEdition?.id ?? "Pendiente"} />
-                  <Metric label="Segmento" value={manualIngestionSegment?.id ?? "Pendiente"} />
-                  <Metric label="Extracción" value={manualIngestionExtraction.status} />
-                  <Metric label="Propuestas" value={manualIngestionProposals.length} />
-                  <Metric label="Destino" value={manualProposalTargetVersion} />
-                </div>
-              ) : null}
-              {manualIngestionProposals.length ? (
-                <div className="knowledgeGrid">
-                  {manualIngestionProposals.map((proposal) => (
-                    <article className="knowledgeItem" key={proposal.id}>
-                      <strong>{proposal.title}</strong>
-                      <span>
-                        {proposal.proposal_type} · {proposal.status} · confianza{" "}
-                        {proposal.confidence}
-                      </span>
-                      <p className="note">{proposal.rationale}</p>
-                      <pre>{JSON.stringify(proposal.payload, null, 2)}</pre>
-                      <div className="rowActions">
-                        <button
-                          className="ghostButton"
-                          disabled={!canApproveProposal(proposal, knowledgeVersions)}
-                          onClick={() => handleManualProposalDecision(proposal, "approve")}
-                          type="button"
-                        >
-                          Aprobar
-                        </button>
-                        <button
-                          className="ghostButton"
-                          disabled={proposal.status !== "proposed"}
-                          onClick={() => handleManualProposalDecision(proposal, "reject")}
-                          type="button"
-                        >
-                          Rechazar
-                        </button>
-                      </div>
-                      {!canApproveProposal(proposal, knowledgeVersions) &&
-                      proposal.status === "proposed" ? (
-                        <p className="note">
-                          Aprobar requiere una versión candidata real; rechazar no modifica la base
-                          publicada.
-                        </p>
-                      ) : null}
-                    </article>
-                  ))}
-                </div>
-              ) : null}
-            </div>
-            <div className="proposalBox">
-              <h3>Publicación de la base</h3>
-              <p className="note">
-                Crear candidato congela una versión revisable. Publicar solo activa una versión si
-                la revisión pasa todos los controles.
-              </p>
-              <div className="rowActions">
-                <input
-                  aria-label="ID de candidato"
-                  className="textInput"
-                  onChange={(event) => setCandidateVersionId(event.target.value)}
-                  value={candidateVersionId}
-                />
-                <select
-                  aria-label="Versión base del candidato"
-                  onChange={(event) => setCandidateBaseVersion(event.target.value)}
-                  value={candidateBaseVersion}
-                >
-                  {candidateBaseVersions.map((version) => (
-                    <option key={version.id} value={version.id}>
-                      base {version.id}
-                    </option>
-                  ))}
-                </select>
-                <input
-                  aria-label="Autor del candidato"
-                  className="textInput"
-                  onChange={(event) => setCandidateAuthor(event.target.value)}
-                  value={candidateAuthor}
-                />
-                <button
-                  className="primaryButton"
-                  disabled={publicationBusy || !candidateVersionId || !candidateAuthor || !candidateReason}
-                  onClick={handleCreateCandidateVersion}
-                  title={
-                    !candidateVersionId || !candidateAuthor || !candidateReason
-                      ? "Completa ID, autor y motivo para crear el candidato."
-                      : undefined
-                  }
-                  type="button"
-                >
-                  Crear candidato
-                </button>
-              </div>
-              <label className="fieldLabel" htmlFor="candidateReason">
-                Motivo
-              </label>
-              <textarea
-                id="candidateReason"
-                onChange={(event) => setCandidateReason(event.target.value)}
-                value={candidateReason}
-              />
-              <div className="rowActions">
-                <select
-                  aria-label="Version candidata para publicar"
-                  onChange={(event) => {
-                    setPublicationTargetVersion(event.target.value);
-                    setPublicationReadiness(null);
-                  }}
-                  value={publicationTargetVersion}
-                >
-                  <option value="">Seleccionar candidato</option>
-                  {candidateVersions.map((version) => (
-                    <option key={version.id} value={version.id}>
-                      {version.id} · {version.status}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  className="ghostButton"
-                  disabled={!publicationTargetVersion || publicationBusy}
-                  onClick={() => void handleCheckPublicationReadiness()}
-                  title={
-                    !publicationTargetVersion
-                      ? "Selecciona una versión candidata para revisar."
-                      : undefined
-                  }
-                  type="button"
-                >
-                  Revisar publicacion
-                </button>
-                <button
-                  className="primaryButton"
-                  disabled={!publishableReadiness || publicationBusy}
-                  onClick={handlePublishCandidateVersion}
-                  title={
-                    !publishableReadiness
-                      ? "Primero revisa un candidato publicable."
-                      : undefined
-                  }
-                  type="button"
-                >
-                  Publicar candidato
-                </button>
-              </div>
-              {publicationReadiness ? (
-                <>
-                  <div className="metricGrid">
-                    <Metric label="Version" value={publicationReadiness.version} />
-                    <Metric label="Estado" value={publicationReadiness.status} />
-                    <Metric
-                      label="Publicable"
-                      value={publicationReadiness.publishable ? "si" : "no"}
-                    />
-                    <Metric label="Bloqueos" value={publicationReadiness.blockers.length} />
-                  </div>
-                  <div className="knowledgeGrid">
-                    {publicationReadiness.checks.map((check) => (
-                      <article className="knowledgeItem" key={check.id}>
-                        <strong>{check.label}</strong>
-                        <span>{check.passed ? "pasa" : "bloquea"}</span>
-                        <p className="note">{check.detail}</p>
-                      </article>
-                    ))}
-                  </div>
-                  <List title="Blockers" items={publicationReadiness.blockers} />
-                </>
-              ) : null}
-            </div>
-            </>
-            ) : null}
-            <div className="knowledgeGrid">
-              {knowledgeSources.map((source) => (
-                <article className="knowledgeItem" key={source.id}>
-                  <strong>{source.name}</strong>
-                  <span>
-                    {source.source_type} · autoridad {source.authority_level}
-                  </span>
-                </article>
-              ))}
-            </div>
-            <div className="knowledgeGrid">
-              {knowledgeCards.map((card) => (
-                <article className="knowledgeItem" key={card.id}>
-                  <strong>{card.name}</strong>
-                  <span>{card.definition}</span>
-                  <button
-                    className="ghostButton"
-                    onClick={() => setSelectedKnowledgeCardId(card.id)}
-                    type="button"
-                  >
-                    Inspeccionar
-                  </button>
-                </article>
-              ))}
-            </div>
-            <div className="proposalBox">
-              <h3>Recorrido completo</h3>
-              <p className="note">
-                Base navegada: {loadedKnowledgeVersion}. latest resuelve a la ultima version
-                publicada.
-              </p>
-              <h3>Trazabilidad</h3>
-              <div className="metricGrid">
-                <Metric label="Fuentes" value={knowledgeSources.length} />
-                <Metric label="Nodos" value={knowledgeNodes.length} />
-                <Metric label="Evidencias" value={knowledgeEvidence.length} />
-                <Metric label="Claims" value={knowledgeClaims.length} />
-                <Metric label="Fichas" value={knowledgeCards.length} />
-              </div>
-              <div className="knowledgeGrid">
-                {knowledgeSources.map((source) => (
-                  <article className="knowledgeItem" key={source.id}>
-                    <strong>{source.name}</strong>
-                    <span>
-                      {source.source_type} · {source.status}
-                    </span>
-                    {sourceIngestionStatusById.get(source.id) ? (
-                      <div className="pipelineTrace">
-                        {pipelineSteps(sourceIngestionStatusById.get(source.id)).map((step) => (
-                          <span className={step.done ? "pipelineStep done" : "pipelineStep"} key={step.label}>
-                            {step.label}
-                          </span>
-                        ))}
-                      </div>
-                    ) : null}
-                    {(nodesBySource.get(source.id) ?? []).map((node) => (
-                      <div className="listBlock" key={node.id}>
-                        <h3>{node.title}</h3>
-                        <p className="note">{node.summary}</p>
-                        {(evidenceByNode.get(node.id) ?? []).map((item) => (
-                          <div className="listBlock" key={item.id}>
-                            <h3>{item.reference}</h3>
-                            <p className="note">{item.excerpt}</p>
-                            <h3>Claims</h3>
-                            {(claimsByEvidence.get(item.id) ?? []).map((claim) => {
-                              const card = cardById.get(claim.card_id);
-                              return (
-                                <div className="traceClaim" key={claim.id}>
-                                  <span>
-                                    {claim.statement} -&gt; {card?.name ?? claim.card_id}
-                                  </span>
-                                  <button
-                                    className="ghostButton"
-                                    onClick={() => setSelectedKnowledgeCardId(claim.card_id)}
-                                    type="button"
-                                  >
-                                    Ver ficha
-                                  </button>
-                                </div>
-                              );
-                            })}
-                          </div>
-                        ))}
-                      </div>
-                    ))}
-                  </article>
-                ))}
-              </div>
-            </div>
-              </>
-            ) : null}
-            <div className="proposalBox">
-              <h3>Consultar la base</h3>
-              <p className="note">Busca una idea en la base publicada. No sale a internet.</p>
-              <div className="libraryFilterBar" aria-label="Materias sugeridas">
-                {querySuggestions.map((suggestion) => (
-                  <button
-                    className={
-                      knowledgeQuery === suggestion.query ? "phaseBadge active" : "phaseBadge"
-                    }
-                    key={suggestion.id}
-                    onClick={() => setKnowledgeQuery(suggestion.query)}
-                    type="button"
-                  >
-                    {suggestion.label}
-                  </button>
-                ))}
-              </div>
-              <div className="rowActions">
-                <input
-                  aria-label="Consulta en la biblioteca"
-                  className="textInput"
-                  onChange={(event) => setKnowledgeQuery(event.target.value)}
-                  value={knowledgeQuery}
-                />
-                <select
-                  aria-label="Límite de resultados"
-                  onChange={(event) => setKnowledgeQueryLimit(Number.parseInt(event.target.value, 10))}
-                  value={knowledgeQueryLimit}
-                >
-                  {[3, 5, 10, 20].map((limit) => (
-                    <option key={limit} value={limit}>
-                      {limit} resultados
-                    </option>
-                  ))}
-                </select>
-                <button className="primaryButton" onClick={handleKnowledgeQuery} type="button">
-                  Consultar
-                </button>
-              </div>
-              {knowledgeResult ? (
-                <>
-                  <p className="note">
-                    Resultado para "{knowledgeResult.query}" en la base publicada.
-                  </p>
-                  <div className="metricGrid">
-                    <Metric label="Resultados" value={knowledgeResult.card_count} />
-                    <Metric label="Ideas" value={knowledgeResult.claim_count} />
-                    <Metric label="Apoyos" value={knowledgeResult.evidence_count} />
-                    <Metric
-                      label="Por revisar"
-                      value={`${
-                        [
-                          ...knowledgeResult.cards,
-                          ...knowledgeResult.claims,
-                          ...knowledgeResult.evidence,
-                        ].filter(
-                          (item) => validationLabel(item.confidence) === "Validacion pendiente",
-                        ).length
-                      } pendientes`}
-                    />
-                  </div>
-                  <details className="queryTraceBox">
-                    <summary>Ver detalle técnico</summary>
-                    <div className="metricGrid">
-                      <Metric label="Base recuperada" value={knowledgeResult.resolved_version} />
-                      <Metric label="Fuentes" value={knowledgeResult.sources.length} />
-                      <Metric label="Caminos" value={queryRelationPaths(knowledgeResult).length} />
-                    </div>
-                    <div className="phaseSummary">
-                      {knowledgeResult.sources.map((source) => (
-                        <span className="phaseBadge" key={source.id}>
-                          {source.name}
-                        </span>
-                      ))}
-                    </div>
-                    <List
-                      title="Apoyos usados"
-                      items={knowledgeResult.evidence.map(
-                        (item) => `${item.id} · ${item.source_edition_id} · ${item.reference}`,
-                      )}
-                    />
-                    <List title="Relaciones seguidas" items={queryRelationPaths(knowledgeResult)} />
-                  </details>
-                  {knowledgeResult.cards.length > 0 ? (
-                    <div className="knowledgeGrid">
-                      {knowledgeResult.cards.map((card) => {
-                        const cardClaims = knowledgeResult.claims.filter(
-                          (claim) => claim.card_id === card.id,
-                        );
-                        const cardEvidenceIds = new Set(
-                          cardClaims.map((claim) => claim.evidence_id),
-                        );
-                        const cardEvidence = knowledgeResult.evidence.filter((item) =>
-                          cardEvidenceIds.has(item.id),
-                        );
-                        const rankingReasons = rankingReasonsForCard(knowledgeResult, card.id);
-
-                        return (
-                          <article className="knowledgeItem" key={card.id}>
-                            <strong>{card.name}</strong>
-                            <span>{card.definition}</span>
-                            <ValidationPill confidence={card.confidence} />
-                            {rankingReasons.length ? (
-                              <List title="Por qué sale" items={rankingReasons} />
-                            ) : null}
-                            <List
-                              title="Ideas que usa"
-                              items={cardClaims.map(
-                                (claim) =>
-                                  `${claim.statement} · ${validationLabel(claim.confidence)}`,
-                              )}
-                            />
-                            <List
-                              title="Apoyos"
-                              items={cardEvidence.map(
-                                (item) =>
-                                  `${item.reference}: ${item.excerpt} · ${validationLabel(
-                                    item.confidence,
-                                  )}`,
-                              )}
-                            />
-                            <button
-                              className="ghostButton"
-                              onClick={() => setSelectedKnowledgeCardId(card.id)}
-                              type="button"
-                            >
-                              Inspeccionar
-                            </button>
-                          </article>
-                        );
-                      })}
-                    </div>
-                  ) : (
-                    <article className="knowledgeItem">
-                      <strong>No hay ficha para esa búsqueda</strong>
-                      <span>
-                        Prueba con otra palabra, una materia más amplia o revisa las estanterías.
-                      </span>
-                    </article>
-                  )}
-                </>
-              ) : null}
-            </div>
-            <List title="Materias cubiertas" items={knowledge?.coverage ?? []} />
-            <List title="Límites actuales" items={knowledge?.gaps ?? []} />
-          </section>
+          <OficioLibrary
+            context={activeContext}
+            onProfileChanged={async () => {
+              setProfileKnowledgeCards(await getProfileKnowledgeCards());
+              setEditorialProfileCard(await getEditorialProfileCard(activeContext));
+            }}
+            profileCards={profileKnowledgeCards}
+          />
         )}
 
         {active === "preferences" && (
           <section className="panel editorGrid">
             <div className="editorPane">
-              <span className="fieldRole">Aqui escribes</span>
+              <span className="fieldRole">Aquí escribes</span>
               <h2>Contarle un gusto</h2>
               <p className="note">
                 Esto enseña cómo quieres escribir. No cambia la biblioteca ni sus fuentes.
@@ -3168,7 +2117,7 @@ function AppShell({
               <div className="preferenceList">
                 <h2>Gustos guardados</h2>
                 {preferences.length === 0 ? (
-                  <p className="note">Todavia no hay gustos guardados.</p>
+                  <p className="note">Todavía no hay gustos guardados.</p>
                 ) : (
                   preferences.map((item) => (
                     <article className="preferenceItem" key={item.id}>
@@ -3229,7 +2178,7 @@ function AppShell({
               </div>
             </div>
             <div className="inspector outputPane">
-              <span className="fieldRole">Aqui aparece la interpretacion</span>
+              <span className="fieldRole">Aquí aparece la interpretacion</span>
               <h2>Como lo entiende</h2>
               {preference ? (
                 <>
@@ -3251,7 +2200,7 @@ function AppShell({
                 <div className="proposalBox">
                   <h3>Como quedaria tu criterio</h3>
                   {scoreProposal.items.length === 0 ? (
-                    <p className="note">Este gusto todavia no genera cambios aplicables.</p>
+                    <p className="note">Este gusto todavía no genera cambios aplicables.</p>
                   ) : (
                     <>
                       {scoreProposal.items.map((item) => (
@@ -3275,7 +2224,7 @@ function AppShell({
         {active === "editor" && (
           <section className="panel editorGrid">
             <div className="editorPane">
-              <span className="fieldRole">Aqui escribes</span>
+              <span className="fieldRole">Aquí escribes</span>
               <h2>Borrador</h2>
               <p className="note">
                 Pega tu texto. Editados puede leerlo con fichas o crear una versión alternativa.
@@ -3444,7 +2393,7 @@ function AppShell({
               </div>
             </div>
             <div className="inspector outputPane">
-              <span className="fieldRole">Aqui sale la respuesta</span>
+              <span className="fieldRole">Aquí sale la respuesta</span>
               <h2>Salida</h2>
               {blockReviewing ? (
                 <div className="emptyOutput workingOutput">
@@ -3464,7 +2413,7 @@ function AppShell({
                 <div className="emptyOutput workingOutput">
                   <strong>Preparando propuesta</strong>
                   <p>
-                    Editados esta trabajando el texto. En cuanto llegue, veras la propuesta y sus
+                    Editados está trabajando el texto. En cuanto llegue, verás la propuesta y sus
                     cambios.
                   </p>
                 </div>
@@ -3472,10 +2421,10 @@ function AppShell({
                 generationHasNoChanges ? (
                   <>
                     <div className="emptyOutput noChangeOutput">
-                      <strong>Sin version nueva</strong>
+                      <strong>Sin versión nueva</strong>
                       <p>
                         El texto puede estar bien, o este modo no ha encontrado una mejora clara.
-                        No hay version nueva que aceptar.
+                        No hay versión nueva que aceptar.
                       </p>
                       {comparison ? (
                         <div className="comparisonSummary noChanges">
@@ -3599,11 +2548,11 @@ function AppShell({
                 <div className="proposalBox">
                   <h3>Lectura con fichas</h3>
                   <p className="note">
-                    Primero prueba la indicacion en tu texto. Luego decide por ficha: lo que marques se
-                    guarda en tu criterio, no cambia la biblioteca.
+                    Fichas de oficio elegidas por lo que aparece en tu texto. Decide en cada una: lo que
+                    marques se guarda en tu criterio y cambia qué fichas te propone Editados.
                   </p>
                   <div className="metricGrid">
-                    <Metric label="Base" value={knowledgeVersionPublicLabel(textRevision.version, latestPublishedKnowledgeVersion)} />
+                    <Metric label="Fichas" value={textRevision.steps.length} />
                     <Metric
                       label="Mirada"
                       value={
@@ -3631,14 +2580,14 @@ function AppShell({
                       <div className="revisionStepHeader">
                         <div>
                           <strong>{currentRevisionStep.label}</strong>
-                          <span>{revisionStepFocus(currentRevisionStep.card_id)}</span>
+                          <span>{oficioRamaLabel(currentRevisionStep.rama ?? "")}</span>
                         </div>
                         <span
                           className={
                             currentRevisionStep.status === "review" ? "statusPill warning" : "statusPill done"
                           }
                         >
-                          {currentRevisionStep.status === "review" ? "Revisar" : "Correcto"}
+                          {currentRevisionStep.status === "review" ? "Aparece en tu texto" : "Comprobación"}
                         </span>
                       </div>
                       <p className="revisionProgress">
@@ -3646,21 +2595,30 @@ function AppShell({
                       </p>
                       <div className="revisionStepGrid">
                         <div>
-                          <span className="revisionLabel">Por qué aplica</span>
+                          <span className="revisionLabel">Qué ve en tu texto</span>
                           <p>{currentRevisionStep.finding}</p>
                         </div>
                         <div>
-                          <span className="revisionLabel">Qué haría</span>
+                          <span className="revisionLabel">Regla</span>
                           <p>{currentRevisionStep.action}</p>
                         </div>
                         <div>
-                          <span className="revisionLabel">Cómo probarlo</span>
-                          <p>{revisionStepApplication(currentRevisionStep.card_id)}</p>
+                          <span className="revisionLabel">Ejemplo</span>
+                          {currentRevisionStep.example ? (
+                            <p>
+                              <s>{currentRevisionStep.example.mal}</s> → {currentRevisionStep.example.bien}{" "}
+                              <span className="note">{currentRevisionStep.example.porque}</span>
+                            </p>
+                          ) : (
+                            <p>—</p>
+                          )}
                         </div>
                       </div>
-                      <List title="Señales miradas" items={currentRevisionStep.signals.slice(0, 3)} />
-                      <List title="Cuidado con" items={currentRevisionStep.risks.slice(0, 2)} />
-                      <div className="buttonRow compactRow" aria-label={`Decision sobre ${currentRevisionStep.label}`}>
+                      <List title="Cuándo no aplica" items={currentRevisionStep.risks.slice(0, 2)} />
+                      {currentRevisionStep.source ? (
+                        <p className="note">Fuente: {currentRevisionStep.source}</p>
+                      ) : null}
+                      <div className="buttonRow compactRow" aria-label={`Decisión sobre ${currentRevisionStep.label}`}>
                         <button
                           className="secondaryButton"
                           disabled={revisionFeedbackBusyCard === currentRevisionStep.card_id}
@@ -3687,13 +2645,13 @@ function AppShell({
                           }
                           type="button"
                         >
-                          No va por ahi
+                          No va por ahí
                         </button>
                       </div>
                     </article>
                   ) : null}
                   <p className="note">
-                    Revisar no modifica la biblioteca publicada. Tus respuestas alimentan solo la ficha personal.
+                    Leer no modifica las fichas de oficio. Tus respuestas alimentan solo tu criterio.
                   </p>
                 </div>
               ) : null}
@@ -3706,11 +2664,11 @@ function AppShell({
         {active === "lab" && (
           <section className="panel editorGrid">
             <div>
-              <h2>Simulacion</h2>
+              <h2>Simulación</h2>
               <textarea value={labText} onChange={(event) => setLabText(event.target.value)} />
               <div className="editorControls">
                 <label>
-                  Accion
+                  Acción
                   <select
                     onChange={(event) => setLabAction(event.target.value as GenerationAction)}
                     value={labAction}
@@ -3795,7 +2753,7 @@ function AppShell({
               )}
               {labComparison ? (
                 <>
-                  <h2>Comparacion temporal</h2>
+                  <h2>Comparación temporal</h2>
                   <p className="note">{labComparison.summary}</p>
                   <Metric label="Modificacion temporal" value={labComparison.modification_score} />
                   <Metric label="Fidelidad temporal" value={labComparison.adequacy_score} />
@@ -3813,7 +2771,7 @@ function AppShell({
 
         {active === "profile" && (
           <section className="panel">
-            <h2>Lo que Editados sabe de mi</h2>
+            <h2>Lo que Editados sabe de mí</h2>
             <p className="note">
               Tus gustos, decisiones y ajustes personales. La biblioteca publicada no cambia.
             </p>
@@ -3853,7 +2811,7 @@ function AppShell({
                   items={
                     editorialProfileCard.maintained_elements.length
                       ? editorialProfileCard.maintained_elements
-                      : ["Todavia no has marcado elementos que mantener."]
+                      : ["Todavía no has marcado elementos que mantener."]
                   }
                 />
                 <List
@@ -3861,7 +2819,7 @@ function AppShell({
                   items={
                     editorialProfileCard.change_requests.length
                       ? editorialProfileCard.change_requests.map(formatRejectedPersonalCriterion)
-                      : ["Todavia no has descartado criterios personales."]
+                      : ["Todavía no has descartado criterios personales."]
                   }
                 />
                 <details className="queryTraceBox">
@@ -3885,7 +2843,7 @@ function AppShell({
                   <Metric label="Fichas guardadas" value={profileExport.knowledge_cards.length} />
                 </div>
                 <p className="note">
-                  Tu criterio personal esta separado de la biblioteca publicada.
+                  Tu criterio personal está separado de las fichas de oficio.
                 </p>
                 <List
                   title="Contextos guardados"
@@ -3983,7 +2941,7 @@ function AppShell({
             <div>
               <h2>Comparar textos</h2>
               <p className="note">
-                Contrasta tu borrador con una version propuesta sin cambiar tu perfil.
+                Contrasta tu borrador con una versión propuesta sin cambiar tu perfil.
               </p>
               <label className="fieldLabel" htmlFor="compareOriginal">
                 Original
@@ -3995,7 +2953,7 @@ function AppShell({
                 value={original}
               />
               <label className="fieldLabel" htmlFor="compareRevised">
-                Version propuesta
+                Versión propuesta
               </label>
               <textarea
                 id="compareRevised"
@@ -4008,7 +2966,7 @@ function AppShell({
               </button>
             </div>
             <div className="inspector">
-              <h2>Comparacion</h2>
+              <h2>Comparación</h2>
               {comparison ? (
                 <>
                   <Metric label="Cambios detectados" value={comparison.modification_score} />
@@ -4034,7 +2992,7 @@ function AppShell({
                           <DiffText side="original" tokens={comparisonDiffTokens} />
                         </div>
                         <div className="diffPanel">
-                          <strong>Version propuesta</strong>
+                          <strong>Versión propuesta</strong>
                           <DiffText side="revised" tokens={comparisonDiffTokens} />
                         </div>
                       </div>
@@ -4056,7 +3014,7 @@ function AppShell({
                 </>
               ) : (
                 <div className="emptyState">
-                  <strong>Sin comparacion todavia</strong>
+                  <strong>Sin comparación todavía</strong>
                   <p>
                     Pega dos versiones y pulsa Comparar. Si vienes desde una propuesta, Editados calcula
                     esta lectura automaticamente.
@@ -4149,7 +3107,7 @@ function AppShell({
               </div>
             </div>
             <div className="inspector">
-              <h2>Evaluacion</h2>
+              <h2>Evaluación</h2>
               {decisionEvaluation ? (
                 <>
                   <p>{decisionEvaluation.recommendation}</p>
@@ -4171,7 +3129,7 @@ function AppShell({
                   />
                 </>
               ) : (
-                <p className="note">La evaluacion usa el contexto activo.</p>
+                <p className="note">La evaluación usa el contexto activo.</p>
               )}
             </div>
           </section>
@@ -4195,7 +3153,7 @@ function AppShell({
             <div className="inspector">
               <h2>Textos</h2>
               {generatedTexts.length === 0 ? (
-                <p className="note">Todavia no hay textos generados en este contexto.</p>
+                <p className="note">Todavía no hay textos generados en este contexto.</p>
               ) : (
                 <div className="auditList">
                   {generatedTexts.slice(0, 5).map((text) => (
@@ -4217,7 +3175,7 @@ function AppShell({
 
         {active === "cerebro" && (
           <section className="panel">
-            <h2>Revision de cantera</h2>
+            <h2>Revisión de cantera</h2>
             <div className="knowledgeGrid">
               {cerebroCandidates.map((candidate) => (
                 <article className="knowledgeItem" key={candidate.component}>
@@ -4462,7 +3420,7 @@ function AppShell({
                 </select>
               </div>
               {writerFacingAuditEvents.length === 0 ? (
-                <p className="note">Todavia no hay eventos registrados.</p>
+                <p className="note">Todavía no hay eventos registrados.</p>
               ) : (
                 <div className="auditList">
                   {displayedAuditEvents.map((event) => (
@@ -4555,7 +3513,7 @@ function auditHumanSummary(event: AuditEvent) {
     return `Se trabajó un texto con la acción ${stringPayloadValue(payload.action, "generar")} en contexto ${stringPayloadValue(payload.context, "general")}.`;
   }
   if (event.event_type === "text.revision.executed") {
-    return `Se revisó un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} usando la biblioteca publicada.`;
+    return `Se revisó un borrador con objetivo ${stringPayloadValue(payload.intention, "claridad")} con fichas de oficio.`;
   }
   if (event.event_type === "text.revision.feedback_recorded") {
     return `Se guardó tu decisión sobre una ficha de revisión: ${stringPayloadValue(payload.stance, "feedback")}.`;
@@ -4670,6 +3628,19 @@ function profileKnowledgeCardStanceLabel(stance: string) {
   return labels[stance] ?? stance;
 }
 
+const oficioRamaLabels: Record<string, string> = {
+  lengua: "La lengua como material",
+  recursos: "Recursos expresivos",
+  composicion: "Composición",
+  voz: "Voz y estilo",
+  generos: "Géneros y sus técnicas",
+  criterio: "Criterio",
+};
+
+function oficioRamaLabel(rama: string) {
+  return oficioRamaLabels[rama] ?? "Ficha de oficio";
+}
+
 function revisionStepFocus(cardId: string) {
   const labels: Record<string, string> = {
     "card-diagnostico-de-reescritura": "Mira el recorrido general antes de tocar frases.",
@@ -4680,7 +3651,7 @@ function revisionStepFocus(cardId: string) {
     "card-revision-de-tono": "Mira voz, distancia, registro y continuidad de estilo.",
     "card-limpieza-final": "Mira puntuacion, espacios, repeticiones y cierre.",
   };
-  return labels[cardId] ?? "Mira una ficha editorial relacionada con esta revision.";
+  return labels[cardId] ?? "Mira una ficha editorial relacionada con esta revisión.";
 }
 
 function revisionStepApplication(cardId: string) {
@@ -4758,7 +3729,7 @@ function payloadList(value: unknown) {
 }
 
 function validationLabel(confidence: number) {
-  return confidence >= 0.7 ? "Validado" : "Validacion pendiente";
+  return confidence >= 0.7 ? "Validado" : "Validación pendiente";
 }
 
 const GYM_CHECK_LABELS: Record<string, string> = {

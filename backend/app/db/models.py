@@ -174,6 +174,33 @@ class ProfileKnowledgeCardRecord(Base):
     updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
 
 
+class ProfileOficioFichaRecord(Base):
+    """Postura del usuario ante una ficha de oficio (docs/POLITICA_CONOCIMIENTO.md).
+
+    Mismas columnas que ProfileKnowledgeCardRecord para reutilizar el flujo de
+    criterio personal; card_id guarda el id de la ficha y knowledge_version es
+    siempre «oficio». Sin claves ajenas a la base antigua.
+    """
+
+    __tablename__ = "profile_oficio_fichas"
+    __table_args__ = (
+        UniqueConstraint("profile_id", "card_id", name="uq_profile_oficio_ficha"),
+    )
+
+    id: Mapped[str] = mapped_column(String(36), primary_key=True)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    card_id: Mapped[str] = mapped_column(String(80), nullable=False, index=True)
+    knowledge_version: Mapped[str] = mapped_column(String(80), nullable=False, default="oficio")
+    stance: Mapped[str] = mapped_column(String(40), nullable=False, index=True)
+    user_score: Mapped[int] = mapped_column(Integer, nullable=False)
+    feedback: Mapped[str] = mapped_column(Text, nullable=False)
+    maintained_elements: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    change_requests: Mapped[list[str]] = mapped_column(JSON, nullable=False, default=list)
+    notes: Mapped[str] = mapped_column(Text, nullable=False, default="")
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class KnowledgeVersionRecord(Base):
     __tablename__ = "knowledge_versions"
 

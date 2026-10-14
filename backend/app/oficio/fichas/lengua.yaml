@@ -423,3 +423,28 @@
   relaciones:
     - tipo: requiere
       ficha: matices-protegidos
+
+- id: limpieza-final
+  rama: lengua
+  nombre: Limpieza final
+  regla: >-
+    Antes de dar un texto por terminado se quitan las erratas mecánicas: palabras
+    duplicadas por descuido («también también»), espacios dobles, espacio antes de coma o
+    punto y falta de punto final.
+  aplica: >-
+    Repasos de limpieza y correcciones.
+  no_aplica: >-
+    Repeticiones buscadas («muy, muy lejos», «nunca, nunca») llevan coma y son recurso.
+  ejemplos:
+    - mal: "Llegó tarde ,y  también también cansado"
+      bien: "Llegó tarde, y también cansado."
+      porque: "Espacio antes de coma, espacio doble, palabra duplicada y falta el punto."
+  fuente:
+    obra: "Ortografía de la lengua española (RAE y ASALE, 2010)"
+    localizador: "cap. III, signos de puntuación (uso del espacio)"
+  senales:
+    - patron: '\b(\w{3,})\s+\1\b'
+    - patron: '\S {2,}\S'
+    - patron: '\w\s+[,.;:!?]'
+  base:
+    miradas: [limpieza]

@@ -7,7 +7,7 @@ const page = await browser.newPage();
 
 try {
   await page.goto(frontendUrl, { waitUntil: "domcontentloaded" });
-  await page.getByRole("button", { name: "Mi criterio" }).click();
+  await page.getByRole("link", { name: "Mi criterio" }).click();
   await page.getByLabel("Vista").selectOption("profile");
 
   const exportResponse = page.waitForResponse(
@@ -24,7 +24,7 @@ try {
   await exportBox.locator(".metric", { hasText: "Contextos" }).waitFor();
   await exportBox.locator(".metric", { hasText: "Gustos" }).waitFor();
   await exportBox
-    .getByText("Tu criterio personal esta separado de la biblioteca publicada.")
+    .getByText("Tu criterio personal está separado de las fichas de oficio.")
     .waitFor();
   await exportBox.getByText("Contextos guardados").waitFor();
   await exportBox.getByText("Ver datos de guardado").waitFor();
