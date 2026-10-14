@@ -1132,3 +1132,22 @@ export type EditorialLine = {
   fichas: Array<{ id: string; nombre: string; peso: number; motivo: string; aceptadas: number; descartadas: number }>;
   apertura_replanteamiento: number | null;
 };
+
+export type FichaAutorEditable = {
+  presentacion: string;
+  me_gusta: string[];
+  evito: string[];
+  notas: string;
+};
+
+export type FichaAutor = {
+  version: number;
+  updated_at: string | null;
+  editable: FichaAutorEditable;
+  gustos_aceptados: string[];
+  gustos_rechazados: string[];
+  posturas: Array<{ id: string; nombre: string; postura: string }>;
+  linea: string[];
+  rasgos: Array<{ clave: string; texto: string; nivel: string; seguridad: number; propio: boolean }>;
+  prompt: string;
+};

@@ -37,17 +37,16 @@ DIRECTION_PREFIX = "direcciones="
 def interpret_preference(payload: PreferenceInput) -> Preference:
     text = canonical_text(payload.text)
     directions = _variable_directions(text)
+    # Un gusto sin rasgo reconocible no se fuerza a ninguno: llega al modelo tal cual,
+    # con las palabras del autor, a través de su ficha (app/autor/ficha.py).
     affected = sorted(directions)
-    if not affected:
-        affected = ["precision_lexica"]
-        directions = {"precision_lexica": 1}
 
     calculated = initial_calculated_value(payload.text)
     evidence = Evidence(
         evidence_type=payload.input_type,
         source="user_input",
         summary=(
-            f"Entrada interpretada para {', '.join(affected)} con fuerza inicial {calculated}. "
+            f"Entrada interpretada para {', '.join(affected) or 'ningún rasgo general'} con fuerza inicial {calculated}. "
             f"{DIRECTION_PREFIX}{_serialize_directions(directions)}"
         ),
         weight=calculated / 1000,

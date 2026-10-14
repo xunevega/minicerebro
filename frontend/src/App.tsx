@@ -156,6 +156,7 @@ import {
 } from "./library";
 import { defaultTabForPath, sectionPaths, titleForSection } from "./navigation";
 import { DiagnosisNote, FichasDetalle } from "./FichasDetalle";
+import { FichaAutor } from "./FichaAutor";
 import { LineaEditorial } from "./LineaEditorial";
 import { OficioLibrary } from "./OficioLibrary";
 
@@ -2075,6 +2076,8 @@ function AppShell({
             profileCards={profileKnowledgeCards}
           />
         )}
+
+        {active === "preferences" && <FichaAutor context={activeContext} email={auth?.user?.email} />}
 
         {active === "preferences" && <LineaEditorial />}
 

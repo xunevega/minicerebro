@@ -246,6 +246,27 @@ class OficioPropuestaRecord(Base):
     decided_by: Mapped[str] = mapped_column(String(200), nullable=False, default="")
 
 
+class FichaAutorRecord(Base):
+    """Ficha del autor: lo que cada cuenta escribe sobre su criterio, con versión."""
+
+    __tablename__ = "fichas_autor"
+
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), primary_key=True)
+    data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    version: Mapped[int] = mapped_column(Integer, nullable=False, default=1)
+    updated_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
+class FichaAutorVersionRecord(Base):
+    __tablename__ = "fichas_autor_versiones"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    profile_id: Mapped[str] = mapped_column(ForeignKey("profiles.id"), nullable=False, index=True)
+    version: Mapped[int] = mapped_column(Integer, nullable=False)
+    data: Mapped[dict] = mapped_column(JSON, nullable=False)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), nullable=False)
+
+
 class OficioDiagnosticoRecord(Base):
     """Caché del diagnóstico previo: el mismo texto con las mismas opciones da lo mismo."""
 

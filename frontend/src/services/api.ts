@@ -82,6 +82,8 @@ import type {
   OficioFichaVersion,
   OficioPropuesta,
   EditorialLine,
+  FichaAutor,
+  FichaAutorEditable,
   V1Screen,
 } from "../types/api";
 
@@ -866,6 +868,30 @@ export function recordGenerationOutcome(
   return request<{ recorded: boolean }>("/generation/outcome", {
     method: "POST",
     body: JSON.stringify({ decision, fichas, action, no_aplicadas: noAplicadas }),
+  });
+}
+
+export function getFichaAutor(context = "general") {
+  return request<FichaAutor>(`/profile/ficha-autor?context=${encodeURIComponent(context)}`);
+}
+
+export function saveFichaAutor(data: FichaAutorEditable) {
+  return request<{ editable: FichaAutorEditable; version: number }>("/profile/ficha-autor", {
+    method: "PUT",
+    body: JSON.stringify(data),
+  });
+}
+
+export function getFichaAutorVersions() {
+  return request<Array<{ version: number; data: FichaAutorEditable; created_at: string }>>(
+    "/profile/ficha-autor/versiones",
+  );
+}
+
+export function restoreFichaAutor(version: number) {
+  return request<{ editable: FichaAutorEditable; version: number }>("/profile/ficha-autor/restaurar", {
+    method: "POST",
+    body: JSON.stringify({ version }),
   });
 }
 

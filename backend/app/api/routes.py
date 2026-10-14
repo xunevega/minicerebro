@@ -8,6 +8,8 @@ from fastapi import APIRouter, BackgroundTasks, Body, Depends, HTTPException, Re
 
 from app.acceptance.service import v1_acceptance_criteria
 from app.api.deps import get_actor, get_repository, resolve_profile_id
+from app.autor import ficha as ficha_autor
+from app.autor.ficha import FichaAutorInput, compile_ficha, ficha_prompt
 from app.cerebro_audit.service import cerebro_audit_candidates, cerebro_audit_gates
 from app.closure.service import (
     closure_conditions,
@@ -17,12 +19,11 @@ from app.closure.service import (
 )
 from app.comparison.service import compare_texts
 from app.core.models import (
-    BlockReviewInput,
-    BlockReviewResult,
-    ReviewChoicesInput,
     AcceptanceCriterion,
     ApplyProfileKnowledgeCardScoreInput,
     ApplyScoreProposalInput,
+    BlockReviewInput,
+    BlockReviewResult,
     CerebroAuditCandidate,
     CerebroAuditGate,
     ClosureCondition,
@@ -86,6 +87,7 @@ from app.core.models import (
     ProfileKnowledgeCard,
     ProfileKnowledgeCardInput,
     ProfileKnowledgeCardScoreProposal,
+    ReviewChoicesInput,
     RevisionFeedbackInput,
     RevisionFeedbackResult,
     ScorePatch,
@@ -106,16 +108,16 @@ from app.core.security import (
 from app.decision.service import decision_rules, evaluate_decision_state
 from app.feedback.service import build_feedback_proposal
 from app.generation.service import GenerationUnavailable, rewrite_with_profile
+from app.observability.service import observability_metrics
 from app.oficio import load_fichas, oficio_block
 from app.oficio import store as oficio_store
-from app.oficio.comprobacion import check_application
 from app.oficio.aprendizaje import build_line, line_prompt
+from app.oficio.comprobacion import check_application
 from app.oficio.diagnostico import select_with_diagnosis
 from app.oficio.mejoras import run_improvements, run_in_background
-from app.review.service import ReviewTooLong, review_blocks
-from app.observability.service import observability_metrics
 from app.persistence.service import persistence_domains
 from app.preferences.service import build_score_proposal, interpret_preference
+from app.review.service import ReviewTooLong, review_blocks
 from app.roadmap.service import technical_roadmap
 from app.scoring.service import apply_manual_override, score_out
 from app.ui.service import v1_screens
@@ -1187,7 +1189,12 @@ def _oficio_notes(
     """Fichas de oficio elegidas por diagnóstico (docs/POLITICA_CONOCIMIENTO.md)."""
     preferences = repository.oficio_stances(profile_id) if repository is not None and profile_id else None
     fichas = oficio_store.active_fichas(repository.session) if repository is not None else load_fichas()
-    linea = build_line(repository.session, profile_id) if repository is not None else None
+    linea = build_line(repository.session, profile_id) if repository is not None and profile_id else None
+    autor_text = (
+        ficha_prompt(compile_ficha(repository, profile_id, payload.context, fichas))
+        if repository is not None and profile_id
+        else ""
+    )
     selected, diagnosis = select_with_diagnosis(
         repository.session if repository is not None else None,
         payload.text,
@@ -1198,6 +1205,7 @@ def _oficio_notes(
         instruction=payload.user_instruction,
         fichas=fichas,
         learned=linea.pesos() if linea is not None else None,
+        autor=autor_text,
     )
     if repository is not None:
         # Trazabilidad: qué fichas recibió el modelo y por qué. Nunca el texto.
@@ -1221,9 +1229,10 @@ def _oficio_notes(
         )
         repository.session.commit()
     block = oficio_block(selected)
-    line_text = line_prompt(linea) if linea is not None else ""
-    if line_text:
-        block = f"{block}\n\n{line_text}" if block else line_text
+    # La ficha del autor ya incluye su línea editorial; sin ficha, va la línea sola.
+    extra = autor_text or (line_prompt(linea) if linea is not None else "")
+    if extra:
+        block = f"{block}\n\n{extra}" if block else extra
     return block, selected, diagnosis
 
 
@@ -1390,6 +1399,37 @@ def oficio_propuesta_rechazar(proposal_id: str, repository: RepositoryDep, actor
         raise _invalid(exc) from exc
     repository.session.commit()
     return result
+
+
+@router.get("/profile/ficha-autor")
+def get_ficha_autor(repository: RepositoryDep, actor: ActorDep, context: str = "general") -> dict:
+    """Tu ficha de autor: lo que escribes de ti y lo que Editados sabe por tus datos."""
+    fichas = oficio_store.active_fichas(repository.session)
+    compiled = compile_ficha(repository, actor.profile_id, context, fichas)
+    compiled["prompt"] = ficha_prompt(compiled)
+    return compiled
+
+
+@router.put("/profile/ficha-autor")
+def put_ficha_autor(payload: FichaAutorInput, repository: RepositoryDep, actor: ActorDep) -> dict:
+    data, version = ficha_autor.save_editable(repository.session, actor.profile_id, payload)
+    repository.add_audit_event("autor.ficha.saved", "profile", actor.profile_id, {"version": version})
+    repository.session.commit()
+    return {"editable": data, "version": version}
+
+
+@router.get("/profile/ficha-autor/versiones")
+def get_ficha_autor_versions(repository: RepositoryDep, actor: ActorDep) -> list[dict]:
+    return ficha_autor.versions(repository.session, actor.profile_id)
+
+
+@router.post("/profile/ficha-autor/restaurar")
+def restore_ficha_autor(repository: RepositoryDep, actor: ActorDep, payload: JsonBody) -> dict:
+    try:
+        data, version = ficha_autor.restore(repository.session, actor.profile_id, int(payload.get("version", -1)))
+    except (KeyError, ValueError) as exc:
+        raise HTTPException(status_code=404, detail="Versión no encontrada") from exc
+    return {"editable": data, "version": version}
 
 
 @router.get("/profile/linea-editorial")

@@ -51,6 +51,8 @@ Responde solo con JSON:
 {{"candidatas": {{"<id>": true|false}}, "anadidas": [{{"id": "<id>", "fragmento": "<cita literal>"}}]}}
 
 Acción: {accion}. Tipo de texto: {genero}. Dirección del autor: {direccion}
+No marques como problema lo que el autor elige a propósito según su ficha:
+{autor}
 
 Candidatas:
 {candidatas}
@@ -163,6 +165,7 @@ def diagnose(
     fichas: dict[str, Ficha],
     preferences: dict[str, str] | None = None,
     call_model=None,
+    autor: str = "",
 ) -> tuple[Diagnosis | None, dict]:
     """Devuelve el diagnóstico (o None) y un resumen legible para «Ver detalles»."""
     call_model = call_model or _call_model
@@ -187,6 +190,7 @@ def diagnose(
         "direccion": instruction.strip(),
         "candidatas": candidate_lines,
         "indice": index_lines,
+        "autor": autor,
     })
 
     cached = session.get(OficioDiagnosticoRecord, key) if session is not None else None
@@ -198,6 +202,7 @@ def diagnose(
             accion=action,
             genero=genre.strip() or "sin declarar",
             direccion=instruction.strip() or "ninguna",
+            autor=autor or "(sin ficha del autor)",
             candidatas="\n".join(candidate_lines),
             indice="\n".join(index_lines),
             texto=texto,
@@ -237,10 +242,11 @@ def select_with_diagnosis(
     limit: int | None = None,
     call_model=None,
     learned: dict[str, tuple[float, str]] | None = None,
+    autor: str = "",
 ) -> tuple[list[SelectedFicha], dict]:
     diagnosis, summary = diagnose(
         session, text, action, intention=intention, genre=genre, instruction=instruction,
-        fichas=fichas, preferences=preferences, call_model=call_model,
+        fichas=fichas, preferences=preferences, call_model=call_model, autor=autor,
     )
     kwargs = {"limit": limit} if limit is not None else {}
     selected = select_fichas(

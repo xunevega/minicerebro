@@ -71,6 +71,8 @@ def get_actor(
     needs_session = method != "GET" or path.startswith(
         (
             "/profiles",
+            "/profile/",
+            "/oficio/propuestas",
             "/preferences",
             "/texts",
             "/audit",
